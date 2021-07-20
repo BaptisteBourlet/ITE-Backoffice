@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Expedition Planning</title>
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+
+
+  <!-- <link rel="stylesheet" type="text/css" href="./fontawesome-free-5.3.1-web/css/all.css" /> -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+  <!-- <link rel="stylesheet" type="text/css" href="/fontawesome-free-5.3.1-web/css/all.css" /> -->
+  <!-- global variables and declarations -->
+  <style>
+    .grid-image {
+      width: auto;
+      height: 70px;
+    }
+  </style>
+  <script type="text/javascript">
+    //=========================================================================================================
+    //		           APPLICATION START
+    // ========================================================================================================
+    Ext.onReady(() => {
+
+
+      const Model = Ext.define("ALLPRODUCTS", {
+        extend: "Ext.data.Model",
+        fields: ["Id", "Catalog", "Description", "Path"],
+      });
+
+      const mainGridColumns = [
+        {
+          header: "Product ID",
+          sortable: true,
+          width: 100,
+          dataIndex: "Id",
+        },
+        {
+          header: "Image",
+          sortable: true,
+          width: 200,
+          dataIndex: "Path",
+          renderer: (value) => {
+            return `<img class="grid-image" src='https://cdinvest.imageert.be/ite/assets/${value}'/>`
+          }
+        },
+        {
+          header: "Product Name",
+          sortable: true,
+          width: 300,
+          dataIndex: "Catalog",
+        },
+        {
+          header: "Description",
+          sortable: true,
+          width: 400,
+          dataIndex: "Description",
+        },
+
+
+      ];
+      const mainStore = Ext.create("Ext.data.Store", {
+        id: "mainStore",
+        autoLoad: true,
+        model: Model,
+        proxy: {
+          type: "ajax",
+          method: "POST",
+          url: "/api/getAllProducts",
+          noCache: true,
+          reader: {
+            type: "json",
+            rootProperty: "allProducts",
+            totalProperty: "totalCount",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
+        }
+      });
+
+      const AllProductGrid = Ext.create("Ext.grid.GridPanel", {
+        id: "AllProductGrid",
+        flex: 1,
+        scrollable: true,
+        title: "All ITE Products",
+        trackOver: true,
+        loadMask: true,
+        store: mainStore, // store
+        columns: mainGridColumns, //columns
+        enableColumnMove: false,
+        sortable: true,
+        frame: false,
+        renderTo: Ext.getBody(),
+        height: 700,
+
+        dockedItems: [
+          {
+            xtype: "toolbar",
+            dock: "top",
+            id: "bottomToolBar",
+            items: [
+              {
+                xtype: 'button',
+                id: "add",
+                text: 'New',
+                // iconCls: "fa fa-plus-circle",
+                scale: "small",
+                handler: function () {
+
+                },
+              },
+              "-",
+              {
+                xtype: 'button',
+                id: "edit",
+                text: 'Edit',
+                scale: "small",
+                handler: function () {
+
+                },
+              },
+              "-",
+              {
+                xtype: 'button',
+                id: "delete",
+                text: 'Delete',
+                scale: "small",
+                handler: function () {
+
+                },
+              },
+            ],
+          },
+        ],
+      });
+
+
+      const sideBar = Ext.create('Ext.panel.Panel', {
+        id: "sideBar",
+        trackOver: true,
+        title: 'Navigation',
+        loadMask: true,
+        header: true,
+        width: 300,
+        layout: "hbox",
+        renderTo: Ext.getBody(),
+        items: [
+          {
+            xtype: "container",
+            width: "100%",
+            layout: {
+              type: "vbox",
+              align: "stretch",
+            },
+            items: [
+              {
+                xtype: 'container',
+                layout: 'vbox',
+                id: 'navigation',
+                items: [
+                  {
+
+                  }
+                ]
+              }
+            ],
+          },
+        ],
+      });
+
+
+
+
+      const mainPanel = Ext.create('Ext.panel.Panel', {
+        id: "mainPanel",
+        title: 'ADMIN DASHDOARD',
+        flex: 1,
+        trackOver: true,
+        loadMask: true,
+        header: true,
+        height: 600,
+        renderTo: Ext.getBody(),
+        items: [
+          {
+            xtype: "container",
+            width: "100%",
+            layout: {
+              type: "hbox",
+              align: "stretch",
+            },
+            items: [sideBar, AllProductGrid],
+          },
+        ],
+      });
+
+
+      const addEditPanel = Ext.create('Ext.panel.Panel', {
+        title: 'Add New Product',
+        
+      })
+
+
+
+      //=========================================================================================================
+      //		           VIEW PORT
+      // ========================================================================================================
+
+      Ext.create("Ext.container.Viewport", {
+        id: "viewport",
+        layout: "card",
+        activeItem: 0,
+        items: [mainPanel],
+      });
+    })
+
+  </script>
+</head>
+
+<body></body>
+
+</html>
