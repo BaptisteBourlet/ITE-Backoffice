@@ -8,16 +8,29 @@
   <title>Expedition Planning</title>
   <link rel="stylesheet" type="text/css"
     href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
-
-
-  <!-- <link rel="stylesheet" type="text/css" href="./fontawesome-free-5.3.1-web/css/all.css" /> -->
+  <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
-  <!-- <link rel="stylesheet" type="text/css" href="/fontawesome-free-5.3.1-web/css/all.css" /> -->
-  <!-- global variables and declarations -->
   <style>
     .grid-image {
       width: auto;
       height: 70px;
+    }
+
+    .x-grid-cell-inner {
+      overflow: hidden;
+      padding: 10px 6px;
+      white-space: nowrap;
+    }
+
+    .a span {
+      background-color: rgb(253, 253, 253);
+      padding: 2px;
+      color: black;
+    }
+
+    .fieldClass {
+      border-bottom: 1px dashed rgb(173, 173, 173);
+      padding: 7px 0px;
     }
   </style>
   <script type="text/javascript">
@@ -26,39 +39,141 @@
     // ========================================================================================================
     Ext.onReady(() => {
 
+      const relatedProducts = (products) => {
+        if (products[0].Code !== null) {
+          return products.map(product => {
+            return {
+              xtype: 'button',
+              text: `${product.Description} [${product.Code}]`,
+              cls: 'a',
+              style: "border: none; margin: 2px 0px;",
+              handler: () => {
+                Ext.getCmp('relatedProductContainer').removeAll();
+                getProductDetails(product.LinkedProductID);
+                Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${product.Code}`)
+                Ext.getCmp('viewport').setActiveItem('productDetails');
+              }
+            }
+          })
+        } else {
+          return [{
+            xtype: 'displayfield',
+            fieldLabel: '<b>Result</b>',
+            value: '<b>No Related Products</b>',
+            labelWidth: 44
+          }]
+        }
+
+
+      }
+
+      const getProductDetails = (productId) => {
+        sessionStorage.setItem('productId', productId);
+
+        Ext.Ajax.request({
+          url: "/api/getProductDetails",
+          method: "GET",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            productId: productId
+          },
+
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+            displayProductInfo(res[0][0]);
+            Ext.getCmp('relatedProductContainer').add(relatedProducts(res[1]))
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      }
+
+      const displayProductInfo = (product) => {
+        Ext.getCmp('productName').setValue(product.Catalog);
+        Ext.getCmp('productCode').setValue(product.CODE);
+        Ext.getCmp('as400Code').setValue(product.As400Code);
+        Ext.getCmp('description').setValue(product.Description);
+        Ext.getCmp('fullDescription').setValue(product.FullDescription);
+        Ext.getCmp('specification').setValue(product.Specification);
+      }
+
+      const searchProduct = (searchField, searchTarget) => {
+        let searchQuery = Ext.getCmp(searchField).getValue();
+        Ext.Ajax.request({
+          url: "/api/searchProduct",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+
+          params: {
+            searchQuery: searchQuery,
+            searchTarget: searchTarget
+          },
+
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+
+            res
+              ? mainStore.setData(res)
+              : console.log("no response received");
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      };
 
       const Model = Ext.define("ALLPRODUCTS", {
         extend: "Ext.data.Model",
-        fields: ["Id", "Catalog", "Description", "Path"],
+        fields: ["Id", "Catalog", "Description"],
       });
 
       const mainGridColumns = [
         {
           header: "Product ID",
           sortable: true,
-          width: 100,
+          width: 80,
           dataIndex: "Id",
+          align: "center",
         },
         {
-          header: "Image",
+          header: "Product Code",
           sortable: true,
-          width: 200,
-          dataIndex: "Path",
+          width: 130,
+          dataIndex: "CODE",
+          align: "center",
           renderer: (value) => {
-            return `<img class="grid-image" src='https://cdinvest.imageert.be/ite/assets/${value}'/>`
+            return `<b>${value}</b>`
           }
+        },
+        {
+          header: "As400Code",
+          sortable: true,
+          width: 100,
+          dataIndex: "As400Code",
+          align: "center",
+
         },
         {
           header: "Product Name",
           sortable: true,
-          width: 300,
+          width: 350,
           dataIndex: "Catalog",
         },
         {
           header: "Description",
           sortable: true,
-          width: 400,
+          width: 500,
           dataIndex: "Description",
+        },
+        {
+          header: "Count",
+          sortable: true,
+          width: 100,
+          dataIndex: "Count",
+          hidden: true,
         },
 
 
@@ -79,8 +194,238 @@
           },
           cors: true,
           useDefaultXhrHeader: false,
+        },
+        listeners: {
+          beforeload: function (store) {
+          },
+        },
+      });
+
+      const firstCatModel = Ext.define("FIRSTCAT", {
+        extend: "Ext.data.Model",
+        fields: ["WorkingTitle", "Id"],
+      });
+
+      const firstCatStore = Ext.create("Ext.data.Store", {
+        id: "firstCatStore",
+        autoLoad: true,
+        model: firstCatModel,
+        proxy: {
+          type: "ajax",
+          method: "POST",
+          url: "/api/getFirstCat",
+          noCache: true,
+          reader: {
+            type: "json",
+            rootProperty: "firstCat",
+            totalProperty: "totalCount",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
         }
       });
+      const secondCatStore = Ext.create("Ext.data.Store", {
+        id: "secondCatStore",
+        autoLoad: true,
+        model: firstCatModel,
+        proxy: {
+          type: "ajax",
+          method: "POST",
+          url: "/api/getSecondCat",
+          noCache: true,
+          reader: {
+            type: "json",
+            rootProperty: "secondCat",
+            totalProperty: "totalCount",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
+        },
+        listeners: {
+          beforeload: function (store) {
+          },
+        },
+      });
+
+
+      const thirdCatStore = Ext.create("Ext.data.Store", {
+        id: "thirdCatStore",
+        autoLoad: true,
+        model: firstCatModel,
+        proxy: {
+          type: "ajax",
+          method: "POST",
+          url: "/api/getThirdCat",
+          noCache: true,
+          reader: {
+            type: "json",
+            rootProperty: "thirdCat",
+            totalProperty: "totalCount",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
+        },
+        listeners: {
+          beforeload: function (store) {
+          },
+        },
+      });
+
+      const tbarItems = [
+        {
+          xtype: "toolbar",
+          dock: "top",
+          id: "bottomToolBar",
+          items: [
+            {
+              xtype: 'button',
+              id: "add",
+              iconCls: "fa fa-plus-circle",
+              text: 'New',
+              scale: "small",
+              handler: function () {
+
+              },
+            },
+            "-",
+            {
+              xtype: 'button',
+              id: "edit",
+              text: 'Edit',
+              iconCls: "fa fa-edit",
+              scale: "small",
+              handler: function () {
+
+              },
+            },
+            "-",
+            {
+              xtype: 'button',
+              id: "delete",
+              text: 'Delete',
+              iconCls: "fa fa-trash-alt",
+              scale: "small",
+              handler: function () {
+
+              },
+            },
+          ],
+        },
+        {
+          xtype: "toolbar",
+          dock: "top",
+          id: "searchBar",
+          items: [
+            {
+              xtype: 'textfield',
+              id: "searchProductCode",
+              iconCls: "fa fa-search",
+              width: 200,
+              labelWidth: 20,
+              style: "margin-left: 5px; color: grey;",
+              emptyText: "Search Product Code...",
+              listeners: {
+                change: () => {
+                  searchProduct('searchProductCode', 'productCode');
+                }
+              }
+            },
+            {
+              xtype: 'textfield',
+              id: "searchProductName",
+              iconCls: "fa fa-search",
+              width: 200,
+              labelWidth: 20,
+              style: "margin-left: 5px; color: grey;",
+              emptyText: "Search Product Name...",
+              listeners: {
+                change: () => {
+                  searchProduct('searchProductName', 'productName');
+                }
+              }
+            },
+            {
+              xtype: 'button',
+              id: "resetSearch",
+              iconCls: "fas fa-undo-alt",
+              text: "reset",
+              style: "padding: 7px; border: none; background-color: #000",
+              listeners: {
+                click: () => {
+                  Ext.getCmp('searchProductName').setValue("");
+                  Ext.getCmp('searchProductCode').setValue("");
+                  mainStore.reload();
+                }
+              }
+            },
+          ],
+        },
+        {
+          xtype: "toolbar",
+          dock: "top",
+          id: "toptool",
+          items: [
+            {
+              xtype: 'combobox',
+              id: "category1",
+              store: firstCatStore,
+              width: 300,
+              displayField: 'WorkingTitle',
+              valueField: 'Id',
+              forceSelection: false,
+              editable: false,
+              typeAhead: true,
+              mode: 'local',
+              triggerAction: 'all',
+              listeners: {
+                change: () => {
+                  Ext.getCmp('category2').setValue('')
+                  secondCatStore.getProxy().setExtraParam('firstCat', Ext.getCmp('category1').getValue());
+                  secondCatStore.reload()
+                }
+              }
+            },
+            "-",
+            {
+              xtype: 'combobox',
+              id: "category2",
+              width: 250,
+              store: secondCatStore,
+              displayField: 'WorkingTitle',
+              valueField: 'Id',
+              forceSelection: false,
+              editable: false,
+              typeAhead: true,
+              mode: 'local',
+              triggerAction: 'all',
+              listeners: {
+                change: () => {
+                  Ext.getCmp('category3').setValue('')
+                  thirdCatStore.getProxy().setExtraParam('secondCat', Ext.getCmp('category2').getValue());
+                  thirdCatStore.reload()
+                }
+              }
+            },
+            "-",
+            {
+              xtype: 'combobox',
+              id: "category3",
+              width: 250,
+              store: thirdCatStore,
+              displayField: 'WorkingTitle',
+              valueField: 'Id',
+              forceSelection: false,
+              editable: false,
+              typeAhead: true,
+              mode: 'local',
+              triggerAction: 'all',
+              handler: function () {
+
+              },
+            },
+          ],
+        },
+      ]
 
       const AllProductGrid = Ext.create("Ext.grid.GridPanel", {
         id: "AllProductGrid",
@@ -95,47 +440,57 @@
         sortable: true,
         frame: false,
         renderTo: Ext.getBody(),
-        height: 700,
+        height: 690,
+        dockedItems: [...tbarItems],
+        listeners: {
+          dblclick: {
+            element: "body",
+            fn: () => {
+              const selectedRecord = Ext.getCmp("AllProductGrid").getSelectionModel().getSelection()[0];
+              getProductDetails(selectedRecord.data.Id);
 
-        dockedItems: [
-          {
-            xtype: "toolbar",
-            dock: "top",
-            id: "bottomToolBar",
-            items: [
-              {
-                xtype: 'button',
-                id: "add",
-                text: 'New',
-                // iconCls: "fa fa-plus-circle",
-                scale: "small",
-                handler: function () {
-
-                },
-              },
-              "-",
-              {
-                xtype: 'button',
-                id: "edit",
-                text: 'Edit',
-                scale: "small",
-                handler: function () {
-
-                },
-              },
-              "-",
-              {
-                xtype: 'button',
-                id: "delete",
-                text: 'Delete',
-                scale: "small",
-                handler: function () {
-
-                },
-              },
-            ],
+              Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${selectedRecord.data.CODE}`)
+              Ext.getCmp('viewport').setActiveItem('productDetails');
+            }
           },
-        ],
+        },
+      });
+
+      const tree = Ext.create({
+        xtype: 'treelist',
+        store: {
+          root: {
+            expanded: true,
+            children: [
+              {
+                text: 'All Products',
+                leaf: true,
+              },
+              {
+                text: 'Categories',
+                expanded: true,
+                // iconCls: 'x-fa fa-folder',
+                // children: [{
+                //   text: 'Category product 1',
+                //   leaf: true,
+                //   iconCls: 'x-fa fa-book'
+                // }, {
+                //   text: 'Category product 1',
+                //   leaf: true,
+                //   iconCls: 'x-fa fa-graduation-cap'
+                // }]
+              },
+              {
+                text: 'Series',
+                leaf: true,
+                iconCls: 'x-fa fa-usd',
+                handler: () => {
+                  console.log('bitch')
+                }
+              }]
+          }
+        },
+        renderTo: Ext.getBody()
       });
 
 
@@ -156,24 +511,122 @@
               type: "vbox",
               align: "stretch",
             },
-            items: [
-              {
-                xtype: 'container',
-                layout: 'vbox',
-                id: 'navigation',
-                items: [
-                  {
-
-                  }
-                ]
-              }
-            ],
+            items: [tree],
           },
         ],
       });
 
 
+      const productDetails = Ext.create('Ext.panel.Panel', {
+        id: "productDetails",
+        title: 'PRODUCT DETAILS',
+        flex: 1,
+        trackOver: true,
+        loadMask: true,
+        header: true,
+        scrollable: true,
+        layout: 'border',
+        items: [
+          {
+            xtype: "panel",
+            width: 300,
+            scrollable: true,
+            title: 'Related Products',
+            // style: "background-color: #000;",
+            region: 'east',
+            id: 'relatedProductContainer',
+            layout: {
+              type: "vbox",
+              align: "stretch",
+            },
+            items: [],
+          },
+          {
+            xtype: "panel",
+            title: 'Product Info',
+            region: 'center',
+            scrollable: true,
+            style: "padding-left: 20px; background-color: white;",
+            id: 'productInfoContainer',
+            layout: {
+              type: "vbox",
+              align: "stretch",
+            },
+            items: [
+              {
+                xtype: 'displayfield',
+                id: 'productName',
+                fieldLabel: '<b>Product</b>',
+                labelWidth: 150,
+                fieldCls: 'fieldClass'
+              },
+              {
+                xtype: 'displayfield',
+                id: 'productCode',
+                labelWidth: 150,
+                fieldLabel: '<b>Product Code</b>',
+                fieldCls: 'fieldClass'
+              },
+              {
+                xtype: 'displayfield',
+                id: 'as400Code',
+                fieldLabel: '<b>AS400CODE</b>',
+                labelWidth: 150,
+                fieldCls: 'fieldClass'
+              },
+              {
+                xtype: 'displayfield',
+                id: 'description',
+                fieldLabel: '<b>Description</b>',
+                labelWidth: 150,
+                fieldCls: 'fieldClass'
+              },
+              {
+                xtype: 'displayfield',
+                id: 'fullDescription',
+                fieldLabel: '<b>Full Description</b>',
+                labelWidth: 150,
+                fieldCls: 'fieldClass'
+              },
+              {
+                xtype: 'displayfield',
+                id: 'specification',
+                fieldLabel: '<b>Specification</b>',
+                labelWidth: 150,
+                fieldCls: 'fieldClass'
+              },
+            ],
+          },
+        ],
+        dockedItems: [
+          {
+            xtype: "toolbar",
+            dock: "top",
+            id: "productDetailBar",
+            items: [
+              {
+                xtype: 'button',
+                id: "cancel",
+                text: 'Leave',
+                handler: function () {
+                  Ext.getCmp('relatedProductContainer').removeAll();
+                  Ext.getCmp('viewport').setActiveItem('mainPanel');
+                },
+              },
+              {
+                xtype: 'button',
+                id: "previous",
+                text: 'Back',
+                handler: function () {
+                  Ext.getCmp('relatedProductContainer').removeAll();
 
+                  Ext.getCmp('viewport').setActiveItem('mainPanel');
+                },
+              },
+            ],
+          },
+        ]
+      });
 
       const mainPanel = Ext.create('Ext.panel.Panel', {
         id: "mainPanel",
@@ -198,13 +651,6 @@
       });
 
 
-      const addEditPanel = Ext.create('Ext.panel.Panel', {
-        title: 'Add New Product',
-        
-      })
-
-
-
       //=========================================================================================================
       //		           VIEW PORT
       // ========================================================================================================
@@ -213,7 +659,7 @@
         id: "viewport",
         layout: "card",
         activeItem: 0,
-        items: [mainPanel],
+        items: [mainPanel, productDetails],
       });
     })
 

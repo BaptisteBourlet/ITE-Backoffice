@@ -1,12 +1,12 @@
 
-
+const DB = require('../DB')
 const mysql = require('mysql');
 
 const con = mysql.createConnection({
-   host: '51.254.46.89',
-   user: 'lap',
-   password: '3*Ou2bo3',
-   database: 'cdinvest_ITE',
+   host: DB.host,
+   user: DB.user,
+   password: DB.password,
+   database: DB.database,
 })
 
 // con.connect((err) => {
@@ -25,12 +25,37 @@ const con = mysql.createConnection({
 // })
 
 exports.getAllProducts = async (req, res) => {
-   con.query("SELECT DISTINCT ProductInfo.Id as Id, Description, FullDescription, Catalog, Path FROM ProductInfo LEFT JOIN Assets ON ProductInfo.Id = Assets.ProductId;", (err, results, fields) => {
+   // console.log(firstCat, secondCat, thirdCat) = req.query;
+   const query = "SELECT ProductInfo.ProductId as Id, Description, FullDescription, Catalog, CODE, As400Code"
+   + " FROM ProductInfo LEFT JOIN Assets ON ProductInfo.Id = Assets.ProductId"
+   + " LEFT JOIN Product ON ProductInfo.Id = Product.Id" 
+   + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
+
+   con.query(query, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
       res.send(results)
    })
+}
+
+
+exports.getProductDetails = async (req, res) => {
+   const {productId} = req.query;
+   const query = `SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, Path FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id LEFT JOIN Assets A ON A.Id = PI.ProductId WHERE PI.ProductId = ${productId} AND Language = 'en'`
+   let finalResults = []
+
+   con.query(query, (err, productResults, fields) => {
+      if (err) throw err;
+
+      finalResults.push(productResults);
+      con.query(`SELECT RP.LinkedProductID, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = ${productId};`, (error, relatedResults, fields) => {
+         if (error) throw error;
+         // console.log(relatedResults);
+         finalResults.push(relatedResults);
+         res.send(finalResults);
+      })
+   });
 }
 
 
@@ -48,10 +73,70 @@ exports.deleteProduct = async (req, res) => {
 }
 
 
+exports.searchProduct = async (req, res) => {
+   const { searchQuery, searchTarget } = req.body;
+
+   let target = searchTarget === "productCode" ? "Product.Code" : "ProductInfo.Catalog";
+
+   const query = "SELECT ProductInfo.ProductId as Id, Description, FullDescription, Catalog, CODE, As400Code"
+               + " FROM ProductInfo LEFT JOIN Assets ON ProductInfo.Id = Assets.ProductId"
+               + " LEFT JOIN Product ON ProductInfo.Id = Product.Id" 
+               + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchQuery}%' ORDER BY ProductInfo.ProductId;`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+
+
+}
+
+
+// SELECT * FROM Category WHERE ParentId IN (NULL, 1);
+// SELECT * FROM ProductInfo LEFT JOIN SeriesProductLink ON ProductInfo.Id = SeriesProductLink.ProductId WHERE SeriesId = 3;
+// SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';
+
+
 exports.getSomething = async (req, res) => {
-   con.query("SELECT * FROM ProductInfo LEFT JOIN SeriesProductLink ON ProductInfo.Id = SeriesProductLink.ProductId WHERE SeriesId = 3;", (err, results, fields) => {
+   con.query("SELECT Catalog, PI.ProductId, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = 2;", (err, results, fields) => {
       if (err) throw err;
 
       res.send(results)
    })
 }
+
+exports.getFirstCat = async (req, res) => {
+   con.query("SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';", (err, results, fields) => {
+      if (err) throw err;
+
+      res.send(results)
+   })
+}
+
+exports.getSecondCat = async (req, res) => {
+   const { firstCat } = req.query
+
+   // console.log('firstCat', firstCat);
+
+   con.query(`SELECT * FROM Category WHERE ParentId = "${firstCat}" AND Publish = '1';`, (err, results, fields) => {
+      if (err) throw err;
+
+      res.send(results)
+   })
+}
+
+
+exports.getThirdCat = async (req, res) => {
+   const { secondCat } = req.query
+   // console.log('secondCat', secondCat);
+
+   con.query(`SELECT * FROM Category WHERE ParentId = "${secondCat}" AND Publish = '1';`, (err, results, fields) => {
+      if (err) throw err;
+
+      res.send(results)
+   })
+}
+
+
