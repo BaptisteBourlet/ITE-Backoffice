@@ -81,7 +81,7 @@ exports.editProduct = async (req, res) => {
    const {Description, Catalog, FullDescription, Specification, ProductId} = req.body;
    
    console.log(req.body)
-   con.query(`UPDATE ProductInfo SET Description = "${Description}", Catalog = "${Catalog}", FullDescription = "${FullDescription}", Specification = "${Specification}" WHERE ProductId = ${ProductId} AND Language = "en";`, (err, result, field) => {
+   con.query(`UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', FullDescription = '${FullDescription}', Specification = '${Specification}' WHERE ProductId = ${ProductId} AND Language = "en";`, (err, result, field) => {
       if(err) {
          console.log(err);
       }

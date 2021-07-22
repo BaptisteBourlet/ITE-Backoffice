@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Expedition Planning</title>
+  <title>ITE BACK OFFICE MANAGEMENT</title>
   <link rel="stylesheet" type="text/css"
     href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
@@ -324,7 +324,6 @@
           handler: function () {
             edit = true;
             const selectedRecord = Ext.getCmp("AllProductGrid").getSelectionModel().getSelection()[0];
-            console.log(selectedRecord)
             PI = selectedRecord.data.Id;
             Ext.getCmp('viewport').setActiveItem('panelAdd');
             getProductDetails(selectedRecord.data.Id);
@@ -558,7 +557,6 @@
           width: 300,
           scrollable: true,
           title: 'Related Products',
-          // style: "background-color: #000;",
           region: 'east',
           id: 'relatedProductContainer',
           layout: {
@@ -644,8 +642,10 @@
             text: 'Edit',
             iconCls: "fa fa-edit",
             handler: function () {
-              Ext.getCmp('viewport').setActiveItem('panelAdd');
+              edit = true;
               const selectedRecord = Ext.getCmp("AllProductGrid").getSelectionModel().getSelection()[0];
+              PI = selectedRecord.data.Id;
+              Ext.getCmp('viewport').setActiveItem('panelAdd');
               getProductDetails(selectedRecord.data.Id);
             },
           },
