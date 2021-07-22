@@ -631,6 +631,7 @@
             text: 'Back',
             iconCls: "fa fa-undo-alt",
             handler: function () {
+              edit = false;
               Ext.getCmp('relatedProductContainer').removeAll();
               Ext.getCmp('viewport').setActiveItem('mainPanel');
             },
@@ -1340,9 +1341,10 @@
               success: function (response) {
                 const res = JSON.parse(response.responseText);
                 mainStore.reload();
-
                 Ext.Msg.alert('INFO!', `Product has been edited successfully`);
                 Ext.getCmp('viewport').setActiveItem('mainPanel');
+
+                edit = false;
               },
               failure: function (response) {
                 console.log("failed", response);
