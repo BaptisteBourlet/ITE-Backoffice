@@ -1,5 +1,5 @@
 
-const DB = require('../DB')
+const { DB } = require('../database')
 const mysql = require('mysql');
 
 const con = mysql.createConnection({
@@ -27,9 +27,9 @@ const con = mysql.createConnection({
 exports.getAllProducts = async (req, res) => {
    // console.log(firstCat, secondCat, thirdCat) = req.query;
    const query = "SELECT ProductInfo.ProductId as Id, Description, FullDescription, Catalog, CODE, As400Code"
-   + " FROM ProductInfo LEFT JOIN Assets ON ProductInfo.Id = Assets.ProductId"
-   + " LEFT JOIN Product ON ProductInfo.Id = Product.Id" 
-   + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
+      + " FROM ProductInfo LEFT JOIN Assets ON ProductInfo.Id = Assets.ProductId"
+      + " LEFT JOIN Product ON ProductInfo.Id = Product.Id"
+      + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
@@ -41,8 +41,8 @@ exports.getAllProducts = async (req, res) => {
 
 
 exports.getProductDetails = async (req, res) => {
-   const {productId} = req.query;
-   const query = `SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, Path FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id LEFT JOIN Assets A ON A.Id = PI.ProductId WHERE PI.ProductId = ${productId} AND Language = 'en'`
+   const { productId } = req.query;
+   const query = `SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id LEFT JOIN Assets A ON A.Id = PI.ProductId WHERE PI.ProductId = ${productId} AND Language = 'en'`
    let finalResults = []
 
    con.query(query, (err, productResults, fields) => {
@@ -59,12 +59,36 @@ exports.getProductDetails = async (req, res) => {
 }
 
 
-exports.addProduct = async (req, res) => {
-   console.log(req.body)
+exports.getCategories = async (req, res) => {
+   con.query("SELECT Id , Name FROM CategoryInfo WHERE Language = 'en'", (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
 }
 
-exports.editProduct = async (req, res) => {
+exports.addProduct = async (req, res) => {
    console.log(req.body)
+
+
+
+}
+
+
+exports.editProduct = async (req, res) => {
+
+   const {Description, Catalog, FullDescription, Specification, ProductId} = req.body;
+   
+   console.log(req.body)
+   con.query(`UPDATE ProductInfo SET Description = "${Description}", Catalog = "${Catalog}", FullDescription = "${FullDescription}", Specification = "${Specification}" WHERE ProductId = ${ProductId} AND Language = "en";`, (err, result, field) => {
+      if(err) {
+         console.log(err);
+      }
+
+      console.log(result);
+      res.send(result);
+   })
 }
 
 
@@ -79,9 +103,9 @@ exports.searchProduct = async (req, res) => {
    let target = searchTarget === "productCode" ? "Product.Code" : "ProductInfo.Catalog";
 
    const query = "SELECT ProductInfo.ProductId as Id, Description, FullDescription, Catalog, CODE, As400Code"
-               + " FROM ProductInfo LEFT JOIN Assets ON ProductInfo.Id = Assets.ProductId"
-               + " LEFT JOIN Product ON ProductInfo.Id = Product.Id" 
-               + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchQuery}%' ORDER BY ProductInfo.ProductId;`;
+      + " FROM ProductInfo LEFT JOIN Assets ON ProductInfo.Id = Assets.ProductId"
+      + " LEFT JOIN Product ON ProductInfo.Id = Product.Id"
+      + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchQuery}%' ORDER BY ProductInfo.ProductId;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
