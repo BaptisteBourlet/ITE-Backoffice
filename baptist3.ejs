@@ -215,6 +215,7 @@
         sessionStorage.setItem('As400', Ext.getCmp('As400').getValue())
         sessionStorage.setItem('Category', Ext.getCmp('Category').getValue())
         sessionStorage.setItem('Pub', checkBoxFunction(Ext.getCmp('Pub').getValue()))
+
       }
 
       var checkBoxFunction = function (check) {
@@ -268,16 +269,16 @@
           useDefaultXhrHeader: false,
         }
       });
-
+      
       var TypeStore = Ext.create('Ext.data.Store', {
-        fields: ['TypeCode', 'TypeName'],
-        data: [
-          { TypeCode: 'P', TypeName: 'Spare part' },
-          { TypeCode: 'A', TypeName: 'Accessory' },
-          { TypeCode: 'R', TypeName: 'Related product' }
-        ],
-        storeId: 'TypeStore'
-      });
+				fields: ['TypeCode', 'TypeName'],
+				data: [
+					{ TypeCode: 'P', TypeName: 'Spare part' },
+					{ TypeCode: 'A', TypeName: 'Accessory' },
+					{ TypeCode: 'R', TypeName: 'Related product' }
+				],
+				storeId: 'TypeStore'
+			});
 
 
       let current_datetime = new Date()
@@ -303,6 +304,7 @@
 
 
       let formatDate =
+
         current_datetime.getDate()
         + "/" + time()
         + "/" + current_datetime.getFullYear();
@@ -355,6 +357,7 @@
               RUSpecification: Ext.getCmp('RUspec').getValue(),
               RUCatalog: Ext.getCmp('RUCat').getValue(),
               RUFullDescription: Ext.getCmp('RUFDesc').getValue(),
+
             },
             success: function (response) {
               // check for errors and display error message
@@ -365,17 +368,17 @@
                 if (data.serverStatus == 2) {
                   Ext.getBody().unmask()
                   Ext.Msg.confirm(
-                    "Related product",
-                    "Do you want to add related product ?",
-                    function (btn, text) {
-                      if (btn === "yes") {
+										"Related product",
+										"Do you want to add related product ?",
+										function (btn, text) {
+											if (btn === "yes") {
                         Ext.getCmp('viewport').setActiveItem(2)
-                      } else {
+											} else {
                         Ext.getCmp('viewport').setActiveItem(0)
                       }
-                    });
+										});
 
-
+                 
                 } else {
                   // display error message
                   Ext.getBody().unmask()
@@ -708,7 +711,7 @@
               setProductSessionStorage()
               addRecord()
               Ext.getCmp('screenAdd').reset()
-
+              
             }
           },
           '-',
@@ -721,8 +724,8 @@
         ]
       });
 
-
-
+     
+     
       var itemsAdd2 = [
 
         {
