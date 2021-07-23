@@ -101,10 +101,12 @@ exports.searchProduct = async (req, res) => {
 
    let target = searchTarget === "productCode" ? "Product.Code" : "ProductInfo.Catalog";
 
+   let searchText = target === "Product.Code" ? searchQuery.replace(' ', '-') : searchQuery; 
+
    const query = "SELECT Product.Id as Id, Description, FullDescription, Catalog, CODE, As400Code"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchQuery}%' ORDER BY ProductInfo.ProductId;`;
+      + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchText}%' ORDER BY ProductInfo.ProductId;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {

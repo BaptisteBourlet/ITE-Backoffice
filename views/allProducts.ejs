@@ -40,12 +40,18 @@
     Ext.onReady(() => {
       let productObj = {};
       let edit = false;
-      let PI = '';
-
-
+      let productIDGlobal = '';
 
       const relatedProducts = (products) => {
-        if (products[0].Code !== null) {
+        let exist = false;
+
+        for (const prod of products) {
+          if (prod.Type === 'R') {
+            exist = true;
+          }
+        }
+
+        if (exist) {
           return products.map(product => {
             if (product.Type === 'R') {
               return {
@@ -58,6 +64,7 @@
                   Ext.getCmp('relatedAccessories').removeAll();
                   Ext.getCmp('relatedParts').removeAll();
                   getProductDetails(product.LinkedProductID);
+                  productIDGlobal = product.LinkedProductID;
                   Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${product.Code}`)
                   Ext.getCmp('viewport').setActiveItem('productDetails');
                 }
@@ -68,14 +75,21 @@
           return [{
             xtype: 'displayfield',
             fieldLabel: '<b>Result</b>',
-            value: '<b>No Related Products</b>',
+            value: 'No Related Products',
             labelWidth: 44
           }]
         }
       }
 
       const relatedAccessories = (products) => {
-        if (products[0].Code !== null) {
+        let exist = false;
+
+        for (const prod of products) {
+          if (prod.Type === 'A') {
+            exist = true;
+          }
+        }
+        if (exist) {
           return products.map(product => {
             if (product.Type === 'A') {
               return {
@@ -88,6 +102,7 @@
                   Ext.getCmp('relatedAccessories').removeAll();
                   Ext.getCmp('relatedParts').removeAll();
                   getProductDetails(product.LinkedProductID);
+                  productIDGlobal = product.LinkedProductID;
                   Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${product.Code}`)
                   Ext.getCmp('viewport').setActiveItem('productDetails');
                 }
@@ -98,14 +113,21 @@
           return [{
             xtype: 'displayfield',
             fieldLabel: '<b>Result</b>',
-            value: '<b>No Related Accessories</b>',
+            value: 'No Related Accessories',
             labelWidth: 44
           }]
         }
       }
 
       const relatedParts = (products) => {
-        if (products[0].Code !== null) {
+        let exist = false;
+
+        for (const prod of products) {
+          if (prod.Type === 'P') {
+            exist = true;
+          }
+        }
+        if (exist) {
           return products.map(product => {
             if (product.Type === 'P') {
               return {
@@ -118,6 +140,7 @@
                   Ext.getCmp('relatedAccessories').removeAll();
                   Ext.getCmp('relatedParts').removeAll();
                   getProductDetails(product.LinkedProductID);
+                  productIDGlobal = product.LinkedProductID;
                   Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${product.Code}`)
                   Ext.getCmp('viewport').setActiveItem('productDetails');
                 }
@@ -128,7 +151,7 @@
           return [{
             xtype: 'displayfield',
             fieldLabel: '<b>Result</b>',
-            value: '<b>No Related Parts</b>',
+            value: 'No Related Parts',
             labelWidth: 44
           }]
         }
@@ -468,71 +491,71 @@
         },
         ],
       },
-      {
-        xtype: "toolbar",
-        dock: "top",
-        id: "toptool",
-        items: [
-          {
-            xtype: 'combobox',
-            id: "category1",
-            store: firstCatStore,
-            width: 300,
-            displayField: 'WorkingTitle',
-            valueField: 'Id',
-            forceSelection: false,
-            editable: false,
-            typeAhead: true,
-            mode: 'local',
-            triggerAction: 'all',
-            listeners: {
-              change: () => {
-                Ext.getCmp('category2').setValue('')
-                secondCatStore.getProxy().setExtraParam('firstCat', Ext.getCmp('category1').getValue());
-                secondCatStore.reload()
-              }
-            }
-          },
-          "-",
-          {
-            xtype: 'combobox',
-            id: "category2",
-            width: 250,
-            store: secondCatStore,
-            displayField: 'WorkingTitle',
-            valueField: 'Id',
-            forceSelection: false,
-            editable: false,
-            typeAhead: true,
-            mode: 'local',
-            triggerAction: 'all',
-            listeners: {
-              change: () => {
-                Ext.getCmp('category3').setValue('')
-                thirdCatStore.getProxy().setExtraParam('secondCat', Ext.getCmp('category2').getValue());
-                thirdCatStore.reload()
-              }
-            }
-          },
-          "-",
-          {
-            xtype: 'combobox',
-            id: "category3",
-            width: 250,
-            store: thirdCatStore,
-            displayField: 'WorkingTitle',
-            valueField: 'Id',
-            forceSelection: false,
-            editable: false,
-            typeAhead: true,
-            mode: 'local',
-            triggerAction: 'all',
-            handler: function () {
+        // {
+        //   xtype: "toolbar",
+        //   dock: "top",
+        //   id: "toptool",
+        //   items: [
+        //     {
+        //       xtype: 'combobox',
+        //       id: "category1",
+        //       store: firstCatStore,
+        //       width: 300,
+        //       displayField: 'WorkingTitle',
+        //       valueField: 'Id',
+        //       forceSelection: false,
+        //       editable: false,
+        //       typeAhead: true,
+        //       mode: 'local',
+        //       triggerAction: 'all',
+        //       listeners: {
+        //         change: () => {
+        //           Ext.getCmp('category2').setValue('')
+        //           secondCatStore.getProxy().setExtraParam('firstCat', Ext.getCmp('category1').getValue());
+        //           secondCatStore.reload()
+        //         }
+        //       }
+        //     },
+        //     "-",
+        //     {
+        //       xtype: 'combobox',
+        //       id: "category2",
+        //       width: 250,
+        //       store: secondCatStore,
+        //       displayField: 'WorkingTitle',
+        //       valueField: 'Id',
+        //       forceSelection: false,
+        //       editable: false,
+        //       typeAhead: true,
+        //       mode: 'local',
+        //       triggerAction: 'all',
+        //       listeners: {
+        //         change: () => {
+        //           Ext.getCmp('category3').setValue('')
+        //           thirdCatStore.getProxy().setExtraParam('secondCat', Ext.getCmp('category2').getValue());
+        //           thirdCatStore.reload()
+        //         }
+        //       }
+        //     },
+        //     "-",
+        //     {
+        //       xtype: 'combobox',
+        //       id: "category3",
+        //       width: 250,
+        //       store: thirdCatStore,
+        //       displayField: 'WorkingTitle',
+        //       valueField: 'Id',
+        //       forceSelection: false,
+        //       editable: false,
+        //       typeAhead: true,
+        //       mode: 'local',
+        //       triggerAction: 'all',
+        //       handler: function () {
 
-            },
-          },
-        ],
-      },
+        //       },
+        //     },
+        //   ],
+        // },
       ]
 
       const AllProductGrid = Ext.create("Ext.grid.GridPanel", {
@@ -556,7 +579,7 @@
             fn: () => {
               const selectedRecord = Ext.getCmp("AllProductGrid").getSelectionModel().getSelection()[0];
               getProductDetails(selectedRecord.data.Id);
-
+              productIDGlobal = selectedRecord.data.Id;
               Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${selectedRecord.data.CODE}`)
               Ext.getCmp('viewport').setActiveItem('productDetails');
             }
@@ -636,7 +659,6 @@
           width: 300,
           scrollable: true,
           style: "background-color: white;",
-          // title: 'Related Products',
           region: 'east',
           layout: {
             type: "vbox",
@@ -651,13 +673,13 @@
             },
             {
               xtype: 'panel',
-              title: 'relatedAccessories',
+              title: 'Related Accessories',
               id: 'relatedAccessories',
               items: []
             },
             {
               xtype: 'panel',
-              title: 'Parts',
+              title: 'Related Parts',
               id: 'relatedParts',
               items: []
             },
@@ -744,10 +766,8 @@
             iconCls: "fa fa-edit",
             handler: function () {
               edit = true;
-              const selectedRecord = Ext.getCmp("AllProductGrid").getSelectionModel().getSelection()[0];
-              PI = selectedRecord.data.Id;
               Ext.getCmp('viewport').setActiveItem('panelAdd');
-              getProductDetails(selectedRecord.data.Id);
+              getProductDetails(productIDGlobal);
             },
           },
             "-",
@@ -960,6 +980,10 @@
           handler: function () {
             edit = false;
             clearEditInfo();
+            Ext.getCmp('relatedProducts').removeAll();
+            Ext.getCmp('relatedAccessories').removeAll();
+            Ext.getCmp('relatedParts').removeAll();
+
             Ext.getCmp('viewport').setActiveItem('mainPanel');
           }
         }
@@ -1489,8 +1513,11 @@
           iconCls: 'fas fa-undo',
           handler: function () {
             edit = false;
+            Ext.getCmp('relatedProducts').removeAll();
+            Ext.getCmp('relatedAccessories').removeAll();
+            Ext.getCmp('relatedParts').removeAll();
             Ext.getCmp('viewport').setActiveItem('mainPanel');
-            // clearEditInfo();
+            clearEditInfo();
           }
         }
         ]

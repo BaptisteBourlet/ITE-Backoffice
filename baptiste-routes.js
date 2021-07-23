@@ -16,4 +16,7 @@ router.post('/editProduct', apiCtrl.editProduct);
 
 router.post('/deleteProduct', apiCtrl.deleteProduct)
 
+router.get('/getProductDet', apiCtrl.getProductDet)
+
+
 module.exports = router;
