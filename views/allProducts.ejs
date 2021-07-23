@@ -41,19 +41,26 @@
       let productObj = {};
       let edit = false;
       let PI = '';
+
+
+
       const relatedProducts = (products) => {
         if (products[0].Code !== null) {
           return products.map(product => {
-            return {
-              xtype: 'button',
-              text: `${product.Description} [${product.Code}]`,
-              cls: 'a',
-              style: "border: none; margin: 2px 0px;",
-              handler: () => {
-                Ext.getCmp('relatedProductContainer').removeAll();
-                getProductDetails(product.LinkedProductID);
-                Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${product.Code}`)
-                Ext.getCmp('viewport').setActiveItem('productDetails');
+            if (product.Type === 'R') {
+              return {
+                xtype: 'button',
+                text: `${product.Description} [${product.Code}]`,
+                cls: 'a',
+                style: "border: none; margin: 2px 0px;",
+                handler: () => {
+                  Ext.getCmp('relatedProducts').removeAll();
+                  Ext.getCmp('relatedAccessories').removeAll();
+                  Ext.getCmp('relatedParts').removeAll();
+                  getProductDetails(product.LinkedProductID);
+                  Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${product.Code}`)
+                  Ext.getCmp('viewport').setActiveItem('productDetails');
+                }
               }
             }
           })
@@ -62,6 +69,66 @@
             xtype: 'displayfield',
             fieldLabel: '<b>Result</b>',
             value: '<b>No Related Products</b>',
+            labelWidth: 44
+          }]
+        }
+      }
+
+      const relatedAccessories = (products) => {
+        if (products[0].Code !== null) {
+          return products.map(product => {
+            if (product.Type === 'A') {
+              return {
+                xtype: 'button',
+                text: `${product.Description} [${product.Code}]`,
+                cls: 'a',
+                style: "border: none; margin: 2px 0px;",
+                handler: () => {
+                  Ext.getCmp('relatedProducts').removeAll();
+                  Ext.getCmp('relatedAccessories').removeAll();
+                  Ext.getCmp('relatedParts').removeAll();
+                  getProductDetails(product.LinkedProductID);
+                  Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${product.Code}`)
+                  Ext.getCmp('viewport').setActiveItem('productDetails');
+                }
+              }
+            }
+          })
+        } else {
+          return [{
+            xtype: 'displayfield',
+            fieldLabel: '<b>Result</b>',
+            value: '<b>No Related Accessories</b>',
+            labelWidth: 44
+          }]
+        }
+      }
+
+      const relatedParts = (products) => {
+        if (products[0].Code !== null) {
+          return products.map(product => {
+            if (product.Type === 'P') {
+              return {
+                xtype: 'button',
+                text: `${product.Description} [${product.Code}]`,
+                cls: 'a',
+                style: "border: none; margin: 2px 0px;",
+                handler: () => {
+                  Ext.getCmp('relatedProducts').removeAll();
+                  Ext.getCmp('relatedAccessories').removeAll();
+                  Ext.getCmp('relatedParts').removeAll();
+                  getProductDetails(product.LinkedProductID);
+                  Ext.getCmp('productDetails').setTitle(`PRODUCT DETAILS - ${product.Code}`)
+                  Ext.getCmp('viewport').setActiveItem('productDetails');
+                }
+              }
+            }
+          })
+        } else {
+          return [{
+            xtype: 'displayfield',
+            fieldLabel: '<b>Result</b>',
+            value: '<b>No Related Parts</b>',
             labelWidth: 44
           }]
         }
@@ -80,7 +147,6 @@
           success: function (response) {
             const res = JSON.parse(response.responseText);
 
-            console.log(res[0][0])
 
             if (edit === false) {
               displayProductInfo(res[0][0]);
@@ -88,7 +154,9 @@
               getEditInfo(res[0][0]);
             }
 
-            Ext.getCmp('relatedProductContainer').add(relatedProducts(res[1]))
+            Ext.getCmp('relatedProducts').add(relatedProducts(res[1]))
+            Ext.getCmp('relatedAccessories').add(relatedAccessories(res[1]))
+            Ext.getCmp('relatedParts').add(relatedParts(res[1]))
           },
           failure: function (response) {
             console.log("failed", response);
@@ -340,6 +408,16 @@
 
           },
         },
+        {
+          xtype: 'button',
+          id: "category",
+          text: 'Category',
+          iconCls: "fa fa-trash-alt",
+          scale: "small",
+          handler: function () {
+            Ext.getCmp('viewport').setActiveItem('panelAdd');
+          },
+        },
         ],
       },
       {
@@ -394,64 +472,65 @@
         xtype: "toolbar",
         dock: "top",
         id: "toptool",
-        items: [{
-          xtype: 'combobox',
-          id: "category1",
-          store: firstCatStore,
-          width: 300,
-          displayField: 'WorkingTitle',
-          valueField: 'Id',
-          forceSelection: false,
-          editable: false,
-          typeAhead: true,
-          mode: 'local',
-          triggerAction: 'all',
-          listeners: {
-            change: () => {
-              Ext.getCmp('category2').setValue('')
-              secondCatStore.getProxy().setExtraParam('firstCat', Ext.getCmp('category1').getValue());
-              secondCatStore.reload()
+        items: [
+          {
+            xtype: 'combobox',
+            id: "category1",
+            store: firstCatStore,
+            width: 300,
+            displayField: 'WorkingTitle',
+            valueField: 'Id',
+            forceSelection: false,
+            editable: false,
+            typeAhead: true,
+            mode: 'local',
+            triggerAction: 'all',
+            listeners: {
+              change: () => {
+                Ext.getCmp('category2').setValue('')
+                secondCatStore.getProxy().setExtraParam('firstCat', Ext.getCmp('category1').getValue());
+                secondCatStore.reload()
+              }
             }
-          }
-        },
-          "-",
-        {
-          xtype: 'combobox',
-          id: "category2",
-          width: 250,
-          store: secondCatStore,
-          displayField: 'WorkingTitle',
-          valueField: 'Id',
-          forceSelection: false,
-          editable: false,
-          typeAhead: true,
-          mode: 'local',
-          triggerAction: 'all',
-          listeners: {
-            change: () => {
-              Ext.getCmp('category3').setValue('')
-              thirdCatStore.getProxy().setExtraParam('secondCat', Ext.getCmp('category2').getValue());
-              thirdCatStore.reload()
-            }
-          }
-        },
-          "-",
-        {
-          xtype: 'combobox',
-          id: "category3",
-          width: 250,
-          store: thirdCatStore,
-          displayField: 'WorkingTitle',
-          valueField: 'Id',
-          forceSelection: false,
-          editable: false,
-          typeAhead: true,
-          mode: 'local',
-          triggerAction: 'all',
-          handler: function () {
-
           },
-        },
+          "-",
+          {
+            xtype: 'combobox',
+            id: "category2",
+            width: 250,
+            store: secondCatStore,
+            displayField: 'WorkingTitle',
+            valueField: 'Id',
+            forceSelection: false,
+            editable: false,
+            typeAhead: true,
+            mode: 'local',
+            triggerAction: 'all',
+            listeners: {
+              change: () => {
+                Ext.getCmp('category3').setValue('')
+                thirdCatStore.getProxy().setExtraParam('secondCat', Ext.getCmp('category2').getValue());
+                thirdCatStore.reload()
+              }
+            }
+          },
+          "-",
+          {
+            xtype: 'combobox',
+            id: "category3",
+            width: 250,
+            store: thirdCatStore,
+            displayField: 'WorkingTitle',
+            valueField: 'Id',
+            forceSelection: false,
+            editable: false,
+            typeAhead: true,
+            mode: 'local',
+            triggerAction: 'all',
+            handler: function () {
+
+            },
+          },
         ],
       },
       ]
@@ -553,17 +632,36 @@
         scrollable: true,
         layout: 'border',
         items: [{
-          xtype: "panel",
+          xtype: "container",
           width: 300,
           scrollable: true,
-          title: 'Related Products',
+          style: "background-color: white;",
+          // title: 'Related Products',
           region: 'east',
-          id: 'relatedProductContainer',
           layout: {
             type: "vbox",
             align: "stretch",
           },
-          items: [],
+          items: [
+            {
+              xtype: 'panel',
+              title: 'Related Products',
+              id: 'relatedProducts',
+              items: []
+            },
+            {
+              xtype: 'panel',
+              title: 'relatedAccessories',
+              id: 'relatedAccessories',
+              items: []
+            },
+            {
+              xtype: 'panel',
+              title: 'Parts',
+              id: 'relatedParts',
+              items: []
+            },
+          ],
         },
         {
           xtype: "panel",
@@ -632,7 +730,9 @@
             iconCls: "fa fa-undo-alt",
             handler: function () {
               edit = false;
-              Ext.getCmp('relatedProductContainer').removeAll();
+              Ext.getCmp('relatedProducts').removeAll();
+              Ext.getCmp('relatedAccessories').removeAll();
+              Ext.getCmp('relatedParts').removeAll();
               Ext.getCmp('viewport').setActiveItem('mainPanel');
             },
           },
@@ -648,6 +748,16 @@
               PI = selectedRecord.data.Id;
               Ext.getCmp('viewport').setActiveItem('panelAdd');
               getProductDetails(selectedRecord.data.Id);
+            },
+          },
+            "-",
+          {
+            xtype: 'button', //ongoing
+            id: "addRelatedProducts",
+            text: 'Add Related Product',
+            iconCls: "fa fa-plus",
+            handler: function () {
+              console.log('add Related')
             },
           },
           ],
@@ -699,40 +809,61 @@
         }
       });
 
-      var itemsAdd = [{
-        xtype: 'textfield',
-        id: 'code',
-        name: 'code',
-        fieldLabel: 'Code',
-        maxLenght: 10,
-        width: 500,
-        allowBlank: true,
-        selectOnFocus: false,
-
-      },
-      {
-        xtype: 'textfield',
-        id: 'As400',
-        name: 'As400',
-        fieldLabel: 'As400',
-        maxLenght: 10,
-        width: 500,
-        allowBlank: true,
-        selectOnFocus: false,
-      },
-      {
-        xtype: 'combo',
-        id: 'Category',
-        name: 'Category',
-        store: CategoryStore,
-        width: 500,
-        fieldLabel: 'Category',
-        displayField: 'Name',
-        valueField: 'Id',
-        anchor: '100%',
-        allowBlank: false,
-        selectOnFocus: false,
-      },
+      var itemsAdd = [
+        // {
+        //   xtype: 'combo',
+        //   id: 'cat1',
+        //   store: firstCatStore,
+        //   fieldLabel: 'Parent Category',
+        //   width: 300,
+        //   displayField: 'WorkingTitle',
+        //   valueField: 'Id',
+        //   forceSelection: false,
+        //   editable: false,
+        //   typeAhead: true,
+        //   mode: 'local',
+        //   triggerAction: 'all',
+        //   listeners: {
+        //     change: () => {
+        //       // Ext.getCmp('category2').setValue('')
+        //       // secondCatStore.getProxy().setExtraParam('firstCat', Ext.getCmp('category1').getValue());
+        //       // secondCatStore.reload()
+        //     }
+        //   }
+        // },
+        {
+          xtype: 'textfield',
+          id: 'code',
+          name: 'code',
+          fieldLabel: 'Code',
+          maxLenght: 10,
+          width: 500,
+          allowBlank: true,
+          selectOnFocus: false,
+        },
+        {
+          xtype: 'textfield',
+          id: 'As400',
+          name: 'As400',
+          fieldLabel: 'As400',
+          maxLenght: 10,
+          width: 500,
+          allowBlank: true,
+          selectOnFocus: false,
+        },
+        {
+          xtype: 'combo',
+          id: 'Category',
+          name: 'Category',
+          store: CategoryStore,
+          width: 500,
+          fieldLabel: 'Category',
+          displayField: 'Name',
+          valueField: 'Id',
+          anchor: '100%',
+          allowBlank: false,
+          selectOnFocus: false,
+        },
         // {
         //   xtype: 'textfield',
         //   id: 'Slug',
@@ -1310,7 +1441,6 @@
             items: itemsAdd2
           }]
         }]
-
       });
 
       // outer panel container to hold tbar and keypress definitions

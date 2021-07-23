@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ITE BACK OFFICE MANAGEMENT</title>
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+  <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+  <style>
+    .grid-image {
+      width: auto;
+      height: 70px;
+    }
+
+    .x-grid-cell-inner {
+      overflow: hidden;
+      padding: 10px 6px;
+      white-space: nowrap;
+    }
+
+    .a span {
+      background-color: rgb(253, 253, 253);
+      padding: 2px;
+      color: black;
+    }
+
+    .fieldClass {
+      border-bottom: 1px dashed rgb(173, 173, 173);
+      padding: 7px 0px;
+    }
+  </style>
+  <script type="text/javascript">
+    //=========================================================================================================
+    //		           APPLICATION START
+    // ========================================================================================================
+    Ext.onReady(() => {
+
+      const firstCatModel = Ext.define("FIRSTCAT", {
+        extend: "Ext.data.Model",
+        fields: ["WorkingTitle", "Id"],
+      });
+
+      const firstCatStore = Ext.create("Ext.data.Store", {
+        id: "firstCatStore",
+        autoLoad: true,
+        model: firstCatModel,
+        proxy: {
+          type: "ajax",
+          method: "POST",
+          url: "/api/getFirstCat",
+          noCache: true,
+          reader: {
+            type: "json",
+            rootProperty: "firstCat",
+            totalProperty: "totalCount",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
+        }
+      });
+      const secondCatStore = Ext.create("Ext.data.Store", {
+        id: "secondCatStore",
+        autoLoad: true,
+        model: firstCatModel,
+        proxy: {
+          type: "ajax",
+          method: "POST",
+          url: "/api/getSecondCat",
+          noCache: true,
+          reader: {
+            type: "json",
+            rootProperty: "secondCat",
+            totalProperty: "totalCount",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
+        },
+        listeners: {
+          beforeload: function (store) { },
+        },
+      });
+
+
+      const thirdCatStore = Ext.create("Ext.data.Store", {
+        id: "thirdCatStore",
+        autoLoad: true,
+        model: firstCatModel,
+        proxy: {
+          type: "ajax",
+          method: "POST",
+          url: "/api/getThirdCat",
+          noCache: true,
+          reader: {
+            type: "json",
+            rootProperty: "thirdCat",
+            totalProperty: "totalCount",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
+        },
+        listeners: {
+          beforeload: function (store) { },
+        },
+      });
+
+
+      const CATEGORY = Ext.define("Categories", {
+        extend: "Ext.data.Model",
+        fields: ["Id", "Name"],
+      });
+
+
+      const CategoryStore = Ext.create("Ext.data.Store", {
+        id: "CategoryStore",
+        autoLoad: true,
+        model: CATEGORY,
+        proxy: {
+          type: "ajax",
+          method: "POST",
+          url: "/api/getCategories",
+          noCache: true,
+          reader: {
+            type: "json",
+            rootProperty: "allProducts",
+            totalProperty: "totalCount",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
+        }
+      });
+
+
+      // const categoryTree = Ext.create('Ext.panel.Panel', {
+      //   id: "categoryTree",
+      //   title: 'Category Tree Management',
+      //   flex: 1,
+      //   trackOver: true,
+      //   loadMask: true,
+      //   header: true,
+      //   scrollable: true,
+      //   layout: 'fit',
+      //   items: [
+      //     {
+      //       xtype: 'container',
+      //       layout: 'anchor',
+      //       width: '100%',
+      //       items: [
+      //         {
+      //           xtype: 'combobox',
+      //           id: "category1",
+      //           store: firstCatStore,
+      //           width: 300,
+      //           displayField: 'WorkingTitle',
+      //           valueField: 'Id',
+      //           forceSelection: false,
+      //           editable: false,
+      //           typeAhead: true,
+      //           mode: 'local',
+      //           triggerAction: 'all',
+      //           listeners: {
+      //             change: () => {
+      //               Ext.getCmp('category2').setValue('')
+      //               secondCatStore.getProxy().setExtraParam('firstCat', Ext.getCmp('category1').getValue());
+      //               secondCatStore.reload()
+      //             }
+      //           }
+      //         },
+      //         "-",
+      //         {
+      //           xtype: 'combobox',
+      //           id: "category2",
+      //           width: 250,
+      //           store: secondCatStore,
+      //           displayField: 'WorkingTitle',
+      //           valueField: 'Id',
+      //           forceSelection: false,
+      //           editable: false,
+      //           typeAhead: true,
+      //           mode: 'local',
+      //           triggerAction: 'all',
+      //           listeners: {
+      //             change: () => {
+      //               Ext.getCmp('category3').setValue('')
+      //               thirdCatStore.getProxy().setExtraParam('secondCat', Ext.getCmp('category2').getValue());
+      //               thirdCatStore.reload()
+      //             }
+      //           }
+      //         },
+      //         "-",
+      //         {
+      //           xtype: 'combobox',
+      //           id: "category3",
+      //           width: 250,
+      //           store: thirdCatStore,
+      //           displayField: 'WorkingTitle',
+      //           valueField: 'Id',
+      //           forceSelection: false,
+      //           editable: false,
+      //           typeAhead: true,
+      //           mode: 'local',
+      //           triggerAction: 'all',
+      //           handler: function () {
+
+      //           },
+      //         },
+      //       ]
+      //     }
+      //   ]
+      // });
+
+      const productDetails = Ext.create('Ext.panel.Panel', {
+        id: "productDetails",
+        title: 'PRODUCT DETAILS',
+        flex: 1,
+        trackOver: true,
+        loadMask: true,
+        header: true,
+        scrollable: true,
+        layout: 'border',
+        items: [
+          {
+            xtype: "panel",
+            title: 'Product Info',
+            region: 'center',
+            scrollable: true,
+            style: "padding-left: 20px; background-color: white;",
+            id: 'productInfoContainer',
+            layout: {
+              type: "vbox",
+              align: "stretch",
+            },
+            items: [
+              {
+                xtype: 'container',
+                layout: 'anchor',
+                width: '100%',
+                items: [
+                  {
+                    xtype: 'combobox',
+                    id: "category1",
+                    store: firstCatStore,
+                    width: 300,
+                    displayField: 'WorkingTitle',
+                    valueField: 'Id',
+                    forceSelection: false,
+                    editable: false,
+                    typeAhead: true,
+                    mode: 'local',
+                    triggerAction: 'all',
+                    listeners: {
+                      change: () => {
+                        // Ext.getCmp('category2').setValue('')
+                        // secondCatStore.getProxy().setExtraParam('firstCat', Ext.getCmp('category1').getValue());
+                        // secondCatStore.reload()
+                      }
+                    }
+                  },
+                  "-",
+                  {
+                    xtype: 'combobox',
+                    id: "category2",
+                    width: 250,
+                    store: secondCatStore,
+                    displayField: 'WorkingTitle',
+                    valueField: 'Id',
+                    forceSelection: false,
+                    editable: false,
+                    typeAhead: true,
+                    mode: 'local',
+                    triggerAction: 'all',
+                    listeners: {
+                      change: () => {
+                        // Ext.getCmp('category3').setValue('')
+                        // thirdCatStore.getProxy().setExtraParam('secondCat', Ext.getCmp('category2').getValue());
+                        // thirdCatStore.reload()
+                      }
+                    }
+                  },
+                  "-",
+                  {
+                    xtype: 'combobox',
+                    id: "category3",
+                    width: 250,
+                    store: thirdCatStore,
+                    displayField: 'WorkingTitle',
+                    valueField: 'Id',
+                    forceSelection: false,
+                    editable: false,
+                    typeAhead: true,
+                    mode: 'local',
+                    triggerAction: 'all',
+                    handler: function () {
+
+                    },
+                  },
+                ]
+              }
+            ],
+          },
+        ],
+        dockedItems: [{
+          xtype: "toolbar",
+          dock: "top",
+          id: "productDetailBar",
+          items: [{
+            xtype: 'button',
+            id: "cancel",
+            text: 'Back',
+            iconCls: "fa fa-undo-alt",
+            handler: function () {
+              edit = false;
+              Ext.getCmp('relatedProductContainer').removeAll();
+              Ext.getCmp('viewport').setActiveItem('mainPanel');
+            },
+          },
+            "-",
+          {
+            xtype: 'button', //ongoing
+            id: "editDetail",
+            text: 'Edit',
+            iconCls: "fa fa-edit",
+            handler: function () {
+              edit = true;
+              const selectedRecord = Ext.getCmp("AllProductGrid").getSelectionModel().getSelection()[0];
+              PI = selectedRecord.data.Id;
+              Ext.getCmp('viewport').setActiveItem('panelAdd');
+              getProductDetails(selectedRecord.data.Id);
+            },
+          },
+          ],
+        },]
+      });
+
+      //=========================================================================================================
+      //		           VIEW PORT
+      // ========================================================================================================
+
+      Ext.create("Ext.container.Viewport", {
+        id: "viewport",
+        layout: "card",
+        activeItem: 0,
+        items: [productDetails],
+      });
+    })
+  </script>
+</head>
+
+<body></body>
+
+</html>

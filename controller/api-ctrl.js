@@ -25,10 +25,9 @@ const con = mysql.createConnection({
 // })
 
 exports.getAllProducts = async (req, res) => {
-   // console.log(firstCat, secondCat, thirdCat) = req.query;
    const query = "SELECT ProductInfo.ProductId as Id, Description, FullDescription, Catalog, CODE, As400Code"
-      + " FROM ProductInfo LEFT JOIN Assets ON ProductInfo.Id = Assets.ProductId"
-      + " LEFT JOIN Product ON ProductInfo.Id = Product.Id"
+      + " FROM ProductInfo"
+      + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
       + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
 
    con.query(query, (err, results, fields) => {
@@ -49,7 +48,7 @@ exports.getProductDetails = async (req, res) => {
       if (err) throw err;
 
       finalResults.push(productResults);
-      con.query(`SELECT RP.LinkedProductID, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = ${productId};`, (error, relatedResults, fields) => {
+      con.query(`SELECT RP.LinkedProductID, RP.Type, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = ${productId};`, (error, relatedResults, fields) => {
          if (error) throw error;
          // console.log(relatedResults);
          finalResults.push(relatedResults);
@@ -102,9 +101,9 @@ exports.searchProduct = async (req, res) => {
 
    let target = searchTarget === "productCode" ? "Product.Code" : "ProductInfo.Catalog";
 
-   const query = "SELECT ProductInfo.ProductId as Id, Description, FullDescription, Catalog, CODE, As400Code"
-      + " FROM ProductInfo LEFT JOIN Assets ON ProductInfo.Id = Assets.ProductId"
-      + " LEFT JOIN Product ON ProductInfo.Id = Product.Id"
+   const query = "SELECT Product.Id as Id, Description, FullDescription, Catalog, CODE, As400Code"
+      + " FROM ProductInfo"
+      + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
       + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchQuery}%' ORDER BY ProductInfo.ProductId;`;
 
    con.query(query, (err, results, fields) => {
