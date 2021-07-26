@@ -1,7 +1,7 @@
 
 const { DB } = require('../database')
 const mysql = require('mysql');
-const storage = require('node-sessionstorage'); 
+const storage = require('node-sessionstorage');
 
 const con = mysql.createConnection({
    host: DB.host,
@@ -28,7 +28,7 @@ exports.getAllProducts = async (req, res) => {
 
 exports.getProductDetails = async (req, res) => {
    const { productId } = req.query;
-   const query = `SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id LEFT JOIN Assets A ON A.Id = PI.ProductId WHERE PI.ProductId = ${productId} AND Language = 'en'`
+   const query = `SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId, Publish FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id LEFT JOIN Assets A ON A.Id = PI.ProductId WHERE PI.ProductId = ${productId} AND Language = 'en'`
    let finalResults = []
 
    con.query(query, (err, productResults, fields) => {
@@ -37,11 +37,22 @@ exports.getProductDetails = async (req, res) => {
       finalResults.push(productResults);
       con.query(`SELECT RP.LinkedProductID, RP.Type, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = ${productId};`, (error, relatedResults, fields) => {
          if (error) throw error;
-         // console.log(relatedResults);
+
          finalResults.push(relatedResults);
          res.send(finalResults);
       })
    });
+}
+
+exports.getOtherLanguageDetail = async (req, res) => {
+   const { productId, language } = req.body;
+   const query = `SELECT Catalog, Description, FullDescription, Specification FROM ProductInfo WHERE Language = "${language}" AND ProductId = "${productId}";`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) throw err;
+
+      res.status(200).send(results);
+   })
 }
 
 
@@ -65,7 +76,7 @@ exports.addProduct = async (req, res) => {
 
       let productId = results.insertId;
       storage.setItem('ProdId', productId)
-      
+
       const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
          FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
          DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
@@ -127,13 +138,84 @@ exports.addProduct = async (req, res) => {
 }
 
 exports.editProduct = async (req, res) => {
-   const { Description, Catalog, FullDescription, Specification, ProductId } = req.body;
-   console.log(req.body)
-   con.query(`UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', FullDescription = '${FullDescription}', Specification = '${Specification}' WHERE ProductId = ${ProductId} AND Language = "en";`, (err, result, field) => {
-      if (err) {
-         console.log(err);
+   const { ProductId, Pub, Code, As400, Category } = req.body;
+   console.log(req.body);
+   let errorString = '';
+   const ProductQuery = `Update Product SET Code = "${Code}", As400Code = "${As400}", CategoryId = "${Category}", Publish = ${Pub} WHERE Id = ${ProductId};`;
+
+   con.query(ProductQuery, (err, results) => {
+      if (err) throw err;
+
+      const { Language, ModifiedOn, Description, Specification, Catalog, FullDescription,
+         FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
+         DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
+         SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
+         RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
+
+      const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;   
+      const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;   
+      const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;   
+      const SPQuery = `UPDATE ProductInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp"`;   
+      const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;   
+      
+
+      if(Description !== "" && Catalog !== "") {
+         con.query(ENQuery, (err, result) => {
+            if (err) {
+               errorString += "English, ";
+               console.log(err);
+            }
+
+         })
+      } else {
+         console.log('English wasnt filled in');
       }
-      res.send(result);
+
+      if(FRDescription !== "" && FRCatalog !== "") {
+         con.query(FRQuery, (err, result) => {
+            if (err) {
+               errorString += "French, ";
+               console.log(err);
+            }
+
+         })
+      } else {
+         console.log('French wasnt filled in');
+      }
+
+      if(DEDescription !== "" && DECatalog !== "") {
+         con.query(DEQuery, (err, result) => {
+            errorString += "German, ";
+               console.log(err);
+
+         })
+      } else {
+         console.log('German wasnt filled in');
+      }
+
+      if(SPDescription !== "" && SPCatalog !== "") {
+         con.query(SPQuery, (err, result) => {
+            errorString += "Spanish, ";
+            console.log(err);
+
+         })
+      } else {
+         console.log('Spanish wasnt filled in');
+      }
+
+      if(RUDescription !== "" && RUCatalog !== "") {
+         con.query(RUQuery, (err, result) => {
+            errorString += "Russian";
+               console.log(err);
+
+         })
+      } else {
+         console.log('Russian wasnt filled in');
+      }
+
+      let finalResult = {...results, errorString};
+
+      res.send(finalResult);
    })
 }
 
@@ -171,8 +253,6 @@ exports.searchProduct = async (req, res) => {
       }
       res.send(results)
    })
-
-
 }
 
 
@@ -235,16 +315,24 @@ exports.getRelatedCatalog = async (req, res) => {
 
 
 exports.addRelatedProduct = async (req, res) => {
-   const {Type, Sequence, LinkedProductID, Catalog } = req.body;
-
-   console.log(req.body);
+   const { Type, Sequence, LinkedProductID, Catalog, Code } = req.body;
    const ProdId = storage.getItem('ProdId')
-   console.log(ProdId)
-   con.query(`INSERT INTO RelatedProducts (Type, Sequence, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence} , ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {
+
+   con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence}, "${Code}", ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
       res.send(results)
-      console.log(results)
+   })
+}
+
+exports.addRelatedProductFromView = async (req, res) => {
+   const { Type, Sequence, LinkedProductID, Catalog, Code } = req.body;
+
+   con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence}, "${Code}", ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
    })
 }

@@ -9,6 +9,8 @@ router.get('/getAllProducts', apiCtrl.getAllProducts);
 
 router.get('/getProductDetails', apiCtrl.getProductDetails);
 
+router.post('/getOtherLanguageDetail', apiCtrl.getOtherLanguageDetail);
+
 router.get('/getCategories', apiCtrl.getCategories);
 
 router.get('/getFirstCat', apiCtrl.getFirstCat);
