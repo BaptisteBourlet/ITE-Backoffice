@@ -187,6 +187,27 @@
         });
       }
 
+
+      const getRelatedCatalog = (ProductId) => {
+        Ext.Ajax.request({
+          url: "/api/getRelatedCatalog",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            ProductId: ProductId
+          },
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+            Ext.getCmp('RPCatalog').setValue(res[0].Catalog);
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      }
+
+
       const displayProductInfo = (product) => {
         Ext.getCmp('productName').setValue(product.Catalog);
         Ext.getCmp('productCode').setValue(product.CODE);
@@ -205,8 +226,6 @@
         Ext.getCmp('Cat').setValue(product.Catalog);
         Ext.getCmp('FDesc').setValue(product.FullDescription);
         Ext.getCmp('spec').setValue(product.Specification);
-        // Ext.getCmp('hasDet').setValue(product.)
-        // Ext.getCmp('Pub').setValue('aaaaaaa')
       }
 
 
@@ -1372,6 +1391,7 @@
           anchor: '100%',
           allowBlank: false,
           selectOnFocus: false,
+          editable: false,
         },
         {
           xtype: 'combo',
@@ -1387,19 +1407,19 @@
           selectOnFocus: false,
           anyMatch: true,
           queryMode: 'local',
+          editable: false,
           listeners: {
             change: function () {
-              //Ext.getCmp('RPdescription').setStore(RelatedProductStore)
-              RelatedProductStore.getProxy().setExtraParam('ProdId', this.getValue())
-              RelatedProductStore.reload()
-              console.log(this.getValue())
+              let ProductId = this.getValue()
+              console.log(ProductId);
+              getRelatedCatalog(ProductId);
             }
           }
         },
         {
           xtype: 'textfield',
-          id: 'RPdescription',
-          name: 'RPdescription',
+          id: 'RPCatalog',
+          name: 'RPCatalog',
           width: 500,
           fieldLabel: 'Product description',
           anchor: '100%',
@@ -1467,21 +1487,18 @@
       var addRelatedProd = function () {
         if (mode == 'addRow') {
           Ext.getBody().mask('Saving', 'x-msg-loading');
-
           Ext.Ajax.request({
-            url: '/api/addProduct',
+            url: '/api/addRelatedProduct',
             method: 'POST',
             cors: true,
             useDefaultXhrHeader: false,
             params: {
-
               Type: Ext.getCmp('Type').getValue(),
               LinkedProductID: Ext.getCmp('ProductDesc').getValue(),
               Sequence: 0,
               Code: Ext.getCmp('ProductDesc').getRawValue(),
-              ProductId: sessionStorage.ProdId,
-              Description: Ext.getCmp('RPdescription').getValue(),
-
+              ProductId: '1',
+              Catalog: Ext.getCmp('RPCatalog').getValue(),
             },
             success: function (response) {
               // check for errors and display error message

@@ -29,6 +29,6 @@ router.get('/getProductDet', apiCtrl.getProductDet);
 
 router.post('/addRelatedProduct', apiCtrl.addRelatedProduct);
 
-router.get('/getProductDescription', apiCtrl.getProductDescription);
+router.post('/getRelatedCatalog', apiCtrl.getRelatedCatalog);
 
 module.exports = router;

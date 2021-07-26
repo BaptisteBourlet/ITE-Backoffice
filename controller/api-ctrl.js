@@ -72,9 +72,6 @@ exports.addProduct = async (req, res) => {
 
    console.log(req.body);
 
-
-
-
    // con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
    //    if (err) {
    //       console.log(err)
@@ -202,11 +199,11 @@ exports.getThirdCat = async (req, res) => {
 }
 
 
-exports.getProductDescription = async (req, res) => {
-   let { ProdId } = req.body;
-   console.log(ProdId)
-   console.log(req.body)
-   con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProdId}" AND Language = 'en';`, (err, results, fields) => {
+exports.getRelatedCatalog = async (req, res) => {
+   let { ProductId } = req.body;
+   console.log(ProductId)
+   
+   con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
@@ -216,11 +213,14 @@ exports.getProductDescription = async (req, res) => {
 
 
 exports.addRelatedProduct = async (req, res) => {
-   const {Type, Sequence, LinkedProductID, ProductId, Description } = req.body;
-   con.query(`INSERT INTO RelatedProducts (Type, Sequence, LinkedProductID, ProductId) VALUES ("${Type}", ${Sequence} , "${LinkedProductID}", "${ProductId}", "${Description}");`, (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
-   })
+   const {Type, Sequence, LinkedProductID, ProductId, Catalog } = req.body;
+
+   console.log(req.body);
+
+   // con.query(`INSERT INTO RelatedProducts (Type, Sequence, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence} , "${LinkedProductID}", "${ProductId}", "${Catalog}");`, (err, results, fields) => {
+   //    if (err) {
+   //       console.log(err)
+   //    }
+   //    res.send(results)
+   // })
 }
