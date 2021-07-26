@@ -2,7 +2,11 @@ const express = require('express');
 const apiCtrl = require('../controller/api-ctrl');
 router = express.Router();
 
+// Baptiste getProductDescription
 
+router.post('/addRelatedProduct', apiCtrl.addRelatedProduct);
+
+router.get('/getProductDescription', apiCtrl.getProductDescription);
 
 router.get('/getSomething', apiCtrl.getSomething);
 

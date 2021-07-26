@@ -1,5 +1,5 @@
 
-const { DB } = require('../db')
+const { DB } = require('../database')
 const mysql = require('mysql');
 
 const con = mysql.createConnection({
@@ -68,20 +68,47 @@ exports.getCategories = async (req, res) => {
 }
 
 exports.addProduct = async (req, res) => {
-   console.log(req.body)
+   const { Code, As400, CreateOn, Category, Pub, Slug } = req.body;
+
+   console.log(req.body);
 
 
 
+
+   // con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
+   //    if (err) {
+   //       console.log(err)
+   //    }
+
+   //    let productId = results.insertId;
+
+   //    const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
+   //       FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
+   //       GRLanguage, GRDescription, GRSpecification, GRCatalog, GRFullDescription,
+   //       SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
+   //       RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
+
+   //    con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES 
+   //    ("${Language}", "${CreatedOn}", "${productId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}"),
+   //    ("${FRLanguage}", "${CreatedOn}", "${productId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}"),
+   //    ("${GRLanguage}", "${CreatedOn}", "${productId}", "${GRDescription}", "${GRSpecification}", "${GRCatalog}", "${GRFullDescription}"),
+   //    ("${SPLanguage}", "${CreatedOn}", "${productId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}"),
+   //    ("${RULanguage}", "${CreatedOn}", "${productId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`, (err, results, fields) => {
+   //       if (err) {
+   //          console.log(err)
+   //       }
+   //       res.send(results)
+   //    })
+   // })
 }
-
 
 exports.editProduct = async (req, res) => {
 
-   const {Description, Catalog, FullDescription, Specification, ProductId} = req.body;
-   
+   const { Description, Catalog, FullDescription, Specification, ProductId } = req.body;
+
    console.log(req.body)
    con.query(`UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', FullDescription = '${FullDescription}', Specification = '${Specification}' WHERE ProductId = ${ProductId} AND Language = "en";`, (err, result, field) => {
-      if(err) {
+      if (err) {
          console.log(err);
       }
 
@@ -96,12 +123,22 @@ exports.deleteProduct = async (req, res) => {
 }
 
 
+exports.getProductDet = async (req, res) => {
+   con.query("SELECT CODE, Id FROM Product;", (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+
 exports.searchProduct = async (req, res) => {
    const { searchQuery, searchTarget } = req.body;
 
    let target = searchTarget === "productCode" ? "Product.Code" : "ProductInfo.Catalog";
 
-   let searchText = target === "Product.Code" ? searchQuery.replace(' ', '-') : searchQuery; 
+   let searchText = target === "Product.Code" ? searchQuery.replace(' ', '-') : searchQuery;
 
    const query = "SELECT Product.Id as Id, Description, FullDescription, Catalog, CODE, As400Code"
       + " FROM ProductInfo"
@@ -165,3 +202,25 @@ exports.getThirdCat = async (req, res) => {
 }
 
 
+exports.getProductDescription = async (req, res) => {
+   let { ProdId } = req.body;
+   console.log(ProdId)
+   console.log(req.body)
+   con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProdId}" AND Language = 'en';`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+
+exports.addRelatedProduct = async (req, res) => {
+   const {Type, Sequence, LinkedProductID, ProductId, Description } = req.body;
+   con.query(`INSERT INTO RelatedProducts (Type, Sequence, LinkedProductID, ProductId) VALUES ("${Type}", ${Sequence} , "${LinkedProductID}", "${ProductId}", "${Description}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}

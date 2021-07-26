@@ -205,10 +205,10 @@
       });
 
 
-      const addEditPanel = Ext.create('Ext.panel.Panel', {
-        title: 'Add New Product',
+      // const addEditPanel = Ext.create('Ext.panel.Panel', {
+      //  title: 'Add New Product',
 
-      })
+      // })
 
       var setProductSessionStorage = function () {
         sessionStorage.setItem('Code', Ext.getCmp('code').getValue())
@@ -248,6 +248,8 @@
         }
       });
 
+
+
       const ProductDet = Ext.define("ProductDet", {
         extend: "Ext.data.Model",
         fields: ["CODE", "Id"],
@@ -269,16 +271,18 @@
           useDefaultXhrHeader: false,
         }
       });
-      
+
       var TypeStore = Ext.create('Ext.data.Store', {
-				fields: ['TypeCode', 'TypeName'],
-				data: [
-					{ TypeCode: 'P', TypeName: 'Spare part' },
-					{ TypeCode: 'A', TypeName: 'Accessory' },
-					{ TypeCode: 'R', TypeName: 'Related product' }
-				],
-				storeId: 'TypeStore'
-			});
+        fields: ['TypeCode', 'TypeName'],
+        data: [
+          { TypeCode: 'P', TypeName: 'Spare part' },
+          { TypeCode: 'A', TypeName: 'Accessory' },
+          { TypeCode: 'R', TypeName: 'Related product' }
+        ],
+        storeId: 'TypeStore'
+      });
+
+      // Baptiste getRelatedProduct Description
 
 
       let current_datetime = new Date()
@@ -368,17 +372,17 @@
                 if (data.serverStatus == 2) {
                   Ext.getBody().unmask()
                   Ext.Msg.confirm(
-										"Related product",
-										"Do you want to add related product ?",
-										function (btn, text) {
-											if (btn === "yes") {
+                    "Related product",
+                    "Do you want to add related product ?",
+                    function (btn, text) {
+                      if (btn === "yes") {
                         Ext.getCmp('viewport').setActiveItem(2)
-											} else {
+                      } else {
                         Ext.getCmp('viewport').setActiveItem(0)
                       }
-										});
+                    });
 
-                 
+
                 } else {
                   // display error message
                   Ext.getBody().unmask()
@@ -445,6 +449,12 @@
           },
 
           items: [
+
+            {
+              xtype: 'textfield', id: 'Cat', name: 'Cat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
+              allowBlank: false, submitvalue: true, margin: '25 0 25 0'
+            },
+
             {
               xtype: 'textfield', id: 'desc', name: 'desc', fieldLabel: 'Description', maxLenght: 123, width: 500, allowBlank: false, selectOnFocus: false,
               margin: '25 0 25 0'
@@ -455,10 +465,7 @@
 
             },
 
-            {
-              xtype: 'textfield', id: 'Cat', name: 'Cat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
-              allowBlank: false, submitvalue: true, margin: '25 0 25 0'
-            },
+            // Baptiste move Catalog field
 
             {
               xtype: 'htmleditor', id: 'spec', name: 'spec', fieldLabel: 'Specification', enableColors: true,
@@ -500,7 +507,6 @@
             {
               xtype: 'htmleditor', id: 'FRFDesc', name: 'FRFDesc', fieldLabel: 'Full description', allowBlank: true, enableColors: true,
               enableAlignments: false, submitvalue: true, width: 600, enableFont: false
-
             },
 
             {
@@ -711,7 +717,7 @@
               setProductSessionStorage()
               addRecord()
               Ext.getCmp('screenAdd').reset()
-              
+
             }
           },
           '-',
@@ -724,10 +730,68 @@
         ]
       });
 
-     
-     
-      var itemsAdd2 = [
+      // Baptiste RelatedDesc -> Itemadd2
 
+      var addRelatedProd = function () {
+        if (mode == 'addRow') {
+          Ext.getBody().mask('Saving', 'x-msg-loading');
+
+          Ext.Ajax.request({
+            url: '/api/addProduct',
+            method: 'POST',
+            cors: true,
+            useDefaultXhrHeader: false,
+            params: {
+
+              Type: Ext.getCmp('Type').getValue(),
+              LinkedProductID: Ext.getCmp('ProductDesc').getValue(),
+              Sequence: 0,
+              Code: Ext.getCmp('ProductDesc').getRawValue(),
+              ProductId: sessionStorage.ProdId,
+              Description: Ext.getCmp('RPdescription').getValue(),
+
+            },
+            success: function (response) {
+              // check for errors and display error message
+              var check = response.responseText;
+              if (check) {
+                var data = eval("(" + response.responseText + ")");
+
+                if (data.serverStatus == 2) {
+                  Ext.getBody().unmask()
+                  Ext.Msg.alert(
+                    "Success",
+                    "You have successfully add the related product",
+                    );
+
+
+                } else {
+                  // display error message
+                  Ext.getBody().unmask()
+                  Ext.Msg.alert(
+                    'ERROR',
+                    'Failed to add the related product. Contact your IT team.'
+                  )
+                };
+              };
+            },
+            failure: function (response) {
+              Ext.getBody().unmask()
+              Ext.Msg.alert(
+                'ERROR',
+                'Failed to add the related product. Contact your IT team.'
+              )
+            }
+          });
+        }
+      }
+
+      const RelatedDesc = Ext.define("RelatedDesc", {
+        extend: "Ext.data.Model",
+        fields: ['Description'],
+      });
+
+      var itemsAdd2 = [
         {
           xtype: 'combo',
           id: 'Type',
@@ -744,8 +808,8 @@
         },
         {
           xtype: 'combo',
-          id: 'Product',
-          name: 'Product',
+          id: 'ProductDesc',
+          name: 'ProductDesc',
           store: ProductDetStore,
           width: 500,
           fieldLabel: 'Product',
@@ -756,12 +820,66 @@
           selectOnFocus: false,
           anyMatch: true,
           queryMode: 'local',
+          listeners: {
+            change: function () {
+              //Ext.getCmp('RPdescription').setStore(RelatedProductStore)
+              const RelatedProductStore = Ext.create("Ext.data.Store", {
+                id: "RelatedProductStore",
+                autoLoad: false,
+                model: RelatedDesc,
+                
+                proxy: {
+                  type: "ajax",
+                  method: "POST",
+                  url: "/api/getProductDescription",
+                  
+                  noCache: true,
+                  reader: {
+                    type: "json",
+                  },
+                  cors: true,
+                  useDefaultXhrHeader: false,
+                },
+                listeners: {
+                  beforeload: function (store, options) {
+							store.getProxy().setExtraParam("ProdId", Ext.getCmp('ProductDesc').getValue());
+                }
+              }
+                
+              });
+
+              console.log(Ext.getCmp('ProductDesc').getValue())
+              RelatedProductStore.load(
+                {
+                  callback: function () {
+                    console.log('test '+this.getData().getAt(0).get('Description'))
+                    Ext.getCmp('RPdescription').setValue(this.getData().getAt(0).get('Description'))
+                  }
+                }
+              );
+              RelatedProductStore.reload()
+            }
+          }
         },
         {
-          xtype: 'numberfield', id: 'sequence', name: 'sequence', fieldLabel: 'Sequence', width: 500, allowBlank: false, selectOnFocus: false,
+          xtype: 'textfield',
+          id: 'RPdescription',
+          name: 'RPdescription',
+          width: 500,
+          fieldLabel: 'Product description',
+
+          anchor: '100%',
+          editable: false,
+          hideTrigger: true,
+          allowBlank: true,
+          selectOnFocus: false,
+
 
         },
+
       ]
+
+
       var screenAdd2 = new Ext.FormPanel({
         frame: false,
         header: false,
@@ -803,7 +921,8 @@
         tbar: [
           {
             text: 'Save', id: 'save2', iconCls: 'fas fa-save', handler: function () {
-
+              // Baptiste
+              addRelatedProd()
               Ext.getCmp('screenAdd2').reset()
               Ext.getCmp('viewport').setActiveItem(0);
             }

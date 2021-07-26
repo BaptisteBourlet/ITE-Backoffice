@@ -3,7 +3,6 @@ const apiCtrl = require('../controller/api-ctrl');
 router = express.Router();
 
 
-
 router.get('/getSomething', apiCtrl.getSomething);
 
 router.get('/getAllProducts', apiCtrl.getAllProducts);
@@ -25,5 +24,11 @@ router.post('/editProduct', apiCtrl.editProduct);
 router.post('/deleteProduct', apiCtrl.deleteProduct)
 
 router.post('/searchProduct', apiCtrl.searchProduct);
+
+router.get('/getProductDet', apiCtrl.getProductDet);
+
+router.post('/addRelatedProduct', apiCtrl.addRelatedProduct);
+
+router.get('/getProductDescription', apiCtrl.getProductDescription);
 
 module.exports = router;

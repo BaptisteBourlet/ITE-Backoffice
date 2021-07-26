@@ -304,8 +304,6 @@
                         Ext.getCmp('viewport').setActiveItem(0)
                       }
                     });
-
-
                 } else {
                   // display error message
                   Ext.getBody().unmask()
@@ -353,6 +351,18 @@
           },
         });
       };
+
+      var TypeStore = Ext.create('Ext.data.Store', {
+        fields: ['TypeCode', 'TypeName'],
+        data: [
+          { TypeCode: 'P', TypeName: 'Spare part' },
+          { TypeCode: 'A', TypeName: 'Accessory' },
+          { TypeCode: 'R', TypeName: 'Related product' }
+        ],
+        storeId: 'TypeStore'
+      });
+
+
       const ProductDet = Ext.define("ProductDet", {
         extend: "Ext.data.Model",
         fields: ["CODE", "Id"],
@@ -571,7 +581,7 @@
           handler: function () {
             mode = 'addRow';
             Ext.getCmp('panelAdd').setTitle('Add product');
-            Ext.getCmp('viewport').setActiveItem("panelAdd");
+            Ext.getCmp('viewport').setActiveItem("panelAdd2");
           },
         },
           "-",
@@ -784,7 +794,6 @@
               leaf: true,
               iconCls: 'x-fa fa-usd',
               handler: () => {
-                console.log('bitch')
               }
             }
             ]
@@ -1062,86 +1071,43 @@
           xtype: 'fieldset',
           title: 'English Translations',
           anchor: '100%',
-          height: 500,
           hidden: false,
           id: 'ENFIELD',
-          layout: {
-            type: 'hbox',
-            columns: 9,
-            align: 'stretch'
-          },
           layoutConfig: {
             // The total column count must be specified here
-            columns: 9,
-            rows: 10,
+            columns: 9
           },
           items: [
             {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'desc',
-                name: 'desc',
-                fieldLabel: 'Description',
-                maxLenght: 123,
-                width: 500,
-                allowBlank: false,
-                selectOnFocus: false,
-              },
-              {
-                xtype: 'htmleditor',
-                id: 'spec',
-                name: 'spec',
-                height: 400,
-                fieldLabel: 'Specification',
-                enableColors: false,
-                enableAlignments: false,
-                allowBlank: false,
-                selectOnFocus: false,
-              },
-              ]
+              xtype: 'textfield', id: 'Cat', name: 'Cat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
+              allowBlank: false, submitvalue: true, margin: '25 0 25 0',
             },
             {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'Cat',
-                name: 'Cat',
-                fieldLabel: 'Product Name',
-                maxLenght: 118,
-                width: 500,
-                submitvalue: true
-              },
+              xtype: 'textfield', id: 'desc', name: 'desc', fieldLabel: 'Description', maxLenght: 123, width: 500, allowBlank: false, selectOnFocus: false,
+              margin: '25 0 25 0',
+            },
+            {
+              xtype: 'htmleditor', id: 'FDesc', name: 'FDesc', fieldLabel: 'Full description', enableColors: true,
+              enableAlignments: false, submitvalue: true, allowBlank: false, width: 600, enableFont: false,
 
-              {
-                xtype: 'htmleditor',
-                id: 'FDesc',
-                name: 'FDesc',
-                height: 400,
-                fieldLabel: 'Full description',
-                enableColors: false,
-                enableAlignments: false,
-                submitvalue: true,
-              },
-              ]
-            }
+            },
+            // Baptiste move Catalog field
+            {
+              xtype: 'htmleditor', id: 'spec', name: 'spec', fieldLabel: 'Specification', enableColors: true,
+              enableAlignments: false, allowBlank: false, selectOnFocus: false, width: 600, enableFont: false
+            },
           ]
         },
         {
-          xtype: 'button',
-          text: 'French translations',
-          margin: 10,
-          handler: function () {
+          xtype: 'button', text: 'French translations', margin: 10, handler: function () {
             if (Ext.getCmp('FRFIELD').isHidden() == true) {
               Ext.getCmp('FRFIELD').setHidden(false)
             } else {
               Ext.getCmp('FRFIELD').setHidden(true)
             }
+
           },
+
         },
         {
           xtype: 'fieldset',
@@ -1149,82 +1115,44 @@
           anchor: '100%',
           hidden: true,
           id: 'FRFIELD',
-          layout: {
-            type: 'hbox',
-            columns: 9,
-            align: 'stretch'
-          },
           layoutConfig: {
             // The total column count must be specified here
             columns: 9
           },
           items: [
             {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'FRdesc',
-                name: 'FRdesc',
-                fieldLabel: 'Description',
-                maxLenght: 123,
-                width: 500,
-                allowBlank: true,
-                selectOnFocus: false,
+              xtype: 'textfield', id: 'FRdesc', name: 'FRdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
+              allowBlank: true, selectOnFocus: false, margin: '25 0 25 0'
 
-              },
-
-              {
-                xtype: 'htmleditor',
-                id: 'FRspec',
-                name: 'FRspec',
-                fieldLabel: 'Specification',
-                enableColors: false,
-                enableAlignments: false,
-                allowBlank: false,
-                selectOnFocus: false,
-              },
-              ]
             },
             {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'FRCat',
-                name: 'FRCat',
-                fieldLabel: 'Catalog',
-                maxLenght: 118,
-                width: 500,
-                submitvalue: true
-              },
+              xtype: 'htmleditor', id: 'FRFDesc', name: 'FRFDesc', fieldLabel: 'Full description', allowBlank: true, enableColors: true,
+              enableAlignments: false, submitvalue: true, width: 600, enableFont: false
+            },
 
-              {
-                xtype: 'htmleditor',
-                id: 'FRFDesc',
-                name: 'FRFDesc',
-                fieldLabel: 'Full description',
-                enableColors: false,
-                enableAlignments: false,
-                submitvalue: true,
-              },
-              ]
-            }
+            {
+              xtype: 'textfield', id: 'FRCat', name: 'FRCat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
+              allowBlank: true, submitvalue: true, margin: '25 0 25 0'
+            },
+
+            {
+              xtype: 'htmleditor', id: 'FRspec', name: 'FRspec', fieldLabel: 'Specification', enableColors: true,
+              enableAlignments: false, allowBlank: true, selectOnFocus: false, width: 600, enableFont: false
+
+            },
+
           ]
         },
         {
-          xtype: 'button',
-          text: 'German translations',
-          margin: 10,
-          handler: function () {
+          xtype: 'button', text: 'German translations', margin: 10, handler: function () {
             if (Ext.getCmp('GRFIELD').isHidden() == true) {
               Ext.getCmp('GRFIELD').setHidden(false)
             } else {
               Ext.getCmp('GRFIELD').setHidden(true)
             }
+
           },
+
         },
         {
           xtype: 'fieldset',
@@ -1232,81 +1160,46 @@
           anchor: '100%',
           hidden: true,
           id: 'GRFIELD',
-          layout: {
-            type: 'hbox',
-            columns: 9,
-            align: 'stretch'
-          },
+
           layoutConfig: {
             // The total column count must be specified here
             columns: 9
           },
           items: [
-            {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'GRdesc',
-                name: 'GRdesc',
-                fieldLabel: 'Description',
-                maxLenght: 123,
-                width: 500,
-                allowBlank: false,
-                selectOnFocus: false,
 
-              },
-              {
-                xtype: 'htmleditor',
-                id: 'GRspec',
-                name: 'GRspec',
-                fieldLabel: 'Specification',
-                enableColors: false,
-                enableAlignments: false,
-                allowBlank: false,
-                selectOnFocus: false,
-              },
-              ]
+            {
+              xtype: 'textfield', id: 'GRdesc', name: 'GRdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
+              allowBlank: true, selectOnFocus: false, margin: '25 0 25 0'
+
             },
             {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'GRCat',
-                name: 'GRCat',
-                fieldLabel: 'Catalog',
-                maxLenght: 118,
-                width: 500,
-                submitvalue: true
-              },
+              xtype: 'htmleditor', id: 'GRFDesc', name: 'GRFDesc', fieldLabel: 'Full description', enableColors: true,
+              enableAlignments: false, submitvalue: true, allowBlank: true, width: 600, enableFont: false
 
-              {
-                xtype: 'htmleditor',
-                id: 'GRFDesc',
-                name: 'GRFDesc',
-                fieldLabel: 'Full description',
-                enableColors: false,
-                enableAlignments: false,
-                submitvalue: true,
-              },
-              ]
-            }
+            },
+
+            {
+              xtype: 'textfield', id: 'GRCat', name: 'GRCat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
+              allowBlank: true, submitvalue: true, margin: '25 0 25 0'
+            },
+            {
+              xtype: 'htmleditor', id: 'GRspec', name: 'GRspec', fieldLabel: 'Specification', enableColors: true,
+              enableAlignments: false, allowBlank: true, selectOnFocus: false, width: 600, enableFont: false
+
+            },
+
           ]
         },
         {
-          xtype: 'button',
-          text: 'Spanish translations',
-          margin: 10,
-          handler: function () {
+          xtype: 'button', text: 'Spanish translations', margin: 10, handler: function () {
             if (Ext.getCmp('SPFIELD').isHidden() == true) {
               Ext.getCmp('SPFIELD').setHidden(false)
             } else {
               Ext.getCmp('SPFIELD').setHidden(true)
             }
+
           },
+
         },
         {
           xtype: 'fieldset',
@@ -1314,74 +1207,41 @@
           anchor: '100%',
           hidden: true,
           id: 'SPFIELD',
-          layout: {
-            type: 'hbox',
-            columns: 9,
-            align: 'stretch'
-          },
+
           layoutConfig: {
             // The total column count must be specified here
             columns: 9
           },
           items: [
-            {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'SPdesc',
-                name: 'SPdesc',
-                fieldLabel: 'Description',
-                maxLenght: 123,
-                width: 500,
-                allowBlank: false,
-                selectOnFocus: false,
 
-              },
-              {
-                xtype: 'htmleditor',
-                id: 'SPspec',
-                name: 'SPspec',
-                fieldLabel: 'Specification',
-                enableColors: false,
-                enableAlignments: false,
-                allowBlank: false,
-                selectOnFocus: false,
-              },
-              ]
+            {
+              xtype: 'textfield', id: 'SPdesc', name: 'SPdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
+              allowBlank: true, selectOnFocus: false, margin: '25 0 25 0'
+
             },
             {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'SPCat',
-                name: 'SPCat',
-                fieldLabel: 'Catalog',
-                maxLenght: 118,
-                width: 500,
-                submitvalue: true
-              },
-              {
-                xtype: 'htmleditor',
-                id: 'SPFDesc',
-                name: 'SPFDesc',
-                fieldLabel: 'Full description',
-                enableColors: false,
-                enableAlignments: false,
-                submitvalue: true,
-              },
-              ]
-            }
+              xtype: 'htmleditor', id: 'SPFDesc', name: 'SPFDesc', fieldLabel: 'Full description', enableColors: true,
+              enableAlignments: false, submitvalue: true, allowBlank: true, width: 600, enableFont: false
+
+            },
+
+
+            {
+              xtype: 'textfield', id: 'SPCat', name: 'SPCat', fieldLabel: 'Catalog', allowBlank: true, maxLenght: 118,
+              width: 500, submitvalue: true, margin: '25 0 25 0'
+            },
+
+            {
+              xtype: 'htmleditor', id: 'SPspec', name: 'SPspec', fieldLabel: 'Specification', enableColors: true,
+              enableAlignments: false, allowBlank: true, selectOnFocus: false, width: 600, enableFont: false
+
+            },
+
+
           ]
         },
         {
-          xtype: 'button',
-          text: 'Russian translations',
-          margin: 10,
-          handler: function () {
+          xtype: 'button', text: 'Russian translations', margin: 10, handler: function () {
             if (Ext.getCmp('RUFIELD').isHidden() == true) {
               Ext.getCmp('RUFIELD').setHidden(false)
             } else {
@@ -1397,74 +1257,34 @@
           anchor: '100%',
           hidden: true,
           id: 'RUFIELD',
-          layout: {
-            type: 'hbox',
-            columns: 9,
-            align: 'stretch'
-          },
+
           layoutConfig: {
             // The total column count must be specified here
             columns: 9
           },
           items: [
+
             {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'RUdesc',
-                name: 'RUdesc',
-                fieldLabel: 'Description',
-                maxLenght: 123,
-                width: 500,
-                allowBlank: false,
-                selectOnFocus: false,
+              xtype: 'textfield', id: 'RUdesc', name: 'RUdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
+              allowBlank: true, selectOnFocus: false, margin: '25 0 25 0'
 
-              },
+            },
 
-              {
-                xtype: 'htmleditor',
-                id: 'RUspec',
-                name: 'RUspec',
-                fieldLabel: 'Specification',
-                enableColors: false,
-                enableAlignments: false,
-                allowBlank: false,
-                selectOnFocus: false,
+            {
+              xtype: 'htmleditor', id: 'RUFDesc', name: 'RUFDesc', fieldLabel: 'Full description', enableColors: true,
+              enableAlignments: false, submitvalue: true, allowBlank: true, width: 600, enableFont: false
 
-              },
-              ]
             },
             {
-              xtype: 'container',
-              style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-              width: '49%',
-              items: [{
-                xtype: 'textfield',
-                id: 'RUCat',
-                name: 'RUCat',
-                fieldLabel: 'Catalog',
-                maxLenght: 118,
-                width: 500,
-                submitvalue: true
-              },
-
-              {
-                xtype: 'htmleditor',
-                id: 'RUFDesc',
-                name: 'RUFDesc',
-                fieldLabel: 'Full description',
-                enableColors: false,
-                enableAlignments: false,
-                submitvalue: true,
-
-              },
-
-              ]
-            }
+              xtype: 'textfield', id: 'RUCat', name: 'RUCat', fieldLabel: 'Catalog', maxLenght: 118, allowBlank: true,
+              width: 500, submitvalue: true, margin: '25 0 25 0'
+            },
+            {
+              xtype: 'htmleditor', id: 'RUspec', name: 'RUspec', fieldLabel: 'Specification', enableColors: true,
+              enableAlignments: false, allowBlank: true, selectOnFocus: false, width: 600, enableFont: false
+            },
           ]
-        },
+        }
       ];
       // spareparts, accessory, related product, categry, id+display( search), english field needed, html edit box 
       // Hide cancel button 
@@ -1518,7 +1338,7 @@
           text: 'Save', id: 'save', iconCls: 'fas fa-save', handler: function () {
             setProductSessionStorage()
             addRecord()
-            Ext.getCmp('screenAdd').reset()
+            Ext.getCmp('addForm').reset()
           }
         },
           '-',
@@ -1540,506 +1360,167 @@
       });
 
       var itemsAdd2 = [
-        // {
-        //   xtype: 'fieldset',
-        //   title: 'English Translations',
-        //   anchor: '100%',
-        //   height: 500,
-        //   hidden: false,
-        //   id: 'ENFIELD',
-        //   layout: {
-        //     type: 'hbox',
-        //     columns: 9,
-        //     align: 'stretch'
-        //   },
-        //   layoutConfig: {
-        //     // The total column count must be specified here
-        //     columns: 9,
-        //     rows: 10,
-        //   },
-        //   items: [
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'desc',
-        //         name: 'desc',
-        //         fieldLabel: 'Description',
-        //         maxLenght: 123,
-        //         width: 500,
-        //         allowBlank: false,
-        //         selectOnFocus: false,
-        //       },
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'spec',
-        //         name: 'spec',
-        //         height: 400,
-        //         fieldLabel: 'Specification',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         allowBlank: false,
-        //         selectOnFocus: false,
-        //       },
-        //       ]
-        //     },
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'Cat',
-        //         name: 'Cat',
-        //         fieldLabel: 'Product Name',
-        //         maxLenght: 118,
-        //         width: 500,
-        //         submitvalue: true
-        //       },
-
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'FDesc',
-        //         name: 'FDesc',
-        //         height: 400,
-        //         fieldLabel: 'Full description',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         submitvalue: true,
-        //       },
-        //       ]
-        //     }
-        //   ]
-        // },
-        // {
-        //   xtype: 'button',
-        //   text: 'French translations',
-        //   margin: 10,
-        //   handler: function () {
-        //     if (Ext.getCmp('FRFIELD').isHidden() == true) {
-        //       Ext.getCmp('FRFIELD').setHidden(false)
-        //     } else {
-        //       Ext.getCmp('FRFIELD').setHidden(true)
-        //     }
-        //   },
-        // },
-        // {
-        //   xtype: 'fieldset',
-        //   title: 'French Translations',
-        //   anchor: '100%',
-        //   hidden: true,
-        //   id: 'FRFIELD',
-        //   layout: {
-        //     type: 'hbox',
-        //     columns: 9,
-        //     align: 'stretch'
-        //   },
-        //   layoutConfig: {
-        //     // The total column count must be specified here
-        //     columns: 9
-        //   },
-        //   items: [
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'FRdesc',
-        //         name: 'FRdesc',
-        //         fieldLabel: 'Description',
-        //         maxLenght: 123,
-        //         width: 500,
-        //         allowBlank: true,
-        //         selectOnFocus: false,
-
-        //       },
-
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'FRspec',
-        //         name: 'FRspec',
-        //         fieldLabel: 'Specification',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         allowBlank: false,
-        //         selectOnFocus: false,
-        //       },
-        //       ]
-        //     },
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'FRCat',
-        //         name: 'FRCat',
-        //         fieldLabel: 'Catalog',
-        //         maxLenght: 118,
-        //         width: 500,
-        //         submitvalue: true
-        //       },
-
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'FRFDesc',
-        //         name: 'FRFDesc',
-        //         fieldLabel: 'Full description',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         submitvalue: true,
-        //       },
-        //       ]
-        //     }
-        //   ]
-        // },
-        // {
-        //   xtype: 'button',
-        //   text: 'German translations',
-        //   margin: 10,
-        //   handler: function () {
-        //     if (Ext.getCmp('GRFIELD').isHidden() == true) {
-        //       Ext.getCmp('GRFIELD').setHidden(false)
-        //     } else {
-        //       Ext.getCmp('GRFIELD').setHidden(true)
-        //     }
-        //   },
-        // },
-        // {
-        //   xtype: 'fieldset',
-        //   title: 'German Translations',
-        //   anchor: '100%',
-        //   hidden: true,
-        //   id: 'GRFIELD',
-        //   layout: {
-        //     type: 'hbox',
-        //     columns: 9,
-        //     align: 'stretch'
-        //   },
-        //   layoutConfig: {
-        //     // The total column count must be specified here
-        //     columns: 9
-        //   },
-        //   items: [
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'GRdesc',
-        //         name: 'GRdesc',
-        //         fieldLabel: 'Description',
-        //         maxLenght: 123,
-        //         width: 500,
-        //         allowBlank: false,
-        //         selectOnFocus: false,
-
-        //       },
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'GRspec',
-        //         name: 'GRspec',
-        //         fieldLabel: 'Specification',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         allowBlank: false,
-        //         selectOnFocus: false,
-        //       },
-        //       ]
-        //     },
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'GRCat',
-        //         name: 'GRCat',
-        //         fieldLabel: 'Catalog',
-        //         maxLenght: 118,
-        //         width: 500,
-        //         submitvalue: true
-        //       },
-
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'GRFDesc',
-        //         name: 'GRFDesc',
-        //         fieldLabel: 'Full description',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         submitvalue: true,
-        //       },
-        //       ]
-        //     }
-        //   ]
-        // },
-        // {
-        //   xtype: 'button',
-        //   text: 'Spanish translations',
-        //   margin: 10,
-        //   handler: function () {
-        //     if (Ext.getCmp('SPFIELD').isHidden() == true) {
-        //       Ext.getCmp('SPFIELD').setHidden(false)
-        //     } else {
-        //       Ext.getCmp('SPFIELD').setHidden(true)
-        //     }
-        //   },
-        // },
-        // {
-        //   xtype: 'fieldset',
-        //   title: 'Spanish Translations',
-        //   anchor: '100%',
-        //   hidden: true,
-        //   id: 'SPFIELD',
-        //   layout: {
-        //     type: 'hbox',
-        //     columns: 9,
-        //     align: 'stretch'
-        //   },
-        //   layoutConfig: {
-        //     // The total column count must be specified here
-        //     columns: 9
-        //   },
-        //   items: [
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'SPdesc',
-        //         name: 'SPdesc',
-        //         fieldLabel: 'Description',
-        //         maxLenght: 123,
-        //         width: 500,
-        //         allowBlank: false,
-        //         selectOnFocus: false,
-
-        //       },
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'SPspec',
-        //         name: 'SPspec',
-        //         fieldLabel: 'Specification',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         allowBlank: false,
-        //         selectOnFocus: false,
-        //       },
-        //       ]
-        //     },
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'SPCat',
-        //         name: 'SPCat',
-        //         fieldLabel: 'Catalog',
-        //         maxLenght: 118,
-        //         width: 500,
-        //         submitvalue: true
-        //       },
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'SPFDesc',
-        //         name: 'SPFDesc',
-        //         fieldLabel: 'Full description',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         submitvalue: true,
-        //       },
-        //       ]
-        //     }
-        //   ]
-        // },
-        // {
-        //   xtype: 'button',
-        //   text: 'Russian translations',
-        //   margin: 10,
-        //   handler: function () {
-        //     if (Ext.getCmp('RUFIELD').isHidden() == true) {
-        //       Ext.getCmp('RUFIELD').setHidden(false)
-        //     } else {
-        //       Ext.getCmp('RUFIELD').setHidden(true)
-        //     }
-
-        //   },
-
-        // },
-        // {
-        //   xtype: 'fieldset',
-        //   title: 'Russian Translations',
-        //   anchor: '100%',
-        //   hidden: true,
-        //   id: 'RUFIELD',
-        //   layout: {
-        //     type: 'hbox',
-        //     columns: 9,
-        //     align: 'stretch'
-        //   },
-        //   layoutConfig: {
-        //     // The total column count must be specified here
-        //     columns: 9
-        //   },
-        //   items: [
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'RUdesc',
-        //         name: 'RUdesc',
-        //         fieldLabel: 'Description',
-        //         maxLenght: 123,
-        //         width: 500,
-        //         allowBlank: false,
-        //         selectOnFocus: false,
-
-        //       },
-
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'RUspec',
-        //         name: 'RUspec',
-        //         fieldLabel: 'Specification',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         allowBlank: false,
-        //         selectOnFocus: false,
-
-        //       },
-        //       ]
-        //     },
-        //     {
-        //       xtype: 'container',
-        //       style: 'margin-right: 10px ; margin-top: 5px ; margin-bottom: 5px',
-        //       width: '49%',
-        //       items: [{
-        //         xtype: 'textfield',
-        //         id: 'RUCat',
-        //         name: 'RUCat',
-        //         fieldLabel: 'Catalog',
-        //         maxLenght: 118,
-        //         width: 500,
-        //         submitvalue: true
-        //       },
-
-        //       {
-        //         xtype: 'htmleditor',
-        //         id: 'RUFDesc',
-        //         name: 'RUFDesc',
-        //         fieldLabel: 'Full description',
-        //         enableColors: false,
-        //         enableAlignments: false,
-        //         submitvalue: true,
-
-        //       },
-
-        //       ]
-        //     }
-        //   ]
-        // },
+        {
+          xtype: 'combo',
+          id: 'Type',
+          name: 'Type',
+          store: TypeStore,
+          width: 500,
+          fieldLabel: 'Type',
+          displayField: 'TypeName',
+          valueField: 'TypeCode',
+          anchor: '100%',
+          allowBlank: false,
+          selectOnFocus: false,
+        },
+        {
+          xtype: 'combo',
+          id: 'ProductDesc',
+          name: 'ProductDesc',
+          store: ProductDetStore,
+          width: 500,
+          fieldLabel: 'Product',
+          displayField: 'CODE',
+          valueField: 'Id',
+          anchor: '100%',
+          allowBlank: false,
+          selectOnFocus: false,
+          anyMatch: true,
+          queryMode: 'local',
+          listeners: {
+            change: function () {
+              //Ext.getCmp('RPdescription').setStore(RelatedProductStore)
+              RelatedProductStore.getProxy().setExtraParam('ProdId', this.getValue())
+              RelatedProductStore.reload()
+              console.log(this.getValue())
+            }
+          }
+        },
+        {
+          xtype: 'textfield',
+          id: 'RPdescription',
+          name: 'RPdescription',
+          width: 500,
+          fieldLabel: 'Product description',
+          anchor: '100%',
+          editable: false,
+          hideTrigger: true,
+          allowBlank: true,
+          selectOnFocus: false,
+        },
       ]
+
       var screenAdd2 = new Ext.FormPanel({
         frame: false,
         header: false,
         border: false,
+        id: 'screenAdd2',
         defaults: {
-          labelAlign: 'right',
-          labelWidth: 105,
-          listeners: {
-            specialkey: function (field, e) {
-              if (e.getKey() == e.ENTER) {
-                updateRec();
-              }
-              if (e.getKey() == e.ESC) {
-                Ext.getCmp('viewport').setActiveItem('mainPanel');
-              }
-            }
-          }
+          labelAlign: 'right', labelWidth: 105,
         },
         width: 1200,
         waitMsgTarget: true,
         autoScroll: true,
         style: 'padding: 3px 3px 3px 3px;',
-        items: [{
-          layout: 'column',
-          layoutConfig: {
-            columns: 2
-          },
-          border: false,
-          items: [{
-
-            id: 'addForm2',
-            columnWidth: 0.90,
+        items: [
+          {
+            layout: 'column',
+            layoutConfig: { columns: 2 },
             border: false,
-            items: itemsAdd2
+            items: [
+              {
+                id: 'addForm2',
+                columnWidth: 0.90,
+                border: false,
+                items: itemsAdd2
+              }
+            ]
           }]
-        }]
       });
-
       // outer panel container to hold tbar and keypress definitions
       var panelAdd2 = new Ext.Panel({
         layout: 'fit',
-        title: 'Add product details',
-        header: true,
         id: 'panelAdd2',
+        title: 'Add details',
+        header: true,
         items: [screenAdd2],
-        tbar: [{
-          text: 'Save',
-          id: 'save2',
-          iconCls: 'fas fa-save',
-          handler: () => {
-            Ext.Ajax.request({
-              url: "/api/editProduct",
-              method: "POST",
-              cors: true,
-              useDefaultXhrHeader: false,
-              params: {
-                ProductId: PI,
-                Specification: Ext.getCmp('spec').getValue(),
-                FullDescription: Ext.getCmp('FDesc').getValue(),
-                Description: Ext.getCmp('desc').getValue(),
-                Catalog: Ext.getCmp('Cat').getValue(),
-              },
-
-              success: function (response) {
-                const res = JSON.parse(response.responseText);
-                mainStore.reload();
-                Ext.Msg.alert('INFO!', `Product has been edited successfully`);
-                Ext.getCmp('viewport').setActiveItem('mainPanel');
-
-                edit = false;
-              },
-              failure: function (response) {
-                console.log("failed", response);
-              },
-            });
-          }
-        },
+        tbar: [
+          {
+            text: 'Save', id: 'save2', iconCls: 'fas fa-save', handler: function () {
+              // Baptiste
+              addRelatedProd()
+              Ext.getCmp('screenAdd2').reset()
+              Ext.getCmp('viewport').setActiveItem(0);
+            }
+          },
           '-',
-        {
-          text: 'Cancel',
-          tooltip: 'Cancel',
-          iconCls: 'fas fa-undo',
-          handler: function () {
-            edit = false;
-            Ext.getCmp('relatedProducts').removeAll();
-            Ext.getCmp('relatedAccessories').removeAll();
-            Ext.getCmp('relatedParts').removeAll();
-            Ext.getCmp('viewport').setActiveItem('mainPanel');
-            clearEditInfo();
+          {
+            text: 'Cancel', tooltip: 'Cancel', iconCls: 'fas fa-undo', handler: function () {
+              Ext.getCmp('screenAdd2').reset()
+              Ext.getCmp('viewport').setActiveItem(0);
+            }
           }
-        }
         ]
+      });
+
+
+      var addRelatedProd = function () {
+        if (mode == 'addRow') {
+          Ext.getBody().mask('Saving', 'x-msg-loading');
+
+          Ext.Ajax.request({
+            url: '/api/addProduct',
+            method: 'POST',
+            cors: true,
+            useDefaultXhrHeader: false,
+            params: {
+
+              Type: Ext.getCmp('Type').getValue(),
+              LinkedProductID: Ext.getCmp('ProductDesc').getValue(),
+              Sequence: 0,
+              Code: Ext.getCmp('ProductDesc').getRawValue(),
+              ProductId: sessionStorage.ProdId,
+              Description: Ext.getCmp('RPdescription').getValue(),
+
+            },
+            success: function (response) {
+              // check for errors and display error message
+              var check = response.responseText;
+              if (check) {
+                var data = eval("(" + response.responseText + ")");
+
+                if (data.serverStatus == 2) {
+                  Ext.getBody().unmask()
+                  Ext.Msg.alert(
+                    "Success",
+                    "You have successfully add the related product",
+                  );
+
+
+                } else {
+                  // display error message
+                  Ext.getBody().unmask()
+                  Ext.Msg.alert(
+                    'ERROR',
+                    'Failed to add the related product. Contact your IT team.'
+                  )
+                };
+              };
+            },
+            failure: function (response) {
+              Ext.getBody().unmask()
+              Ext.Msg.alert(
+                'ERROR',
+                'Failed to add the related product. Contact your IT team.'
+              )
+            }
+          });
+        }
+      }
+
+      const RelatedDesc = Ext.define("RelatedDesc", {
+        extend: "Ext.data.Model",
+        fields: ['Description'],
       });
 
 

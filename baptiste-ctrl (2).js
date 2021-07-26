@@ -24,6 +24,36 @@ const con = mysql.createConnection({
 //    // })
 // })
 
+
+// Baptiste getProductDescription 
+exports.getProductDescription = async (req, res) => {
+   let { ProdId } = req.body;
+   console.log(ProdId)
+   console.log(req.body)
+
+   con.query(`SELECT Description FROM ProductInfo WHERE ProductId = ${ProdId} AND Language = 'en';`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+
+exports.addRelatedProduct = async (req, res) => {
+   const {Type, Sequence, LinkedProductID, ProductId, Description } = req.body;
+   con.query(`INSERT INTO RelatedProducts (Type, Sequence, LinkedProductID, ProductId) VALUES ("${Type}", ${Sequence} , "${LinkedProductID}", "${ProductId}", "${Description}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      
+      res.send(results)
+      
+   })
+
+
+}
+
 exports.addProduct = async (req, res) => {
    const {Code, As400, CreateOn, Category, Pub, Slug } = req.body;
    con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
@@ -48,13 +78,10 @@ exports.addProduct = async (req, res) => {
          if (err) {
             console.log(err)
          }
-         
          res.send(results)
          
       })
    })
-
-
 }
 
 exports.getProductDet = async (req, res) => {
@@ -65,6 +92,8 @@ exports.getProductDet = async (req, res) => {
       res.send(results)
    })
 }
+
+
 exports.getCategories = async (req, res) => {
    con.query("SELECT Id , Name FROM CategoryInfo WHERE Language = 'en'", (err, results, fields) => {
       if (err) {
