@@ -1,6 +1,7 @@
 
 const { DB } = require('../database')
 const mysql = require('mysql');
+const storage = require('node-sessionstorage'); 
 
 const con = mysql.createConnection({
    host: DB.host,
@@ -72,31 +73,33 @@ exports.addProduct = async (req, res) => {
 
    console.log(req.body);
 
-   // con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
-   //    if (err) {
-   //       console.log(err)
-   //    }
+   con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
 
-   //    let productId = results.insertId;
+      let productId = results.insertId;
+      storage.setItem('test', productId)
+      
 
-   //    const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
-   //       FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
-   //       DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
-   //       SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
-   //       RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
+      const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
+         FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
+         DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
+         SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
+         RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
-   //    con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES 
-   //    ("${Language}", "${CreatedOn}", "${productId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}"),
-   //    ("${FRLanguage}", "${CreatedOn}", "${productId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}"),
-   //    ("${DELanguage}", "${CreatedOn}", "${productId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}"),
-   //    ("${SPLanguage}", "${CreatedOn}", "${productId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}"),
-   //    ("${RULanguage}", "${CreatedOn}", "${productId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`, (err, results, fields) => {
-   //       if (err) {
-   //          console.log(err)
-   //       }
-   //       res.send(results)
-   //    })
-   // })
+      con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES 
+      ("${Language}", "${CreatedOn}", "${productId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}"),
+      ("${FRLanguage}", "${CreatedOn}", "${productId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}"),
+      ("${DELanguage}", "${CreatedOn}", "${productId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}"),
+      ("${SPLanguage}", "${CreatedOn}", "${productId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}"),
+      ("${RULanguage}", "${CreatedOn}", "${productId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   })
 }
 
 exports.editProduct = async (req, res) => {
@@ -213,14 +216,16 @@ exports.getRelatedCatalog = async (req, res) => {
 
 
 exports.addRelatedProduct = async (req, res) => {
-   const {Type, Sequence, LinkedProductID, ProductId, Catalog } = req.body;
+   const {Type, Sequence, LinkedProductID, Catalog } = req.body;
 
    console.log(req.body);
-
-   // con.query(`INSERT INTO RelatedProducts (Type, Sequence, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence} , "${LinkedProductID}", "${ProductId}", "${Catalog}");`, (err, results, fields) => {
-   //    if (err) {
-   //       console.log(err)
-   //    }
-   //    res.send(results)
-   // })
+   const ProdId = storage.getItem('test')
+   console.log(ProdId)
+   con.query(`INSERT INTO RelatedProducts (Type, Sequence, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence} , ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+      console.log(results)
+   })
 }
