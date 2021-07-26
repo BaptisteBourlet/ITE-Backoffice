@@ -1389,10 +1389,7 @@
           queryMode: 'local',
           listeners: {
             change: function () {
-              //Ext.getCmp('RPdescription').setStore(RelatedProductStore)
-              RelatedProductStore.getProxy().setExtraParam('ProdId', this.getValue())
-              RelatedProductStore.reload()
-              console.log(this.getValue())
+           
             }
           }
         },
@@ -1469,7 +1466,7 @@
           Ext.getBody().mask('Saving', 'x-msg-loading');
 
           Ext.Ajax.request({
-            url: '/api/addProduct',
+            url: '/api/addRelatedProduct',
             method: 'POST',
             cors: true,
             useDefaultXhrHeader: false,
