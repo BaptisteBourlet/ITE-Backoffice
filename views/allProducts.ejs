@@ -32,10 +32,6 @@
       border-bottom: 1px dashed rgb(173, 173, 173);
       padding: 7px 0px;
     }
-
-    #ENFIELD-legendTitle, #SPFIELD-legendTitle, #FRFIELD-legendTitle, #DEFIELD-legendTitle, #RUFIELD-legendTitle{
-      font-weight: bold;
-    }
   </style>
   <script type="text/javascript">
     //=========================================================================================================
@@ -322,9 +318,9 @@
                     "Do you want to add related product ?",
                     function (btn, text) {
                       if (btn === "yes") {
-                        Ext.getCmp('viewport').setActiveItem('panelAdd2')
+                        Ext.getCmp('viewport').setActiveItem(2)
                       } else {
-                        Ext.getCmp('viewport').setActiveItem('mainPanel')
+                        Ext.getCmp('viewport').setActiveItem(0)
                       }
                     });
                 } else {
@@ -604,7 +600,7 @@
           handler: function () {
             mode = 'addRow';
             Ext.getCmp('panelAdd').setTitle('Add product');
-            Ext.getCmp('viewport').setActiveItem("panelAdd");
+            Ext.getCmp('viewport').setActiveItem("panelAdd2");
           },
         },
           "-",
@@ -1143,10 +1139,6 @@
             columns: 9
           },
           items: [
-          {
-              xtype: 'textfield', id: 'FRCat', name: 'FRCat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
-              allowBlank: true, submitvalue: true, margin: '25 0 25 0'
-            },
             {
               xtype: 'textfield', id: 'FRdesc', name: 'FRdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
               allowBlank: true, selectOnFocus: false, margin: '25 0 25 0'
@@ -1157,7 +1149,10 @@
               enableAlignments: false, submitvalue: true, width: 600, enableFont: false
             },
 
-            
+            {
+              xtype: 'textfield', id: 'FRCat', name: 'FRCat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
+              allowBlank: true, submitvalue: true, margin: '25 0 25 0'
+            },
 
             {
               xtype: 'htmleditor', id: 'FRspec', name: 'FRspec', fieldLabel: 'Specification', enableColors: true,
@@ -1190,10 +1185,7 @@
             columns: 9
           },
           items: [
-          {
-              xtype: 'textfield', id: 'DECat', name: 'DECat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
-              allowBlank: true, submitvalue: true, margin: '25 0 25 0'
-            },
+
             {
               xtype: 'textfield', id: 'DEdesc', name: 'DEdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
               allowBlank: true, selectOnFocus: false, margin: '25 0 25 0'
@@ -1205,7 +1197,10 @@
 
             },
 
-            
+            {
+              xtype: 'textfield', id: 'DECat', name: 'DECat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
+              allowBlank: true, submitvalue: true, margin: '25 0 25 0'
+            },
             {
               xtype: 'htmleditor', id: 'DEspec', name: 'DEspec', fieldLabel: 'Specification', enableColors: true,
               enableAlignments: false, allowBlank: true, selectOnFocus: false, width: 600, enableFont: false
@@ -1227,9 +1222,7 @@
         },
         {
           xtype: 'fieldset',
-          labelStyle: 'font-weight: bold; ',
           title: 'Spanish Translations',
-          
           anchor: '100%',
           hidden: true,
           id: 'SPFIELD',
@@ -1240,10 +1233,6 @@
           },
           items: [
 
-          {
-              xtype: 'textfield', id: 'SPCat', name: 'SPCat', fieldLabel: 'Catalog', allowBlank: true, maxLenght: 118,
-              width: 500, submitvalue: true, margin: '25 0 25 0'
-            },
             {
               xtype: 'textfield', id: 'SPdesc', name: 'SPdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
               allowBlank: true, selectOnFocus: false, margin: '25 0 25 0'
@@ -1256,6 +1245,10 @@
             },
 
 
+            {
+              xtype: 'textfield', id: 'SPCat', name: 'SPCat', fieldLabel: 'Catalog', allowBlank: true, maxLenght: 118,
+              width: 500, submitvalue: true, margin: '25 0 25 0'
+            },
 
             {
               xtype: 'htmleditor', id: 'SPspec', name: 'SPspec', fieldLabel: 'Specification', enableColors: true,
@@ -1289,10 +1282,7 @@
             columns: 9
           },
           items: [
-          {
-              xtype: 'textfield', id: 'RUCat', name: 'RUCat', fieldLabel: 'Catalog', maxLenght: 118, allowBlank: true,
-              width: 500, submitvalue: true, margin: '25 0 25 0'
-            },
+
             {
               xtype: 'textfield', id: 'RUdesc', name: 'RUdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
               allowBlank: true, selectOnFocus: false, margin: '25 0 25 0'
@@ -1304,7 +1294,10 @@
               enableAlignments: false, submitvalue: true, allowBlank: true, width: 600, enableFont: false
 
             },
-            
+            {
+              xtype: 'textfield', id: 'RUCat', name: 'RUCat', fieldLabel: 'Catalog', maxLenght: 118, allowBlank: true,
+              width: 500, submitvalue: true, margin: '25 0 25 0'
+            },
             {
               xtype: 'htmleditor', id: 'RUspec', name: 'RUspec', fieldLabel: 'Specification', enableColors: true,
               enableAlignments: false, allowBlank: true, selectOnFocus: false, width: 600, enableFont: false
@@ -1477,14 +1470,14 @@
               // Baptiste
               addRelatedProd()
               Ext.getCmp('screenAdd2').reset()
-              Ext.getCmp('viewport').setActiveItem('mainPanel');
+              Ext.getCmp('viewport').setActiveItem(0);
             }
           },
           '-',
           {
             text: 'Cancel', tooltip: 'Cancel', iconCls: 'fas fa-undo', handler: function () {
               Ext.getCmp('screenAdd2').reset()
-              Ext.getCmp('viewport').setActiveItem('mainPanel');
+              Ext.getCmp('viewport').setActiveItem(0);
             }
           }
         ]
@@ -1504,7 +1497,7 @@
               LinkedProductID: Ext.getCmp('ProductDesc').getValue(),
               Sequence: 0,
               Code: Ext.getCmp('ProductDesc').getRawValue(),
-              
+              ProductId: '1',
               Catalog: Ext.getCmp('RPCatalog').getValue(),
             },
             success: function (response) {
