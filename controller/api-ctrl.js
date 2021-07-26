@@ -1,6 +1,7 @@
 
 const { DB } = require('../database')
 const mysql = require('mysql');
+const storage = require('node-sessionstorage'); 
 
 const con = mysql.createConnection({
    host: DB.host,
@@ -9,20 +10,6 @@ const con = mysql.createConnection({
    database: DB.database,
 })
 
-// con.connect((err) => {
-//    if (err) {
-//       console.log(err);
-//    };
-
-//    console.log('MYSQL database connected');
-//    // con.query("SELECT * FROM ProductInfo;", (err, results, fields) => {
-//    //    if (err) {
-//    //       console.log(err)
-//    //    }
-
-//    //    console.log(results);
-//    // })
-// })
 
 exports.getAllProducts = async (req, res) => {
    const query = "SELECT ProductInfo.ProductId as Id, Description, FullDescription, Catalog, CODE, As400Code"
@@ -69,50 +56,83 @@ exports.getCategories = async (req, res) => {
 
 exports.addProduct = async (req, res) => {
    const { Code, As400, CreateOn, Category, Pub, Slug } = req.body;
-
    console.log(req.body);
 
+   con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+
+      let productId = results.insertId;
+      storage.setItem('ProdId', productId)
+      
+      const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
+         FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
+         DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
+         SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
+         RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
 
+      if (Catalog !== "" && Description !== "") {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${Language}", "${CreatedOn}", "${productId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
 
-   // con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
-   //    if (err) {
-   //       console.log(err)
-   //    }
+            console.log(results);
+            res.status(200).send(results);
+         });
+      } else {
+         console.log('english wasnt filled in')
+      }
 
-   //    let productId = results.insertId;
+      if (FRCatalog !== '' && FRDescription !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${FRLanguage}", "${CreatedOn}", "${productId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
 
-   //    const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
-   //       FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
-   //       GRLanguage, GRDescription, GRSpecification, GRCatalog, GRFullDescription,
-   //       SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
-   //       RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
+            console.log(results);
+         });
+      } else {
+         console.log('french wasnt filled in')
+      }
 
-   //    con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES 
-   //    ("${Language}", "${CreatedOn}", "${productId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}"),
-   //    ("${FRLanguage}", "${CreatedOn}", "${productId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}"),
-   //    ("${GRLanguage}", "${CreatedOn}", "${productId}", "${GRDescription}", "${GRSpecification}", "${GRCatalog}", "${GRFullDescription}"),
-   //    ("${SPLanguage}", "${CreatedOn}", "${productId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}"),
-   //    ("${RULanguage}", "${CreatedOn}", "${productId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`, (err, results, fields) => {
-   //       if (err) {
-   //          console.log(err)
-   //       }
-   //       res.send(results)
-   //    })
-   // })
+      if (DECatalog !== '' && DEDescription !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${DELanguage}", "${CreatedOn}", "${productId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('german wasnt filled in')
+      }
+
+      if (RUCatalog !== '' && RUDescription !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${RULanguage}", "${CreatedOn}", "${productId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('russian wasnt filled in')
+      }
+
+      if (SPCatalog !== '' && SPDescription !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${SPLanguage}", "${CreatedOn}", "${productId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('spanish wasnt filled in')
+      }
+   })
 }
 
 exports.editProduct = async (req, res) => {
-
    const { Description, Catalog, FullDescription, Specification, ProductId } = req.body;
-
    console.log(req.body)
    con.query(`UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', FullDescription = '${FullDescription}', Specification = '${Specification}' WHERE ProductId = ${ProductId} AND Language = "en";`, (err, result, field) => {
       if (err) {
          console.log(err);
       }
-
-      console.log(result);
       res.send(result);
    })
 }
@@ -192,7 +212,6 @@ exports.getSecondCat = async (req, res) => {
 
 exports.getThirdCat = async (req, res) => {
    const { secondCat } = req.query
-   // console.log('secondCat', secondCat);
 
    con.query(`SELECT * FROM Category WHERE ParentId = "${secondCat}" AND Publish = '1';`, (err, results, fields) => {
       if (err) throw err;
@@ -202,11 +221,11 @@ exports.getThirdCat = async (req, res) => {
 }
 
 
-exports.getProductDescription = async (req, res) => {
-   let { ProdId } = req.body;
-   console.log(ProdId)
-   console.log(req.body)
-   con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProdId}" AND Language = 'en';`, (err, results, fields) => {
+exports.getRelatedCatalog = async (req, res) => {
+   let { ProductId } = req.body;
+   console.log(ProductId)
+
+   con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
@@ -216,11 +235,16 @@ exports.getProductDescription = async (req, res) => {
 
 
 exports.addRelatedProduct = async (req, res) => {
-   const {Type, Sequence, LinkedProductID, ProductId, Description } = req.body;
-   con.query(`INSERT INTO RelatedProducts (Type, Sequence, LinkedProductID, ProductId) VALUES ("${Type}", ${Sequence} , "${LinkedProductID}", "${ProductId}", "${Description}");`, (err, results, fields) => {
+   const {Type, Sequence, LinkedProductID, Catalog } = req.body;
+
+   console.log(req.body);
+   const ProdId = storage.getItem('ProdId')
+   console.log(ProdId)
+   con.query(`INSERT INTO RelatedProducts (Type, Sequence, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence} , ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
       res.send(results)
+      console.log(results)
    })
 }
