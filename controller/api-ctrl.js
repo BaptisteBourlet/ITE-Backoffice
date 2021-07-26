@@ -84,14 +84,14 @@ exports.addProduct = async (req, res) => {
 
    //    const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
    //       FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
-   //       GRLanguage, GRDescription, GRSpecification, GRCatalog, GRFullDescription,
+   //       DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
    //       SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
    //       RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
    //    con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES 
    //    ("${Language}", "${CreatedOn}", "${productId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}"),
    //    ("${FRLanguage}", "${CreatedOn}", "${productId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}"),
-   //    ("${GRLanguage}", "${CreatedOn}", "${productId}", "${GRDescription}", "${GRSpecification}", "${GRCatalog}", "${GRFullDescription}"),
+   //    ("${DELanguage}", "${CreatedOn}", "${productId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}"),
    //    ("${SPLanguage}", "${CreatedOn}", "${productId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}"),
    //    ("${RULanguage}", "${CreatedOn}", "${productId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`, (err, results, fields) => {
    //       if (err) {

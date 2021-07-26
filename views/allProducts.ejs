@@ -266,12 +266,12 @@
               FRSpecification: Ext.getCmp('FRspec').getValue(),
               FRCatalog: Ext.getCmp('FRCat').getValue(),
               FRFullDescription: Ext.getCmp('FRFDesc').getValue(),
-              //GR
-              GRLanguage: 'de',
-              GRDescription: Ext.getCmp('GRdesc').getValue(),
-              GRSpecification: Ext.getCmp('GRspec').getValue(),
-              GRCatalog: Ext.getCmp('GRCat').getValue(),
-              GRFullDescription: Ext.getCmp('GRFDesc').getValue(),
+              //DE
+              DELanguage: 'de',
+              DEDescription: Ext.getCmp('DEdesc').getValue(),
+              DESpecification: Ext.getCmp('DEspec').getValue(),
+              DECatalog: Ext.getCmp('DECat').getValue(),
+              DEFullDescription: Ext.getCmp('DEFDesc').getValue(),
               //SP
               SPLanguage: 'sp',
               SPDescription: Ext.getCmp('SPdesc').getValue(),
@@ -1145,10 +1145,10 @@
         },
         {
           xtype: 'button', text: 'German translations', margin: 10, handler: function () {
-            if (Ext.getCmp('GRFIELD').isHidden() == true) {
-              Ext.getCmp('GRFIELD').setHidden(false)
+            if (Ext.getCmp('DEFIELD').isHidden() == true) {
+              Ext.getCmp('DEFIELD').setHidden(false)
             } else {
-              Ext.getCmp('GRFIELD').setHidden(true)
+              Ext.getCmp('DEFIELD').setHidden(true)
             }
 
           },
@@ -1159,7 +1159,7 @@
           title: 'German Translations',
           anchor: '100%',
           hidden: true,
-          id: 'GRFIELD',
+          id: 'DEFIELD',
 
           layoutConfig: {
             // The total column count must be specified here
@@ -1168,22 +1168,22 @@
           items: [
 
             {
-              xtype: 'textfield', id: 'GRdesc', name: 'GRdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
+              xtype: 'textfield', id: 'DEdesc', name: 'DEdesc', fieldLabel: 'Description', maxLenght: 123, width: 500,
               allowBlank: true, selectOnFocus: false, margin: '25 0 25 0'
 
             },
             {
-              xtype: 'htmleditor', id: 'GRFDesc', name: 'GRFDesc', fieldLabel: 'Full description', enableColors: true,
+              xtype: 'htmleditor', id: 'DEFDesc', name: 'DEFDesc', fieldLabel: 'Full description', enableColors: true,
               enableAlignments: false, submitvalue: true, allowBlank: true, width: 600, enableFont: false
 
             },
 
             {
-              xtype: 'textfield', id: 'GRCat', name: 'GRCat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
+              xtype: 'textfield', id: 'DECat', name: 'DECat', fieldLabel: 'Catalog', maxLenght: 118, width: 500,
               allowBlank: true, submitvalue: true, margin: '25 0 25 0'
             },
             {
-              xtype: 'htmleditor', id: 'GRspec', name: 'GRspec', fieldLabel: 'Specification', enableColors: true,
+              xtype: 'htmleditor', id: 'DEspec', name: 'DEspec', fieldLabel: 'Specification', enableColors: true,
               enableAlignments: false, allowBlank: true, selectOnFocus: false, width: 600, enableFont: false
 
             },
