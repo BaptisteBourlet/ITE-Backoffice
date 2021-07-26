@@ -7,13 +7,13 @@ const object = {
    ESDesc: 'spanish',
 }
 
-const allParams = {
-   FR: {}
-}
+const allParams = []
+  
 
 
 for (const [key, value] of Object.entries(object)) {
-   if (key.charAt(0) + key.charAt(1) === 'FR') {
+   let language = key.charAt(0) + key.charAt(1);
+   if (language === 'FR') {
       allParams.FR[key] = value;
    }
 }

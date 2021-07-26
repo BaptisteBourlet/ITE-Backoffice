@@ -69,49 +69,83 @@ exports.getCategories = async (req, res) => {
 
 exports.addProduct = async (req, res) => {
    const { Code, As400, CreateOn, Category, Pub, Slug } = req.body;
-
    console.log(req.body);
 
-   // con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
-   //    if (err) {
-   //       console.log(err)
-   //    }
+   con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      let productId = results.insertId;
 
-   //    let productId = results.insertId;
+      const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
+         FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
+         DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
+         SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
+         RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
-   //    const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
-   //       FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
-   //       DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
-   //       SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
-   //       RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
-   //    con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES 
-   //    ("${Language}", "${CreatedOn}", "${productId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}"),
-   //    ("${FRLanguage}", "${CreatedOn}", "${productId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}"),
-   //    ("${DELanguage}", "${CreatedOn}", "${productId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}"),
-   //    ("${SPLanguage}", "${CreatedOn}", "${productId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}"),
-   //    ("${RULanguage}", "${CreatedOn}", "${productId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`, (err, results, fields) => {
-   //       if (err) {
-   //          console.log(err)
-   //       }
-   //       res.send(results)
-   //    })
-   // })
+      if (Catalog !== "" && Description !== "") {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${Language}", "${CreatedOn}", "${productId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+            res.status(200).send(results);
+         });
+      } else {
+         console.log('english wasnt filled in')
+      }
+
+      if (FRCatalog !== '' && FRDescription !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${FRLanguage}", "${CreatedOn}", "${productId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('french wasnt filled in')
+      }
+
+      if (DECatalog !== '' && DEDescription !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${DELanguage}", "${CreatedOn}", "${productId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('german wasnt filled in')
+      }
+
+      if (RUCatalog !== '' && RUDescription !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${RULanguage}", "${CreatedOn}", "${productId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('russian wasnt filled in')
+      }
+
+      if (SPCatalog !== '' && SPDescription !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${SPLanguage}", "${CreatedOn}", "${productId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('spanish wasnt filled in')
+      }
+   })
 }
 
 exports.editProduct = async (req, res) => {
-
    const { Description, Catalog, FullDescription, Specification, ProductId } = req.body;
-
    console.log(req.body)
-   con.query(`UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', FullDescription = '${FullDescription}', Specification = '${Specification}' WHERE ProductId = ${ProductId} AND Language = "en";`, (err, result, field) => {
-      if (err) {
-         console.log(err);
-      }
-
-      console.log(result);
-      res.send(result);
-   })
+   // con.query(`UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', FullDescription = '${FullDescription}', Specification = '${Specification}' WHERE ProductId = ${ProductId} AND Language = "en";`, (err, result, field) => {
+   //    if (err) {
+   //       console.log(err);
+   //    }
+   //    res.send(result);
+   // })
 }
 
 
@@ -189,7 +223,6 @@ exports.getSecondCat = async (req, res) => {
 
 exports.getThirdCat = async (req, res) => {
    const { secondCat } = req.query
-   // console.log('secondCat', secondCat);
 
    con.query(`SELECT * FROM Category WHERE ParentId = "${secondCat}" AND Publish = '1';`, (err, results, fields) => {
       if (err) throw err;
@@ -202,7 +235,7 @@ exports.getThirdCat = async (req, res) => {
 exports.getRelatedCatalog = async (req, res) => {
    let { ProductId } = req.body;
    console.log(ProductId)
-   
+
    con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
       if (err) {
          console.log(err)
@@ -213,7 +246,7 @@ exports.getRelatedCatalog = async (req, res) => {
 
 
 exports.addRelatedProduct = async (req, res) => {
-   const {Type, Sequence, LinkedProductID, ProductId, Catalog } = req.body;
+   const { Type, Sequence, LinkedProductID, ProductId, Catalog } = req.body;
 
    console.log(req.body);
 
