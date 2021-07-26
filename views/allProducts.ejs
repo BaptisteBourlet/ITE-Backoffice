@@ -1363,6 +1363,7 @@
         tbar: [{
           text: 'Save', id: 'save', iconCls: 'fas fa-save', handler: function () {
             setProductSessionStorage()
+            if(Ext.getCmp('addForm').isValid())
             addRecord()
             Ext.getCmp('addForm').reset()
           }
@@ -1474,7 +1475,8 @@
         tbar: [
           {
             text: 'Save', id: 'save2', iconCls: 'fas fa-save', handler: function () {
-              // Baptiste
+            
+              if(Ext.getCmp('addForm2').isValid())
               addRelatedProd()
               Ext.getCmp('screenAdd2').reset()
               Ext.getCmp('viewport').setActiveItem('mainPanel');
