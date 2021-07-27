@@ -1610,9 +1610,7 @@
             handler: function () {
               setProductSessionStorage();
               editProduct();
-              // Ext.getCmp("addForm").reset();
-
-              // RESET FORM!!
+              Ext.getCmp("addForm").reset();
             },
           },
           "-",
@@ -1727,7 +1725,7 @@
             handler: function () {
               // Baptiste
               addRelatedProd();
-              Ext.getCmp("screenAdd2").reset();
+              Ext.getCmp("addForm2").reset();
               Ext.getCmp("viewport").setActiveItem("mainPanel");
             },
           },
@@ -1737,7 +1735,7 @@
             tooltip: "Cancel",
             iconCls: "fas fa-undo",
             handler: function () {
-              Ext.getCmp("screenAdd2").reset();
+              Ext.getCmp("addForm2").reset();
               Ext.getCmp("viewport").setActiveItem("mainPanel");
             },
           },
