@@ -2,6 +2,8 @@
 const { DB } = require('../database')
 const mysql = require('mysql');
 const storage = require('node-sessionstorage');
+const ibmdb = require("ibm_db");
+const ibmCon = 'DATABASE=D#ITF001;HOSTNAME=10.0.10.1;PROTOCOL=TCPIP;UID=cdkoen;PWD=moira2605';
 
 const con = mysql.createConnection({
    host: DB.host,
@@ -9,6 +11,27 @@ const con = mysql.createConnection({
    password: DB.password,
    database: DB.database,
 })
+
+
+exports.testIBM = (req, res) => {
+   ibmdb.open(ibmCon, (err, connection) => {
+      if (err) {
+         console.log(err);
+         return;
+      }
+      connection.query("select * from D#ITF001.artikelOverview", function (err1, rows) {
+         if (err1) console.log(err1);
+         else console.log(rows);
+         res.send(rows);
+         connection.close(function (err2) {
+            if (err2) console.log(err2);
+         });
+
+      });
+   })
+}
+
+
 
 
 exports.getAllProducts = async (req, res) => {
@@ -221,35 +244,35 @@ exports.editProduct = async (req, res) => {
 
 
 
-   exports.deleteProduct = async (req, res) => {
-      const { ProductId } = req.body;
-      let errorString = '';
-   
-       con.query(`DELETE FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId};`, (err, results, fields) => {
+exports.deleteProduct = async (req, res) => {
+   const { ProductId } = req.body;
+   let errorString = '';
+
+   con.query(`DELETE FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId};`, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
-      console.log('test '+results)
+      console.log('test ' + results)
    })
-      con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
+   con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err);
+         errorString += 'ProductInfo, '
+      }
+
+      console.log(results);
+
+      con.query(`DELETE FROM Product WHERE Id = "${ProductId}";`, (err, results, fields) => {
          if (err) {
-            console.log(err);
-            errorString += 'ProductInfo, '
+            console.log('Oridyt', err)
+            errorString += 'Product, '
          }
-   
-         console.log(results);
-         
-         con.query(`DELETE FROM Product WHERE Id = "${ProductId}";`, (err, results, fields) => {
-            if (err) {
-               console.log('Oridyt', err)
-               errorString += 'Product, '
-            }
-            console.log('results', results);
-            res.send(results)
-         })
-   
+         console.log('results', results);
+         res.send(results)
       })
-   }
+
+   })
+}
 
 
 exports.getProductDet = async (req, res) => {
@@ -286,10 +309,12 @@ exports.searchProduct = async (req, res) => {
 // SELECT * FROM Category WHERE ParentId IN (NULL, 1);
 // SELECT * FROM ProductInfo LEFT JOIN SeriesProductLink ON ProductInfo.Id = SeriesProductLink.ProductId WHERE SeriesId = 3;
 // SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';
-
-
+// SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IF.LinkId WHERE IF.Parent = 4;
+// UPDATE InfoTree SET Sequence = ${newSequence} WHERE Parent = ${Category} AND LinkId = ${targetId}
+// SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product P LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent = 4 AND PI.Language = 'en' AND P.hasDetails = 1;
+// con.query(`SELECT MAX(Sequence) FROM RelatedProducts WHERE Type = "${Type}" AND ProductId = ${globalProductID};`)
 exports.getSomething = async (req, res) => {
-   con.query("SELECT Catalog, PI.ProductId, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = 2;", (err, results, fields) => {
+   con.query(`SELECT MAX(Sequence) FROM RelatedProducts  ProductId = 3576;`, (err, results, fields) => {
       if (err) throw err;
 
       res.send(results)
@@ -353,13 +378,18 @@ exports.addRelatedProduct = async (req, res) => {
    })
 }
 
-exports.addRelatedProductFromView = async (req, res) => {
-   const { Type, Sequence, LinkedProductID, Catalog, Code } = req.body;
 
-   con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence}, "${Code}", ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
+
+exports.addRelatedProductFromView = async (req, res) => {
+   const { Type, Sequence, productIDGlobal, LinkedProductID, Catalog, Code } = req.body;
+   con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE ProductId = "${productIDGlobal}";`, (err, results) => {
+      con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", ${LinkedProductID}, ${productIDGlobal}, "${Catalog}");`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
    })
 }
+
+
