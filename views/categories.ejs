@@ -74,7 +74,6 @@
                                 currentsubfileRecord = selectedrecords[0];
 
                                 Ext.Ajax.request({
-
                                     url: '/api/???',
                                     params: {
                                         ID: currentsubfileRecord.get('ID'),
@@ -155,6 +154,7 @@
                             id: "searchType",
                             iconCls: "fa fa-search",
                             store: TypeStore,
+                            editable: false,
                             displayField: 'TypeName',
                             valueField: 'TypeCode',
                             width: 200,
@@ -164,6 +164,8 @@
                             listeners: {
                                 change: () => {
                                     Ext.getCmp('searchName').setValue('')
+                                    mainStore.getProxy().setExtraParam('Type', Ext.getCmp('searchType').getValue());
+                                    mainStore.reload()
                                 },
                             },
                         },
@@ -183,6 +185,9 @@
                                     if (Ext.getCmp('searchType').getValue() == undefined || Ext.getCmp('searchType').getValue() == '') {
                                         Ext.Msg.alert("Error", `Please, choose a type first`);
                                         this.setValue('')
+                                    } else {
+                                        mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('searchName').getValue());
+                                        mainStore.reload()
                                     }
                                 }
                             }
@@ -210,7 +215,7 @@
             });
             const mainStore = Ext.create("Ext.data.Store", {
                 id: "mainStore",
-                autoLoad: false,
+                autoLoad: true,
                 model: Model,
                 params: {
                     //type: Ext.getCmp('searchType').getValue()
@@ -218,7 +223,7 @@
                 proxy: {
                     type: "ajax",
                     method: "POST",
-                    url: "/api/getAllCategories",
+                    url: "/api/getSequenceResults",
                     noCache: true,
                     reader: {
                         type: "json",
@@ -270,7 +275,6 @@
             });
 
 
-           
 
             const CATEGORY = Ext.define("Categories", {
                 extend: "Ext.data.Model",

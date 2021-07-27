@@ -13,6 +13,23 @@ const con = mysql.createConnection({
 })
 
 
+
+// SELECT * FROM Category WHERE ParentId IN (NULL, 1);
+// SELECT * FROM ProductInfo LEFT JOIN SeriesProductLink ON ProductInfo.Id = SeriesProductLink.ProductId WHERE SeriesId = 3;
+// SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';
+// SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IF.LinkId WHERE IF.Parent = 4;
+// UPDATE InfoTree SET Sequence = ${newSequence} WHERE Parent = ${Category} AND LinkId = ${targetId}
+// SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product P LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent = 4 AND PI.Language = 'en' AND P.hasDetails = 1;
+// con.query(`SELECT MAX(Sequence) FROM RelatedProducts WHERE Type = "${Type}" AND ProductId = ${globalProductID};`)
+
+exports.getSomething = async (req, res) => {
+   con.query(`SELECT C.Id, IT.Sequence, C.WorkingTitle AS Description FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId WHERE IT.Parent = "1" AND IT.Publish = "1";`, (err, results, fields) => {
+      if (err) throw err;
+
+      res.send(results)
+   })
+}
+
 exports.testIBM = (req, res) => {
    ibmdb.open(ibmCon, (err, connection) => {
       if (err) {
@@ -306,20 +323,6 @@ exports.searchProduct = async (req, res) => {
 }
 
 
-// SELECT * FROM Category WHERE ParentId IN (NULL, 1);
-// SELECT * FROM ProductInfo LEFT JOIN SeriesProductLink ON ProductInfo.Id = SeriesProductLink.ProductId WHERE SeriesId = 3;
-// SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';
-// SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IF.LinkId WHERE IF.Parent = 4;
-// UPDATE InfoTree SET Sequence = ${newSequence} WHERE Parent = ${Category} AND LinkId = ${targetId}
-// SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product P LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent = 4 AND PI.Language = 'en' AND P.hasDetails = 1;
-// con.query(`SELECT MAX(Sequence) FROM RelatedProducts WHERE Type = "${Type}" AND ProductId = ${globalProductID};`)
-exports.getSomething = async (req, res) => {
-   con.query(`SELECT MAX(Sequence) FROM RelatedProducts  ProductId = 3576;`, (err, results, fields) => {
-      if (err) throw err;
-
-      res.send(results)
-   })
-}
 
 exports.getFirstCat = async (req, res) => {
    con.query("SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';", (err, results, fields) => {
@@ -391,5 +394,30 @@ exports.addRelatedProductFromView = async (req, res) => {
       })
    })
 }
+
+
+exports.getSequenceResults = async (req, res) => {
+   const { Type, CategoryID } = req.body;
+
+   let query = '';
+
+   if (Type === "C") {
+      query = `SELECT WorkingTitle AS Description, Sequence FROM Category C LEFT JOIN InfoTree IT ON C.ParentId = IT.Parent WHERE IT.Parent = "${Category}";`
+   } else if (Type === "P") {
+      query = 'get for Product';
+   } else {
+      query = "get for Series";
+   }
+
+   con.query(query, (err, results) => {
+      if (err) throw err;
+
+      res.send(results);
+   })
+}
+
+
+
+
 
 
