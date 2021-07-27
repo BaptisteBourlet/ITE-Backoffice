@@ -33,4 +33,6 @@ router.post('/addRelatedProduct', apiCtrl.addRelatedProduct);
 
 router.post('/getRelatedCatalog', apiCtrl.getRelatedCatalog);
 
+router.get('/testIBM', apiCtrl.testIBM);
+
 module.exports = router;

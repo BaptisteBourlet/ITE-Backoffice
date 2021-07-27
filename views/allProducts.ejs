@@ -263,6 +263,12 @@
         });
       };
 
+      const resetForm2 = () => {
+        Ext.getCmp('Type').setValue('');
+        Ext.getCmp('ProductDesc').setValue('');
+        Ext.getCmp('RPCatalog').setValue('');
+      }
+
       const getRelatedCatalog = (ProductId) => {
         Ext.Ajax.request({
           url: "/api/getRelatedCatalog",
@@ -542,7 +548,7 @@
         fields: ["Id", "Catalog", "Description"],
       });
 
-      
+
 
       const mainGridColumns = [
         {
@@ -679,52 +685,6 @@
       });
 
       const tbarItems = [
-        // {
-        // xtype: "toolbar",
-        // dock: "top",
-        // id: "toolBar",
-        // items: [
-        //   {
-        //   xtype: 'button',
-        //   id: "add",
-        //   iconCls: "fa fa-plus-circle",
-        //   text: 'New',
-        //   scale: "small",
-        //   handler: function () {
-        //     mode = 'addRow';
-        //     Ext.getCmp('addSave').setHidden(false);
-        //     Ext.getCmp('editSave').setHidden(true);
-        //     Ext.getCmp('panelAdd').setTitle('Add product');
-        //     Ext.getCmp('viewport').setActiveItem("panelAdd");
-        //   },
-        // },
-        //   "-",
-        // {
-        //   xtype: 'button',
-        //   id: "edit",
-        //   text: 'Edit',
-        //   iconCls: "fa fa-edit",
-        //   scale: "small",
-        //   handler: function () {
-        //     edit = true;
-        //     const selectedRecord = Ext.getCmp("AllProductGrid").getSelectionModel().getSelection()[0];
-        //     PI = selectedRecord.data.Id;
-        //     Ext.getCmp('viewport').setActiveItem('panelAdd');
-        //     getProductDetails(selectedRecord.data.Id);
-        //   },
-        // },
-        //   "-",
-        // {
-        //   xtype: 'button',
-        //   id: "delete",
-        //   text: 'Delete',
-        //   iconCls: "fa fa-trash-alt",
-        //   scale: "small",
-        //   handler: function () {
-
-        //   },
-        // },
-
         {
           xtype: "toolbar",
           dock: "top",
@@ -1727,7 +1687,7 @@
             handler: function () {
               // Baptiste
               addRelatedProd();
-              Ext.getCmp("addForm2").reset();
+              resetForm2()
               Ext.getCmp("viewport").setActiveItem("mainPanel");
             },
           },
@@ -1737,7 +1697,7 @@
             tooltip: "Cancel",
             iconCls: "fas fa-undo",
             handler: function () {
-              Ext.getCmp("addForm2").reset();
+              resetForm2();
               Ext.getCmp("viewport").setActiveItem("mainPanel");
             },
           },
@@ -1792,8 +1752,8 @@
 
       var deleteProduct = function () {
         const selectedRecord = Ext.getCmp("AllProductGrid")
-                .getSelectionModel()
-                .getSelection()[0];
+          .getSelectionModel()
+          .getSelection()[0];
         Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this product ?", function (btn, text) {
           if (btn == 'yes') {
             Ext.getBody().mask('Deleting', 'x-msg-loading');
@@ -1835,9 +1795,9 @@
                   "Failed to delete product. Contact your IT team."
                 );
               },
-            
+
             });
-          
+
           }
         })
       }
