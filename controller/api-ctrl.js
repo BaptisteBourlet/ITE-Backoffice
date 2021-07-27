@@ -152,14 +152,14 @@ exports.editProduct = async (req, res) => {
          SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
          RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
-      const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;   
-      const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;   
-      const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;   
-      const SPQuery = `UPDATE ProductInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp"`;   
-      const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;   
-      
+      const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
+      const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
+      const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
+      const SPQuery = `UPDATE ProductInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp"`;
+      const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
 
-      if(Description !== "" && Catalog !== "") {
+
+      if (Description !== "" && Catalog !== "") {
          con.query(ENQuery, (err, result) => {
             if (err) {
                errorString += "English, ";
@@ -171,7 +171,7 @@ exports.editProduct = async (req, res) => {
          console.log('English wasnt filled in');
       }
 
-      if(FRDescription !== "" && FRCatalog !== "") {
+      if (FRDescription !== "" && FRCatalog !== "") {
          con.query(FRQuery, (err, result) => {
             if (err) {
                errorString += "French, ";
@@ -183,17 +183,17 @@ exports.editProduct = async (req, res) => {
          console.log('French wasnt filled in');
       }
 
-      if(DEDescription !== "" && DECatalog !== "") {
+      if (DEDescription !== "" && DECatalog !== "") {
          con.query(DEQuery, (err, result) => {
             errorString += "German, ";
-               console.log(err);
+            console.log(err);
 
          })
       } else {
          console.log('German wasnt filled in');
       }
 
-      if(SPDescription !== "" && SPCatalog !== "") {
+      if (SPDescription !== "" && SPCatalog !== "") {
          con.query(SPQuery, (err, result) => {
             errorString += "Spanish, ";
             console.log(err);
@@ -203,45 +203,53 @@ exports.editProduct = async (req, res) => {
          console.log('Spanish wasnt filled in');
       }
 
-      if(RUDescription !== "" && RUCatalog !== "") {
+      if (RUDescription !== "" && RUCatalog !== "") {
          con.query(RUQuery, (err, result) => {
             errorString += "Russian";
-               console.log(err);
+            console.log(err);
 
          })
       } else {
          console.log('Russian wasnt filled in');
       }
 
-      let finalResult = {...results, errorString};
+      let finalResult = { ...results, errorString };
 
       res.send(finalResult);
    })
 }
 
 
-exports.deleteProduct = async (req, res) => {
-   const { ProductId } = req.body;
-   con.query(`DELETE FROM Product WHERE Id = ${ProductId};`, (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
-   })
-   con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
-   })
-   con.query(`DELETE FROM RelatedProducts WHERE LinkedProductID = ${ProductId} OR ProductId = ${ProductId} EXISTS ( SELECT ProductId, LinkedProductID FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId});`, (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
-   })
 
-}
+   exports.deleteProduct = async (req, res) => {
+      const { ProductId } = req.body;
+      let errorString = '';
+   
+       con.query(`DELETE FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      console.log('test '+results)
+   })
+      con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
+         if (err) {
+            console.log(err);
+            errorString += 'ProductInfo, '
+         }
+   
+         console.log(results);
+         
+         con.query(`DELETE FROM Product WHERE Id = "${ProductId}";`, (err, results, fields) => {
+            if (err) {
+               console.log('Oridyt', err)
+               errorString += 'Product, '
+            }
+            console.log('results', results);
+            res.send(results)
+         })
+   
+      })
+   }
 
 
 exports.getProductDet = async (req, res) => {
