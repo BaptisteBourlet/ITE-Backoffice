@@ -19,6 +19,9 @@ app.get('/', (req, res) => {
    res.render('allProducts')
 })
 
+app.get('/categories', function(req, res) {
+   res.render('categories');
+ });
 
 app.listen(PORT, () => {
    console.log('listening on port ' + PORT);
