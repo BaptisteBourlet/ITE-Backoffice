@@ -189,7 +189,7 @@
 
           success: function (response) {
             const res = JSON.parse(response.responseText);
-
+            console.log(res);
             if (edit === false) {
               displayProductInfo(res[0][0]);
             } else {
@@ -215,13 +215,44 @@
           useDefaultXhrHeader: false,
           params: {
             ProductId: productIDGlobal,
+            Code: Ext.getCmp('code').getValue(),
+            As400: Ext.getCmp('As400').getValue(),
+            Category: Ext.getCmp('Category').getValue(),
+            Pub: Ext.getCmp('Pub').getValue() === true ? 1 : 0,
+
+            ModifiedOn: formatDate,
+            Description: Ext.getCmp("desc").getValue().trim(),
             Specification: Ext.getCmp("spec").getValue(),
+            Catalog: Ext.getCmp("Cat").getValue().trim(),
             FullDescription: Ext.getCmp("FDesc").getValue(),
-            Description: Ext.getCmp("desc").getValue(),
-            Catalog: Ext.getCmp("Cat").getValue(),
+            //FR
+            FRLanguage: "fr",
+            FRDescription: Ext.getCmp("FRdesc").getValue().trim(),
+            FRSpecification: Ext.getCmp("FRspec").getValue(),
+            FRCatalog: Ext.getCmp("FRCat").getValue().trim(),
+            FRFullDescription: Ext.getCmp("FRFDesc").getValue(),
+            //DE
+            DELanguage: "de",
+            DEDescription: Ext.getCmp("DEdesc").getValue().trim(),
+            DESpecification: Ext.getCmp("DEspec").getValue(),
+            DECatalog: Ext.getCmp("DECat").getValue().trim(),
+            DEFullDescription: Ext.getCmp("DEFDesc").getValue(),
+            //SP
+            SPLanguage: "sp",
+            SPDescription: Ext.getCmp("SPdesc").getValue().trim(),
+            SPSpecification: Ext.getCmp("SPspec").getValue(),
+            SPCatalog: Ext.getCmp("SPCat").getValue().trim(),
+            SPFullDescription: Ext.getCmp("SPFDesc").getValue(),
+            //RU
+            RULanguage: "ru",
+            RUDescription: Ext.getCmp("RUdesc").getValue().trim(),
+            RUSpecification: Ext.getCmp("RUspec").getValue(),
+            RUCatalog: Ext.getCmp("RUCat").getValue().trim(),
+            RUFullDescription: Ext.getCmp("RUFDesc").getValue(),
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
+            console.log(res);
             mainStore.reload();
             Ext.Msg.alert("INFO!", `Product has been edited successfully`);
             Ext.getCmp("viewport").setActiveItem("mainPanel");
@@ -252,6 +283,7 @@
       };
 
       const displayProductInfo = (product) => {
+        Ext.getCmp('Pub').setValue(product.Publish === 1 ? 'on' : '')
         Ext.getCmp("productName").setValue(product.Catalog);
         Ext.getCmp("productCode").setValue(product.CODE);
         Ext.getCmp("as400Code").setValue(product.As400Code);
@@ -265,6 +297,7 @@
       };
 
       const getEditInfo = (product) => {
+        Ext.getCmp('Pub').setValue(product.Publish === 1 ? 'on' : '')
         Ext.getCmp("code").setValue(product.CODE);
         Ext.getCmp("As400").setValue(product.As400Code);
         Ext.getCmp("Category").setValue(product.CategoryId);
@@ -386,6 +419,29 @@
         });
       };
 
+      const getOtherLanguageDetail = (language, productId) => {
+        Ext.Ajax.request({
+          url: "/api/getOtherLanguageDetail",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            language: language,
+            productId: productId,
+          },
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+            Ext.getCmp(`${language.toUpperCase()}Cat`).setValue(res[0].Catalog);
+            Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
+            Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
+            Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      }
+
       const searchProduct = (searchField, searchTarget) => {
         let searchQuery = Ext.getCmp(searchField).getValue();
         Ext.Ajax.request({
@@ -485,6 +541,8 @@
         extend: "Ext.data.Model",
         fields: ["Id", "Catalog", "Description"],
       });
+
+      
 
       const mainGridColumns = [
         {
@@ -717,7 +775,7 @@
               text: "Delete",
               iconCls: "fa fa-trash-alt",
               scale: "small",
-              handler: function () { },
+              handler: function () { deleteProduct() },
             },
             // {
             //   xtype: 'button',
@@ -998,6 +1056,9 @@
                 iconCls: "fa fa-edit",
                 handler: function () {
                   edit = true;
+                  Ext.getCmp("addSave").setHidden(true);
+                  Ext.getCmp("editSave").setHidden(false);
+                  Ext.getCmp('panelAdd').setTitle('Edit product');
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
                   getProductDetails(productIDGlobal);
                 },
@@ -1009,6 +1070,7 @@
                 text: "Add Related Product",
                 iconCls: "fa fa-plus",
                 handler: function () {
+                  addRelatedProd();
                   Ext.getCmp("viewport").setActiveItem("panelAdd2");
                 },
               },
@@ -1197,6 +1259,10 @@
             } else {
               Ext.getCmp("FRFIELD").setHidden(true);
             }
+
+            if (edit === true) {
+              getOtherLanguageDetail('fr', productIDGlobal)
+            }
           },
         },
         {
@@ -1265,6 +1331,10 @@
               Ext.getCmp("DEFIELD").setHidden(false);
             } else {
               Ext.getCmp("DEFIELD").setHidden(true);
+            }
+
+            if (edit === true) {
+              getOtherLanguageDetail('de', productIDGlobal)
             }
           },
         },
@@ -1335,6 +1405,10 @@
             } else {
               Ext.getCmp("SPFIELD").setHidden(true);
             }
+
+            if (edit === true) {
+              getOtherLanguageDetail('sp', productIDGlobal)
+            }
           },
         },
         {
@@ -1404,6 +1478,10 @@
               Ext.getCmp("RUFIELD").setHidden(false);
             } else {
               Ext.getCmp("RUFIELD").setHidden(true);
+            }
+
+            if (edit === true) {
+              getOtherLanguageDetail('ru', productIDGlobal)
             }
           },
         },
@@ -1584,11 +1662,9 @@
           selectOnFocus: false,
           anyMatch: true,
           queryMode: "local",
-          editable: false,
           listeners: {
             change: function () {
               let ProductId = this.getValue();
-              console.log(ProductId);
               getRelatedCatalog(ProductId);
             },
           },
@@ -1651,7 +1727,7 @@
             handler: function () {
               // Baptiste
               addRelatedProd();
-              Ext.getCmp("screenAdd2").reset();
+              Ext.getCmp("addForm2").reset();
               Ext.getCmp("viewport").setActiveItem("mainPanel");
             },
           },
@@ -1661,14 +1737,14 @@
             tooltip: "Cancel",
             iconCls: "fas fa-undo",
             handler: function () {
-              Ext.getCmp("screenAdd2").reset();
+              Ext.getCmp("addForm2").reset();
               Ext.getCmp("viewport").setActiveItem("mainPanel");
             },
           },
         ],
       });
 
-      var addRelatedProd = function () {
+      var addRelatedProd = function (globalProductID) {
         Ext.getBody().mask("Saving", "x-msg-loading");
         Ext.Ajax.request({
           url: "/api/addRelatedProduct",
@@ -1679,6 +1755,7 @@
             Type: Ext.getCmp("Type").getValue(),
             LinkedProductID: Ext.getCmp("ProductDesc").getValue(),
             Sequence: 0,
+            globalProductId: globalProductID,
             Code: Ext.getCmp("ProductDesc").getRawValue(),
             Catalog: Ext.getCmp("RPCatalog").getValue(),
           },
@@ -1687,7 +1764,6 @@
             var check = response.responseText;
             if (check) {
               var data = eval("(" + response.responseText + ")");
-
               if (data.serverStatus == 2) {
                 Ext.getBody().unmask();
                 Ext.Msg.alert(
@@ -1713,6 +1789,58 @@
           },
         });
       };
+
+      var deleteProduct = function () {
+        const selectedRecord = Ext.getCmp("AllProductGrid")
+                .getSelectionModel()
+                .getSelection()[0];
+        Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this product ?", function (btn, text) {
+          if (btn == 'yes') {
+            Ext.getBody().mask('Deleting', 'x-msg-loading');
+            Ext.Ajax.request({
+              url: "/api/deleteProduct",
+              method: "POST",
+              cors: true,
+              useDefaultXhrHeader: false,
+              params: {
+                ProductId: selectedRecord.data.Id
+              },
+              success: function (response) {
+                // check for errors and display error message
+                var check = response.responseText;
+                if (check) {
+                  var data = eval("(" + response.responseText + ")");
+
+                  if (data.serverStatus == 2) {
+                    mainStore.reload();
+                    Ext.getBody().unmask();
+                    Ext.Msg.alert(
+                      "Success",
+                      "You have successfully deleted the product"
+                    );
+                  } else {
+                    // display error message
+                    Ext.getBody().unmask();
+                    Ext.Msg.alert(
+                      "ERROR",
+                      "Failed to delete the product. Contact your IT team."
+                    );
+                  }
+                }
+              },
+              failure: function (response) {
+                Ext.getBody().unmask();
+                Ext.Msg.alert(
+                  "ERROR",
+                  "Failed to delete product. Contact your IT team."
+                );
+              },
+            
+            });
+          
+          }
+        })
+      }
 
       const RelatedDesc = Ext.define("RelatedDesc", {
         extend: "Ext.data.Model",
