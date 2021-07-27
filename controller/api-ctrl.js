@@ -221,7 +221,26 @@ exports.editProduct = async (req, res) => {
 
 
 exports.deleteProduct = async (req, res) => {
-   console.log(req.body)
+   const { ProductId } = req.body;
+   con.query(`DELETE FROM Product WHERE Id = ${ProductId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+   con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+   con.query(`DELETE FROM RelatedProducts WHERE LinkedProductID = ${ProductId} OR ProductId = ${ProductId} EXISTS ( SELECT ProductId, LinkedProductID FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId});`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+
 }
 
 

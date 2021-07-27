@@ -542,6 +542,8 @@
         fields: ["Id", "Catalog", "Description"],
       });
 
+      
+
       const mainGridColumns = [
         {
           header: "Product ID",
@@ -773,7 +775,7 @@
               text: "Delete",
               iconCls: "fa fa-trash-alt",
               scale: "small",
-              handler: function () { },
+              handler: function () { deleteProduct() },
             },
             // {
             //   xtype: 'button',
@@ -1787,6 +1789,58 @@
           },
         });
       };
+
+      var deleteProduct = function () {
+        const selectedRecord = Ext.getCmp("AllProductGrid")
+                .getSelectionModel()
+                .getSelection()[0];
+        Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this product ?", function (btn, text) {
+          if (btn == 'yes') {
+            Ext.getBody().mask('Deleting', 'x-msg-loading');
+            Ext.Ajax.request({
+              url: "/api/deleteProduct",
+              method: "POST",
+              cors: true,
+              useDefaultXhrHeader: false,
+              params: {
+                ProductId: selectedRecord.data.Id
+              },
+              success: function (response) {
+                // check for errors and display error message
+                var check = response.responseText;
+                if (check) {
+                  var data = eval("(" + response.responseText + ")");
+
+                  if (data.serverStatus == 2) {
+                    mainStore.reload();
+                    Ext.getBody().unmask();
+                    Ext.Msg.alert(
+                      "Success",
+                      "You have successfully deleted the product"
+                    );
+                  } else {
+                    // display error message
+                    Ext.getBody().unmask();
+                    Ext.Msg.alert(
+                      "ERROR",
+                      "Failed to delete the product. Contact your IT team."
+                    );
+                  }
+                }
+              },
+              failure: function (response) {
+                Ext.getBody().unmask();
+                Ext.Msg.alert(
+                  "ERROR",
+                  "Failed to delete product. Contact your IT team."
+                );
+              },
+            
+            });
+          
+          }
+        })
+      }
 
       const RelatedDesc = Ext.define("RelatedDesc", {
         extend: "Ext.data.Model",
