@@ -1,7 +1,7 @@
 
 const { DB } = require('../database')
 const mysql = require('mysql');
-const storage = require('node-sessionstorage'); 
+const storage = require('node-sessionstorage');
 
 const con = mysql.createConnection({
    host: DB.host,
@@ -65,7 +65,7 @@ exports.addProduct = async (req, res) => {
 
       let productId = results.insertId;
       storage.setItem('ProdId', productId)
-      
+
       const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
          FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
          DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
@@ -139,7 +139,26 @@ exports.editProduct = async (req, res) => {
 
 
 exports.deleteProduct = async (req, res) => {
-   console.log(req.body)
+   const { ProductId } = req.body;
+   con.query(`DELETE FROM Product WHERE Id = ${ProductId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+   con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+   con.query(`DELETE FROM RelatedProducts WHERE LinkedProductID = ${ProductId} OR ProductId = ${ProductId} EXISTS ( SELECT ProductId, LinkedProductID FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId});`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+
 }
 
 
@@ -235,7 +254,7 @@ exports.getRelatedCatalog = async (req, res) => {
 
 
 exports.addRelatedProduct = async (req, res) => {
-   const {Type, Sequence, LinkedProductID, Catalog } = req.body;
+   const { Type, Sequence, LinkedProductID, Catalog } = req.body;
 
    console.log(req.body);
    const ProdId = storage.getItem('ProdId')
