@@ -5,6 +5,8 @@ router = express.Router();
 
 router.get('/getSomething', apiCtrl.getSomething);
 
+router.get('/getSequenceResults', apiCtrl.getSequenceResults);
+
 router.get('/getAllProducts', apiCtrl.getAllProducts);
 
 router.get('/getProductDetails', apiCtrl.getProductDetails);

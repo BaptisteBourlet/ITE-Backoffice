@@ -401,8 +401,8 @@ exports.getSequenceResults = async (req, res) => {
 
    let query = '';
 
-   if (Type === "C") {
-      query = `SELECT WorkingTitle AS Description, Sequence FROM Category C LEFT JOIN InfoTree IT ON C.ParentId = IT.Parent WHERE IT.Parent = "${Category}";`
+   if (Type == "C") {
+      query = `SELECT WorkingTitle AS Description, Sequence FROM Category C LEFT JOIN InfoTree IT ON C.ParentId = IT.Parent WHERE IT.Parent = "${CategoryID}";`
    } else if (Type === "P") {
       query = 'get for Product';
    } else {

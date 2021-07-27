@@ -28,29 +28,12 @@
             const mainGridColumns = [
 
 
-                // {
-                //   header: "Type",
-                //   sortable: true,
-                //   width: 100,
-                //   dataIndex: "Type",
-                //   align: "center",
-                //   renderer: (value) => {
-                //    if(value == 'P'){
-                //        return 'Product'
-                //    } else if (value == 'C'){
-                //        return 'Category'
-                //    } else if (value == 'S') {
-                //        return 'Serie'
-                //    } else {
-                //        return ''
-                //    }
-                //   },
-                // },
+               
                 {
                     header: "Name",
                     sortable: true,
                     width: 350,
-                    dataIndex: "Name",
+                    dataIndex: "Description",
                 },
 
                 {
@@ -140,9 +123,6 @@
             });
             const tbarItems = [
 
-
-
-
                 {
                     xtype: "toolbar",
                     dock: "top",
@@ -211,15 +191,13 @@
             ];
             const Model = Ext.define("Categories", {
                 extend: "Ext.data.Model",
-                fields: ["Name", "Sequence"],
+                fields: ["Description", "Sequence"],
             });
             const mainStore = Ext.create("Ext.data.Store", {
                 id: "mainStore",
-                autoLoad: true,
+                autoLoad: false,
                 model: Model,
-                params: {
-                    //type: Ext.getCmp('searchType').getValue()
-                },
+               
                 proxy: {
                     type: "ajax",
                     method: "POST",
@@ -276,29 +254,29 @@
 
 
 
-            const CATEGORY = Ext.define("Categories", {
-                extend: "Ext.data.Model",
-                fields: ["Id", "Name"],
-            });
+            // const CATEGORY = Ext.define("Categories", {
+            //     extend: "Ext.data.Model",
+            //     fields: ["Id", "Name"],
+            // });
 
-            const CategoryStore = Ext.create("Ext.data.Store", {
-                id: "CategoryStore",
-                autoLoad: true,
-                model: CATEGORY,
-                proxy: {
-                    type: "ajax",
-                    method: "POST",
-                    url: "/api/getCategories",
-                    noCache: true,
-                    reader: {
-                        type: "json",
-                        rootProperty: "allProducts",
-                        totalProperty: "totalCount",
-                    },
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                },
-            });
+            // const CategoryStore = Ext.create("Ext.data.Store", {
+            //     id: "CategoryStore",
+            //     autoLoad: true,
+            //     model: CATEGORY,
+            //     proxy: {
+            //         type: "ajax",
+            //         method: "POST",
+            //         url: "/api/getCategories",
+            //         noCache: true,
+            //         reader: {
+            //             type: "json",
+            //             rootProperty: "allProducts",
+            //             totalProperty: "totalCount",
+            //         },
+            //         cors: true,
+            //         useDefaultXhrHeader: false,
+            //     },
+            // });
 
 
 
