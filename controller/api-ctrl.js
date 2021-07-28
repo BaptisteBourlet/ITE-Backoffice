@@ -2,8 +2,8 @@
 const { DB } = require('../database')
 const mysql = require('mysql');
 const storage = require('node-sessionstorage');
-// const ibmdb = require("ibm_db");
-// const ibmCon = 'DATABASE=D#ITF001;HOSTNAME=10.0.10.1;PROTOCOL=TCPIP;UID=cdkoen;PWD=moira2605';
+// const { Connection, Statement } = require('idb-pconnector');
+
 
 const con = mysql.createConnection({
    host: DB.host,
@@ -28,23 +28,6 @@ exports.getSomething = async (req, res) => {
       res.send(results)
    })
 }
-
-// exports.testIBM = (req, res) => {
-//    ibmdb.open(ibmCon, (err, connection) => {
-//       if (err) {
-//          console.log(err);
-//          return;
-//       }
-//       connection.query("select * from D#ITF001.artikelOverview", function (err1, rows) {
-//          if (err1) console.log(err1);
-//          else console.log(rows);
-//          res.send(rows);
-//          connection.close(function (err2) {
-//             if (err2) console.log(err2);
-//          });
-//       });
-//    })
-// }
 
 
 
@@ -102,6 +85,7 @@ exports.getCategories = async (req, res) => {
       res.send(results)
    })
 }
+
 
 exports.addProduct = async (req, res) => {
    const { Code, As400, CreateOn, Category, Pub, Slug } = req.body;
@@ -416,7 +400,7 @@ exports.getSequenceResults = async (req, res) => {
 
 
 exports.changeSequence = async (req, res) => {
-   const {Id, Parent, Sequence, Type} = req.body;
+   const { Id, Parent, Sequence, Type } = req.body;
 
    const query = `UPDATE InfoTree SET Sequence = "${Sequence}" WHERE Id = "${Id}" AND Parent = "${Parent}" AND Type = "${Type}";`;
 
@@ -427,8 +411,23 @@ exports.changeSequence = async (req, res) => {
    })
 }
 
+// exports.getAs400Description = async (req, res) => {
+//    const {as400Code} = req.body;
+//    let schema = 'D#ITF001'
+//    let sql = `SELECT AOAROM FROM ${schema}.artikelOverview WHERE ARARNR = "${as400Code}"`;
+//    const connection = new Connection({ url: '*LOCAL' })
+//    const statement = new Statement(connection);
+//    let results = await statement.exec(sql)
+   
+//    console.log(results)
+
+//    res.send(results);
+// }
 
 
 
+// https://www.npmjs.com/package/idb-pconnector
 
-
+// api-routes.js uncomment line 42
+// api-ctrl.js - uncomment exports.getAs400Description - line 414
+// allProduct.ejs - check returned object and adapt setValue - line 221

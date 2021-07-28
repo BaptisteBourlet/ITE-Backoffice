@@ -37,8 +37,8 @@ router.post('/addRelatedProductFromView', apiCtrl.addRelatedProductFromView);
 
 router.post('/getRelatedCatalog', apiCtrl.getRelatedCatalog);
 
-router.get('/testIBM', apiCtrl.testIBM);
-
 router.post('/changeSequence', apiCtrl.changeSequence);
+
+// router.post('/getAs400Description', apiCtrl.getAs400Description);
 
 module.exports = router;

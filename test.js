@@ -87,3 +87,16 @@
 //   ],
 // },
 
+const obt = {
+   a: 'a',
+   b: 'b'
+}
+
+const replacer = (key, value) => {
+   if (value === 'a') {
+      return 'aaaaaa'
+   }
+
+   return value
+}
+console.log(JSON.stringify(obt, replacer));

@@ -206,8 +206,28 @@
         });
       };
 
+      const getAs400Description = (as400Code) => {
+        Ext.Ajax.request({
+          url: "/api/getAs400Description",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            as400Code: as400Code
+          },
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+            console.log(res);
+            Ext.getCmp('as400Description').setValue(res[0].AOAROM || "As400 Description not available")
+            Ext.getCmp("viewport").setActiveItem("mainPanel");
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      }
+
       const editProduct = () => {
-        console.log(productIDGlobal);
         Ext.Ajax.request({
           url: "/api/editProduct",
           method: "POST",
@@ -825,6 +845,7 @@
                 .getSelectionModel()
                 .getSelection()[0];
               getProductDetails(selectedRecord.data.Id);
+              getAs400Description(selectedRecord.data.As400Code);
               productIDGlobal = selectedRecord.data.Id;
               Ext.getCmp("productDetails").setTitle(
                 `PRODUCT DETAILS - ${selectedRecord.data.CODE}`
@@ -964,6 +985,13 @@
                 xtype: "displayfield",
                 id: "as400Code",
                 fieldLabel: "<b>AS400CODE</b>",
+                labelWidth: 150,
+                fieldCls: "fieldClass",
+              },
+              {
+                xtype: "displayfield",
+                id: "as400Description",
+                fieldLabel: "<b>AS400 Description</b>",
                 labelWidth: 150,
                 fieldCls: "fieldClass",
               },
