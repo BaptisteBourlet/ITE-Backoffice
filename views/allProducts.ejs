@@ -739,16 +739,16 @@
               scale: "small",
               handler: function () { deleteProduct() },
             },
-            // {
-            //   xtype: 'button',
-            //   id: "category",
-            //   text: 'Category',
-            //   iconCls: "fa fa-trash-alt",
-            //   scale: "small",
-            //   handler: function () {
-            //     Ext.getCmp('viewport').setActiveItem('panelAdd');
-            //   },
-            // },
+            {
+              xtype: 'button',
+              id: "manageSequence",
+              text: 'Manage Sequence',
+              iconCls: "fa fa-tasks",
+              scale: "small",
+              handler: function () {
+                window.open('/manage-sequence')
+              },
+            },
           ],
         },
         {
