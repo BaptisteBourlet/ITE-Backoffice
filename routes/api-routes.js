@@ -39,4 +39,6 @@ router.post('/getRelatedCatalog', apiCtrl.getRelatedCatalog);
 
 router.get('/testIBM', apiCtrl.testIBM);
 
+router.post('/changeSequence', apiCtrl.changeSequence);
+
 module.exports = router;

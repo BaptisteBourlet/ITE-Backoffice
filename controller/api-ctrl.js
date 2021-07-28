@@ -23,7 +23,7 @@ const con = mysql.createConnection({
 // con.query(`SELECT MAX(Sequence) FROM RelatedProducts WHERE Type = "${Type}" AND ProductId = ${globalProductID};`)
 
 exports.getSomething = async (req, res) => {
-   con.query(`SELECT C.Id, IT.Sequence, C.WorkingTitle AS Description FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId WHERE IT.Parent = "1" AND IT.Publish = "1";`, (err, results, fields) => {
+   con.query(`SELECT C.Id, IT.Sequence, C.WorkingTitle AS Description FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId WHERE IT.Parent = "35" AND IT.Publish = "1";`, (err, results, fields) => {
       if (err) throw err;
 
       res.send(results)
@@ -43,7 +43,6 @@ exports.testIBM = (req, res) => {
          connection.close(function (err2) {
             if (err2) console.log(err2);
          });
-
       });
    })
 }
@@ -397,22 +396,35 @@ exports.addRelatedProductFromView = async (req, res) => {
 
 
 exports.getSequenceResults = async (req, res) => {
-   const { Type, CategoryID } = req.body;
-
+   const { Type, CategoryID } = req.query;
+   console.log(req.query);
    let query = '';
 
    if (Type == "C") {
-      query = `SELECT WorkingTitle AS Description, Sequence FROM Category C LEFT JOIN InfoTree IT ON C.ParentId = IT.Parent WHERE IT.Parent = "${CategoryID}";`
+      query = `SELECT IT.Type, C.Id, IT.Sequence, IT.Sequence as OldSequence, C.WorkingTitle AS Description FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "C";`
    } else if (Type === "P") {
-      query = 'get for Product';
+      query = `SELECT IT.Type,  IT.Sequence, P.CODE AS Description FROM Product P LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "P";`;
    } else {
-      query = "get for Series";
+      query = `SELECT IT.Type,  IT.Sequence, S.Key AS Description FROM Series S LEFT JOIN InfoTree IT ON S.Sid = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "S";`;
    }
 
    con.query(query, (err, results) => {
       if (err) throw err;
 
       res.send(results);
+   })
+}
+
+
+exports.changeSequence = async (req, res) => {
+   const {Id, Parent, Sequence, Type} = req.body;
+
+   const query = `UPDATE InfoTree SET Sequence = "${Sequence}" WHERE Id = "${Id}" AND Parent = "${Parent}" AND Type = "${Type}";`;
+
+   con.query(query, (err, results) => {
+      if (err) throw err;
+
+      res.send('sequence changed');
    })
 }
 
