@@ -13,7 +13,6 @@ const con = mysql.createConnection({
 })
 
 
-// SELECT * FROM Category WHERE ParentId IN (NULL, 1);
 // SELECT * FROM ProductInfo LEFT JOIN SeriesProductLink ON ProductInfo.Id = SeriesProductLink.ProductId WHERE SeriesId = 3;
 // SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';
 // SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IF.LinkId WHERE IF.Parent = 4;
@@ -430,4 +429,5 @@ exports.changeSequence = async (req, res) => {
 
 // api-routes.js uncomment line 42
 // api-ctrl.js - uncomment exports.getAs400Description - line 414
+// api-ctrl.js - uncomment line 5
 // allProduct.ejs - check returned object and adapt setValue - line 221
