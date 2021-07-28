@@ -2,8 +2,8 @@
 const { DB } = require('../database')
 const mysql = require('mysql');
 const storage = require('node-sessionstorage');
-const ibmdb = require("ibm_db");
-const ibmCon = 'DATABASE=D#ITF001;HOSTNAME=10.0.10.1;PROTOCOL=TCPIP;UID=cdkoen;PWD=moira2605';
+// const ibmdb = require("ibm_db");
+// const ibmCon = 'DATABASE=D#ITF001;HOSTNAME=10.0.10.1;PROTOCOL=TCPIP;UID=cdkoen;PWD=moira2605';
 
 const con = mysql.createConnection({
    host: DB.host,
@@ -11,7 +11,6 @@ const con = mysql.createConnection({
    password: DB.password,
    database: DB.database,
 })
-
 
 
 // SELECT * FROM Category WHERE ParentId IN (NULL, 1);
@@ -30,22 +29,22 @@ exports.getSomething = async (req, res) => {
    })
 }
 
-exports.testIBM = (req, res) => {
-   ibmdb.open(ibmCon, (err, connection) => {
-      if (err) {
-         console.log(err);
-         return;
-      }
-      connection.query("select * from D#ITF001.artikelOverview", function (err1, rows) {
-         if (err1) console.log(err1);
-         else console.log(rows);
-         res.send(rows);
-         connection.close(function (err2) {
-            if (err2) console.log(err2);
-         });
-      });
-   })
-}
+// exports.testIBM = (req, res) => {
+//    ibmdb.open(ibmCon, (err, connection) => {
+//       if (err) {
+//          console.log(err);
+//          return;
+//       }
+//       connection.query("select * from D#ITF001.artikelOverview", function (err1, rows) {
+//          if (err1) console.log(err1);
+//          else console.log(rows);
+//          res.send(rows);
+//          connection.close(function (err2) {
+//             if (err2) console.log(err2);
+//          });
+//       });
+//    })
+// }
 
 
 
