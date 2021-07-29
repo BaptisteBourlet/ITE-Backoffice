@@ -3,7 +3,9 @@ const { DB } = require('../database')
 const mysql = require('mysql');
 const storage = require('node-sessionstorage');
 const ibmdb = require("ibm_db");
-const ibmCon = 'DATABASE=D#ITF001;HOSTNAME=10.0.10.1;PROTOCOL=TCPIP;UID=cdkoen;PWD=moira2605';
+
+
+const ibmCon = "DATABASE=D#ITF001;HOSTNAME=10.0.10.1;PROTOCOL=TCPIP;UID=cdkoen;PWD=moira2605;";
 
 const con = mysql.createConnection({
    host: DB.host,
@@ -11,7 +13,6 @@ const con = mysql.createConnection({
    password: DB.password,
    database: DB.database,
 })
-
 
 
 // SELECT * FROM Category WHERE ParentId IN (NULL, 1);
@@ -31,21 +32,48 @@ exports.getSomething = async (req, res) => {
 }
 
 exports.testIBM = (req, res) => {
-   ibmdb.open(ibmCon, (err, connection) => {
-      if (err) {
-         console.log(err);
-         return;
-      }
-      connection.query("select * from D#ITF001.artikelOverview", function (err1, rows) {
-         if (err1) console.log(err1);
-         else console.log(rows);
-         res.send(rows);
-         connection.close(function (err2) {
-            if (err2) console.log(err2);
-         });
 
+// let schema = 'D#ITF001'
+
+// let sql = `select * from ${schema}.artikelOverview`
+
+// const connection = new Connection({ url: '10.0.10.1'})
+// const statement = new Statement(connection);
+
+// const test =  statement.exec(sql)
+// console.log(`Test Results: ${JSON.stringify(test, null,4)}`)
+
+   try {
+      var option = { connectTimeout : 10, systemNaming : true };// Connection Timeout after 40 seconds.
+      var conn = ibmdb.openSync(ibmCon, option);
+      conn.query("select * from D#ITF001.artikelOverview", function (err, rows) {
+		if (err) {
+			console.log(err);
+		} else {
+		  console.log(rows);
+		}
+		conn.close();
       });
-   })
+    } catch (e) {
+      console.log('ERR connection  '+e.message);
+    }
+
+
+   // ibmdb.open(ibmCon, (err, connection) => {
+   //    if (err) {
+   //       console.log(err);
+   //       return;
+   //    }
+   //    connection.query("select * from D#ITF001.artikelOverview", function (err1, rows) {
+   //       if (err1) console.log(err1);
+   //       else console.log(rows);
+   //       res.send(rows);
+   //       connection.close(function (err2) {
+   //          if (err2) console.log(err2);
+   //       });
+
+   //    });
+   // })
 }
 
 
@@ -420,4 +448,18 @@ exports.getSequenceResults = async (req, res) => {
 
 
 
+/* ------------------------------- CRUD SERIES ------------------------------ */
 
+exports.getAllSeries = async (req, res) => {
+   const query = "SELECT SeriesInfo.SeriesId as Sid, Title, Series.Key"
+      + " FROM SeriesInfo"
+      + " LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid"
+      + ` WHERE SeriesInfo.Language = 'en' AND Series.Publish = '1' ORDER BY SeriesInfo.SeriesId LIMIT 100;`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}

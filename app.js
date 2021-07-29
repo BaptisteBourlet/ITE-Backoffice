@@ -23,6 +23,10 @@ app.get('/categories', function(req, res) {
    res.render('categories');
  });
 
+ app.get('/series', function(req, res) {
+    res.render('CrudSeries');
+  });
+
 app.listen(PORT, () => {
    console.log('listening on port ' + PORT);
 })
