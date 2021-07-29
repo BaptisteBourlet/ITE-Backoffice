@@ -759,6 +759,7 @@
               scale: "small",
               handler: function () { deleteProduct() },
             },
+            "-",
             {
               xtype: 'button',
               id: "manageSequence",
@@ -767,6 +768,17 @@
               scale: "small",
               handler: function () {
                 window.open('/manage-sequence');
+              },
+            },
+            "-",
+            {
+              xtype: 'button',
+              id: "allSeries",
+              text: 'Series Overview',
+              iconCls: "fa fa-tasks",
+              scale: "small",
+              handler: function () {
+                window.open('/series-overview');
               },
             },
           ],
@@ -854,64 +866,6 @@
             },
           },
         },
-      });
-
-      const tree = Ext.create({
-        xtype: "treelist",
-        store: {
-          root: {
-            expanded: true,
-            children: [
-              {
-                text: "All Products",
-                leaf: true,
-              },
-              {
-                text: "Categories",
-                expanded: true,
-                // iconCls: 'x-fa fa-folder',
-                // children: [{
-                //   text: 'Category product 1',
-                //   leaf: true,
-                //   iconCls: 'x-fa fa-book'
-                // }, {
-                //   text: 'Category product 1',
-                //   leaf: true,
-                //   iconCls: 'x-fa fa-graduation-cap'
-                // }]
-              },
-              {
-                text: "Series",
-                leaf: true,
-                iconCls: "x-fa fa-usd",
-                handler: () => { },
-              },
-            ],
-          },
-        },
-        renderTo: Ext.getBody(),
-      });
-
-      const sideBar = Ext.create("Ext.panel.Panel", {
-        id: "sideBar",
-        trackOver: true,
-        title: "Navigation",
-        loadMask: true,
-        header: true,
-        width: 300,
-        layout: "hbox",
-        renderTo: Ext.getBody(),
-        items: [
-          {
-            xtype: "container",
-            width: "100%",
-            layout: {
-              type: "vbox",
-              align: "stretch",
-            },
-            items: [tree],
-          },
-        ],
       });
 
       const productDetails = Ext.create("Ext.panel.Panel", {
@@ -1087,7 +1041,7 @@
               type: "hbox",
               align: "stretch",
             },
-            items: [sideBar, AllProductGrid],
+            items: [AllProductGrid],
           },
         ],
       });
@@ -1117,27 +1071,6 @@
       });
 
       var itemsAdd = [
-        // {
-        //   xtype: 'combo',
-        //   id: 'cat1',
-        //   store: firstCatStore,
-        //   fieldLabel: 'Parent Category',
-        //   width: 300,
-        //   displayField: 'WorkingTitle',
-        //   valueField: 'Id',
-        //   forceSelection: false,
-        //   editable: false,
-        //   typeAhead: true,
-        //   mode: 'local',
-        //   triggerAction: 'all',
-        //   listeners: {
-        //     change: () => {
-        //       // Ext.getCmp('category2').setValue('')
-        //       // secondCatStore.getProxy().setExtraParam('firstCat', Ext.getCmp('category1').getValue());
-        //       // secondCatStore.reload()
-        //     }
-        //   }
-        // },
         {
           xtype: "textfield",
           id: "code",

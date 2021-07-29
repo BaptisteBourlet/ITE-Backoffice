@@ -13,6 +13,10 @@ const con = mysql.createConnection({
 })
 
 
+// =================================================================================================
+//                                       PRODUCTS
+// =================================================================================================
+
 // SELECT * FROM Category WHERE ParentId IN (NULL, 1);
 // SELECT * FROM ProductInfo LEFT JOIN SeriesProductLink ON ProductInfo.Id = SeriesProductLink.ProductId WHERE SeriesId = 3;
 // SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';
@@ -28,9 +32,6 @@ exports.getSomething = async (req, res) => {
       res.send(results)
    })
 }
-
-
-
 
 exports.getAllProducts = async (req, res) => {
    const query = "SELECT ProductInfo.ProductId as Id, Description, FullDescription, Catalog, CODE, As400Code"
@@ -379,19 +380,7 @@ exports.addRelatedProductFromView = async (req, res) => {
 
 exports.getSequenceResults = async (req, res) => {
    const { Type, CategoryID } = req.query;
-   console.log(req.query);
    let query = '';
-
-   // if (Type == "C") {
-   //    query = `SELECT IT.Type, C.Id, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "C";`
-   // } else if (Type === "P") {
-   //    query = `SELECT IT.Type,  IT.Sequence, P.CODE AS Description FROM Product P LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "P";`;
-   // } else {
-   //    query = `SELECT IT.Type,  IT.Sequence, S.Key AS Description FROM Series S LEFT JOIN InfoTree IT ON S.Sid = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "S";`;
-   // }
-
-   // query = `SELECT IT.Type, C.Id, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description, P.CODE AS Description, S.Key AS Description FROM InfoTree IT RIGHT OUTER JOIN Category C ON C.Id = IT.LinkId RIGHT OUTER JOIN Product P ON P.Id = IT.LinkId RIGHT OUTER JOIN Series S ON S.Sid = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1";`
-
 
    query = `SELECT IT.Type, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description FROM InfoTree IT LEFT JOIN Category C ON C.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "C"
    UNION
@@ -439,13 +428,34 @@ exports.changeSequence = async (req, res) => {
 // api-routes.js uncomment line 42
 // api-ctrl.js - uncomment exports.getAs400Description - line 414
 // allProduct.ejs - check returned object and adapt setValue - line 221
-/* ------------------------------- CRUD SERIES ------------------------------ */
+
+
+// =================================================================================================
+//                                       SERIES
+// =================================================================================================
 
 exports.getAllSeries = async (req, res) => {
    const query = "SELECT SeriesInfo.SeriesId as Sid, Title, Series.Key"
       + " FROM SeriesInfo"
       + " LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid"
       + ` WHERE SeriesInfo.Language = 'en' AND Series.Publish = '1' ORDER BY SeriesInfo.SeriesId LIMIT 100;`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+
+exports.searchSerie = async (req, res) => {
+   const { searchQuery } = req.body;
+
+   const query = "SELECT Series.Sid, Series.Key, Title"
+      + " FROM SeriesInfo"
+      + " LEFT JOIN Series ON Series.Sid = SeriesInfo.SeriesId"
+      + ` WHERE SeriesInfo.Language = "en" AND Series.Key LIKE '%${searchQuery}%' ORDER BY SeriesInfo.SeriesId;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {

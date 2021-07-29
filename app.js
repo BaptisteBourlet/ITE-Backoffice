@@ -21,7 +21,7 @@ app.get('/manage-sequence', function(req, res) {
    res.render('manageSequence');
  });
 
- app.get('/series', function(req, res) {
+ app.get('/series-overview', function(req, res) {
     res.render('CrudSeries');
   });
 

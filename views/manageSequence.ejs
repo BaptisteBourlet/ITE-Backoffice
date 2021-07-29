@@ -8,6 +8,13 @@
    <title>SEQUENCE MANAGING - ITE BACK OFFICE</title>
    <link rel="stylesheet" type="text/css"
       href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+   <style>
+      .x-grid-cell-inner {
+         overflow: hidden;
+         padding: 10px 6px;
+         white-space: nowrap;
+      }
+   </style>
    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
    <script type="text/javascript">
@@ -194,8 +201,8 @@
                      emptyText: "Select specific category...",
                      listeners: {
                         change: function () {
-                              mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
-                              mainStore.load()
+                           mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
+                           mainStore.load()
                         },
                      }
                   },
@@ -275,6 +282,7 @@
       });
    </script>
 </head>
+
 <body></body>
 
 </html>

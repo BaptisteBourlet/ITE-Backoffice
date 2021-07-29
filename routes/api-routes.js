@@ -3,9 +3,10 @@ const apiCtrl = require('../controller/api-ctrl');
 router = express.Router();
 
 
+// =================================================================================================
+//                                           PRODUCTS
+// =================================================================================================
 router.get('/getSomething', apiCtrl.getSomething);
-
-router.get('/getSequenceResults', apiCtrl.getSequenceResults);
 
 router.get('/getAllProducts', apiCtrl.getAllProducts);
 
@@ -37,11 +38,23 @@ router.post('/addRelatedProductFromView', apiCtrl.addRelatedProductFromView);
 
 router.post('/getRelatedCatalog', apiCtrl.getRelatedCatalog);
 
+router.get('/getSequenceResults', apiCtrl.getSequenceResults);
+
 router.post('/changeSequence', apiCtrl.changeSequence);
 
 // router.post('/getAs400Description', apiCtrl.getAs400Description);
 
+// =================================================================================================
+//                                       SERIES
+// =================================================================================================
+
 router.get('/getAllSeries', apiCtrl.getAllSeries);
+
+router.post('/searchSerie', apiCtrl.searchSerie);
+
+
+
+
 
 
 module.exports = router;
