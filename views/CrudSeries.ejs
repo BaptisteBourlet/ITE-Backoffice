@@ -22,6 +22,59 @@
       //		           APPLICATION START
       // ========================================================================================================
       Ext.onReady(() => {
+   
+
+            const Model = Ext.define("Categories", {
+                extend: "Ext.data.Model",
+                fields: ["Sid", "Key", "Title", "CreatedOn", "ModifiedOn", "Publish"],
+            });
+            const mainStore = Ext.create("Ext.data.Store", {
+                id: "mainStore",
+                autoLoad: true,
+                model: Model,
+
+                proxy: {
+                    type: "ajax",
+                    method: "POST",
+                    url: "/api/getAllSeries",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+
+                    },
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+                listeners: {
+                    beforeload: function (store) { },
+                },
+            });
+
+            const mainGridColumns = [
+
+                {
+                    header: "ID",
+                    sortable: true,
+                    width: 100,
+                    dataIndex: "Sid",
+                },
+
+                {
+                    header: "Key",
+                    sortable: false,
+                    width: 200,
+                    dataIndex: "Key",
+                },
+                {
+                    header: "Title",
+                    sortable: false,
+                    width: 300,
+                    dataIndex: "Title",
+                },
+                
+            ];
+
+          
 
          const searchSerie = (searchField) => {
             let searchQuery = Ext.getCmp(searchField).getValue();
@@ -47,52 +100,6 @@
          };
 
 
-         const Model = Ext.define("Categories", {
-            extend: "Ext.data.Model",
-            fields: ["Sid", "Key", "Title", "CreatedOn", "ModifiedOn", "Publish"],
-         });
-         const mainStore = Ext.create("Ext.data.Store", {
-            id: "mainStore",
-            autoLoad: true,
-            model: Model,
-
-            proxy: {
-               type: "ajax",
-               method: "POST",
-               url: "/api/getAllSeries",
-               noCache: true,
-               reader: {
-                  type: "json",
-
-               },
-               cors: true,
-               useDefaultXhrHeader: false,
-            },
-            listeners: {
-               beforeload: function (store) { },
-            },
-         });
-
-         const mainGridColumns = [
-            {
-               header: "ID",
-               sortable: true,
-               width: 100,
-               dataIndex: "Sid",
-            },
-            {
-               header: "Key",
-               sortable: false,
-               width: 200,
-               dataIndex: "Key",
-            },
-            {
-               header: "Description",
-               sortable: false,
-               width: 300,
-               dataIndex: "Title",
-            },
-         ];
 
          const tbarItems = [
             {
