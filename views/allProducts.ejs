@@ -50,6 +50,12 @@
       let edit = false;
       let productIDGlobal = "";
 
+      Ext.define('MyApp.view.Form', {
+				extend: 'Ext.form.Panel',
+				xtype: 'my-form',
+				
+			});
+
       const relatedProducts = (products) => {
         let exist = false;
 
@@ -1497,6 +1503,7 @@
             border: false,
             items: [
               {
+                xtype: 'my-form',
                 id: "addForm",
                 columnWidth: 0.9,
                 border: false,
@@ -1623,6 +1630,7 @@
             border: false,
             items: [
               {
+                xtype: 'my-form',
                 id: "addForm2",
                 columnWidth: 0.9,
                 border: false,

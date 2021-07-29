@@ -497,11 +497,12 @@ exports.searchSerie = async (req, res) => {
    })
 }
 
-exports.addProduct = async (req, res) => {
-   const { Key, CreateOn } = req.body;
+
+exports.addSeries = async (req, res) => {
+   const { Key, CreatedOn } = req.body;
    console.log(req.body);
 
-   con.query(`INSERT INTO Series (Key, CreatedOn, Publish) VALUES ("${Key}", "${CreateOn}", 1);`, (err, results, fields) => {
+   con.query(`INSERT INTO Series (Series.Key, CreatedOn, Publish) VALUES ("${Key}", "${CreatedOn}", 1);`, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
@@ -517,7 +518,7 @@ exports.addProduct = async (req, res) => {
 
 
       if (Title !== "") {
-         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${Language}", "${CreatedOn}", "${SeriesId}", "${Title}", "${Specification}", "${FullDescription}");`, (err, results, fields) => {
+         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${Language}", "${CreatedOn}", "${storage.getItem('SeriesId')}", "${Title}", "${Specification}", "${FullDescription}");`, (err, results, fields) => {
             if (err) throw err;
 
             console.log(results);
@@ -527,8 +528,8 @@ exports.addProduct = async (req, res) => {
          console.log('english wasnt filled in')
       }
 
-      if (FRTitle) {
-         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${FRLanguage}", "${CreatedOn}", "${SeriesId}", "${FRSpecification}", "${FRTitle}", "${FRFullDescription}");`, (err, results, fields) => {
+      if (FRTitle !== "") {
+         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${FRLanguage}", "${CreatedOn}", "${storage.getItem('SeriesId')}", "${FRTitle}", "${FRSpecification}", "${FRFullDescription}");`, (err, results, fields) => {
             if (err) throw err;
 
             console.log(results);
@@ -538,7 +539,7 @@ exports.addProduct = async (req, res) => {
       }
 
       if (DETitle !== "") {
-         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${DELanguage}", "${CreatedOn}", "${SeriesId}", "${DESpecification}", "${DETitle}", "${DEFullDescription}");`, (err, results, fields) => {
+         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${DELanguage}", "${CreatedOn}", "${storage.getItem('SeriesId')}", "${DETitle}", "${DESpecification}", "${DEFullDescription}");`, (err, results, fields) => {
             if (err) throw err;
 
             console.log(results);
@@ -548,7 +549,7 @@ exports.addProduct = async (req, res) => {
       }
 
       if (RUTitle !== "") {
-         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${RULanguage}", "${CreatedOn}", "${SeriesId}", "${RUSpecification}", "${RUTitle}", "${RUFullDescription}");`, (err, results, fields) => {
+         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${RULanguage}", "${CreatedOn}", "${storage.getItem('SeriesId')}", "${RUTitle}", "${RUSpecification}", "${RUFullDescription}");`, (err, results, fields) => {
             if (err) throw err;
 
             console.log(results);
@@ -558,7 +559,7 @@ exports.addProduct = async (req, res) => {
       }
 
       if (SPTitle !== '') {
-         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${SPLanguage}", "${CreatedOn}", "${SeriesId}", "${SPSpecification}", "${SPTitle}", "${SPFullDescription}");`, (err, results, fields) => {
+         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${SPLanguage}", "${CreatedOn}", "${storage.getItem('SeriesId')}", "${SPTitle}", "${SPSpecification}", "${SPFullDescription}");`, (err, results, fields) => {
             if (err) throw err;
 
             console.log(results);

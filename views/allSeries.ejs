@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+<<<<<<< HEAD:views/allSeries.ejs
    <meta charset="UTF-8" />
    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,6 +37,34 @@
                params: {
                   serieId: serieId,
                },
+=======
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ITE BACK OFFICE MANAGEMENT</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+    <style>
+        .x-grid-cell-inner {
+            overflow: hidden;
+            padding: 10px 6px;
+            white-space: nowrap;
+        }
+    </style>
+    <script type="text/javascript">
+        //=========================================================================================================
+        //		           APPLICATION START
+        // ========================================================================================================
+        Ext.onReady(() => {
+
+            Ext.define('MyApp.view.Form', {
+				extend: 'Ext.form.Panel',
+				xtype: 'my-form',
+				
+			});
+>>>>>>> baptiste:views/CrudSeries.ejs
 
                success: function (response) {
                   const res = JSON.parse(response.responseText);
@@ -118,6 +147,7 @@
                dataIndex: "Title",
             },
 
+<<<<<<< HEAD:views/allSeries.ejs
          ];
 
          const searchSerie = (searchField) => {
@@ -177,80 +207,632 @@
 
                         if (selectedRecord === undefined) {
                            Ext.Msg.alert("INFO", "No record selected");
-                        } else {
-                           Ext.getCmp("addSave").setHidden(true);
-                           Ext.getCmp("editSave").setHidden(false);
-                           Ext.getCmp("panelAdd").setTitle("Edit Product");
-                           Ext.getCmp("viewport").setActiveItem("panelAdd");
-                           getProductDetails(selectedRecord.data.Id);
-                           productIDGlobal = selectedRecord.data.Id;
-                        }
-                     },
-                  },
-                  "-",
-                  {
-                     xtype: "button",
-                     id: "delete",
-                     text: "Delete",
-                     iconCls: "fa fa-trash-alt",
-                     scale: "small",
-                     handler: function () { },
-                  },
-                  "-",
-                  {
-                     xtype: 'button',
-                     id: "manageSequence",
-                     text: 'Manage Sequence',
-                     iconCls: "fa fa-tasks",
-                     scale: "small",
-                     handler: function () {
-                        window.open('/manage-sequence');
-                     },
-                  },
-                  "-",
-                  {
-                     xtype: 'button',
-                     id: "allProducts",
-                     text: 'Products Overview',
-                     iconCls: "fa fa-tasks",
-                     scale: "small",
-                     handler: function () {
-                        window.open('/');
-                     },
-                  },
-               ],
-            },
-            {
-               xtype: "toolbar",
-               dock: "top",
-               id: "searchBar",
-               items: [
-                  {
-                     xtype: "textfield",
-                     id: "searchKey",
-                     iconCls: "fa fa-search",
-                     width: 200,
-                     labelWidth: 20,
-                     style: "margin-left: 5px; color: grey;",
-                     emptyText: "Search by key",
-                     listeners: {
-                        change: () => {
-                           searchSerie("searchKey")
-                        },
-                     },
-                  },
+=======
+            const mainGridColumns = [
 
-                  {
-                     xtype: "button",
-                     id: "resetSearch",
-                     iconCls: "fas fa-undo-alt",
-                     text: "reset",
-                     style: "padding: 7px; border: none; background-color: #000",
-                     listeners: {
-                        click: () => {
-                           Ext.getCmp("searchKey").setValue("");
-                           mainStore.reload();
+                {
+                    header: "ID",
+                    sortable: true,
+                    width: 100,
+                    dataIndex: "Sid",
+                },
+
+                {
+                    header: "Key",
+                    sortable: false,
+                    width: 200,
+                    dataIndex: "Key",
+                },
+                {
+                    header: "Title",
+                    sortable: false,
+                    width: 300,
+                    dataIndex: "Title",
+                },
+
+            ];
+
+
+
+            const searchSerie = (searchField) => {
+                let searchQuery = Ext.getCmp(searchField).getValue();
+                Ext.Ajax.request({
+                    url: "/api/searchSerie",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        searchQuery: searchQuery,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        res
+                            ? mainStore.setData(res)
+                            : console.log("no response received");
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            };
+
+
+
+            const tbarItems = [
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "bottomToolBar",
+                    items: [
+                        {
+                            xtype: "button",
+                            id: "add",
+                            iconCls: "fa fa-plus-circle",
+                            text: "New",
+                            scale: "small",
+                            handler: function () {
+                                Ext.getCmp("addSave").setHidden(false);
+                                Ext.getCmp("editSave").setHidden(true);
+                                Ext.getCmp("panelAdd").setTitle("Add series");
+                                Ext.getCmp("viewport").setActiveItem("panelAdd");
+                            },
                         },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "edit",
+                            text: "Edit",
+                            iconCls: "fa fa-edit",
+                            scale: "small",
+                            handler: function () {
+                                edit = true;
+                                const selectedRecord = Ext.getCmp("SeriesGrid")
+                                    .getSelectionModel()
+                                    .getSelection()[0];
+
+                                if (selectedRecord === undefined) {
+                                    Ext.Msg.alert("INFO", "No record selected");
+                                } else {
+                                    Ext.getCmp("addSave").setHidden(true);
+                                    Ext.getCmp("editSave").setHidden(false);
+                                    Ext.getCmp("panelAdd").setTitle("Edit Product");
+                                    Ext.getCmp("viewport").setActiveItem("panelAdd");
+                                    getProductDetails(selectedRecord.data.Id);
+                                    productIDGlobal = selectedRecord.data.Id;
+                                }
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "delete",
+                            text: "Delete",
+                            iconCls: "fa fa-trash-alt",
+                            scale: "small",
+                            handler: function () { },
+                        },
+                        "-",
+                        {
+                            xtype: 'button',
+                            id: "manageSequence",
+                            text: 'Manage Sequence',
+                            iconCls: "fa fa-tasks",
+                            scale: "small",
+                            handler: function () {
+                                window.open('/manage-sequence');
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: 'button',
+                            id: "allProducts",
+                            text: 'Products Overview',
+                            iconCls: "fa fa-tasks",
+                            scale: "small",
+                            handler: function () {
+                                window.open('/');
+                            },
+                        },
+                    ],
+                },
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "searchBar",
+                    items: [
+                        {
+                            xtype: "textfield",
+                            id: "searchKey",
+                            iconCls: "fa fa-search",
+                            width: 200,
+                            labelWidth: 20,
+                            style: "margin-left: 5px; color: grey;",
+                            emptyText: "Search by key",
+                            listeners: {
+                                change: () => {
+                                    searchSerie("searchKey")
+                                },
+                            },
+                        },
+
+                        {
+                            xtype: "button",
+                            id: "resetSearch",
+                            iconCls: "fas fa-undo-alt",
+                            text: "reset",
+                            style: "padding: 7px; border: none; background-color: #000",
+                            listeners: {
+                                click: () => {
+                                    Ext.getCmp("searchKey").setValue("");
+                                    mainStore.reload();
+                                },
+                            },
+                        },
+                    ],
+                },
+            ];
+            const SeriesGrid = Ext.create("Ext.grid.GridPanel", {
+                id: "SeriesGrid",
+                flex: 1,
+                scrollable: true,
+                title: "All Series",
+                trackOver: true,
+                loadMask: true,
+                store: mainStore,
+                columns: mainGridColumns,
+                enableColumnMove: false,
+
+                sortable: true,
+                frame: false,
+                renderTo: Ext.getBody(),
+                height: 690,
+                dockedItems: [...tbarItems],
+            });
+
+
+            //add Series
+            let current_datetime = new Date();
+            var time = function () {
+                if (current_datetime.getMonth() + 1 < 10) {
+                    return "0" + Number(current_datetime.getMonth() + 1);
+                } else {
+                    current_datetime.getMonth() + 1;
+                }
+            };
+
+            let formatDate =
+                current_datetime.getDate() +
+                "/" +
+                time() +
+                "/" +
+                current_datetime.getFullYear();
+           
+
+            var addRecord = function () {
+                Ext.getBody().mask("Saving", "x-msg-loading");
+
+                Ext.Ajax.request({
+                    url: "/api/addSeries",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        Key: Ext.getCmp("Key").getValue().trim(),
+                        Language: "en",
+                        CreatedOn: formatDate,
+                        Title: Ext.getCmp("Title").getValue().trim(),
+                        Specification: Ext.getCmp("spec").getValue(),
+                        FullDescription: Ext.getCmp("FDesc").getValue(),
+                        //FR
+                        FRLanguage: "fr",
+                        FRTitle: Ext.getCmp("FRTitle").getValue().trim(),
+                        FRSpecification: Ext.getCmp("FRspec").getValue(),
+                        FRFullDescription: Ext.getCmp("FRFDesc").getValue(),
+                        //DE
+                        DELanguage: "de",
+                        DETitle: Ext.getCmp("DETitle").getValue().trim(),
+                        DESpecification: Ext.getCmp("DEspec").getValue(),
+                        DEFullDescription: Ext.getCmp("DEFDesc").getValue(),
+                        //SP
+                        SPLanguage: "sp",
+                        SPTitle: Ext.getCmp("SPTitle").getValue().trim(),
+                        SPSpecification: Ext.getCmp("SPspec").getValue(),
+                        SPFullDescription: Ext.getCmp("SPFDesc").getValue(),
+                        //RU
+                        RULanguage: "ru",
+                        RUTitle: Ext.getCmp("RUTitle").getValue().trim(),
+                        RUSpecification: Ext.getCmp("RUspec").getValue(),
+                        RUFullDescription: Ext.getCmp("RUFDesc").getValue(),
+                    },
+                    success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                            var data = JSON.parse(check);
+                            if (data) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "Series",
+                                    "You have successfully add series",
+                                    function (btn, text) {
+                                       
+                                            Ext.getCmp("viewport").setActiveItem('SeriesGrid');
+                                       
+                                    }
+                                );
+                            } else {
+                                // display error message
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to add the series. Contact your IT team."
+                                );
+                            }
+                        }
+                    },
+                    failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                            "ERROR",
+                            "Failed to add the series. Contact your IT team."
+                        );
+                    },
+                });
+            };
+
+            var itemsAdd = [
+
+                {
+                    xtype: "textfield",
+                    id: "Key",
+                    name: "Key",
+                    fieldLabel: "Key",
+                    maxLenght: 10,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+
+
+
+                {
+                    xtype: "fieldset",
+                    title: "English Translations",
+                    anchor: "100%",
+                    hidden: false,
+                    id: "ENFIELD",
+                    layoutConfig: {
+                        // The total column count must be specified here
+                        columns: 9,
+                    },
+                    items: [
+                        {
+                            xtype: "textfield",
+                            id: "Title",
+                            name: "Title",
+                            fieldLabel: "Title",
+                            maxLenght: 118,
+                            width: 500,
+                            allowBlank: false,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                        },
+
+                        {
+                            xtype: "htmleditor",
+                            id: "FDesc",
+                            name: "FDesc",
+                            fieldLabel: "Full description",
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            allowBlank: false,
+                            enableFont: false,
+                        },
+                        // Baptiste move Catalog field
+                        {
+                            xtype: "htmleditor",
+                            id: "spec",
+                            name: "spec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: false,
+                            selectOnFocus: false,
+                            enableFont: false,
+                        },
+                    ],
+                },
+                {
+                    xtype: "button",
+                    text: "French translations",
+                    margin: 10,
+                    handler: function () {
+                        if (Ext.getCmp("FRFIELD").isHidden() == true) {
+                            Ext.getCmp("FRFIELD").setHidden(false);
+>>>>>>> baptiste:views/CrudSeries.ejs
+                        } else {
+                            Ext.getCmp("FRFIELD").setHidden(true);
+                        }
+
+                        if (edit === true) {
+                            getOtherLanguageDetail('fr', productIDGlobal)
+                        }
+                    },
+                },
+                {
+                    xtype: "fieldset",
+                    title: "French Translations",
+                    anchor: "100%",
+                    hidden: true,
+                    id: "FRFIELD",
+                    layoutConfig: {
+                        // The total column count must be specified here
+                        columns: 9,
+                    },
+                    items: [
+                        {
+                            xtype: "textfield",
+                            id: "FRTitle",
+                            name: "FRTitle",
+                            fieldLabel: "Title",
+                            maxLenght: 118,
+                            width: 500,
+                            allowBlank: true,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                        },
+
+                        {
+                            xtype: "htmleditor",
+                            id: "FRFDesc",
+                            name: "FRFDesc",
+                            fieldLabel: "Full description",
+                            allowBlank: true,
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            enableFont: false,
+                        },
+                        {
+                            xtype: "htmleditor",
+                            id: "FRspec",
+                            name: "FRspec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            enableFont: false,
+                        },
+                    ],
+                },
+                {
+                    xtype: "button",
+                    text: "German translations",
+                    margin: 10,
+                    handler: function () {
+                        if (Ext.getCmp("DEFIELD").isHidden() == true) {
+                            Ext.getCmp("DEFIELD").setHidden(false);
+                        } else {
+                            Ext.getCmp("DEFIELD").setHidden(true);
+                        }
+
+                        if (edit === true) {
+                            getOtherLanguageDetail('de', productIDGlobal)
+                        }
+                    },
+                },
+                {
+                    xtype: "fieldset",
+                    title: "German Translations",
+                    anchor: "100%",
+                    hidden: true,
+                    id: "DEFIELD",
+                    layoutConfig: {
+                        // The total column count must be specified here
+                        columns: 9,
+                    },
+                    items: [
+                        {
+                            xtype: "textfield",
+                            id: "DETitle",
+                            name: "DETitle",
+                            fieldLabel: "Title",
+                            maxLenght: 118,
+                            width: 500,
+                            allowBlank: true,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                        },
+
+                        {
+                            xtype: "htmleditor",
+                            id: "DEFDesc",
+                            name: "DEFDesc",
+                            fieldLabel: "Full description",
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            allowBlank: true,
+                            enableFont: false,
+                        },
+                        {
+                            xtype: "htmleditor",
+                            id: "DEspec",
+                            name: "DEspec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            enableFont: false,
+                        },
+                    ],
+                },
+                {
+                    xtype: "button",
+                    text: "Spanish translations",
+                    margin: 10,
+                    handler: function () {
+                        if (Ext.getCmp("SPFIELD").isHidden() == true) {
+                            Ext.getCmp("SPFIELD").setHidden(false);
+                        } else {
+                            Ext.getCmp("SPFIELD").setHidden(true);
+                        }
+
+                        if (edit === true) {
+                            getOtherLanguageDetail('sp', productIDGlobal)
+                        }
+                    },
+                },
+                {
+                    xtype: "fieldset",
+                    labelStyle: "font-weight: bold; ",
+                    title: "Spanish Translations",
+                    anchor: "100%",
+                    hidden: true,
+                    id: "SPFIELD",
+                    layoutConfig: {
+                        // The total column count must be specified here
+                        columns: 9,
+                    },
+                    items: [
+                        {
+                            xtype: "textfield",
+                            id: "SPTitle",
+                            name: "SPTitle",
+                            fieldLabel: "Title",
+                            allowBlank: true,
+                            maxLenght: 118,
+                            width: 500,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                        },
+
+                        {
+                            xtype: "htmleditor",
+                            id: "SPFDesc",
+                            name: "SPFDesc",
+                            fieldLabel: "Full description",
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            allowBlank: true,
+                            enableFont: false,
+                        },
+                        {
+                            xtype: "htmleditor",
+                            id: "SPspec",
+                            name: "SPspec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            enableFont: false,
+                        },
+                    ],
+                },
+                {
+                    xtype: "button",
+                    text: "Russian translations",
+                    margin: 10,
+                    handler: function () {
+                        if (Ext.getCmp("RUFIELD").isHidden() == true) {
+                            Ext.getCmp("RUFIELD").setHidden(false);
+                        } else {
+                            Ext.getCmp("RUFIELD").setHidden(true);
+                        }
+
+                        if (edit === true) {
+                            getOtherLanguageDetail('ru', productIDGlobal)
+                        }
+                    },
+                },
+                {
+                    xtype: "fieldset",
+                    title: "Russian Translations",
+                    anchor: "100%",
+                    hidden: true,
+                    id: "RUFIELD",
+                    layoutConfig: {
+                        // The total column count must be specified here
+                        columns: 9,
+                    },
+                    items: [
+                        {
+                            xtype: "textfield",
+                            id: "RUTitle",
+                            name: "RUTitle",
+                            fieldLabel: "Title",
+                            maxLenght: 118,
+                            allowBlank: true,
+                            width: 500,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                        },
+
+                        {
+                            xtype: "htmleditor",
+                            id: "RUFDesc",
+                            name: "RUFDesc",
+                            fieldLabel: "Full description",
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            allowBlank: true,
+                            enableFont: false,
+                        },
+                        {
+                            xtype: "htmleditor",
+                            id: "RUspec",
+                            name: "RUspec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            enableFont: false,
+                        },
+                    ],
+                },
+            ];
+            
+
+           
+
+            var screenAdd = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                    listeners: {
+                        specialkey: function (field, e) {
+                            if (e.getKey() == e.ENTER) {
+                                updateRec();
+                            }
+                            if (e.getKey() == e.ESC) {
+                                Ext.getCmp("viewport").setActiveItem("SeriesGrid");
+                            }
+                        },
+                    },
+                },
+                width: 1200,
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: {
+                            columns: 2,
+                        },
+<<<<<<< HEAD:views/allSeries.ejs
                      },
                   },
                ],
@@ -843,6 +1425,76 @@
          });
       });
    </script>
+=======
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "addForm",
+                                columnWidth: 0.9,
+                                border: false,
+                                items: itemsAdd,
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            // outer panel container to hold tbar and keypress definitions
+            var panelAdd = new Ext.Panel({
+                layout: "fit",
+                id: "panelAdd",
+                title: "Add product",
+                header: true,
+                items: [screenAdd],
+                tbar: [
+                    {
+                        text: "Save",
+                        id: "addSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            addRecord();
+                            Ext.getCmp('addForm').reset()
+
+                        },
+                    },
+                    {
+                        text: "Save",
+                        id: "editSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+
+                            Ext.getCmp("addForm").reset();
+                        },
+                    },
+                    "-",
+                    {
+                        text: "Cancel",
+                        tooltip: "Cancel",
+                        id: 'cancel',
+                        iconCls: "fas fa-undo",
+                        handler: function () {
+                            Ext.getCmp('addForm').reset()
+
+                            Ext.getCmp("viewport").setActiveItem("SeriesGrid");
+                        },
+                    },
+                ],
+            });
+
+            //=========================================================================================================
+            //		           VIEW PORT
+            // ========================================================================================================
+
+            Ext.create("Ext.container.Viewport", {
+                id: "viewport",
+                layout: "card",
+                activeItem: 0,
+                items: [SeriesGrid, panelAdd],
+            });
+        });
+    </script>
+>>>>>>> baptiste:views/CrudSeries.ejs
 </head>
 
 <body></body>
