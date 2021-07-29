@@ -564,16 +564,16 @@ exports.addSeries = async (req, res) => {
 
 
 
-exports.editProduct = async (req, res) => {
-   const { ProductId, Pub, Key, As400, Category } = req.body;
+exports.editSeries = async (req, res) => {
+   const { SeriesId, Key, ModifiedOn } = req.body;
    console.log(req.body);
    let errorString = '';
-   const ProductQuery = `Update Series SET Series.Key = "${Key}", As400Code = "${As400}", CategoryId = "${Category}", Publish = ${Pub} WHERE Id = ${SeriesId};`;
+   const SeriesQuery = `Update Series SET Series.Key = "${Key}", ModifiedOn = "${ModifiedOn}", Publish = 1 WHERE Id = ${SeriesId};`;
 
-   con.query(ProductQuery, (err, results) => {
+   con.query(SeriesQuery, (err, results) => {
       if (err) throw err;
 
-      const {  ModifiedOn, Title, Specification, FullDescription,
+      const { ModifiedOn, Title, Specification, FullDescription,
           FRTitle, FRSpecification, FRFullDescription,
           DETitle, DESpecification, DEFullDescription,
           SPTitle, SPSpecification, SPFullDescription,
@@ -583,7 +583,7 @@ exports.editProduct = async (req, res) => {
       const FRQuery = `UPDATE ProductInfo SET Title = '${FRTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "fr"`;
       const DEQuery = `UPDATE ProductInfo SET Title = '${DETitle}', ModifiedOn = ${ModifiedOn}, Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "de"`;
       const SPQuery = `UPDATE ProductInfo SET Title = '${SPTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "sp"`;
-      const RUQuery = `UPDATE ProductInfo SET Title = '${RUTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "en"`;
+      const RUQuery = `UPDATE ProductInfo SET Title = '${RUTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "ru"`;
 
 
       if (Title !== "" ) {
