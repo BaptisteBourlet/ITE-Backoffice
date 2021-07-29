@@ -16,6 +16,11 @@
          padding: 10px 6px;
          white-space: nowrap;
       }
+
+      .fieldClass {
+         border-bottom: 1px dashed rgb(173, 173, 173);
+         padding: 7px 0px;
+      }
    </style>
    <script type="text/javascript">
       //=========================================================================================================
@@ -35,7 +40,7 @@
                success: function (response) {
                   const res = JSON.parse(response.responseText);
                   console.log(res);
-
+                  displaySerieInfo(res[0]);
 
                   // if (edit === false) {
                   //    displayProductInfo(res[0][0]);
@@ -54,19 +59,16 @@
          };
 
 
-         // const displaySerieInfo = (product) => {
-         //   Ext.getCmp('Pub').setValue(product.Publish === 1 ? 'on' : '')
-         //   Ext.getCmp("productName").setValue(product.Catalog);
-         //   Ext.getCmp("productCode").setValue(product.CODE);
-         //   Ext.getCmp("as400Code").setValue(product.As400Code);
-         //   Ext.getCmp("description").setValue(product.Description);
-         //   Ext.getCmp("fullDescription").setValue(
-         //     product.FullDescription ?? "No Full Description"
-         //   );
-         //   Ext.getCmp("specification").setValue(
-         //     product.Specification ?? "No Specification"
-         //   );
-         // };
+         const displaySerieInfo = (serie) => {
+            Ext.getCmp("key").setValue(serie.Key);
+            Ext.getCmp("title").setValue(serie.Title);
+            Ext.getCmp("fullDescription").setValue(
+               serie.FullDescription ?? "No Full Description"
+            );
+            Ext.getCmp("specification").setValue(
+               serie.Specification ?? "No Specification"
+            );
+         };
 
          const Model = Ext.define("Categories", {
             extend: "Ext.data.Model",
@@ -749,14 +751,14 @@
                   items: [
                      {
                         xtype: "displayfield",
-                        id: "serieKey",
+                        id: "key",
                         fieldLabel: "<b>Serie</b>",
                         labelWidth: 150,
                         fieldCls: "fieldClass",
                      },
                      {
                         xtype: "displayfield",
-                        id: "serieTitle",
+                        id: "title",
                         labelWidth: 150,
                         fieldLabel: "<b>Serie Title</b>",
                         fieldCls: "fieldClass",

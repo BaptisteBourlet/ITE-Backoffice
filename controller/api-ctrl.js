@@ -37,9 +37,10 @@ exports.getSomething = async (req, res) => {
 
 
 exports.getAllProducts = async (req, res) => {
-   const query = "SELECT ProductInfo.ProductId as Id, Description, FullDescription, Catalog, CODE, As400Code"
+   const query = "SELECT DISTINCT AS400.AOAROM, ProductInfo.ProductId as Id, Catalog, CODE, As400Code"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
+      + " LEFT JOIN AS400 ON ProductInfo.ProductId = AS400.Prdid"
       + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
 
    con.query(query, (err, results, fields) => {
@@ -53,7 +54,11 @@ exports.getAllProducts = async (req, res) => {
 
 exports.getProductDetails = async (req, res) => {
    const { productId } = req.query;
-   const query = `SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId, Publish FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id LEFT JOIN Assets A ON A.Id = PI.ProductId WHERE PI.ProductId = ${productId} AND Language = 'en'`
+   const query = "SELECT DISTINCT AOAROM, Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId, Publish"
+                  + " FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id"
+                  + " LEFT JOIN Assets A ON A.Id = PI.ProductId"
+                  + " LEFT JOIN AS400 A4 ON PI.ProductId = A4.Prdid"
+                  + ` WHERE PI.ProductId = ${productId} AND Language = 'en'`
    let finalResults = []
 
    con.query(query, (err, productResults, fields) => {
@@ -294,10 +299,11 @@ exports.searchProduct = async (req, res) => {
 
    let searchText = target === "Product.Code" ? searchQuery.replace(' ', '-') : searchQuery;
 
-   const query = "SELECT Product.Id as Id, Description, FullDescription, Catalog, CODE, As400Code"
+   const query = "SELECT DISTINCT AS400.AOAROM, Product.Id as Id, Description, Catalog, CODE"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchText}%' ORDER BY ProductInfo.ProductId;`;
+      + " LEFT JOIN AS400 ON ProductInfo.ProductId = AS400.Prdid"
+      + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchText}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
@@ -466,10 +472,12 @@ exports.getAllSeries = async (req, res) => {
 
 exports.getSerieDetails = async (req, res) => {
    const {serieId } = req.query;
+   const query = `SELECT Series.Key, Title, FullDescription, Specification FROM SeriesInfo LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.SeriesId = "${serieId}" AND SeriesInfo.Language = "en";`;
+   con.query(query, (err, results) => {
+      if (err) throw err;
 
-   console.log(req.query);
-
-   res.send(serieId)
+      res.send(results);
+   })
 }
 
 
@@ -479,7 +487,7 @@ exports.searchSerie = async (req, res) => {
    const query = "SELECT Series.Sid, Series.Key, Title"
       + " FROM SeriesInfo"
       + " LEFT JOIN Series ON Series.Sid = SeriesInfo.SeriesId"
-      + ` WHERE SeriesInfo.Language = "en" AND Series.Key LIKE '%${searchQuery}%' ORDER BY SeriesInfo.SeriesId;`;
+      + ` WHERE SeriesInfo.Language = "en" AND Series.Key LIKE '%${searchQuery}%' AND Series.Publish = "1" ORDER BY SeriesInfo.SeriesId;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
