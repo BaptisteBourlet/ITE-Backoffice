@@ -22,7 +22,7 @@ app.get('/manage-sequence', function(req, res) {
  });
 
  app.get('/series-overview', function(req, res) {
-    res.render('CrudSeries');
+    res.render('allSeries');
   });
 
 app.listen(PORT, () => {

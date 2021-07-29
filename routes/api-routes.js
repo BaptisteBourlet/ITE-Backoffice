@@ -50,7 +50,10 @@ router.post('/changeSequence', apiCtrl.changeSequence);
 
 router.get('/getAllSeries', apiCtrl.getAllSeries);
 
+router.get('/getSerieDetails', apiCtrl.getSerieDetails);
+
 router.post('/searchSerie', apiCtrl.searchSerie);
+
 
 
 

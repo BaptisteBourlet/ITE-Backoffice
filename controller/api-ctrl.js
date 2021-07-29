@@ -464,6 +464,14 @@ exports.getAllSeries = async (req, res) => {
 }
 
 
+exports.getSerieDetails = async (req, res) => {
+   const {serieId } = req.query;
+
+   console.log(req.query);
+
+   res.send(serieId)
+}
+
 
 exports.searchSerie = async (req, res) => {
    const { searchQuery } = req.body;
@@ -480,6 +488,7 @@ exports.searchSerie = async (req, res) => {
       res.send(results)
    })
 }
+
 exports.addProduct = async (req, res) => {
    const { Key, CreateOn } = req.body;
    console.log(req.body);
@@ -510,7 +519,7 @@ exports.addProduct = async (req, res) => {
          console.log('english wasnt filled in')
       }
 
-      if (FRTitle ) {
+      if (FRTitle) {
          con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${FRLanguage}", "${CreatedOn}", "${SeriesId}", "${FRSpecification}", "${FRTitle}", "${FRFullDescription}");`, (err, results, fields) => {
             if (err) throw err;
 

@@ -22,59 +22,101 @@
       //		           APPLICATION START
       // ========================================================================================================
       Ext.onReady(() => {
-   
+         const getSerieDetails = (serieId) => {
+            Ext.Ajax.request({
+               url: "/api/getSerieDetails",
+               method: "GET",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  serieId: serieId,
+               },
 
-            const Model = Ext.define("Categories", {
-                extend: "Ext.data.Model",
-                fields: ["Sid", "Key", "Title", "CreatedOn", "ModifiedOn", "Publish"],
+               success: function (response) {
+                  const res = JSON.parse(response.responseText);
+                  console.log(res);
+
+
+                  // if (edit === false) {
+                  //    displayProductInfo(res[0][0]);
+                  // } else {
+                  //    getEditInfo(res[0][0]);
+                  // }
+
+                  // Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
+                  // Ext.getCmp("relatedAccessories").add(relatedAccessories(res[1]));
+                  // Ext.getCmp("relatedParts").add(relatedParts(res[1]));
+               },
+               failure: function (response) {
+                  console.log("failed", response);
+               },
             });
-            const mainStore = Ext.create("Ext.data.Store", {
-                id: "mainStore",
-                autoLoad: true,
-                model: Model,
+         };
 
-                proxy: {
-                    type: "ajax",
-                    method: "POST",
-                    url: "/api/getAllSeries",
-                    noCache: true,
-                    reader: {
-                        type: "json",
 
-                    },
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                },
-                listeners: {
-                    beforeload: function (store) { },
-                },
-            });
+         // const displaySerieInfo = (product) => {
+         //   Ext.getCmp('Pub').setValue(product.Publish === 1 ? 'on' : '')
+         //   Ext.getCmp("productName").setValue(product.Catalog);
+         //   Ext.getCmp("productCode").setValue(product.CODE);
+         //   Ext.getCmp("as400Code").setValue(product.As400Code);
+         //   Ext.getCmp("description").setValue(product.Description);
+         //   Ext.getCmp("fullDescription").setValue(
+         //     product.FullDescription ?? "No Full Description"
+         //   );
+         //   Ext.getCmp("specification").setValue(
+         //     product.Specification ?? "No Specification"
+         //   );
+         // };
 
-            const mainGridColumns = [
+         const Model = Ext.define("Categories", {
+            extend: "Ext.data.Model",
+            fields: ["Sid", "Key", "Title", "CreatedOn", "ModifiedOn", "Publish"],
+         });
+         const mainStore = Ext.create("Ext.data.Store", {
+            id: "mainStore",
+            autoLoad: true,
+            model: Model,
 
-                {
-                    header: "ID",
-                    sortable: true,
-                    width: 100,
-                    dataIndex: "Sid",
-                },
+            proxy: {
+               type: "ajax",
+               method: "POST",
+               url: "/api/getAllSeries",
+               noCache: true,
+               reader: {
+                  type: "json",
 
-                {
-                    header: "Key",
-                    sortable: false,
-                    width: 200,
-                    dataIndex: "Key",
-                },
-                {
-                    header: "Title",
-                    sortable: false,
-                    width: 300,
-                    dataIndex: "Title",
-                },
-                
-            ];
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+            listeners: {
+               beforeload: function (store) { },
+            },
+         });
 
-          
+         const mainGridColumns = [
+
+            {
+               header: "ID",
+               sortable: true,
+               width: 100,
+               dataIndex: "Sid",
+            },
+
+            {
+               header: "Key",
+               sortable: false,
+               width: 200,
+               dataIndex: "Key",
+            },
+            {
+               header: "Title",
+               sortable: false,
+               width: 300,
+               dataIndex: "Title",
+            },
+
+         ];
 
          const searchSerie = (searchField) => {
             let searchQuery = Ext.getCmp(searchField).getValue();
@@ -98,8 +140,6 @@
                },
             });
          };
-
-
 
          const tbarItems = [
             {
@@ -224,12 +264,28 @@
             store: mainStore,
             columns: mainGridColumns,
             enableColumnMove: false,
-
             sortable: true,
             frame: false,
             renderTo: Ext.getBody(),
             height: 690,
             dockedItems: [...tbarItems],
+            listeners: {
+               dblclick: {
+                  element: "body",
+                  fn: () => {
+                     const selectedRecord = Ext.getCmp("SeriesGrid")
+                        .getSelectionModel()
+                        .getSelection()[0];
+                     console.log(selectedRecord);
+
+                     getSerieDetails(selectedRecord.data.Sid);
+                     Ext.getCmp("SerieDetails").setTitle(
+                        `SERIE DETAILS - ${selectedRecord.data.Key}`
+                     );
+                     Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                  },
+               },
+            },
          });
 
 
@@ -637,6 +693,142 @@
             ],
          });
 
+
+         const SerieDetails = Ext.create("Ext.panel.Panel", {
+            id: "SerieDetails",
+            title: "SERIE DETAILS",
+            flex: 1,
+            trackOver: true,
+            loadMask: true,
+            header: true,
+            scrollable: true,
+            layout: "border",
+            items: [
+               {
+                  xtype: "container",
+                  width: 300,
+                  scrollable: true,
+                  style: "background-color: white;",
+                  region: "east",
+                  layout: {
+                     type: "vbox",
+                     align: "stretch",
+                  },
+                  items: [
+                     {
+                        xtype: "panel",
+                        title: "Related Products",
+                        id: "relatedProducts",
+                        items: [],
+                     },
+                     {
+                        xtype: "panel",
+                        title: "Related Accessories",
+                        id: "relatedAccessories",
+                        items: [],
+                     },
+                     {
+                        xtype: "panel",
+                        title: "Related Parts",
+                        id: "relatedParts",
+                        items: [],
+                     },
+                  ],
+               },
+               {
+                  xtype: "panel",
+                  title: "Serie Info",
+                  region: "center",
+                  scrollable: true,
+                  style: "padding-left: 20px; background-color: white;",
+                  id: "productInfoContainer",
+                  layout: {
+                     type: "vbox",
+                     align: "stretch",
+                  },
+                  items: [
+                     {
+                        xtype: "displayfield",
+                        id: "serieKey",
+                        fieldLabel: "<b>Serie</b>",
+                        labelWidth: 150,
+                        fieldCls: "fieldClass",
+                     },
+                     {
+                        xtype: "displayfield",
+                        id: "serieTitle",
+                        labelWidth: 150,
+                        fieldLabel: "<b>Serie Title</b>",
+                        fieldCls: "fieldClass",
+                     },
+                     {
+                        xtype: "displayfield",
+                        id: "fullDescription",
+                        fieldLabel: "<b>Full Description</b>",
+                        labelWidth: 150,
+                        fieldCls: "fieldClass",
+                     },
+                     {
+                        xtype: "displayfield",
+                        id: "specification",
+                        fieldLabel: "<b>Specification</b>",
+                        labelWidth: 150,
+                        fieldCls: "fieldClass",
+                     },
+                  ],
+               },
+            ],
+            dockedItems: [
+               {
+                  xtype: "toolbar",
+                  dock: "top",
+                  id: "productDetailBar",
+                  items: [
+                     {
+                        xtype: "button",
+                        id: "cancel",
+                        text: "Back",
+                        iconCls: "fa fa-undo-alt",
+                        handler: function () {
+                           edit = false;
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
+                           Ext.getCmp("viewport").setActiveItem("mainPanel");
+                        },
+                     },
+                     "-",
+                     {
+                        xtype: "button", //ongoing
+                        id: "editDetail",
+                        text: "Edit",
+                        iconCls: "fa fa-edit",
+                        handler: function () {
+                           edit = true;
+                           Ext.getCmp("addSave").setHidden(true);
+                           Ext.getCmp("editSave").setHidden(false);
+                           Ext.getCmp('panelAdd').setTitle('Edit product');
+                           Ext.getCmp("viewport").setActiveItem("panelAdd");
+                           getProductDetails(productIDGlobal);
+                        },
+                     },
+                     "-",
+                     {
+                        xtype: "button", //ongoing
+                        id: "addRelatedProducts",
+                        text: "Add Related Product",
+                        iconCls: "fa fa-plus",
+                        handler: function () {
+                           Ext.getCmp('fromViewSave').setHidden(false);
+                           Ext.getCmp('fromAddSave').setHidden(true);
+                           Ext.getCmp("viewport").setActiveItem("panelAdd2");
+                        },
+                     },
+                  ],
+               },
+            ],
+         });
+
          //=========================================================================================================
          //		           VIEW PORT
          // ========================================================================================================
@@ -645,7 +837,7 @@
             id: "viewport",
             layout: "card",
             activeItem: 0,
-            items: [SeriesGrid, panelAdd],
+            items: [SeriesGrid, SerieDetails, panelAdd],
          });
       });
    </script>
