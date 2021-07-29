@@ -13,6 +13,11 @@ const con = mysql.createConnection({
 })
 
 
+// =================================================================================================
+//                                       PRODUCTS
+// =================================================================================================
+
+// SELECT * FROM Category WHERE ParentId IN (NULL, 1);
 // SELECT * FROM ProductInfo LEFT JOIN SeriesProductLink ON ProductInfo.Id = SeriesProductLink.ProductId WHERE SeriesId = 3;
 // SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';
 // SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IF.LinkId WHERE IF.Parent = 4;
@@ -437,5 +442,121 @@ exports.changeSequence = async (req, res) => {
 
 // api-routes.js uncomment line 42
 // api-ctrl.js - uncomment exports.getAs400Description - line 414
-// api-ctrl.js - uncomment line 5
 // allProduct.ejs - check returned object and adapt setValue - line 221
+
+
+// =================================================================================================
+//                                       SERIES
+// =================================================================================================
+
+exports.getAllSeries = async (req, res) => {
+   const query = "SELECT SeriesInfo.SeriesId as Sid, Title, Series.Key"
+      + " FROM SeriesInfo"
+      + " LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid"
+      + ` WHERE SeriesInfo.Language = 'en' AND Series.Publish = '1' ORDER BY SeriesInfo.SeriesId LIMIT 100;`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+
+exports.getSerieDetails = async (req, res) => {
+   const {serieId } = req.query;
+
+   console.log(req.query);
+
+   res.send(serieId)
+}
+
+
+exports.searchSerie = async (req, res) => {
+   const { searchQuery } = req.body;
+
+   const query = "SELECT Series.Sid, Series.Key, Title"
+      + " FROM SeriesInfo"
+      + " LEFT JOIN Series ON Series.Sid = SeriesInfo.SeriesId"
+      + ` WHERE SeriesInfo.Language = "en" AND Series.Key LIKE '%${searchQuery}%' ORDER BY SeriesInfo.SeriesId;`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+exports.addProduct = async (req, res) => {
+   const { Key, CreateOn } = req.body;
+   console.log(req.body);
+
+   con.query(`INSERT INTO Series (Key, CreatedOn, Publish) VALUES ("${Key}", "${CreateOn}", 1);`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+
+      let SeriesId = results.insertId;
+      storage.setItem('SeriesId', SeriesId)
+
+      const { Language, CreatedOn, Specification, Title, FullDescription,
+         FRLanguage, FRSpecification, FRTitle, FRFullDescription,
+         DELanguage, DESpecification, DETitle, DEFullDescription,
+         SPLanguage, SPSpecification, SPTitle, SPFullDescription,
+         RULanguage, RUSpecification, RUTitle, RUFullDescription } = req.body;
+
+
+      if (Title !== "") {
+         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${Language}", "${CreatedOn}", "${SeriesId}", "${Title}", "${Specification}", "${FullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+            res.status(200).send(results);
+         });
+      } else {
+         console.log('english wasnt filled in')
+      }
+
+      if (FRTitle) {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${FRLanguage}", "${CreatedOn}", "${SeriesId}", "${FRSpecification}", "${FRTitle}", "${FRFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('french wasnt filled in')
+      }
+
+      if (DETitle !== "") {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${DELanguage}", "${CreatedOn}", "${SeriesId}", "${DESpecification}", "${DETitle}", "${DEFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('german wasnt filled in')
+      }
+
+      if (RUTitle !== "") {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${RULanguage}", "${CreatedOn}", "${SeriesId}", "${RUSpecification}", "${RUTitle}", "${RUFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('russian wasnt filled in')
+      }
+
+      if (SPTitle !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${SPLanguage}", "${CreatedOn}", "${SeriesId}", "${SPSpecification}", "${SPTitle}", "${SPFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('spanish wasnt filled in')
+      }
+   })
+}
