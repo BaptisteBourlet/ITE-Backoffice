@@ -569,3 +569,87 @@ exports.addSeries = async (req, res) => {
       }
    })
 }
+
+
+
+exports.editSeries = async (req, res) => {
+   const { SeriesId, Key, ModifiedOn } = req.body;
+   console.log(req.body);
+   let errorString = '';
+   const SeriesQuery = `Update Series SET Series.Key = "${Key}", ModifiedOn = "${ModifiedOn}", Publish = 1 WHERE Id = ${SeriesId};`;
+
+   con.query(SeriesQuery, (err, results) => {
+      if (err) throw err;
+
+      const { ModifiedOn, Title, Specification, FullDescription,
+          FRTitle, FRSpecification, FRFullDescription,
+          DETitle, DESpecification, DEFullDescription,
+          SPTitle, SPSpecification, SPFullDescription,
+          RUTitle, RUSpecification, RUFullDescription } = req.body;
+
+      const ENQuery = `UPDATE SeriesInfo SET Title = '${Title}', ModifiedOn = ${ModifiedOn}, Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "en"`;
+      const FRQuery = `UPDATE SeriesInfo SET Title = '${FRTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "fr"`;
+      const DEQuery = `UPDATE SeriesInfo SET Title = '${DETitle}', ModifiedOn = ${ModifiedOn}, Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "de"`;
+      const SPQuery = `UPDATE SeriesInfo SET Title = '${SPTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "sp"`;
+      const RUQuery = `UPDATE SeriesInfo SET Title = '${RUTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "ru"`;
+
+
+      if (Title !== "" ) {
+         con.query(ENQuery, (err, result) => {
+            if (err) {
+               errorString += "English, ";
+               console.log(err);
+            }
+
+         })
+      } else {
+         console.log('English wasnt filled in');
+      }
+
+      if (FRTitle !== "") {
+         con.query(FRQuery, (err, result) => {
+            if (err) {
+               errorString += "French, ";
+               console.log(err);
+            }
+
+         })
+      } else {
+         console.log('French wasnt filled in');
+      }
+
+      if (DETitle !== "" ) {
+         con.query(DEQuery, (err, result) => {
+            errorString += "German, ";
+            console.log(err);
+
+         })
+      } else {
+         console.log('German wasnt filled in');
+      }
+
+      if (SPTitle !== "") {
+         con.query(SPQuery, (err, result) => {
+            errorString += "Spanish, ";
+            console.log(err);
+
+         })
+      } else {
+         console.log('Spanish wasnt filled in');
+      }
+
+      if (RUTitle !== "" ) {
+         con.query(RUQuery, (err, result) => {
+            errorString += "Russian";
+            console.log(err);
+
+         })
+      } else {
+         console.log('Russian wasnt filled in');
+      }
+
+      let finalResult = { ...results, errorString };
+
+      res.send(finalResult);
+   })
+}
