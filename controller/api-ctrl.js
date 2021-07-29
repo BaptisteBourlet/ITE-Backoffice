@@ -78,14 +78,13 @@ exports.getOtherLanguageDetail = async (req, res) => {
 
 
 exports.getCategories = async (req, res) => {
-   con.query("SELECT Id , Name FROM CategoryInfo WHERE Language = 'en'", (err, results, fields) => {
+   con.query("SELECT Id, WorkingTitle AS Name FROM Category WHERE Publish = '1'", (err, results, fields) => {
       if (err) {
          console.log(err)
       }
       res.send(results)
    })
 }
-
 
 exports.addProduct = async (req, res) => {
    const { Code, As400, CreateOn, Category, Pub, Slug } = req.body;
@@ -383,13 +382,22 @@ exports.getSequenceResults = async (req, res) => {
    console.log(req.query);
    let query = '';
 
-   if (Type == "C") {
-      query = `SELECT IT.Type, C.Id, IT.Sequence, IT.Sequence as OldSequence, C.WorkingTitle AS Description FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "C";`
-   } else if (Type === "P") {
-      query = `SELECT IT.Type,  IT.Sequence, P.CODE AS Description FROM Product P LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "P";`;
-   } else {
-      query = `SELECT IT.Type,  IT.Sequence, S.Key AS Description FROM Series S LEFT JOIN InfoTree IT ON S.Sid = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "S";`;
-   }
+   // if (Type == "C") {
+   //    query = `SELECT IT.Type, C.Id, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "C";`
+   // } else if (Type === "P") {
+   //    query = `SELECT IT.Type,  IT.Sequence, P.CODE AS Description FROM Product P LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "P";`;
+   // } else {
+   //    query = `SELECT IT.Type,  IT.Sequence, S.Key AS Description FROM Series S LEFT JOIN InfoTree IT ON S.Sid = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "S";`;
+   // }
+
+   // query = `SELECT IT.Type, C.Id, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description, P.CODE AS Description, S.Key AS Description FROM InfoTree IT RIGHT OUTER JOIN Category C ON C.Id = IT.LinkId RIGHT OUTER JOIN Product P ON P.Id = IT.LinkId RIGHT OUTER JOIN Series S ON S.Sid = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1";`
+
+
+   query = `SELECT IT.Type, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description FROM InfoTree IT LEFT JOIN Category C ON C.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "C"
+   UNION
+   SELECT IT.Type,  IT.Sequence, IT.Sequence AS OldSequence, P.CODE AS Description FROM InfoTree IT LEFT JOIN Product P ON P.Id = IT.LinkId WHERE IT.Parent = "${CategoryID}" AND IT.Publish = "1" AND HasDetails = "1" AND IT.Type = "P"
+   UNION
+   SELECT IT.Type,  IT.Sequence, IT.Sequence AS OldSequence, S.Key AS Description FROM InfoTree IT LEFT JOIN Series S ON S.Sid = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "S";`
 
    con.query(query, (err, results) => {
       if (err) throw err;
@@ -418,7 +426,7 @@ exports.changeSequence = async (req, res) => {
 //    const connection = new Connection({ url: '*LOCAL' })
 //    const statement = new Statement(connection);
 //    let results = await statement.exec(sql)
-   
+
 //    console.log(results)
 
 //    res.send(results);
