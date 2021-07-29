@@ -41,4 +41,7 @@ router.post('/changeSequence', apiCtrl.changeSequence);
 
 // router.post('/getAs400Description', apiCtrl.getAs400Description);
 
+router.get('/getAllSeries', apiCtrl.getAllSeries);
+
+
 module.exports = router;

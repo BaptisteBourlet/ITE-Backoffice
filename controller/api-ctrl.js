@@ -439,3 +439,18 @@ exports.changeSequence = async (req, res) => {
 // api-routes.js uncomment line 42
 // api-ctrl.js - uncomment exports.getAs400Description - line 414
 // allProduct.ejs - check returned object and adapt setValue - line 221
+/* ------------------------------- CRUD SERIES ------------------------------ */
+
+exports.getAllSeries = async (req, res) => {
+   const query = "SELECT SeriesInfo.SeriesId as Sid, Title, Series.Key"
+      + " FROM SeriesInfo"
+      + " LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid"
+      + ` WHERE SeriesInfo.Language = 'en' AND Series.Publish = '1' ORDER BY SeriesInfo.SeriesId LIMIT 100;`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
