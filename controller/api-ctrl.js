@@ -454,3 +454,76 @@ exports.getAllSeries = async (req, res) => {
       res.send(results)
    })
 }
+
+
+exports.addProduct = async (req, res) => {
+   const { Key, CreateOn } = req.body;
+   console.log(req.body);
+
+   con.query(`INSERT INTO Series (Key, CreatedOn, Publish) VALUES ("${Key}", "${CreateOn}", 1);`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+
+      let SeriesId = results.insertId;
+      storage.setItem('SeriesId', SeriesId)
+
+      const { Language, CreatedOn, Specification, Title, FullDescription,
+         FRLanguage, FRSpecification, FRTitle, FRFullDescription,
+         DELanguage, DESpecification, DETitle, DEFullDescription,
+         SPLanguage, SPSpecification, SPTitle, SPFullDescription,
+         RULanguage, RUSpecification, RUTitle, RUFullDescription } = req.body;
+
+
+      if (Title !== "") {
+         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${Language}", "${CreatedOn}", "${SeriesId}", "${Title}", "${Specification}", "${FullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+            res.status(200).send(results);
+         });
+      } else {
+         console.log('english wasnt filled in')
+      }
+
+      if (FRTitle ) {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${FRLanguage}", "${CreatedOn}", "${SeriesId}", "${FRDescription}", "${FRSpecification}", "${FRTitle}", "${FRFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('french wasnt filled in')
+      }
+
+      if (DETitle !== "") {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${DELanguage}", "${CreatedOn}", "${SeriesId}", "${DEDescription}", "${DESpecification}", "${DETitle}", "${DEFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('german wasnt filled in')
+      }
+
+      if (RUTitle !== "") {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${RULanguage}", "${CreatedOn}", "${SeriesId}", "${RUDescription}", "${RUSpecification}", "${RUTitle}", "${RUFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('russian wasnt filled in')
+      }
+
+      if (SPTitle !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, SeriesId, Specification, Title, FullDescription) VALUES ("${SPLanguage}", "${CreatedOn}", "${SeriesId}", "${SPDescription}", "${SPSpecification}", "${SPTitle}", "${SPFullDescription}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            console.log(results);
+         });
+      } else {
+         console.log('spanish wasnt filled in')
+      }
+   })
+}
