@@ -10,33 +10,28 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
-   <style>
-
-
-   </style>
    <script type="text/javascript">
       //=========================================================================================================
       //		           APPLICATION START
       // ========================================================================================================
       Ext.onReady(() => {
-         // let productObj = {};
-         // let edit = false;
-         // let productIDGlobal = "";
 
          const saveSequence = () => {
-            const allItems = Array.from(mainStore.data.items);
+            const updatedItems = mainStore.getModifiedRecords();
             let check = {};
             let sequenceArr = [];
-            allItems.forEach(item => {
+
+            for (const item of updatedItems) {
                if (sequenceArr.includes(item.data.Sequence + "")) {
                   Ext.Msg.alert("INFO", "There are duplicated sequence numbers!")
+                  return;
                } else {
                   check[item.data.Id] = true;
                   sequenceArr = [...sequenceArr, (item.data.Sequence + "")];
                }
-            })
+            }
 
-            allItems.forEach(item => {
+            updatedItems.forEach(item => {
                Ext.Ajax.request({
                   url: "/api/changeSequence",
                   method: "POST",
@@ -46,17 +41,14 @@
                      Id: item.data.Id,
                      Sequence: item.data.Sequence,
                      Parent: Ext.getCmp('CategoryID').getValue(),
-                     Type: Ext.getCmp('Type').getValue(),
+                     Type: item.data.Type,
                   },
                   success: function (response) {
-
                      delete check[item.data.Id];
                      Object.keys(check);
                      if (Object.keys(check).length === 0) {
                         Ext.Msg.alert('INFO', "Sequences updated successfully");
-
                         mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
-                        mainStore.getProxy().setExtraParam('Type', Ext.getCmp('Type').getValue());
                         mainStore.load()
                      }
                   },
@@ -70,7 +62,6 @@
                });
             })
          }
-
 
          const CATEGORY = Ext.define("Categories", {
             extend: "Ext.data.Model",
@@ -136,64 +127,6 @@
                      allowBlank: false,
                   },
                },
-               // field: {
-               //    xtype: 'numberfield',
-               //    allowBlank: false,
-               //    decimalPrecision: 0,
-               //    onFocusLeave: function (e) {
-               //       var selectedrecords = mainGrid.getSelectionModel().getSelection();
-               //       var teller = selectedrecords.length;
-               //       currentsubfileRecord = selectedrecords[0];
-               //       Ext.Ajax.request({
-               //          url: '/api/getSequenceResults',
-               //          params: {
-               //             ID: currentsubfileRecord.get('ID'),
-               //             Sequence: currentsubfileRecord.get('Sequence'),
-               //          },
-               //          success: function (response) {
-               //             // check for errors and display error message
-               //             var check = response.responseText;
-               //             if (check) {
-               //                var data = eval("(" + response.responseText + ")");
-               //                if (data.serverStatus == 2) {
-               //                   // Remember record id's to reselect records after update of the row
-               //                   var selectedrecords = mainStore.getSelectionModel().getSelection();
-               //                   recordIds = [];
-               //                   selectedIdx = [];
-               //                   for (var i = 0, len = selectedrecords.length; i < len; i++) {
-               //                      recordIds[i] = selectedrecords[i].id;
-               //                      selectedIdx[i] = mainStore.getStore().indexOfId(recordIds[i]);
-               //                   }
-               //                   // reload subfile			
-               //                   mainStore.reload(
-               //                      // reselect records after update	
-               //                      {
-               //                         callback: function () {
-               //                            for (var i = 0, len = selectedIdx.length; i < len; i++) {
-               //                               mainStore.getSelectionModel().select(selectedIdx[i]);
-               //                            }
-               //                         },
-               //                         scope: this
-               //                      }
-               //                   );
-               //                   // display subfile
-               //                   Ext.getCmp('viewport').layout.setActiveItem('mainGrid');
-               //                } else {
-               //                   // display error message
-               //                   f = Ext.getCmp(data.FLD);
-               //                   f.markInvalid(data.MSG);
-               //                   f.focus();
-               //                };
-               //                Ext.getBody().unmask();
-               //             };
-               //          },
-               //          failure: function (response) {
-               //             Ext.getBody().unmask();
-               //          }
-               //       });
-               //    }
-               // },
-               // }
             },
          ];
 
@@ -248,27 +181,6 @@
                items: [
                   {
                      xtype: "combo",
-                     id: "Type",
-                     iconCls: "fa fa-search",
-                     store: TypeStore,
-                     editable: false,
-                     displayField: 'TypeName',
-                     valueField: 'TypeCode',
-                     width: 200,
-                     labelWidth: 20,
-                     editable: false,
-                     style: "margin-left: 5px; color: grey;",
-                     emptyText: "Select type of product",
-                     listeners: {
-                        change: () => {
-                           Ext.getCmp('CategoryID').setValue('')
-                           // mainStore.getProxy().setExtraParam('Type', Ext.getCmp('searchType').getValue());
-                           // mainStore.reload()
-                        },
-                     },
-                  },
-                  {
-                     xtype: "combo",
                      id: "CategoryID",
                      iconCls: "fa fa-search",
                      store: CategoryStore,
@@ -282,23 +194,9 @@
                      emptyText: "Select specific category...",
                      listeners: {
                         change: function () {
-                           if (Ext.getCmp('Type').getValue() == undefined || Ext.getCmp('Type').getValue() == '') {
-                              Ext.Msg.alert("Error", `Please choose a type first`);
-                              this.setValue('')
-                           } else {
                               mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
-                              mainStore.getProxy().setExtraParam('Type', Ext.getCmp('Type').getValue());
                               mainStore.load()
-                           }
                         },
-                        expand: () => {
-                           if (Ext.getCmp('Type').getValue() == undefined || Ext.getCmp('Type').getValue() == '') {
-                              Ext.Msg.alert("Error", `Please, choose a type first`);
-                              this.setValue('')
-                           } else {
-
-                           }
-                        }
                      }
                   },
                   {
@@ -310,7 +208,6 @@
                      listeners: {
                         click: () => {
                            mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
-                           mainStore.getProxy().setExtraParam('Type', Ext.getCmp('Type').getValue());
                            mainStore.load()
                         },
                      },
@@ -363,26 +260,7 @@
             renderTo: Ext.getBody(),
             height: 690,
             dockedItems: [...tbarItems],
-            // listeners: {
-            //   dblclick: {
-            //     element: "body",
-            //     fn: () => {
-            //       const selectedRecord = Ext.getCmp("mainGrid")
-            //         .getSelectionModel()
-            //         .getSelection()[0];
-            //       getProductDetails(selectedRecord.data.Id);
-            //       productIDGlobal = selectedRecord.data.Id;
-            //       Ext.getCmp("productDetails").setTitle(
-            //         `PRODUCT DETAILS - ${selectedRecord.data.CODE}`
-            //       );
-            //       Ext.getCmp("viewport").setActiveItem("productDetails");
-            //     },
-            //   },
-            // },
          });
-
-
-
 
          //=========================================================================================================
          //		           VIEW PORT
@@ -395,16 +273,8 @@
             items: [mainGrid],
          });
       });
-
-      //  commit from baptiste/lap branch
-      // checkout development
-      // merge baptiset/lap
-      // resolve conflicts
-      // push from development
-      // pull from development
    </script>
 </head>
-
 <body></body>
 
 </html>
