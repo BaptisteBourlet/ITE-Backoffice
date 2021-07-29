@@ -52,6 +52,7 @@ router.get('/getAllSeries', apiCtrl.getAllSeries);
 
 router.post('/searchSerie', apiCtrl.searchSerie);
 
+router.post('/addSeries', apiCtrl.addSeries);
 
 
 
