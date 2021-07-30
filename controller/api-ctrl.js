@@ -53,11 +53,10 @@ exports.getAllProducts = async (req, res) => {
 
 exports.getProductDetails = async (req, res) => {
    const { productId } = req.query;
-   const query = "SELECT DISTINCT AOAROM, Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId, Publish"
-                  + " FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id"
-                  + " LEFT JOIN Assets A ON A.Id = PI.ProductId"
-                  + " LEFT JOIN AS400 A4 ON PI.ProductId = A4.Prdid"
-                  + ` WHERE PI.ProductId = ${productId} AND Language = 'en'`
+   const query = "SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId, Publish"
+      + " FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id"
+      + " LEFT JOIN Assets A ON A.Id = PI.ProductId"
+      + ` WHERE PI.ProductId = ${productId} AND Language = 'en'`
    let finalResults = []
 
    con.query(query, (err, productResults, fields) => {
@@ -456,13 +455,43 @@ exports.getAllSeries = async (req, res) => {
 
 
 exports.getSerieDetails = async (req, res) => {
-   const {serieId } = req.query;
-   const query = `SELECT Series.Key, Title, FullDescription, Specification FROM SeriesInfo LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.SeriesId = "${serieId}" AND SeriesInfo.Language = "en";`;
-   con.query(query, (err, results) => {
-      if (err) throw err;
+   const { serieId } = req.query;
+   let finalResults = [];
+   const serieQuery = `SELECT Series.Key, Title, FullDescription, Specification FROM SeriesInfo LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.SeriesId = "${serieId}" AND SeriesInfo.Language = "en";`;
+   
+   const relatedQuery = `SELECT LinkedProductID, Type, Code, Description FROM RelatedProducts WHERE SeriesId = "${serieId}";`
 
-      res.send(results);
+   con.query(serieQuery, (err, serieResults) => {
+      if (err) throw err;
+      finalResults.push(serieResults);
+      con.query(relatedQuery, (error, relatedResults) => {
+         if (error) throw error;
+         finalResults.push(relatedResults);
+
+         res.send(finalResults);
+      })
    })
+
+
+
+   // const { productId } = req.query;
+   // const query = "SELECT DISTINCT AOAROM, Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId, Publish"
+   //    + " FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id"
+   //    + " LEFT JOIN Assets A ON A.Id = PI.ProductId"
+   //    + ` WHERE PI.ProductId = ${productId} AND Language = 'en'`
+   // let finalResults = []
+
+   // con.query(query, (err, productResults, fields) => {
+   //    if (err) throw err;
+
+   //    finalResults.push(productResults);
+   //    con.query(`SELECT RP.LinkedProductID, RP.Type, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = ${productId};`, (error, relatedResults, fields) => {
+   //       if (error) throw error;
+
+   //       finalResults.push(relatedResults);
+   //       res.send(finalResults);
+   //    })
+   // });
 }
 
 
@@ -567,10 +596,10 @@ exports.editSeries = async (req, res) => {
       if (err) throw err;
 
       const { ModifiedOn, Title, Specification, FullDescription,
-          FRTitle, FRSpecification, FRFullDescription,
-          DETitle, DESpecification, DEFullDescription,
-          SPTitle, SPSpecification, SPFullDescription,
-          RUTitle, RUSpecification, RUFullDescription } = req.body;
+         FRTitle, FRSpecification, FRFullDescription,
+         DETitle, DESpecification, DEFullDescription,
+         SPTitle, SPSpecification, SPFullDescription,
+         RUTitle, RUSpecification, RUFullDescription } = req.body;
 
       const ENQuery = `UPDATE SeriesInfo SET Title = '${Title}', ModifiedOn = ${ModifiedOn}, Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "en"`;
       const FRQuery = `UPDATE SeriesInfo SET Title = '${FRTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "fr"`;
@@ -579,7 +608,7 @@ exports.editSeries = async (req, res) => {
       const RUQuery = `UPDATE SeriesInfo SET Title = '${RUTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "ru"`;
 
 
-      if (Title !== "" ) {
+      if (Title !== "") {
          con.query(ENQuery, (err, result) => {
             if (err) {
                errorString += "English, ";
@@ -603,7 +632,7 @@ exports.editSeries = async (req, res) => {
          console.log('French wasnt filled in');
       }
 
-      if (DETitle !== "" ) {
+      if (DETitle !== "") {
          con.query(DEQuery, (err, result) => {
             errorString += "German, ";
             console.log(err);
@@ -623,7 +652,7 @@ exports.editSeries = async (req, res) => {
          console.log('Spanish wasnt filled in');
       }
 
-      if (RUTitle !== "" ) {
+      if (RUTitle !== "") {
          con.query(RUQuery, (err, result) => {
             errorString += "Russian";
             console.log(err);
@@ -644,6 +673,18 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
    const { serieId, language } = req.body;
    const query = `SELECT Title, FullDescription, Specification FROM SeriesInfo WHERE Language = "${language}" AND SeriesId = "${serieId}";`;
    con.query(query, (err, results, fields) => {
+      if (err) throw err;
+      res.status(200).send(results);
+   })
+}
+
+
+exports.getRelatedProductSerie = async (req, res) => {
+   const { serieId } = req.query;
+   console.log(serieId);
+   const query = `SELECT Product.Id, Product.CODE, ProductInfo.Catalog FROM Product LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id WHERE SeriesProductLink.SeriesId = "${serieId}" ORDER BY SeriesProductLink.Sequence;`;
+
+   con.query(query, (err, results) => {
       if (err) throw err;
       res.status(200).send(results);
    })

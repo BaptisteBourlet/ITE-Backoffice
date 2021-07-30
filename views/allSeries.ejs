@@ -21,6 +21,16 @@
          border-bottom: 1px dashed rgb(173, 173, 173);
          padding: 7px 0px;
       }
+
+      .a {
+         display: block;
+      }
+
+      .a span {
+         background-color: rgb(253, 253, 253);
+         padding: 2px;
+         color: black;
+      }
    </style>
    <script type="text/javascript">
       //=========================================================================================================
@@ -34,6 +44,135 @@
             xtype: 'my-form',
 
          });
+         const relatedProducts = (products) => {
+            let exist = false;
+
+            for (const prod of products) {
+               if (prod.Type === "R") {
+                  exist = true;
+               }
+            }
+
+            if (exist) {
+               return products.map((product) => {
+                  if (product.Type === "R") {
+                     let description = product.Description ? product.Description : "N/A";
+                     return {
+                        xtype: "button",
+                        text: `${description} [${product.Code}]`,
+                        cls: "a",
+                        style: "border: none; margin: 2px 0px;",
+                        handler: () => {
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
+                           getProductDetails(product.LinkedProductID);
+                           productIDGlobal = product.LinkedProductID;
+                           Ext.getCmp("productDetails").setTitle(
+                              `PRODUCT DETAILS - ${product.Code}`
+                           );
+                           Ext.getCmp("viewport").setActiveItem("productDetails");
+                        },
+                     };
+                  }
+               });
+            } else {
+               return [
+                  {
+                     xtype: "displayfield",
+                     fieldLabel: "<b>Result</b>",
+                     value: "No Related Products",
+                     labelWidth: 44,
+                  },
+               ];
+            }
+         };
+
+         const relatedAccessories = (products) => {
+            let exist = false;
+
+            for (const prod of products) {
+               if (prod.Type === "A") {
+                  exist = true;
+               }
+            }
+            if (exist) {
+               return products.map((product) => {
+                  if (product.Type === "A") {
+                     let description = product.Description ? product.Description : "N/A";
+                     return {
+                        xtype: "button",
+                        text: `${description} [${product.Code}]`,
+                        cls: "a",
+                        style: "border: none; margin: 2px 0px;",
+                        handler: () => {
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
+                           getProductDetails(product.LinkedProductID);
+                           productIDGlobal = product.LinkedProductID;
+                           Ext.getCmp("productDetails").setTitle(
+                              `PRODUCT DETAILS - ${product.Code}`
+                           );
+                           Ext.getCmp("viewport").setActiveItem("productDetails");
+                        },
+                     };
+                  }
+               });
+            } else {
+               return [
+                  {
+                     xtype: "displayfield",
+                     fieldLabel: "<b>Result</b>",
+                     value: "No Related Accessories",
+                     labelWidth: 44,
+                  },
+               ];
+            }
+         };
+
+         const relatedParts = (products) => {
+            let exist = false;
+
+            for (const prod of products) {
+               if (prod.Type === "P") {
+                  exist = true;
+               }
+            }
+            if (exist) {
+               return products.map((product) => {
+                  if (product.Type === "P") {
+                     let description = product.Description ? product.Description : "N/A";
+                     return {
+                        xtype: "button",
+                        text: `${description} [${product.Code}]`,
+                        cls: "a",
+                        style: "border: none; margin: 2px 0px;",
+                        handler: () => {
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
+                           getProductDetails(product.LinkedProductID);
+                           productIDGlobal = product.LinkedProductID;
+                           Ext.getCmp("productDetails").setTitle(
+                              `PRODUCT DETAILS - ${product.Code}`
+                           );
+                           Ext.getCmp("viewport").setActiveItem("productDetails");
+                        },
+                     };
+                  }
+               });
+            } else {
+               return [
+                  {
+                     xtype: "displayfield",
+                     fieldLabel: "<b>Result</b>",
+                     value: "No Related Parts",
+                     labelWidth: 44,
+                  },
+               ];
+            }
+         };
 
          const getSerieDetails = (serieId) => {
             Ext.Ajax.request({
@@ -49,13 +188,15 @@
                   const res = JSON.parse(response.responseText);
                   console.log(res);
 
-                  // displaySerieInfo(res[0]);
-
                   if (edit === false) {
-                     displaySerieInfo(res[0]);
+                     displaySerieInfo(res[0][0]);
                   } else {
-                     getEditInfo(res[0]);
+                     getEditInfo(res[0][0]);
                   }
+
+                  Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
+                  Ext.getCmp("relatedAccessories").add(relatedAccessories(res[1]));
+                  Ext.getCmp("relatedParts").add(relatedParts(res[1]));
                },
                failure: function (response) {
                   console.log("failed", response);
@@ -182,7 +323,6 @@
 
          var addSerie = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
-
             Ext.Ajax.request({
                url: "/api/addSeries",
                method: "POST",
@@ -319,6 +459,55 @@
             });
          };
 
+
+         const relatedProductModel = Ext.define("Categories", {
+            extend: "Ext.data.Model",
+            fields: ["Id", "CODE", "Catalog"],
+         });
+
+         const relatedProductStore = Ext.create("Ext.data.Store", {
+            id: "mainStore",
+            autoLoad: true,
+            model: Model,
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/api/getRelatedProductSerie",
+               noCache: true,
+               reader: {
+                  type: "json",
+
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+            listeners: {
+               beforeload: function (store) { },
+            },
+         });
+
+
+         const relatedProductColumns = [
+            {
+               header: "Code",
+               sortable: true,
+               width: 100,
+               dataIndex: "CODE",
+            },
+            {
+               header: "Product Name",
+               sortable: true,
+               width: 300,
+               dataIndex: "Catalog",
+            },
+            {
+               header: "Id",
+               sortable: true,
+               width: 100,
+               dataIndex: "Id",
+               hidden: true
+            },
+         ]
 
          const mainGridColumns = [
             {
@@ -887,6 +1076,8 @@
                      Ext.getCmp("SerieDetails").setTitle(
                         `SERIE DETAILS - ${selectedRecord.data.Key}`
                      );
+                     relatedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
+                     relatedProductStore.load();
                      Ext.getCmp("viewport").setActiveItem("SerieDetails");
                   },
                },
@@ -909,7 +1100,7 @@
             items: [
                {
                   xtype: "container",
-                  width: 500,
+                  width: 420,
                   scrollable: true,
                   style: "background-color: white;",
                   region: "east",
@@ -920,11 +1111,50 @@
                   items: [
                      // {
                      //    xtype: "gridpanel",
-                     //    title: "Related Products",
+                     //    title: "Related Series",
                      //    id: "relatedProducts",
                      //    store: relatedProductStore,
                      //    columns: relatedProductColumns,
+                     //    listeners: {
+                     //       dblclick: {
+                     //          element: "body",
+                     //          fn: () => {
+                     //             const selectedRecord = Ext.getCmp("relatedProducts")
+                     //                .getSelectionModel()
+                     //                .getSelection()[0];
+                     //             console.log(selectedRecord);
+                     //             // serieIDGlobal = selectedRecord.data.Sid;
+                     //             // getSerieDetails(selectedRecord.data.Sid);
+                     //             // Ext.getCmp("SerieDetails").setTitle(
+                     //             //    `SERIE DETAILS - ${selectedRecord.data.Key}`
+                     //             // );
+                     //             // relatedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
+                     //             // relatedProductStore.load();
+                     //             // Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                     //          },
+                     //       },
+                     //    },
                      // },
+                     {
+                        xtype: "panel",
+                        title: "Related Products",
+                        id: "relatedProducts",
+                        items: [],
+                     },
+                     {
+                        xtype: "panel",
+                        title: "Related Accessories",
+                        id: "relatedAccessories",
+                        items: [],
+                     },
+                     {
+                        xtype: "panel",
+                        title: "Related Parts",
+                        id: "relatedParts",
+                        items: [],
+                     },
+
+
                   ],
                },
                {
@@ -983,6 +1213,9 @@
                         iconCls: "fa fa-undo-alt",
                         handler: function () {
                            edit = false;
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
                            Ext.getCmp("viewport").setActiveItem("SeriesGrid");
                         },
                      },
@@ -999,6 +1232,9 @@
                            Ext.getCmp('panelAdd').setTitle('Edit Serie');
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
                            getSerieDetails(serieIDGlobal);
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
                         },
                      },
                      "-",

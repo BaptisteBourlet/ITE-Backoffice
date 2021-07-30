@@ -60,8 +60,7 @@ router.post('/editSeries', apiCtrl.editSeries);
 
 router.post('/getOtherLanguageDetailSerie', apiCtrl.getOtherLanguageDetailSerie);
 
-
-
+router.get('/getRelatedProductSerie', apiCtrl.getRelatedProductSerie);
 
 
 
