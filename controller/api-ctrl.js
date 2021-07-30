@@ -25,8 +25,17 @@ const con = mysql.createConnection({
 // SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product P LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent = 4 AND PI.Language = 'en' AND P.hasDetails = 1;
 // con.query(`SELECT MAX(Sequence) FROM RelatedProducts WHERE Type = "${Type}" AND ProductId = ${globalProductID};`)
 
+
+
+
 exports.getSomething = async (req, res) => {
-   con.query(`SELECT C.Id, IT.Sequence, C.WorkingTitle AS Description FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId WHERE IT.Parent = "35" AND IT.Publish = "1";`, (err, results, fields) => {
+
+   const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
+      + " FROM ProductInfo"
+      + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
+      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type = 'C'"
+      + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
+   con.query(query, (err, results, fields) => {
       if (err) throw err;
 
       res.send(results)
@@ -37,9 +46,10 @@ exports.getSomething = async (req, res) => {
 
 // DISTINCT AS400.AOAROM, 
 exports.getAllProducts = async (req, res) => {
-   const query = "SELECT ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
+   const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
+      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type = 'P'"
       + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
 
    con.query(query, (err, results, fields) => {
@@ -297,9 +307,10 @@ exports.searchProduct = async (req, res) => {
 
    let searchText = target === "Product.Code" ? searchQuery.replace(' ', '-') : searchQuery;
 
-   const query = "SELECT Product.Id as Id, Description, Catalog, CODE, As400Code"
+   const query = "SELECT Product.Id as Id, Description, Catalog, CODE, As400Code, Tree"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
+      + " LEFT JOIN InfoTree ON ProductInfo.ProductId = InfoTree.LinkId AND InfoTree.Type = 'C'"
       + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchText}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
 
    con.query(query, (err, results, fields) => {
@@ -440,9 +451,10 @@ exports.changeSequence = async (req, res) => {
 // =================================================================================================
 
 exports.getAllSeries = async (req, res) => {
-   const query = "SELECT SeriesInfo.SeriesId as Sid, Title, Series.Key"
+   const query = "SELECT SeriesInfo.SeriesId as Sid, Title, Series.Key, Tree"
       + " FROM SeriesInfo"
       + " LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid"
+      + " LEFT JOIN InfoTree ON InfoTree.LinkId = Series.Sid AND InfoTree.Type = 'S'"
       + ` WHERE SeriesInfo.Language = 'en' AND Series.Publish = '1' ORDER BY SeriesInfo.SeriesId LIMIT 100;`;
 
    con.query(query, (err, results, fields) => {
@@ -458,7 +470,7 @@ exports.getSerieDetails = async (req, res) => {
    const { serieId } = req.query;
    let finalResults = [];
    const serieQuery = `SELECT Series.Key, Title, FullDescription, Specification FROM SeriesInfo LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.SeriesId = "${serieId}" AND SeriesInfo.Language = "en";`;
-   
+
    const relatedQuery = `SELECT LinkedProductID, Type, Code, Description FROM RelatedProducts WHERE SeriesId = "${serieId}";`
 
    con.query(serieQuery, (err, serieResults) => {
@@ -588,7 +600,6 @@ exports.addSeries = async (req, res) => {
 
 exports.editSeries = async (req, res) => {
    const { SeriesId, Key, ModifiedOn } = req.body;
-   // console.log(req.body);
    let errorString = '';
    const SeriesQuery = `Update Series SET ModifiedOn = "${ModifiedOn}" WHERE Sid = "${SeriesId}";`;
 
@@ -607,7 +618,7 @@ exports.editSeries = async (req, res) => {
       const SPQuery = `UPDATE SeriesInfo SET Title = '${SPTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "sp"`;
       const RUQuery = `UPDATE SeriesInfo SET Title = '${RUTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "ru"`;
 
-      if (Title !== "" ) {
+      if (Title !== "") {
          con.query(ENQuery, (err, result) => {
             if (err) {
                errorString += "English, ";
@@ -673,7 +684,7 @@ exports.deleteSeries = async (req, res) => {
    const { SeriesId } = req.body;
    let errorString = '';
 
-   
+
    con.query(`DELETE FROM SeriesProductLink WHERE SeriesId = ${SeriesId};`, (err, results, fields) => {
       if (err) {
          console.log(err);
@@ -696,7 +707,7 @@ exports.deleteSeries = async (req, res) => {
       }
       res.send(results)
    })
-   
+
 }
 exports.getOtherLanguageDetailSerie = async (req, res) => {
    const { serieId, language } = req.body;
@@ -710,24 +721,54 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
 
 exports.getRelatedProductSerie = async (req, res) => {
    const { serieId } = req.query;
+
    console.log(serieId);
-   const query = `SELECT Product.Id, Product.CODE, ProductInfo.Catalog FROM Product LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id WHERE SeriesProductLink.SeriesId = "${serieId}" ORDER BY SeriesProductLink.Sequence;`;
+
+   const query = `SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid FROM Product LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
 
    con.query(query, (err, results) => {
       if (err) throw err;
       res.status(200).send(results);
    }
-)}  
+   )
+}
 
-      
+
 exports.addSeriesRelatedProduct = async (req, res) => {
    const { ProductId, SeriesId } = req.body;
-   
+
    con.query(`INSERT INTO SeriesProductLink (ProductId, SeriesId) VALUES ("${ProductId}", "${SeriesId}");`, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
-      
+
       res.send(results)
+   })
+}
+
+
+exports.getSerieSpecs = async (req, res) => {
+   const { serieLink } = req.query;
+
+   const query = `SELECT SerieMasterId, Value, Value AS CurrentValue, Name, SeriesProductLinkId FROM SeriesData WHERE SeriesProductLinkId = '${serieLink}';`
+
+   con.query(query, (err, results) => {
+      if (err) throw err;
+
+      res.send(results);
+   })
+}
+
+
+exports.updateSerieSpecs = async (req, res) => {
+   const { SerieMasterId, SeriesProductLinkId, Value } = req.body;
+   console.log(req.body);
+
+   const query = `UPDATE SeriesData SET Value = "${Value}" WHERE SerieMasterId = "${SerieMasterId}" AND SeriesProductLinkId = "${SeriesProductLinkId}";`
+
+   con.query(query, (err, results) => {
+      if (err) throw err;
+
+      res.send(results);
    })
 }

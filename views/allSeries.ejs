@@ -5,7 +5,7 @@
    <meta charset="UTF-8" />
    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   <title>ITE BACK OFFICE MANAGEMENT</title>
+   <title>ALL SERIES - ITE BACK OFFICE MANAGEMENT</title>
    <link rel="stylesheet" type="text/css"
       href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
@@ -255,6 +255,44 @@
             });
          }
 
+
+         const saveSpecEdit = (records) => {
+            let check = {};
+            records.forEach(rec => {
+               check[rec.data.SerieMasterId] = true;
+            })
+
+            records.forEach(record => {
+               Ext.Ajax.request({
+                  url: "/api/updateSerieSpecs",
+                  method: "POST",
+                  cors: true,
+                  useDefaultXhrHeader: false,
+                  params: {
+                     SerieMasterId: record.data.SerieMasterId,
+                     SeriesProductLinkId: record.data.SeriesProductLinkId,
+                     Value: record.data.Value,
+                  },
+                  success: function (response) {
+                     delete check[record.data.SerieMasterId];
+
+                     if (Object.keys(check).length === 0) {
+                        Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
+                        serieSpecStore.reload();
+                     }
+                  },
+                  failure: function (response) {
+                     Ext.getBody().unmask();
+                     Ext.Msg.alert(
+                        "ERROR",
+                        "Failed to update Specification. Contact your IT team."
+                     );
+                  },
+               });
+            })
+         }
+
+
          const Model = Ext.define("Categories", {
             extend: "Ext.data.Model",
             fields: ["Sid", "Key", "Title", "CreatedOn", "ModifiedOn", "Publish"],
@@ -460,15 +498,15 @@
          };
 
 
-         const relatedProductModel = Ext.define("Categories", {
+         const linkedProductModel = Ext.define("Categories", {
             extend: "Ext.data.Model",
             fields: ["Id", "CODE", "Catalog"],
          });
 
-         const relatedProductStore = Ext.create("Ext.data.Store", {
+         const linkedProductStore = Ext.create("Ext.data.Store", {
             id: "mainStore",
             autoLoad: true,
-            model: Model,
+            model: linkedProductModel,
             proxy: {
                type: "ajax",
                method: "GET",
@@ -482,22 +520,52 @@
                useDefaultXhrHeader: false,
             },
             listeners: {
-               beforeload: function (store) { },
+               beforeload: function (store) {
+               },
+            },
+         });
+
+         const serieSpecModel = Ext.define("Categories", {
+            extend: "Ext.data.Model",
+            fields: ["SerieMasterId", "Key", "Value"],
+         });
+
+         const serieSpecStore = Ext.create("Ext.data.Store", {
+            id: "mainStore",
+            autoLoad: true,
+            model: serieSpecModel,
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/api/getSerieSpecs",
+               noCache: true,
+               reader: {
+                  type: "json",
+
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+            listeners: {
+               beforeload: function (store) {
+               },
             },
          });
 
 
-         const relatedProductColumns = [
+
+         const linkedProductColumns = [
             {
                header: "Code",
                sortable: true,
-               width: 100,
+               width: 150,
                dataIndex: "CODE",
+               align: 'center'
             },
             {
                header: "Product Name",
                sortable: true,
-               width: 300,
+               width: 400,
                dataIndex: "Catalog",
             },
             {
@@ -506,6 +574,40 @@
                width: 100,
                dataIndex: "Id",
                hidden: true
+            },
+         ]
+
+         const serieSpecColumn = [
+            {
+               header: "SerieMasterId",
+               sortable: true,
+               width: 100,
+               dataIndex: "SerieMasterId",
+            },
+            {
+               header: "Name",
+               sortable: true,
+               width: 150,
+               dataIndex: "Name",
+            },
+            {
+               header: "Current Value",
+               sortable: true,
+               width: 100,
+               dataIndex: "CurrentValue",
+            },
+            {
+               header: "New Value",
+               sortable: true,
+               width: 100,
+               dataIndex: "Value",
+               editor: {
+                  completeOnEnter: true,
+                  field: {
+                     xtype: "textfield",
+                     allowBlank: false,
+                  },
+               },
             },
          ]
 
@@ -561,18 +663,48 @@
                }
             })
          }
+
+         const linkedProductTbar = [
+            {
+               xtype: "toolbar",
+               dock: "top",
+               id: "linkedProductTbar",
+               items: [
+                  {
+                     xtype: "button",
+                     id: "serieLinkBack",
+                     text: "Back",
+                     iconCls: "fa fa-undo-alt",
+                     scale: "small",
+                     handler: function () {
+                          Ext.getCmp('viewport').setActiveItem('SerieDetails')
+                     },
+                  },
+               ],
+            },
+         ];
+
          const mainGridColumns = [
             {
                header: "ID",
                sortable: true,
-               width: 100,
+               width: 80,
                dataIndex: "Sid",
+               align: 'center'
+            },
+            {
+               header: "Tree",
+               sortable: true,
+               width: 100,
+               dataIndex: "Tree",
+               align: 'center'
             },
             {
                header: "Key",
                sortable: false,
-               width: 200,
+               width: 150,
                dataIndex: "Key",
+               align: 'center'
             },
             {
                header: "Title",
@@ -1065,7 +1197,7 @@
             items: [screenAdd],
             tbar: [
                {
-                  text: "addSave",
+                  text: "Save",
                   id: "addSave",
                   iconCls: "fas fa-save",
                   handler: function () {
@@ -1074,7 +1206,7 @@
                   },
                },
                {
-                  text: "editSave",
+                  text: "Save",
                   id: "editSave",
                   iconCls: "fas fa-save",
                   handler: function () {
@@ -1128,17 +1260,14 @@
                      Ext.getCmp("SerieDetails").setTitle(
                         `SERIE DETAILS - ${selectedRecord.data.Key}`
                      );
-                     relatedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
-                     relatedProductStore.load();
+                     linkedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
+                     linkedProductStore.load();
+
                      Ext.getCmp("viewport").setActiveItem("SerieDetails");
                   },
                },
             },
          });
-
-
-
-
 
          const SerieDetails = Ext.create("Ext.panel.Panel", {
             id: "SerieDetails",
@@ -1161,32 +1290,6 @@
                      align: "stretch",
                   },
                   items: [
-                     // {
-                     //    xtype: "gridpanel",
-                     //    title: "Related Series",
-                     //    id: "relatedProducts",
-                     //    store: relatedProductStore,
-                     //    columns: relatedProductColumns,
-                     //    listeners: {
-                     //       dblclick: {
-                     //          element: "body",
-                     //          fn: () => {
-                     //             const selectedRecord = Ext.getCmp("relatedProducts")
-                     //                .getSelectionModel()
-                     //                .getSelection()[0];
-                     //             console.log(selectedRecord);
-                     //             // serieIDGlobal = selectedRecord.data.Sid;
-                     //             // getSerieDetails(selectedRecord.data.Sid);
-                     //             // Ext.getCmp("SerieDetails").setTitle(
-                     //             //    `SERIE DETAILS - ${selectedRecord.data.Key}`
-                     //             // );
-                     //             // relatedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
-                     //             // relatedProductStore.load();
-                     //             // Ext.getCmp("viewport").setActiveItem("SerieDetails");
-                     //          },
-                     //       },
-                     //    },
-                     // },
                      {
                         xtype: "panel",
                         title: "Related Products",
@@ -1205,8 +1308,6 @@
                         id: "relatedParts",
                         items: [],
                      },
-
-
                   ],
                },
                {
@@ -1292,8 +1393,18 @@
                      "-",
                      {
                         xtype: "button",
+                        id: "linkedProductsBtn",
+                        text: "View Linked Products",
+                        iconCls: "fa fa-plus",
+                        handler: function () {
+                           Ext.getCmp("viewport").setActiveItem("linkedProducts");
+                        },
+                     },
+                     "-",
+                     {
+                        xtype: "button",
                         id: "addRelatedProducts",
-                        text: "Add Related Product",
+                        text: "Add Linked Product",
                         iconCls: "fa fa-plus",
                         handler: function () {
                            //Ext.getCmp('fromViewSave').setHidden(false);
@@ -1301,6 +1412,7 @@
                            Ext.getCmp("viewport").setActiveItem("panelAddRelated");
                         },
                      },
+
                   ],
                },
             ],
@@ -1376,7 +1488,6 @@
          });
 
          var itemsAddRelated = [
-
             {
                xtype: "combo",
                id: "ProductDesc",
@@ -1454,7 +1565,6 @@
                      Ext.getCmp("viewport").setActiveItem("SerieDetails");
                   },
                },
-
                "-",
                {
                   text: "Cancel",
@@ -1471,6 +1581,87 @@
             ],
          });
 
+         const linkedProducts = Ext.create("Ext.grid.GridPanel", {
+            id: "linkedProducts",
+            flex: 1,
+            scrollable: true,
+            title: "Linked Products",
+            trackOver: true,
+            loadMask: true,
+            store: linkedProductStore,
+            columns: linkedProductColumns,
+            enableColumnMove: false,
+            sortable: true,
+            frame: false,
+            renderTo: Ext.getBody(),
+            height: 690,
+            dockedItems: [...linkedProductTbar],
+            listeners: {
+               dblclick: {
+                  element: "body",
+                  fn: () => {
+                     const selectedRecord = Ext.getCmp("linkedProducts")
+                        .getSelectionModel()
+                        .getSelection()[0];
+                     console.log(selectedRecord);
+                     serieSpecStore.getProxy().setExtraParam('serieLink', selectedRecord.data.SPLid)
+                     serieSpecStore.reload();
+                     Ext.getCmp("viewport").setActiveItem("SerieSpecs");
+                  },
+               },
+            },
+         });
+
+         const SerieSpecs = Ext.create("Ext.grid.GridPanel", {
+            id: "SerieSpecs",
+            flex: 1,
+            scrollable: true,
+            title: "Managing Serie Specs",
+            trackOver: true,
+            loadMask: true,
+            store: serieSpecStore,
+            columns: serieSpecColumn,
+            enableColumnMove: false,
+            selModel: 'cellmodel',
+            plugins: {
+               ptype: 'cellediting',
+               clicksToEdit: 1
+            },
+            sortable: true,
+            frame: false,
+            renderTo: Ext.getBody(),
+            height: 690,
+            dockedItems: [
+               {
+                  xtype: "toolbar",
+                  dock: "top",
+                  id: "toolBar",
+                  items: [
+                     {
+                        xtype: "button",
+                        id: "Back",
+                        text: "Back",
+                        iconCls: "fa fa-undo-alt",
+                        scale: "small",
+                        handler: function () {
+                           Ext.getCmp('viewport').setActiveItem('linkedProducts')
+                        },
+                     },
+                     {
+                        xtype: "button",
+                        id: "serieSpecSave",
+                        text: "Save",
+                        iconCls: "fas fa-save",
+                        scale: "small",
+                        handler: function () {
+                           let updatedRecords = serieSpecStore.getModifiedRecords();
+                           saveSpecEdit(updatedRecords);
+                        },
+                     },
+                  ],
+               },
+            ],
+         });
 
          //=========================================================================================================
          //		           VIEW PORT
@@ -1479,8 +1670,8 @@
          Ext.create("Ext.container.Viewport", {
             id: "viewport",
             layout: "card",
-            activeItem: 0,
-            items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated],
+            activeItem: 'SeriesGrid',
+            items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, SerieSpecs, linkedProducts],
          });
       });
    </script>

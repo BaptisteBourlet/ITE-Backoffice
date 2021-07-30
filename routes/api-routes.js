@@ -66,11 +66,8 @@ router.get('/getRelatedProductSerie', apiCtrl.getRelatedProductSerie);
 
 router.post('/addSeriesRelatedProduct', apiCtrl.addSeriesRelatedProduct);
 
+router.get('/getSerieSpecs', apiCtrl.getSerieSpecs);
 
-
-
-
-
-
+router.post('/updateSerieSpecs', apiCtrl.updateSerieSpecs);
 
 module.exports = router;
