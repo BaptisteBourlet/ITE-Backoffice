@@ -27,7 +27,8 @@
       //		           APPLICATION START
       // ========================================================================================================
       Ext.onReady(() => {
-
+         let edit = false;
+         let serieIDGlobal = '';
          Ext.define('MyApp.view.Form', {
             extend: 'Ext.form.Panel',
             xtype: 'my-form',
@@ -47,22 +48,27 @@
                success: function (response) {
                   const res = JSON.parse(response.responseText);
                   console.log(res);
-                  displaySerieInfo(res[0]);
 
-                  // if (edit === false) {
-                  //    displayProductInfo(res[0][0]);
-                  // } else {
-                  //    getEditInfo(res[0][0]);
-                  // }
+                  // displaySerieInfo(res[0]);
 
-                  // Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
-                  // Ext.getCmp("relatedAccessories").add(relatedAccessories(res[1]));
-                  // Ext.getCmp("relatedParts").add(relatedParts(res[1]));
+                  if (edit === false) {
+                     displaySerieInfo(res[0]);
+                  } else {
+                     getEditInfo(res[0]);
+                  }
                },
                failure: function (response) {
                   console.log("failed", response);
                },
             });
+         };
+
+
+         const getEditInfo = (serie) => {
+            Ext.getCmp("Title").setValue(serie.Title);
+            Ext.getCmp("Key").setValue(serie.Key);
+            Ext.getCmp("FDesc").setValue(serie.FullDescription);
+            Ext.getCmp("spec").setValue(serie.Specification);
          };
 
 
@@ -84,6 +90,29 @@
             Ext.getCmp("RUFIELD").setHidden(true);
          }
 
+         const getOtherLanguageDetail = (language, serieId) => {
+            console.log(language)
+            console.log(serieId)
+            Ext.Ajax.request({
+               url: "/api/getOtherLanguageDetailSerie",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  language: language,
+                  serieId: serieId,
+               },
+               success: function (response) {
+                  const res = JSON.parse(response.responseText);
+                  Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
+                  Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
+                  Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+               },
+               failure: function (response) {
+                  console.log("failed", response);
+               },
+            });
+         }
 
          const Model = Ext.define("Categories", {
             extend: "Ext.data.Model",
@@ -151,7 +180,7 @@
             current_datetime.getFullYear();
 
 
-         var addRecord = function () {
+         var addSerie = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
 
             Ext.Ajax.request({
@@ -221,7 +250,7 @@
             });
          };
 
-         var editRecord = function () {
+         var editSerie = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
                url: "/api/editSeries",
@@ -230,6 +259,7 @@
                useDefaultXhrHeader: false,
                params: {
                   Key: Ext.getCmp("Key").getValue().trim(),
+                  SeriesId: serieIDGlobal,
                   Language: "en",
                   ModifiedOn: formatDate,
                   Title: Ext.getCmp("Title").getValue().trim(),
@@ -265,11 +295,10 @@
                         Ext.getBody().unmask();
                         Ext.Msg.alert(
                            "Series",
-                           "You have successfully add series",
-                           function (btn, text) {
-                              Ext.getCmp("viewport").setActiveItem('SeriesGrid');
-                           }
+                           `You have successfully edited serie`,
                         );
+                        Ext.getCmp("viewport").setActiveItem('SeriesGrid');
+                        mainStore.reload();
                      } else {
                         // display error message
                         Ext.getBody().unmask();
@@ -335,7 +364,7 @@
                   "-",
                   {
                      xtype: "button",
-                     id: "edit",
+                     id: "overviewEdit",
                      text: "Edit",
                      iconCls: "fa fa-edit",
                      scale: "small",
@@ -350,10 +379,10 @@
                         } else {
                            Ext.getCmp("addSave").setHidden(true);
                            Ext.getCmp("editSave").setHidden(false);
-                           Ext.getCmp("panelAdd").setTitle("Edit Product");
+                           Ext.getCmp("panelAdd").setTitle("Edit Serie");
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
-                           getProductDetails(selectedRecord.data.Id);
-                           productIDGlobal = selectedRecord.data.Id;
+                           getSerieDetails(selectedRecord.data.Sid);
+                           serieIDGlobal = selectedRecord.data.Sid;
                         }
                      },
                   },
@@ -500,9 +529,8 @@
                   } else {
                      Ext.getCmp("FRFIELD").setHidden(true);
                   }
-
                   if (edit === true) {
-                     getOtherLanguageDetail('fr', productIDGlobal)
+                     getOtherLanguageDetail('fr', serieIDGlobal)
                   }
                },
             },
@@ -565,7 +593,7 @@
                   }
 
                   if (edit === true) {
-                     getOtherLanguageDetail('de', productIDGlobal)
+                     getOtherLanguageDetail('de', serieIDGlobal)
                   }
                },
             },
@@ -628,7 +656,7 @@
                   }
 
                   if (edit === true) {
-                     getOtherLanguageDetail('sp', productIDGlobal)
+                     getOtherLanguageDetail('sp', serieIDGlobal)
                   }
                },
             },
@@ -692,7 +720,7 @@
                   }
 
                   if (edit === true) {
-                     getOtherLanguageDetail('ru', productIDGlobal)
+                     getOtherLanguageDetail('ru', serieIDGlobal)
                   }
                },
             },
@@ -796,20 +824,23 @@
             items: [screenAdd],
             tbar: [
                {
-                  text: "Save",
+                  text: "addSave",
                   id: "addSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-                     addRecord();
+                     addSerie();
                      Ext.getCmp('addForm').reset()
                   },
                },
                {
-                  text: "Save",
+                  text: "editSave",
                   id: "editSave",
                   iconCls: "fas fa-save",
                   handler: function () {
+                     edit = false;
+                     editSerie();
                      Ext.getCmp("addForm").reset();
+                     setPanelHidden();
                   },
                },
                "-",
@@ -819,8 +850,9 @@
                   id: 'cancel',
                   iconCls: "fas fa-undo",
                   handler: function () {
-                     Ext.getCmp('addForm').reset()
-
+                     edit = false;
+                     Ext.getCmp('addForm').reset();
+                     setPanelHidden();
                      Ext.getCmp("viewport").setActiveItem("SeriesGrid");
                   },
                },
@@ -850,7 +882,7 @@
                         .getSelectionModel()
                         .getSelection()[0];
                      console.log(selectedRecord);
-
+                     serieIDGlobal = selectedRecord.data.Sid;
                      getSerieDetails(selectedRecord.data.Sid);
                      Ext.getCmp("SerieDetails").setTitle(
                         `SERIE DETAILS - ${selectedRecord.data.Key}`
@@ -877,7 +909,7 @@
             items: [
                {
                   xtype: "container",
-                  width: 300,
+                  width: 500,
                   scrollable: true,
                   style: "background-color: white;",
                   region: "east",
@@ -886,24 +918,13 @@
                      align: "stretch",
                   },
                   items: [
-                     {
-                        xtype: "panel",
-                        title: "Related Products",
-                        id: "relatedProducts",
-                        items: [],
-                     },
-                     {
-                        xtype: "panel",
-                        title: "Related Accessories",
-                        id: "relatedAccessories",
-                        items: [],
-                     },
-                     {
-                        xtype: "panel",
-                        title: "Related Parts",
-                        id: "relatedParts",
-                        items: [],
-                     },
+                     // {
+                     //    xtype: "gridpanel",
+                     //    title: "Related Products",
+                     //    id: "relatedProducts",
+                     //    store: relatedProductStore,
+                     //    columns: relatedProductColumns,
+                     // },
                   ],
                },
                {
@@ -962,10 +983,7 @@
                         iconCls: "fa fa-undo-alt",
                         handler: function () {
                            edit = false;
-                           Ext.getCmp("relatedProducts").removeAll();
-                           Ext.getCmp("relatedAccessories").removeAll();
-                           Ext.getCmp("relatedParts").removeAll();
-                           Ext.getCmp("viewport").setActiveItem("mainPanel");
+                           Ext.getCmp("viewport").setActiveItem("SeriesGrid");
                         },
                      },
                      "-",
@@ -978,9 +996,9 @@
                            edit = true;
                            Ext.getCmp("addSave").setHidden(true);
                            Ext.getCmp("editSave").setHidden(false);
-                           Ext.getCmp('panelAdd').setTitle('Edit product');
+                           Ext.getCmp('panelAdd').setTitle('Edit Serie');
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
-                           getProductDetails(productIDGlobal);
+                           getSerieDetails(serieIDGlobal);
                         },
                      },
                      "-",
