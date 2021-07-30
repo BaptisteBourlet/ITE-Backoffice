@@ -56,9 +56,7 @@ router.post('/searchSerie', apiCtrl.searchSerie);
 
 router.post('/addSeries', apiCtrl.addSeries);
 
-
-
-
+router.post('/deleteSeries', apiCtrl.deleteSeries);
 
 
 module.exports = router;

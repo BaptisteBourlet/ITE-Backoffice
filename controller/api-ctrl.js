@@ -580,7 +580,6 @@ exports.editSeries = async (req, res) => {
       const SPQuery = `UPDATE SeriesInfo SET Title = '${SPTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "sp"`;
       const RUQuery = `UPDATE SeriesInfo SET Title = '${RUTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "ru"`;
 
-
       if (Title !== "" ) {
          con.query(ENQuery, (err, result) => {
             if (err) {
@@ -639,4 +638,36 @@ exports.editSeries = async (req, res) => {
 
       res.send(finalResult);
    })
+}
+
+
+
+exports.deleteSeries = async (req, res) => {
+   const { SeriesId } = req.body;
+   let errorString = '';
+
+   
+   con.query(`DELETE FROM SeriesProductLink WHERE SeriesId = ${SeriesId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err);
+         errorString += 'SeriesProductLink, '
+      }
+
+   })
+
+   con.query(`DELETE FROM SeriesInfo WHERE SeriesId = ${SeriesId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err);
+         errorString += 'SeriesInfo, '
+      }
+
+   })
+
+   con.query(`DELETE FROM Series WHERE Sid = ${SeriesId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+   
 }

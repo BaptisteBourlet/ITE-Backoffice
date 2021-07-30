@@ -291,6 +291,58 @@
          };
 
 
+         var deleteSeries = function () {
+        const selectedRecord = Ext.getCmp("SeriesGrid")
+          .getSelectionModel()
+          .getSelection()[0];
+        Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this series ?", function (btn, text) {
+          if (btn == 'yes') {
+            Ext.getBody().mask('Deleting', 'x-msg-loading');
+            Ext.Ajax.request({
+              url: "/api/deleteSeries",
+              method: "POST",
+              cors: true,
+              useDefaultXhrHeader: false,
+              params: {
+                SeriesId: selectedRecord.data.Sid
+              },
+              success: function (response) {
+                // check for errors and display error message
+                var check = response.responseText;
+                if (check) {
+                  var data = eval("(" + response.responseText + ")");
+
+                  if (data.serverStatus == 2) {
+                     console.log(data)
+                    mainStore.reload();
+                    Ext.getBody().unmask();
+                    Ext.Msg.alert(
+                      "Success",
+                      "You have successfully deleted the series"
+                    );
+                  } else {
+                    // display error message
+                    Ext.getBody().unmask();
+                    Ext.Msg.alert(
+                      "ERROR",
+                      "Failed to delete the series. Contact your IT team."
+                    );
+                  }
+                }
+              },
+              failure: function (response) {
+                Ext.getBody().unmask();
+                Ext.Msg.alert(
+                  "ERROR",
+                  "Failed to delete series. Contact your IT team."
+                );
+              },
+
+            });
+
+          }
+        })
+      }
          const mainGridColumns = [
             {
                header: "ID",
@@ -364,7 +416,7 @@
                      text: "Delete",
                      iconCls: "fa fa-trash-alt",
                      scale: "small",
-                     handler: function () { },
+                     handler: function () { deleteSeries() },
                   },
                   "-",
                   {
