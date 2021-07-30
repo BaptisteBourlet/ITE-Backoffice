@@ -51,10 +51,10 @@
       let productIDGlobal = "";
 
       Ext.define('MyApp.view.Form', {
-				extend: 'Ext.form.Panel',
-				xtype: 'my-form',
-				
-			});
+        extend: 'Ext.form.Panel',
+        xtype: 'my-form',
+
+      });
 
       const relatedProducts = (products) => {
         let exist = false;
@@ -212,12 +212,17 @@
         });
       };
 
+      const setPanelHidden = () => {
+        Ext.getCmp("DEFIELD").setHidden(true);
+        Ext.getCmp("FRFIELD").setHidden(true);
+        Ext.getCmp("SPFIELD").setHidden(true);
+        Ext.getCmp("RUFIELD").setHidden(true);
+      }
+
+
       // const getAs400Description = (as400Code) => {
       //   Ext.Ajax.request({
       //     url: "/api/getAs400Description",
-
-
-
       //     method: "POST",
       //     cors: true,
       //     useDefaultXhrHeader: false,
@@ -604,7 +609,7 @@
           sortable: true,
           width: 100,
           dataIndex: "As400Code",
-          align: "left",
+          align: "center",
         },
         {
           header: "Product Name",
@@ -730,6 +735,7 @@
               handler: function () {
                 Ext.getCmp("addSave").setHidden(false);
                 Ext.getCmp("editSave").setHidden(true);
+                setPanelHidden();
                 Ext.getCmp("panelAdd").setTitle("Add product");
                 Ext.getCmp("viewport").setActiveItem("panelAdd");
               },
@@ -752,6 +758,7 @@
                 } else {
                   Ext.getCmp("addSave").setHidden(true);
                   Ext.getCmp("editSave").setHidden(false);
+                  setPanelHidden();
                   Ext.getCmp("panelAdd").setTitle("Edit Product");
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
                   getProductDetails(selectedRecord.data.Id);
@@ -1002,6 +1009,7 @@
                 iconCls: "fa fa-edit",
                 handler: function () {
                   edit = true;
+                  setPanelHidden();
                   Ext.getCmp("addSave").setHidden(true);
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp('panelAdd').setTitle('Edit product');
@@ -1529,6 +1537,7 @@
             handler: function () {
               setProductSessionStorage();
               addRecord();
+              setPanelHidden();
               Ext.getCmp("addForm").reset();
             },
           },
@@ -1539,6 +1548,7 @@
             handler: function () {
               setProductSessionStorage();
               editProduct();
+              setPanelHidden();
               Ext.getCmp("addForm").reset();
             },
           },
@@ -1549,11 +1559,12 @@
             iconCls: "fas fa-undo",
             handler: function () {
               edit = false;
+              Ext.getCmp("addForm").reset();
+              setPanelHidden();
               clearEditInfo();
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
               Ext.getCmp("relatedParts").removeAll();
-
               Ext.getCmp("viewport").setActiveItem("mainPanel");
             },
           },
@@ -1679,6 +1690,7 @@
             iconCls: "fas fa-undo",
             handler: function () {
               resetForm2();
+              Ext.getCmp("addForm").reset();
               Ext.getCmp("viewport").setActiveItem("mainPanel");
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();

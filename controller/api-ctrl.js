@@ -35,12 +35,12 @@ exports.getSomething = async (req, res) => {
 
 
 
-
+// DISTINCT AS400.AOAROM, 
 exports.getAllProducts = async (req, res) => {
-   const query = "SELECT DISTINCT AS400.AOAROM, ProductInfo.ProductId as Id, Catalog, CODE, As400Code"
+   const query = "SELECT ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + " LEFT JOIN AS400 ON ProductInfo.ProductId = AS400.Prdid"
+      // + " LEFT JOIN AS400 ON ProductInfo.ProductId = AS400.Prdid"
       + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
 
    con.query(query, (err, results, fields) => {
@@ -299,10 +299,10 @@ exports.searchProduct = async (req, res) => {
 
    let searchText = target === "Product.Code" ? searchQuery.replace(' ', '-') : searchQuery;
 
-   const query = "SELECT DISTINCT AS400.AOAROM, Product.Id as Id, Description, Catalog, CODE"
+   const query = "SELECT Product.Id as Id, Description, Catalog, CODE, As400Code"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + " LEFT JOIN AS400 ON ProductInfo.ProductId = AS400.Prdid"
+      // + " LEFT JOIN AS400 ON ProductInfo.ProductId = AS400.Prdid"
       + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchText}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
 
    con.query(query, (err, results, fields) => {
@@ -388,22 +388,9 @@ exports.addRelatedProductFromView = async (req, res) => {
 
 
 exports.getSequenceResults = async (req, res) => {
-   const { Type, CategoryID } = req.query;
-   console.log(req.query);
-   let query = '';
+   const { CategoryID } = req.query;
 
-   // if (Type == "C") {
-   //    query = `SELECT IT.Type, C.Id, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "C";`
-   // } else if (Type === "P") {
-   //    query = `SELECT IT.Type,  IT.Sequence, P.CODE AS Description FROM Product P LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "P";`;
-   // } else {
-   //    query = `SELECT IT.Type,  IT.Sequence, S.Key AS Description FROM Series S LEFT JOIN InfoTree IT ON S.Sid = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "S";`;
-   // }
-
-   // query = `SELECT IT.Type, C.Id, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description, P.CODE AS Description, S.Key AS Description FROM InfoTree IT RIGHT OUTER JOIN Category C ON C.Id = IT.LinkId RIGHT OUTER JOIN Product P ON P.Id = IT.LinkId RIGHT OUTER JOIN Series S ON S.Sid = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1";`
-
-
-   query = `SELECT IT.Id, IT.Type, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description FROM InfoTree IT LEFT JOIN Category C ON C.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "C"
+   let query = `SELECT IT.Id, IT.Type, IT.Sequence, IT.Sequence AS OldSequence, C.WorkingTitle AS Description FROM InfoTree IT LEFT JOIN Category C ON C.Id = IT.LinkId WHERE IT.Parent =  "${CategoryID}" AND IT.Publish = "1" AND IT.Type = "C"
    UNION
    SELECT  IT.Id, IT.Type,  IT.Sequence, IT.Sequence AS OldSequence, P.CODE AS Description FROM InfoTree IT LEFT JOIN Product P ON P.Id = IT.LinkId WHERE IT.Parent = "${CategoryID}" AND IT.Publish = "1" AND HasDetails = "1" AND IT.Type = "P"
    UNION

@@ -77,6 +77,14 @@
             );
          };
 
+         const setPanelHidden = () => {
+            Ext.getCmp("DEFIELD").setHidden(true);
+            Ext.getCmp("FRFIELD").setHidden(true);
+            Ext.getCmp("SPFIELD").setHidden(true);
+            Ext.getCmp("RUFIELD").setHidden(true);
+         }
+
+
          const Model = Ext.define("Categories", {
             extend: "Ext.data.Model",
             fields: ["Sid", "Key", "Title", "CreatedOn", "ModifiedOn", "Publish"],
@@ -190,9 +198,7 @@
                            "Series",
                            "You have successfully add series",
                            function (btn, text) {
-
                               Ext.getCmp("viewport").setActiveItem('SeriesGrid');
-
                            }
                         );
                      } else {
@@ -217,7 +223,6 @@
 
          var editRecord = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
-
             Ext.Ajax.request({
                url: "/api/editSeries",
                method: "POST",
@@ -262,9 +267,7 @@
                            "Series",
                            "You have successfully add series",
                            function (btn, text) {
-
                               Ext.getCmp("viewport").setActiveItem('SeriesGrid');
-
                            }
                         );
                      } else {
@@ -742,9 +745,6 @@
             },
          ];
 
-
-
-
          var screenAdd = new Ext.FormPanel({
             frame: false,
             header: false,
@@ -802,7 +802,6 @@
                   handler: function () {
                      addRecord();
                      Ext.getCmp('addForm').reset()
-
                   },
                },
                {
@@ -810,7 +809,6 @@
                   id: "editSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-
                      Ext.getCmp("addForm").reset();
                   },
                },
@@ -828,8 +826,6 @@
                },
             ],
          });
-
-
 
          const SeriesGrid = Ext.create("Ext.grid.GridPanel", {
             id: "SeriesGrid",
@@ -866,7 +862,7 @@
          });
 
 
-     
+
 
 
          const SerieDetails = Ext.create("Ext.panel.Panel", {
@@ -974,7 +970,7 @@
                      },
                      "-",
                      {
-                        xtype: "button", //ongoing
+                        xtype: "button",
                         id: "editDetail",
                         text: "Edit",
                         iconCls: "fa fa-edit",
@@ -989,7 +985,7 @@
                      },
                      "-",
                      {
-                        xtype: "button", //ongoing
+                        xtype: "button",
                         id: "addRelatedProducts",
                         text: "Add Related Product",
                         iconCls: "fa fa-plus",
