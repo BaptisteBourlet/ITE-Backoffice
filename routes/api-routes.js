@@ -58,5 +58,16 @@ router.post('/addSeries', apiCtrl.addSeries);
 
 router.post('/deleteSeries', apiCtrl.deleteSeries);
 
+router.post('/editSeries', apiCtrl.editSeries);
+
+router.post('/getOtherLanguageDetailSerie', apiCtrl.getOtherLanguageDetailSerie);
+
+
+
+
+
+
+
+
 
 module.exports = router;

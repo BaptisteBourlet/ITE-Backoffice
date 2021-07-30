@@ -327,7 +327,7 @@
         Ext.getCmp("productName").setValue(product.Catalog);
         Ext.getCmp("productCode").setValue(product.CODE);
         Ext.getCmp("as400Code").setValue(product.As400Code);
-        Ext.getCmp("as400Description").setValue(product.AOAROM);
+        Ext.getCmp("as400Description").setValue(product.Description);
         Ext.getCmp("fullDescription").setValue(
           product.FullDescription ?? "No Full Description"
         );
@@ -581,7 +581,7 @@
 
       const Model = Ext.define("ALLPRODUCTS", {
         extend: "Ext.data.Model",
-        fields: ["Id", "Catalog", "Description", "CODE", "AOAROM"],
+        fields: ["Id", "Catalog", "Description", "CODE"],
       });
 
 
@@ -621,7 +621,7 @@
           header: "AS/400 Description",
           sortable: true,
           width: 600,
-          dataIndex: "AOAROM",
+          dataIndex: "Description",
         },
         {
           header: "Count",

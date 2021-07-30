@@ -40,7 +40,6 @@ exports.getAllProducts = async (req, res) => {
    const query = "SELECT ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      // + " LEFT JOIN AS400 ON ProductInfo.ProductId = AS400.Prdid"
       + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
 
    con.query(query, (err, results, fields) => {
@@ -302,7 +301,6 @@ exports.searchProduct = async (req, res) => {
    const query = "SELECT Product.Id as Id, Description, Catalog, CODE, As400Code"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      // + " LEFT JOIN AS400 ON ProductInfo.ProductId = AS400.Prdid"
       + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchText}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
 
    con.query(query, (err, results, fields) => {
@@ -561,9 +559,9 @@ exports.addSeries = async (req, res) => {
 
 exports.editSeries = async (req, res) => {
    const { SeriesId, Key, ModifiedOn } = req.body;
-   console.log(req.body);
+   // console.log(req.body);
    let errorString = '';
-   const SeriesQuery = `Update Series SET Series.Key = "${Key}", ModifiedOn = "${ModifiedOn}", Publish = 1 WHERE Id = ${SeriesId};`;
+   const SeriesQuery = `Update Series SET ModifiedOn = "${ModifiedOn}" WHERE Sid = "${SeriesId}";`;
 
    con.query(SeriesQuery, (err, results) => {
       if (err) throw err;
@@ -670,4 +668,12 @@ exports.deleteSeries = async (req, res) => {
       res.send(results)
    })
    
+}
+exports.getOtherLanguageDetailSerie = async (req, res) => {
+   const { serieId, language } = req.body;
+   const query = `SELECT Title, FullDescription, Specification FROM SeriesInfo WHERE Language = "${language}" AND SeriesId = "${serieId}";`;
+   con.query(query, (err, results, fields) => {
+      if (err) throw err;
+      res.status(200).send(results);
+   })
 }
