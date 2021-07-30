@@ -62,6 +62,7 @@ router.post('/editSeries', apiCtrl.editSeries);
 
 router.post('/getOtherLanguageDetailSerie', apiCtrl.getOtherLanguageDetailSerie);
 
+router.post('/addSeriesRelatedProduct', apiCtrl.addSeriesRelatedProduct);
 
 
 

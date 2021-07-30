@@ -677,3 +677,16 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
       res.status(200).send(results);
    })
 }
+
+
+exports.addSeriesRelatedProduct = async (req, res) => {
+   const { ProductId, SeriesId } = req.body;
+   
+   con.query(`INSERT INTO SeriesProductLink (ProductId, SeriesId) VALUES ("${ProductId}", "${SeriesId}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      
+      res.send(results)
+   })
+}
