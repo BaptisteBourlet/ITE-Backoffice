@@ -186,7 +186,7 @@
 
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-                  console.log(res);
+                 
 
                   if (edit === false) {
                      displaySerieInfo(res[0][0]);
@@ -232,8 +232,7 @@
          }
 
          const getOtherLanguageDetail = (language, serieId) => {
-            console.log(language)
-            console.log(serieId)
+           
             Ext.Ajax.request({
                url: "/api/getOtherLanguageDetailSerie",
                method: "POST",
@@ -633,7 +632,7 @@
                            var data = eval("(" + response.responseText + ")");
 
                            if (data.serverStatus == 2) {
-                              console.log(data)
+                          
                               mainStore.reload();
                               Ext.getBody().unmask();
                               Ext.Msg.alert(
@@ -1254,16 +1253,22 @@
                      const selectedRecord = Ext.getCmp("SeriesGrid")
                         .getSelectionModel()
                         .getSelection()[0];
-                     console.log(selectedRecord);
                      serieIDGlobal = selectedRecord.data.Sid;
+                     sessionStorage.setItem('serieIDGlobal', serieIDGlobal)
                      getSerieDetails(selectedRecord.data.Sid);
-                     Ext.getCmp("SerieDetails").setTitle(
+                     Ext.getCmp("scrntab").setTitle(
                         `SERIE DETAILS - ${selectedRecord.data.Key}`
                      );
                      linkedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
                      linkedProductStore.load();
 
                      Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                     // tab
+                     // sessionStorage.setItem('serieId', selectedRecord.data.Sid)
+                     // relatedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
+                     // relatedProductStore.load();
+                     
+                     // Ext.getCmp("viewport").setActiveItem("scrntab");
                   },
                },
             },
@@ -1663,6 +1668,70 @@
             ],
          });
 
+
+         // <!-- ----------------------------------------------------------------------- -->
+         // <!--                                TAB Panel                                -->
+         // <!-- ----------------------------------------------------------------------- -->
+
+
+         var tab01 = Ext.widget('panel', {
+				activeTab: 0,
+				layout: 'fit',
+				id: 'b01',
+				title: 'Series details',
+				border: false,
+				items: [{
+					xtype: "component",
+					border: false,
+					id: 'tab01',
+					autoEl: {
+						tag: "iframe",
+						src: '/series-details'
+					}
+				}]
+			});
+
+			var tab02 = Ext.widget('panel', {
+				activeTab: 0,
+				layout: 'fit',
+				title: 'test',
+				border: false,
+				id: 'b02',
+				items: [{
+					xtype: "component",
+					border: false,
+					id: 'tab02',
+					autoEl: {
+						tag: "iframe",
+						src: '/'
+					}
+				}]
+			});
+
+
+			var scrntab = Ext.create('Ext.TabPanel', {
+				fullscreen: true,
+				tabBarPosition: 'bottom',
+				id: 'scrntab',
+				title: 'series',
+				defaults: {
+					styleHtmlContent: true
+				},
+				items: [tab01, tab02	],
+				listeners: {
+					tabChange: function (tabPanel, newTab, currentTab) {
+						//console.log(newTab.id);
+						//newTab.setSrc();
+						//document.getElementById('ta' + newTab.id).contentWindow.location.reload();
+						try {
+							document.getElementById('ta' + newTab.id).src = document.getElementById('ta' + newTab.id).src
+						} catch {
+						}
+
+
+					}
+				}
+			});
          //=========================================================================================================
          //		           VIEW PORT
          // ========================================================================================================
@@ -1672,6 +1741,9 @@
             layout: "card",
             activeItem: 'SeriesGrid',
             items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, SerieSpecs, linkedProducts],
+            // tab
+            // activeItem: 0,
+            // items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, scrntab],
          });
       });
    </script>
