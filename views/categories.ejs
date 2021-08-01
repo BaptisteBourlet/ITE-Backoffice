@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ITE BACK OFFICE MANAGEMENT</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+    <style>
+
+
+    </style>
+    <script type="text/javascript">
+        //=========================================================================================================
+        //		           APPLICATION START
+        // ========================================================================================================
+        Ext.onReady(() => {
+            let productObj = {};
+            let edit = false;
+            let productIDGlobal = "";
+
+
+
+            const mainGridColumns = [
+
+
+               
+                {
+                    header: "Name",
+                    sortable: true,
+                    width: 350,
+                    dataIndex: "Description",
+                },
+
+                {
+                    header: "Sequence",
+                    sortable: false,
+                    width: 100,
+                    dataIndex: "Sequence",
+                    editor: {
+                        completeOnEnter: true,
+
+                        field: {
+                            xtype: 'numberfield',
+                            allowBlank: false,
+                            decimalPrecision: 0,
+
+                            onFocusLeave: function (e) {
+
+
+                                var selectedrecords = CategoriesGrid.getSelectionModel().getSelection();
+                                var teller = selectedrecords.length;
+                                currentsubfileRecord = selectedrecords[0];
+
+                                Ext.Ajax.request({
+                                    url: '/api/???',
+                                    params: {
+                                        ID: currentsubfileRecord.get('ID'),
+                                        Sequence: currentsubfileRecord.get('Sequence'),
+                                    },
+                                    success: function (response) {
+
+                                        // check for errors and display error message
+                                        var check = response.responseText;
+                                        if (check) {
+                                            var data = eval("(" + response.responseText + ")");
+                                            if (data.serverStatus == 2) {
+                                                // Remember record id's to reselect records after update of the row
+                                                var selectedrecords = mainStore.getSelectionModel().getSelection();
+                                                recordIds = [];
+                                                selectedIdx = [];
+                                                for (var i = 0, len = selectedrecords.length; i < len; i++) {
+                                                    recordIds[i] = selectedrecords[i].id;
+                                                    selectedIdx[i] = mainStore.getStore().indexOfId(recordIds[i]);
+                                                }
+                                                // reload subfile			
+                                                mainStore.reload(
+                                                    // reselect records after update	
+                                                    {
+                                                        callback: function () {
+                                                            for (var i = 0, len = selectedIdx.length; i < len; i++) {
+                                                                mainStore.getSelectionModel().select(selectedIdx[i]);
+                                                            }
+                                                        },
+                                                        scope: this
+                                                    }
+                                                );
+                                                // display subfile
+                                                Ext.getCmp('viewport').layout.setActiveItem('CategoriesGrid');
+                                            } else {
+                                                // display error message
+                                                f = Ext.getCmp(data.FLD);
+                                                f.markInvalid(data.MSG);
+                                                f.focus();
+                                            };
+                                            Ext.getBody().unmask();
+                                        };
+                                    },
+                                    failure: function (response) {
+                                        Ext.getBody().unmask();
+                                    }
+                                });
+                            }
+                        },
+                    }
+                },
+            ];
+
+
+
+            var TypeStore = Ext.create("Ext.data.Store", {
+                fields: ["TypeCode", "TypeName"],
+                data: [
+                    { TypeCode: "P", TypeName: "Products" },
+                    { TypeCode: "C", TypeName: "Categories" },
+                    { TypeCode: "S", TypeName: "Series" },
+                ],
+                storeId: "TypeStore",
+            });
+            const tbarItems = [
+
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "searchBar",
+                    items: [
+
+                        {
+                            xtype: "combo",
+                            id: "searchType",
+                            iconCls: "fa fa-search",
+                            store: TypeStore,
+                            editable: false,
+                            displayField: 'TypeName',
+                            valueField: 'TypeCode',
+                            width: 200,
+                            labelWidth: 20,
+                            style: "margin-left: 5px; color: grey;",
+                            emptyText: "Search type ...",
+                            listeners: {
+                                change: () => {
+                                    Ext.getCmp('searchName').setValue('')
+                                    mainStore.getProxy().setExtraParam('Type', Ext.getCmp('searchType').getValue());
+                                    mainStore.reload()
+                                },
+                            },
+                        },
+                        {
+                            xtype: "combo",
+                            id: "searchName",
+                            iconCls: "fa fa-search",
+                            store: TypeStore,
+                            displayField: 'Name',
+                            valueField: 'Id',
+                            width: 200,
+                            labelWidth: 20,
+                            style: "margin-left: 5px; color: grey;",
+                            emptyText: "Search Name ...",
+                            listeners: {
+                                change: function () {
+                                    if (Ext.getCmp('searchType').getValue() == undefined || Ext.getCmp('searchType').getValue() == '') {
+                                        Ext.Msg.alert("Error", `Please, choose a type first`);
+                                        this.setValue('')
+                                    } else {
+                                        mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('searchName').getValue());
+                                        mainStore.reload()
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            xtype: "button",
+                            id: "resetSearch",
+                            iconCls: "fas fa-undo-alt",
+                            text: "reset",
+                            style: "padding: 7px; border: none; background-color: #000",
+                            listeners: {
+                                click: () => {
+                                    Ext.getCmp("searchName").setValue("");
+                                    Ext.getCmp("searchType").setValue("");
+                                    mainStore.reload();
+                                },
+                            },
+                        },
+                    ],
+                },
+            ];
+            const Model = Ext.define("Categories", {
+                extend: "Ext.data.Model",
+                fields: ["Description", "Sequence"],
+            });
+            const mainStore = Ext.create("Ext.data.Store", {
+                id: "mainStore",
+                autoLoad: false,
+                model: Model,
+               
+                proxy: {
+                    type: "ajax",
+                    method: "POST",
+                    url: "/api/getSequenceResults",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+
+                    },
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+                listeners: {
+                    beforeload: function (store) { },
+                },
+            });
+            const CategoriesGrid = Ext.create("Ext.grid.GridPanel", {
+                id: "CategoriesGrid",
+                flex: 1,
+                scrollable: true,
+                title: "All Products, Series and Categories",
+                trackOver: true,
+                loadMask: true,
+                store: mainStore,
+                columns: mainGridColumns,
+                enableColumnMove: false,
+                selModel: 'cellmodel',
+                plugins: {
+                    ptype: 'cellediting',
+                    clicksToEdit: 1
+                },
+                sortable: true,
+                frame: false,
+                renderTo: Ext.getBody(),
+                height: 690,
+                dockedItems: [...tbarItems],
+                // listeners: {
+                //   dblclick: {
+                //     element: "body",
+                //     fn: () => {
+                //       const selectedRecord = Ext.getCmp("CategoriesGrid")
+                //         .getSelectionModel()
+                //         .getSelection()[0];
+                //       getProductDetails(selectedRecord.data.Id);
+                //       productIDGlobal = selectedRecord.data.Id;
+                //       Ext.getCmp("productDetails").setTitle(
+                //         `PRODUCT DETAILS - ${selectedRecord.data.CODE}`
+                //       );
+                //       Ext.getCmp("viewport").setActiveItem("productDetails");
+                //     },
+                //   },
+                // },
+            });
+
+
+
+            // const CATEGORY = Ext.define("Categories", {
+            //     extend: "Ext.data.Model",
+            //     fields: ["Id", "Name"],
+            // });
+
+            // const CategoryStore = Ext.create("Ext.data.Store", {
+            //     id: "CategoryStore",
+            //     autoLoad: true,
+            //     model: CATEGORY,
+            //     proxy: {
+            //         type: "ajax",
+            //         method: "POST",
+            //         url: "/api/getCategories",
+            //         noCache: true,
+            //         reader: {
+            //             type: "json",
+            //             rootProperty: "allProducts",
+            //             totalProperty: "totalCount",
+            //         },
+            //         cors: true,
+            //         useDefaultXhrHeader: false,
+            //     },
+            // });
+
+
+
+            //=========================================================================================================
+            //		           VIEW PORT
+            // ========================================================================================================
+
+            Ext.create("Ext.container.Viewport", {
+                id: "viewport",
+                layout: "card",
+                activeItem: 0,
+                items: [CategoriesGrid],
+            });
+        });
+
+      //  commit from baptiste/lap branch
+      // checkout development
+      // merge baptiset/lap
+      // resolve conflicts
+      // push from development
+      // pull from development
+    </script>
+</head>
+
+<body></body>
+
+</html>

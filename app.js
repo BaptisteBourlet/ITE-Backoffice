@@ -25,6 +25,10 @@ app.get('/manage-sequence', function(req, res) {
     res.render('allSeries');
   });
 
+  app.get('/series-details', function(req, res) {
+   res.render('seriesDetails');
+ });
+
 app.listen(PORT, () => {
    console.log('listening on port ' + PORT);
 })
