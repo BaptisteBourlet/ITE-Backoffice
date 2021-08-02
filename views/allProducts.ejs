@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ITE BACK OFFICE MANAGEMENT</title>
+  <title>ALL PRODUCTS - ITE BACK OFFICE MANAGEMENT</title>
   <link rel="stylesheet" type="text/css"
     href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
@@ -46,9 +46,15 @@
     //		           APPLICATION START
     // ========================================================================================================
     Ext.onReady(() => {
-      let productObj = {};
+      
       let edit = false;
       let productIDGlobal = "";
+
+      Ext.define('MyApp.view.Form', {
+        extend: 'Ext.form.Panel',
+        xtype: 'my-form',
+
+      });
 
       const relatedProducts = (products) => {
         let exist = false;
@@ -206,26 +212,34 @@
         });
       };
 
-      const getAs400Description = (as400Code) => {
-        Ext.Ajax.request({
-          url: "/api/getAs400Description",
-          method: "POST",
-          cors: true,
-          useDefaultXhrHeader: false,
-          params: {
-            as400Code: as400Code
-          },
-          success: function (response) {
-            const res = JSON.parse(response.responseText);
-            console.log(res);
-            Ext.getCmp('as400Description').setValue(res[0].AOAROM || "As400 Description not available")
-            Ext.getCmp("viewport").setActiveItem("mainPanel");
-          },
-          failure: function (response) {
-            console.log("failed", response);
-          },
-        });
+      const setPanelHidden = () => {
+        Ext.getCmp("DEFIELD").setHidden(true);
+        Ext.getCmp("FRFIELD").setHidden(true);
+        Ext.getCmp("SPFIELD").setHidden(true);
+        Ext.getCmp("RUFIELD").setHidden(true);
       }
+
+
+      // const getAs400Description = (as400Code) => {
+      //   Ext.Ajax.request({
+      //     url: "/api/getAs400Description",
+      //     method: "POST",
+      //     cors: true,
+      //     useDefaultXhrHeader: false,
+      //     params: {
+      //       as400Code: as400Code
+      //     },
+      //     success: function (response) {
+      //       const res = JSON.parse(response.responseText);
+      //       console.log(res);
+      //       Ext.getCmp('as400Description').setValue(res[0].AOAROM || "As400 Description not available")
+      //       Ext.getCmp("viewport").setActiveItem("mainPanel");
+      //     },
+      //     failure: function (response) {
+      //       console.log("failed", response);
+      //     },
+      //   });
+      // }
 
       const editProduct = () => {
         Ext.Ajax.request({
@@ -313,7 +327,7 @@
         Ext.getCmp("productName").setValue(product.Catalog);
         Ext.getCmp("productCode").setValue(product.CODE);
         Ext.getCmp("as400Code").setValue(product.As400Code);
-        Ext.getCmp("description").setValue(product.Description);
+        Ext.getCmp("as400Description").setValue(product.Description);
         Ext.getCmp("fullDescription").setValue(
           product.FullDescription ?? "No Full Description"
         );
@@ -567,7 +581,7 @@
 
       const Model = Ext.define("ALLPRODUCTS", {
         extend: "Ext.data.Model",
-        fields: ["Id", "Catalog", "Description"],
+        fields: ["Id", "Catalog", "Description", "CODE"],
       });
 
 
@@ -591,7 +605,14 @@
           },
         },
         {
-          header: "As400Code",
+          header: "Tree",
+          sortable: true,
+          width: 100,
+          dataIndex: "Tree",
+          align: "center",
+        },
+        {
+          header: "P/N",
           sortable: true,
           width: 100,
           dataIndex: "As400Code",
@@ -604,7 +625,7 @@
           dataIndex: "Catalog",
         },
         {
-          header: "Description",
+          header: "AS/400 Description",
           sortable: true,
           width: 500,
           dataIndex: "Description",
@@ -721,6 +742,7 @@
               handler: function () {
                 Ext.getCmp("addSave").setHidden(false);
                 Ext.getCmp("editSave").setHidden(true);
+                setPanelHidden();
                 Ext.getCmp("panelAdd").setTitle("Add product");
                 Ext.getCmp("viewport").setActiveItem("panelAdd");
               },
@@ -743,6 +765,7 @@
                 } else {
                   Ext.getCmp("addSave").setHidden(true);
                   Ext.getCmp("editSave").setHidden(false);
+                  setPanelHidden();
                   Ext.getCmp("panelAdd").setTitle("Edit Product");
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
                   getProductDetails(selectedRecord.data.Id);
@@ -857,7 +880,7 @@
                 .getSelectionModel()
                 .getSelection()[0];
               getProductDetails(selectedRecord.data.Id);
-              getAs400Description(selectedRecord.data.As400Code);
+              // getAs400Description(selectedRecord.data.As400Code);
               productIDGlobal = selectedRecord.data.Id;
               Ext.getCmp("productDetails").setTitle(
                 `PRODUCT DETAILS - ${selectedRecord.data.CODE}`
@@ -945,14 +968,7 @@
               {
                 xtype: "displayfield",
                 id: "as400Description",
-                fieldLabel: "<b>AS400 Description</b>",
-                labelWidth: 150,
-                fieldCls: "fieldClass",
-              },
-              {
-                xtype: "displayfield",
-                id: "description",
-                fieldLabel: "<b>Description</b>",
+                fieldLabel: "<b>AS/400 Description</b>",
                 labelWidth: 150,
                 fieldCls: "fieldClass",
               },
@@ -1000,6 +1016,7 @@
                 iconCls: "fa fa-edit",
                 handler: function () {
                   edit = true;
+                  setPanelHidden();
                   Ext.getCmp("addSave").setHidden(true);
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp('panelAdd').setTitle('Edit product');
@@ -1085,7 +1102,7 @@
           xtype: "textfield",
           id: "As400",
           name: "As400",
-          fieldLabel: "As400",
+          fieldLabel: "P/N",
           maxLenght: 10,
           width: 500,
           allowBlank: true,
@@ -1501,6 +1518,7 @@
             border: false,
             items: [
               {
+                xtype: 'my-form',
                 id: "addForm",
                 columnWidth: 0.9,
                 border: false,
@@ -1526,6 +1544,7 @@
             handler: function () {
               setProductSessionStorage();
               addRecord();
+              setPanelHidden();
               Ext.getCmp("addForm").reset();
             },
           },
@@ -1536,6 +1555,7 @@
             handler: function () {
               setProductSessionStorage();
               editProduct();
+              setPanelHidden();
               Ext.getCmp("addForm").reset();
             },
           },
@@ -1546,11 +1566,12 @@
             iconCls: "fas fa-undo",
             handler: function () {
               edit = false;
+              Ext.getCmp("addForm").reset();
+              setPanelHidden();
               clearEditInfo();
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
               Ext.getCmp("relatedParts").removeAll();
-
               Ext.getCmp("viewport").setActiveItem("mainPanel");
             },
           },
@@ -1627,6 +1648,7 @@
             border: false,
             items: [
               {
+                xtype: 'my-form',
                 id: "addForm2",
                 columnWidth: 0.9,
                 border: false,
@@ -1675,6 +1697,7 @@
             iconCls: "fas fa-undo",
             handler: function () {
               resetForm2();
+              Ext.getCmp("addForm").reset();
               Ext.getCmp("viewport").setActiveItem("mainPanel");
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();

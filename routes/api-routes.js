@@ -54,10 +54,20 @@ router.get('/getSerieDetails', apiCtrl.getSerieDetails);
 
 router.post('/searchSerie', apiCtrl.searchSerie);
 
+router.post('/addSeries', apiCtrl.addSeries);
 
+router.post('/deleteSeries', apiCtrl.deleteSeries);
 
+router.post('/editSeries', apiCtrl.editSeries);
 
+router.post('/getOtherLanguageDetailSerie', apiCtrl.getOtherLanguageDetailSerie);
 
+router.get('/getRelatedProductSerie', apiCtrl.getRelatedProductSerie);
 
+router.post('/addSeriesRelatedProduct', apiCtrl.addSeriesRelatedProduct);
+
+router.get('/getSerieSpecs', apiCtrl.getSerieSpecs);
+
+router.post('/updateSerieSpecs', apiCtrl.updateSerieSpecs);
 
 module.exports = router;

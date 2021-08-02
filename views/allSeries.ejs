@@ -5,7 +5,7 @@
    <meta charset="UTF-8" />
    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-   <title>ITE BACK OFFICE MANAGEMENT</title>
+   <title>ALL SERIES - ITE BACK OFFICE MANAGEMENT</title>
    <link rel="stylesheet" type="text/css"
       href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
@@ -16,12 +16,164 @@
          padding: 10px 6px;
          white-space: nowrap;
       }
+
+      .fieldClass {
+         border-bottom: 1px dashed rgb(173, 173, 173);
+         padding: 7px 0px;
+      }
+
+      .a {
+         display: block;
+      }
+
+      .a span {
+         background-color: rgb(253, 253, 253);
+         padding: 2px;
+         color: black;
+      }
    </style>
    <script type="text/javascript">
       //=========================================================================================================
       //		           APPLICATION START
       // ========================================================================================================
       Ext.onReady(() => {
+         let edit = false;
+         let serieIDGlobal = '';
+         Ext.define('MyApp.view.Form', {
+            extend: 'Ext.form.Panel',
+            xtype: 'my-form',
+
+         });
+         const relatedProducts = (products) => {
+            let exist = false;
+
+            for (const prod of products) {
+               if (prod.Type === "R") {
+                  exist = true;
+               }
+            }
+
+            if (exist) {
+               return products.map((product) => {
+                  if (product.Type === "R") {
+                     let description = product.Description ? product.Description : "N/A";
+                     return {
+                        xtype: "button",
+                        text: `${description} [${product.Code}]`,
+                        cls: "a",
+                        style: "border: none; margin: 2px 0px;",
+                        handler: () => {
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
+                           getProductDetails(product.LinkedProductID);
+                           productIDGlobal = product.LinkedProductID;
+                           Ext.getCmp("productDetails").setTitle(
+                              `PRODUCT DETAILS - ${product.Code}`
+                           );
+                           Ext.getCmp("viewport").setActiveItem("productDetails");
+                        },
+                     };
+                  }
+               });
+            } else {
+               return [
+                  {
+                     xtype: "displayfield",
+                     fieldLabel: "<b>Result</b>",
+                     value: "No Related Products",
+                     labelWidth: 44,
+                  },
+               ];
+            }
+         };
+
+         const relatedAccessories = (products) => {
+            let exist = false;
+
+            for (const prod of products) {
+               if (prod.Type === "A") {
+                  exist = true;
+               }
+            }
+            if (exist) {
+               return products.map((product) => {
+                  if (product.Type === "A") {
+                     let description = product.Description ? product.Description : "N/A";
+                     return {
+                        xtype: "button",
+                        text: `${description} [${product.Code}]`,
+                        cls: "a",
+                        style: "border: none; margin: 2px 0px;",
+                        handler: () => {
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
+                           getProductDetails(product.LinkedProductID);
+                           productIDGlobal = product.LinkedProductID;
+                           Ext.getCmp("productDetails").setTitle(
+                              `PRODUCT DETAILS - ${product.Code}`
+                           );
+                           Ext.getCmp("viewport").setActiveItem("productDetails");
+                        },
+                     };
+                  }
+               });
+            } else {
+               return [
+                  {
+                     xtype: "displayfield",
+                     fieldLabel: "<b>Result</b>",
+                     value: "No Related Accessories",
+                     labelWidth: 44,
+                  },
+               ];
+            }
+         };
+
+         const relatedParts = (products) => {
+            let exist = false;
+
+            for (const prod of products) {
+               if (prod.Type === "P") {
+                  exist = true;
+               }
+            }
+            if (exist) {
+               return products.map((product) => {
+                  if (product.Type === "P") {
+                     let description = product.Description ? product.Description : "N/A";
+                     return {
+                        xtype: "button",
+                        text: `${description} [${product.Code}]`,
+                        cls: "a",
+                        style: "border: none; margin: 2px 0px;",
+                        handler: () => {
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
+                           getProductDetails(product.LinkedProductID);
+                           productIDGlobal = product.LinkedProductID;
+                           Ext.getCmp("productDetails").setTitle(
+                              `PRODUCT DETAILS - ${product.Code}`
+                           );
+                           Ext.getCmp("viewport").setActiveItem("productDetails");
+                        },
+                     };
+                  }
+               });
+            } else {
+               return [
+                  {
+                     xtype: "displayfield",
+                     fieldLabel: "<b>Result</b>",
+                     value: "No Related Parts",
+                     labelWidth: 44,
+                  },
+               ];
+            }
+         };
+
          const getSerieDetails = (serieId) => {
             Ext.Ajax.request({
                url: "/api/getSerieDetails",
@@ -36,16 +188,15 @@
                   const res = JSON.parse(response.responseText);
                   console.log(res);
 
+                  if (edit === false) {
+                     displaySerieInfo(res[0][0]);
+                  } else {
+                     getEditInfo(res[0][0]);
+                  }
 
-                  // if (edit === false) {
-                  //    displayProductInfo(res[0][0]);
-                  // } else {
-                  //    getEditInfo(res[0][0]);
-                  // }
-
-                  // Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
-                  // Ext.getCmp("relatedAccessories").add(relatedAccessories(res[1]));
-                  // Ext.getCmp("relatedParts").add(relatedParts(res[1]));
+                  Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
+                  Ext.getCmp("relatedAccessories").add(relatedAccessories(res[1]));
+                  Ext.getCmp("relatedParts").add(relatedParts(res[1]));
                },
                failure: function (response) {
                   console.log("failed", response);
@@ -54,19 +205,93 @@
          };
 
 
-         // const displaySerieInfo = (product) => {
-         //   Ext.getCmp('Pub').setValue(product.Publish === 1 ? 'on' : '')
-         //   Ext.getCmp("productName").setValue(product.Catalog);
-         //   Ext.getCmp("productCode").setValue(product.CODE);
-         //   Ext.getCmp("as400Code").setValue(product.As400Code);
-         //   Ext.getCmp("description").setValue(product.Description);
-         //   Ext.getCmp("fullDescription").setValue(
-         //     product.FullDescription ?? "No Full Description"
-         //   );
-         //   Ext.getCmp("specification").setValue(
-         //     product.Specification ?? "No Specification"
-         //   );
-         // };
+         const getEditInfo = (serie) => {
+            Ext.getCmp("Title").setValue(serie.Title);
+            Ext.getCmp("Key").setValue(serie.Key);
+            Ext.getCmp("FDesc").setValue(serie.FullDescription);
+            Ext.getCmp("spec").setValue(serie.Specification);
+         };
+
+
+         const displaySerieInfo = (serie) => {
+            Ext.getCmp("key").setValue(serie.Key);
+            Ext.getCmp("title").setValue(serie.Title);
+            Ext.getCmp("fullDescription").setValue(
+               serie.FullDescription ?? "No Full Description"
+            );
+            Ext.getCmp("specification").setValue(
+               serie.Specification ?? "No Specification"
+            );
+         };
+
+         const setPanelHidden = () => {
+            Ext.getCmp("DEFIELD").setHidden(true);
+            Ext.getCmp("FRFIELD").setHidden(true);
+            Ext.getCmp("SPFIELD").setHidden(true);
+            Ext.getCmp("RUFIELD").setHidden(true);
+         }
+
+         const getOtherLanguageDetail = (language, serieId) => {
+            console.log(language)
+            console.log(serieId)
+            Ext.Ajax.request({
+               url: "/api/getOtherLanguageDetailSerie",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  language: language,
+                  serieId: serieId,
+               },
+               success: function (response) {
+                  const res = JSON.parse(response.responseText);
+                  Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
+                  Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
+                  Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+               },
+               failure: function (response) {
+                  console.log("failed", response);
+               },
+            });
+         }
+
+
+         const saveSpecEdit = (records) => {
+            let check = {};
+            records.forEach(rec => {
+               check[rec.data.SerieMasterId] = true;
+            })
+
+            records.forEach(record => {
+               Ext.Ajax.request({
+                  url: "/api/updateSerieSpecs",
+                  method: "POST",
+                  cors: true,
+                  useDefaultXhrHeader: false,
+                  params: {
+                     SerieMasterId: record.data.SerieMasterId,
+                     SeriesProductLinkId: record.data.SeriesProductLinkId,
+                     Value: record.data.Value,
+                  },
+                  success: function (response) {
+                     delete check[record.data.SerieMasterId];
+
+                     if (Object.keys(check).length === 0) {
+                        Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
+                        serieSpecStore.reload();
+                     }
+                  },
+                  failure: function (response) {
+                     Ext.getBody().unmask();
+                     Ext.Msg.alert(
+                        "ERROR",
+                        "Failed to update Specification. Contact your IT team."
+                     );
+                  },
+               });
+            })
+         }
+
 
          const Model = Ext.define("Categories", {
             extend: "Ext.data.Model",
@@ -94,30 +319,6 @@
             },
          });
 
-         const mainGridColumns = [
-
-            {
-               header: "ID",
-               sortable: true,
-               width: 100,
-               dataIndex: "Sid",
-            },
-
-            {
-               header: "Key",
-               sortable: false,
-               width: 200,
-               dataIndex: "Key",
-            },
-            {
-               header: "Title",
-               sortable: false,
-               width: 300,
-               dataIndex: "Title",
-            },
-
-         ];
-
          const searchSerie = (searchField) => {
             let searchQuery = Ext.getCmp(searchField).getValue();
             Ext.Ajax.request({
@@ -140,6 +341,379 @@
                },
             });
          };
+         //add Series
+         let current_datetime = new Date();
+         var time = function () {
+            if (current_datetime.getMonth() + 1 < 10) {
+               return "0" + Number(current_datetime.getMonth() + 1);
+            } else {
+               current_datetime.getMonth() + 1;
+            }
+         };
+
+         let formatDate =
+            current_datetime.getDate() +
+            "/" +
+            time() +
+            "/" +
+            current_datetime.getFullYear();
+
+
+         var addSerie = function () {
+            Ext.getBody().mask("Saving", "x-msg-loading");
+            Ext.Ajax.request({
+               url: "/api/addSeries",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  Key: Ext.getCmp("Key").getValue().trim(),
+                  Language: "en",
+                  CreatedOn: formatDate,
+                  Title: Ext.getCmp("Title").getValue().trim(),
+                  Specification: Ext.getCmp("spec").getValue(),
+                  FullDescription: Ext.getCmp("FDesc").getValue(),
+                  //FR
+                  FRLanguage: "fr",
+                  FRTitle: Ext.getCmp("FRTitle").getValue().trim(),
+                  FRSpecification: Ext.getCmp("FRspec").getValue(),
+                  FRFullDescription: Ext.getCmp("FRFDesc").getValue(),
+                  //DE
+                  DELanguage: "de",
+                  DETitle: Ext.getCmp("DETitle").getValue().trim(),
+                  DESpecification: Ext.getCmp("DEspec").getValue(),
+                  DEFullDescription: Ext.getCmp("DEFDesc").getValue(),
+                  //SP
+                  SPLanguage: "sp",
+                  SPTitle: Ext.getCmp("SPTitle").getValue().trim(),
+                  SPSpecification: Ext.getCmp("SPspec").getValue(),
+                  SPFullDescription: Ext.getCmp("SPFDesc").getValue(),
+                  //RU
+                  RULanguage: "ru",
+                  RUTitle: Ext.getCmp("RUTitle").getValue().trim(),
+                  RUSpecification: Ext.getCmp("RUspec").getValue(),
+                  RUFullDescription: Ext.getCmp("RUFDesc").getValue(),
+               },
+               success: function (response) {
+                  // check for errors and display error message
+                  var check = response.responseText;
+                  if (check) {
+                     var data = JSON.parse(check);
+                     if (data) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "Series",
+                           "You have successfully add series",
+                           function (btn, text) {
+                              Ext.getCmp("viewport").setActiveItem('SeriesGrid');
+                           }
+                        );
+                     } else {
+                        // display error message
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add the series. Contact your IT team."
+                        );
+                     }
+                  }
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to add the series. Contact your IT team."
+                  );
+               },
+            });
+         };
+
+         var editSerie = function () {
+            Ext.getBody().mask("Saving", "x-msg-loading");
+            Ext.Ajax.request({
+               url: "/api/editSeries",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  Key: Ext.getCmp("Key").getValue().trim(),
+                  SeriesId: serieIDGlobal,
+                  Language: "en",
+                  ModifiedOn: formatDate,
+                  Title: Ext.getCmp("Title").getValue().trim(),
+                  Specification: Ext.getCmp("spec").getValue(),
+                  FullDescription: Ext.getCmp("FDesc").getValue(),
+                  //FR
+                  FRLanguage: "fr",
+                  FRTitle: Ext.getCmp("FRTitle").getValue().trim(),
+                  FRSpecification: Ext.getCmp("FRspec").getValue(),
+                  FRFullDescription: Ext.getCmp("FRFDesc").getValue(),
+                  //DE
+                  DELanguage: "de",
+                  DETitle: Ext.getCmp("DETitle").getValue().trim(),
+                  DESpecification: Ext.getCmp("DEspec").getValue(),
+                  DEFullDescription: Ext.getCmp("DEFDesc").getValue(),
+                  //SP
+                  SPLanguage: "sp",
+                  SPTitle: Ext.getCmp("SPTitle").getValue().trim(),
+                  SPSpecification: Ext.getCmp("SPspec").getValue(),
+                  SPFullDescription: Ext.getCmp("SPFDesc").getValue(),
+                  //RU
+                  RULanguage: "ru",
+                  RUTitle: Ext.getCmp("RUTitle").getValue().trim(),
+                  RUSpecification: Ext.getCmp("RUspec").getValue(),
+                  RUFullDescription: Ext.getCmp("RUFDesc").getValue(),
+               },
+               success: function (response) {
+                  // check for errors and display error message
+                  var check = response.responseText;
+                  if (check) {
+                     var data = JSON.parse(check);
+                     if (data) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "Series",
+                           `You have successfully edited serie`,
+                        );
+                        Ext.getCmp("viewport").setActiveItem('SeriesGrid');
+                        mainStore.reload();
+                     } else {
+                        // display error message
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add the series. Contact your IT team."
+                        );
+                     }
+                  }
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to add the series. Contact your IT team."
+                  );
+               },
+            });
+         };
+
+
+         const linkedProductModel = Ext.define("Categories", {
+            extend: "Ext.data.Model",
+            fields: ["Id", "CODE", "Catalog"],
+         });
+
+         const linkedProductStore = Ext.create("Ext.data.Store", {
+            id: "mainStore",
+            autoLoad: true,
+            model: linkedProductModel,
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/api/getRelatedProductSerie",
+               noCache: true,
+               reader: {
+                  type: "json",
+
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+            listeners: {
+               beforeload: function (store) {
+               },
+            },
+         });
+
+         const serieSpecModel = Ext.define("Categories", {
+            extend: "Ext.data.Model",
+            fields: ["SerieMasterId", "Key", "Value"],
+         });
+
+         const serieSpecStore = Ext.create("Ext.data.Store", {
+            id: "mainStore",
+            autoLoad: true,
+            model: serieSpecModel,
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/api/getSerieSpecs",
+               noCache: true,
+               reader: {
+                  type: "json",
+
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+            listeners: {
+               beforeload: function (store) {
+               },
+            },
+         });
+
+
+
+         const linkedProductColumns = [
+            {
+               header: "Code",
+               sortable: true,
+               width: 150,
+               dataIndex: "CODE",
+               align: 'center'
+            },
+            {
+               header: "Product Name",
+               sortable: true,
+               width: 400,
+               dataIndex: "Catalog",
+            },
+            {
+               header: "Id",
+               sortable: true,
+               width: 100,
+               dataIndex: "Id",
+               hidden: true
+            },
+         ]
+
+         const serieSpecColumn = [
+            {
+               header: "SerieMasterId",
+               sortable: true,
+               width: 100,
+               dataIndex: "SerieMasterId",
+            },
+            {
+               header: "Name",
+               sortable: true,
+               width: 150,
+               dataIndex: "Name",
+            },
+            {
+               header: "Current Value",
+               sortable: true,
+               width: 100,
+               dataIndex: "CurrentValue",
+            },
+            {
+               header: "New Value",
+               sortable: true,
+               width: 100,
+               dataIndex: "Value",
+               editor: {
+                  completeOnEnter: true,
+                  field: {
+                     xtype: "textfield",
+                     allowBlank: false,
+                  },
+               },
+            },
+         ]
+
+         var deleteSeries = function () {
+            const selectedRecord = Ext.getCmp("SeriesGrid")
+               .getSelectionModel()
+               .getSelection()[0];
+            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this series ?", function (btn, text) {
+               if (btn == 'yes') {
+                  Ext.getBody().mask('Deleting', 'x-msg-loading');
+                  Ext.Ajax.request({
+                     url: "/api/deleteSeries",
+                     method: "POST",
+                     cors: true,
+                     useDefaultXhrHeader: false,
+                     params: {
+                        SeriesId: selectedRecord.data.Sid
+                     },
+                     success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                           var data = eval("(" + response.responseText + ")");
+
+                           if (data.serverStatus == 2) {
+                              console.log(data)
+                              mainStore.reload();
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                 "Success",
+                                 "You have successfully deleted the series"
+                              );
+                           } else {
+                              // display error message
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                 "ERROR",
+                                 "Failed to delete the series. Contact your IT team."
+                              );
+                           }
+                        }
+                     },
+                     failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to delete series. Contact your IT team."
+                        );
+                     },
+
+                  });
+
+               }
+            })
+         }
+
+         const linkedProductTbar = [
+            {
+               xtype: "toolbar",
+               dock: "top",
+               id: "linkedProductTbar",
+               items: [
+                  {
+                     xtype: "button",
+                     id: "serieLinkBack",
+                     text: "Back",
+                     iconCls: "fa fa-undo-alt",
+                     scale: "small",
+                     handler: function () {
+                          Ext.getCmp('viewport').setActiveItem('SerieDetails')
+                     },
+                  },
+               ],
+            },
+         ];
+
+         const mainGridColumns = [
+            {
+               header: "ID",
+               sortable: true,
+               width: 80,
+               dataIndex: "Sid",
+               align: 'center'
+            },
+            {
+               header: "Tree",
+               sortable: true,
+               width: 100,
+               dataIndex: "Tree",
+               align: 'center'
+            },
+            {
+               header: "Key",
+               sortable: false,
+               width: 150,
+               dataIndex: "Key",
+               align: 'center'
+            },
+            {
+               header: "Title",
+               sortable: false,
+               width: 300,
+               dataIndex: "Title",
+            },
+
+         ];
 
          const tbarItems = [
             {
@@ -163,7 +737,7 @@
                   "-",
                   {
                      xtype: "button",
-                     id: "edit",
+                     id: "overviewEdit",
                      text: "Edit",
                      iconCls: "fa fa-edit",
                      scale: "small",
@@ -178,10 +752,10 @@
                         } else {
                            Ext.getCmp("addSave").setHidden(true);
                            Ext.getCmp("editSave").setHidden(false);
-                           Ext.getCmp("panelAdd").setTitle("Edit Product");
+                           Ext.getCmp("panelAdd").setTitle("Edit Serie");
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
-                           getProductDetails(selectedRecord.data.Id);
-                           productIDGlobal = selectedRecord.data.Id;
+                           getSerieDetails(selectedRecord.data.Sid);
+                           serieIDGlobal = selectedRecord.data.Sid;
                         }
                      },
                   },
@@ -192,7 +766,7 @@
                      text: "Delete",
                      iconCls: "fa fa-trash-alt",
                      scale: "small",
-                     handler: function () { },
+                     handler: function () { deleteSeries() },
                   },
                   "-",
                   {
@@ -254,43 +828,6 @@
                ],
             },
          ];
-         const SeriesGrid = Ext.create("Ext.grid.GridPanel", {
-            id: "SeriesGrid",
-            flex: 1,
-            scrollable: true,
-            title: "All Series",
-            trackOver: true,
-            loadMask: true,
-            store: mainStore,
-            columns: mainGridColumns,
-            enableColumnMove: false,
-            sortable: true,
-            frame: false,
-            renderTo: Ext.getBody(),
-            height: 690,
-            dockedItems: [...tbarItems],
-            listeners: {
-               dblclick: {
-                  element: "body",
-                  fn: () => {
-                     const selectedRecord = Ext.getCmp("SeriesGrid")
-                        .getSelectionModel()
-                        .getSelection()[0];
-                     console.log(selectedRecord);
-
-                     getSerieDetails(selectedRecord.data.Sid);
-                     Ext.getCmp("SerieDetails").setTitle(
-                        `SERIE DETAILS - ${selectedRecord.data.Key}`
-                     );
-                     Ext.getCmp("viewport").setActiveItem("SerieDetails");
-                  },
-               },
-            },
-         });
-
-
-         //add Series
-
          var itemsAdd = [
 
             {
@@ -365,9 +902,8 @@
                   } else {
                      Ext.getCmp("FRFIELD").setHidden(true);
                   }
-
                   if (edit === true) {
-                     getOtherLanguageDetail('fr', productIDGlobal)
+                     getOtherLanguageDetail('fr', serieIDGlobal)
                   }
                },
             },
@@ -430,7 +966,7 @@
                   }
 
                   if (edit === true) {
-                     getOtherLanguageDetail('de', productIDGlobal)
+                     getOtherLanguageDetail('de', serieIDGlobal)
                   }
                },
             },
@@ -493,7 +1029,7 @@
                   }
 
                   if (edit === true) {
-                     getOtherLanguageDetail('sp', productIDGlobal)
+                     getOtherLanguageDetail('sp', serieIDGlobal)
                   }
                },
             },
@@ -557,7 +1093,7 @@
                   }
 
                   if (edit === true) {
-                     getOtherLanguageDetail('ru', productIDGlobal)
+                     getOtherLanguageDetail('ru', serieIDGlobal)
                   }
                },
             },
@@ -609,9 +1145,7 @@
                ],
             },
          ];
-         // spareparts, accessory, related product, categry, id+display( search), english field needed, html edit box
-         // Hide cancel button
-         // remove slug, offline : checkbox, remove cancel (add back button) + first form data-> sessionstorage
+
          var screenAdd = new Ext.FormPanel({
             frame: false,
             header: false,
@@ -643,6 +1177,7 @@
                   border: false,
                   items: [
                      {
+                        xtype: 'my-form',
                         id: "addForm",
                         columnWidth: 0.9,
                         border: false,
@@ -666,9 +1201,8 @@
                   id: "addSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-                     setProductSessionStorage();
-                     addRecord();
-                     Ext.getCmp("addForm").reset();
+                     addSerie();
+                     Ext.getCmp('addForm').reset()
                   },
                },
                {
@@ -676,8 +1210,10 @@
                   id: "editSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-
+                     edit = false;
+                     editSerie();
                      Ext.getCmp("addForm").reset();
+                     setPanelHidden();
                   },
                },
                "-",
@@ -687,12 +1223,51 @@
                   id: 'cancel',
                   iconCls: "fas fa-undo",
                   handler: function () {
+                     edit = false;
+                     Ext.getCmp('addForm').reset();
+                     setPanelHidden();
                      Ext.getCmp("viewport").setActiveItem("SeriesGrid");
                   },
                },
             ],
          });
 
+         const SeriesGrid = Ext.create("Ext.grid.GridPanel", {
+            id: "SeriesGrid",
+            flex: 1,
+            scrollable: true,
+            title: "All Series",
+            trackOver: true,
+            loadMask: true,
+            store: mainStore,
+            columns: mainGridColumns,
+            enableColumnMove: false,
+            sortable: true,
+            frame: false,
+            renderTo: Ext.getBody(),
+            height: 690,
+            dockedItems: [...tbarItems],
+            listeners: {
+               dblclick: {
+                  element: "body",
+                  fn: () => {
+                     const selectedRecord = Ext.getCmp("SeriesGrid")
+                        .getSelectionModel()
+                        .getSelection()[0];
+                     console.log(selectedRecord);
+                     serieIDGlobal = selectedRecord.data.Sid;
+                     getSerieDetails(selectedRecord.data.Sid);
+                     Ext.getCmp("SerieDetails").setTitle(
+                        `SERIE DETAILS - ${selectedRecord.data.Key}`
+                     );
+                     linkedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
+                     linkedProductStore.load();
+
+                     Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                  },
+               },
+            },
+         });
 
          const SerieDetails = Ext.create("Ext.panel.Panel", {
             id: "SerieDetails",
@@ -706,7 +1281,7 @@
             items: [
                {
                   xtype: "container",
-                  width: 300,
+                  width: 420,
                   scrollable: true,
                   style: "background-color: white;",
                   region: "east",
@@ -749,14 +1324,14 @@
                   items: [
                      {
                         xtype: "displayfield",
-                        id: "serieKey",
+                        id: "key",
                         fieldLabel: "<b>Serie</b>",
                         labelWidth: 150,
                         fieldCls: "fieldClass",
                      },
                      {
                         xtype: "displayfield",
-                        id: "serieTitle",
+                        id: "title",
                         labelWidth: 150,
                         fieldLabel: "<b>Serie Title</b>",
                         fieldCls: "fieldClass",
@@ -786,7 +1361,7 @@
                   items: [
                      {
                         xtype: "button",
-                        id: "cancel",
+                        id: "cancel2",
                         text: "Back",
                         iconCls: "fa fa-undo-alt",
                         handler: function () {
@@ -794,12 +1369,12 @@
                            Ext.getCmp("relatedProducts").removeAll();
                            Ext.getCmp("relatedAccessories").removeAll();
                            Ext.getCmp("relatedParts").removeAll();
-                           Ext.getCmp("viewport").setActiveItem("mainPanel");
+                           Ext.getCmp("viewport").setActiveItem("SeriesGrid");
                         },
                      },
                      "-",
                      {
-                        xtype: "button", //ongoing
+                        xtype: "button",
                         id: "editDetail",
                         text: "Edit",
                         iconCls: "fa fa-edit",
@@ -807,21 +1382,280 @@
                            edit = true;
                            Ext.getCmp("addSave").setHidden(true);
                            Ext.getCmp("editSave").setHidden(false);
-                           Ext.getCmp('panelAdd').setTitle('Edit product');
+                           Ext.getCmp('panelAdd').setTitle('Edit Serie');
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
-                           getProductDetails(productIDGlobal);
+                           getSerieDetails(serieIDGlobal);
+                           Ext.getCmp("relatedProducts").removeAll();
+                           Ext.getCmp("relatedAccessories").removeAll();
+                           Ext.getCmp("relatedParts").removeAll();
                         },
                      },
                      "-",
                      {
-                        xtype: "button", //ongoing
-                        id: "addRelatedProducts",
-                        text: "Add Related Product",
+                        xtype: "button",
+                        id: "linkedProductsBtn",
+                        text: "View Linked Products",
                         iconCls: "fa fa-plus",
                         handler: function () {
-                           Ext.getCmp('fromViewSave').setHidden(false);
-                           Ext.getCmp('fromAddSave').setHidden(true);
-                           Ext.getCmp("viewport").setActiveItem("panelAdd2");
+                           Ext.getCmp("viewport").setActiveItem("linkedProducts");
+                        },
+                     },
+                     "-",
+                     {
+                        xtype: "button",
+                        id: "addRelatedProducts",
+                        text: "Add Linked Product",
+                        iconCls: "fa fa-plus",
+                        handler: function () {
+                           //Ext.getCmp('fromViewSave').setHidden(false);
+                           //Ext.getCmp('fromAddSave').setHidden(true);
+                           Ext.getCmp("viewport").setActiveItem("panelAddRelated");
+                        },
+                     },
+
+                  ],
+               },
+            ],
+         });
+
+         //<!-- ----------------------------------------------------------------------- -->
+         //<!--                           Add related product                           -->
+         //<!-- ----------------------------------------------------------------------- -->
+         var addSeriesRelatedProd = function () {
+            Ext.getBody().mask("Saving", "x-msg-loading");
+            Ext.Ajax.request({
+               url: "/api/addSeriesRelatedProduct",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  SeriesId: serieIDGlobal,
+                  ProductId: Ext.getCmp("ProductDesc").getValue(),
+
+               },
+               success: function (response) {
+                  // check for errors and display error message
+                  var check = response.responseText;
+                  if (check) {
+                     var data = eval("(" + response.responseText + ")");
+                     if (data.serverStatus == 2) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "Success",
+                           "You have successfully add the related product"
+                        );
+                     } else {
+                        // display error message
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add the related product. Contact your IT team."
+                        );
+                     }
+                  }
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to add the related product. Contact your IT team."
+                  );
+               },
+            });
+         };
+
+
+         const ProductDet = Ext.define("ProductDet", {
+            extend: "Ext.data.Model",
+            fields: ["CODE", "Id"],
+         });
+
+         const ProductDetStore = Ext.create("Ext.data.Store", {
+            id: "ProductDetStore",
+            autoLoad: true,
+            model: ProductDet,
+            proxy: {
+               type: "ajax",
+               method: "POST",
+               url: "/api/getProductDet",
+               noCache: true,
+               reader: {
+                  type: "json",
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+         });
+
+         var itemsAddRelated = [
+            {
+               xtype: "combo",
+               id: "ProductDesc",
+               name: "ProductDesc",
+               store: ProductDetStore,
+               width: 300,
+               fieldLabel: "Product",
+               displayField: "CODE",
+               valueField: "Id",
+               anchor: "50%",
+               allowBlank: false,
+               selectOnFocus: false,
+               anyMatch: true,
+               queryMode: "local",
+
+            }
+         ]
+
+         var screenAddRelated = new Ext.FormPanel({
+            frame: false,
+            header: false,
+            border: false,
+            defaults: {
+               labelAlign: "right",
+               labelWidth: 105,
+               listeners: {
+                  specialkey: function (field, e) {
+                     if (e.getKey() == e.ENTER) {
+                        updateRec();
+                     }
+                     if (e.getKey() == e.ESC) {
+                        Ext.getCmp("viewport").setActiveItem("SeriesGrid");
+                     }
+                  },
+               },
+            },
+            width: 500,
+            waitMsgTarget: true,
+            autoScroll: true,
+            style: "padding: 3px 3px 3px 3px;",
+            items: [
+               {
+                  layout: "column",
+                  layoutConfig: {
+                     columns: 2,
+                  },
+                  border: false,
+                  items: [
+                     {
+                        xtype: 'my-form',
+                        id: "addForm2",
+                        columnWidth: 0.9,
+                        border: false,
+                        items: itemsAddRelated,
+                     },
+                  ],
+               },
+            ],
+         });
+
+         var panelAddRelated = new Ext.Panel({
+            layout: "fit",
+            id: "panelAddRelated",
+            title: "Add related product",
+            header: true,
+            items: [screenAddRelated],
+            tbar: [
+               {
+                  text: "Save",
+                  id: "addRelatedSave",
+                  iconCls: "fas fa-save",
+                  handler: function () {
+                     addSeriesRelatedProd()
+                     Ext.getCmp('addForm2').reset();
+                     Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                  },
+               },
+               "-",
+               {
+                  text: "Cancel",
+                  tooltip: "Cancel",
+                  id: 'cancel3',
+                  iconCls: "fas fa-undo",
+                  handler: function () {
+                     edit = false;
+                     Ext.getCmp('addForm2').reset();
+                     setPanelHidden();
+                     Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                  },
+               },
+            ],
+         });
+
+         const linkedProducts = Ext.create("Ext.grid.GridPanel", {
+            id: "linkedProducts",
+            flex: 1,
+            scrollable: true,
+            title: "Linked Products",
+            trackOver: true,
+            loadMask: true,
+            store: linkedProductStore,
+            columns: linkedProductColumns,
+            enableColumnMove: false,
+            sortable: true,
+            frame: false,
+            renderTo: Ext.getBody(),
+            height: 690,
+            dockedItems: [...linkedProductTbar],
+            listeners: {
+               dblclick: {
+                  element: "body",
+                  fn: () => {
+                     const selectedRecord = Ext.getCmp("linkedProducts")
+                        .getSelectionModel()
+                        .getSelection()[0];
+                     console.log(selectedRecord);
+                     serieSpecStore.getProxy().setExtraParam('serieLink', selectedRecord.data.SPLid)
+                     serieSpecStore.reload();
+                     Ext.getCmp("viewport").setActiveItem("SerieSpecs");
+                  },
+               },
+            },
+         });
+
+         const SerieSpecs = Ext.create("Ext.grid.GridPanel", {
+            id: "SerieSpecs",
+            flex: 1,
+            scrollable: true,
+            title: "Managing Serie Specs",
+            trackOver: true,
+            loadMask: true,
+            store: serieSpecStore,
+            columns: serieSpecColumn,
+            enableColumnMove: false,
+            selModel: 'cellmodel',
+            plugins: {
+               ptype: 'cellediting',
+               clicksToEdit: 1
+            },
+            sortable: true,
+            frame: false,
+            renderTo: Ext.getBody(),
+            height: 690,
+            dockedItems: [
+               {
+                  xtype: "toolbar",
+                  dock: "top",
+                  id: "toolBar",
+                  items: [
+                     {
+                        xtype: "button",
+                        id: "Back",
+                        text: "Back",
+                        iconCls: "fa fa-undo-alt",
+                        scale: "small",
+                        handler: function () {
+                           Ext.getCmp('viewport').setActiveItem('linkedProducts')
+                        },
+                     },
+                     {
+                        xtype: "button",
+                        id: "serieSpecSave",
+                        text: "Save",
+                        iconCls: "fas fa-save",
+                        scale: "small",
+                        handler: function () {
+                           let updatedRecords = serieSpecStore.getModifiedRecords();
+                           saveSpecEdit(updatedRecords);
                         },
                      },
                   ],
@@ -836,8 +1670,8 @@
          Ext.create("Ext.container.Viewport", {
             id: "viewport",
             layout: "card",
-            activeItem: 0,
-            items: [SeriesGrid, SerieDetails, panelAdd],
+            activeItem: 'SeriesGrid',
+            items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, SerieSpecs, linkedProducts],
          });
       });
    </script>

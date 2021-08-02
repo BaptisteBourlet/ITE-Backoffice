@@ -17,13 +17,17 @@ app.get('/', (req, res) => {
    res.render('allProducts')
 })
 
-app.get('/manage-sequence', function(req, res) {
+app.get('/manage-sequence', function (req, res) {
    res.render('manageSequence');
- });
+});
 
- app.get('/series-overview', function(req, res) {
-    res.render('allSeries');
-  });
+app.get('/series-overview', function (req, res) {
+   res.render('allSeries');
+});
+
+app.get('/related-series', (req, res) => {
+   res.render('SeriesLink');
+})
 
 app.listen(PORT, () => {
    console.log('listening on port ' + PORT);
