@@ -592,13 +592,13 @@
             {
                header: "Current Value",
                sortable: true,
-               width: 100,
+               width: 150,
                dataIndex: "CurrentValue",
             },
             {
                header: "New Value",
                sortable: true,
-               width: 100,
+               width: 150,
                dataIndex: "Value",
                editor: {
                   completeOnEnter: true,
@@ -676,7 +676,19 @@
                      iconCls: "fa fa-undo-alt",
                      scale: "small",
                      handler: function () {
-                          Ext.getCmp('viewport').setActiveItem('SerieDetails')
+                        Ext.getCmp('viewport').setActiveItem('SerieDetails')
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: "addRelatedProducts",
+                     text: "Add Linked Product",
+                     iconCls: "fa fa-plus",
+                     handler: function () {
+                        //Ext.getCmp('fromViewSave').setHidden(false);
+                        //Ext.getCmp('fromAddSave').setHidden(true);
+                        Ext.getCmp("viewport").setActiveItem("panelAddRelated");
                      },
                   },
                ],
@@ -1400,24 +1412,33 @@
                         xtype: "button",
                         id: "linkedProductsBtn",
                         text: "View Linked Products",
-                        iconCls: "fa fa-plus",
+                        iconCls: "fa fa-tasks",
                         handler: function () {
                            Ext.getCmp("viewport").setActiveItem("linkedProducts");
                         },
                      },
+                     // "-",
+                     // {
+                     //    xtype: "button",
+                     //    id: "addRelatedProducts",
+                     //    text: "Add Linked Product",
+                     //    iconCls: "fa fa-plus",
+                     //    handler: function () {
+                     //       //Ext.getCmp('fromViewSave').setHidden(false);
+                     //       //Ext.getCmp('fromAddSave').setHidden(true);
+                     //       Ext.getCmp("viewport").setActiveItem("panelAddRelated");
+                     //    },
+                     // },
                      "-",
                      {
                         xtype: "button",
-                        id: "addRelatedProducts",
-                        text: "Add Linked Product",
-                        iconCls: "fa fa-plus",
+                        id: "viewSerieSpecs",
+                        text: "View Serie Specs",
+                        iconCls: "fa fa-tasks",
                         handler: function () {
-                           //Ext.getCmp('fromViewSave').setHidden(false);
-                           //Ext.getCmp('fromAddSave').setHidden(true);
-                           Ext.getCmp("viewport").setActiveItem("panelAddRelated");
+                           console.log('viewSerieSpecs');
                         },
                      },
-
                   ],
                },
             ],
@@ -1602,6 +1623,7 @@
             height: 690,
             dockedItems: [...linkedProductTbar],
             listeners: {
+
                dblclick: {
                   element: "body",
                   fn: () => {
