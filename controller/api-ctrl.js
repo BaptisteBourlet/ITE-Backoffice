@@ -2,7 +2,6 @@
 const { DB } = require('../database')
 const mysql = require('mysql');
 const storage = require('node-sessionstorage');
-// const { Connection, Statement } = require('idb-pconnector');
 
 
 const con = mysql.createConnection({
@@ -10,6 +9,7 @@ const con = mysql.createConnection({
    user: DB.user,
    password: DB.password,
    database: DB.database,
+   multipleStatements: true
 })
 
 
@@ -424,27 +424,6 @@ exports.changeSequence = async (req, res) => {
    })
 }
 
-// exports.getAs400Description = async (req, res) => {
-//    const {as400Code} = req.body;
-//    let schema = 'D#ITF001'
-//    let sql = `SELECT AOAROM FROM ${schema}.artikelOverview WHERE ARARNR = "${as400Code}"`;
-//    const connection = new Connection({ url: '*LOCAL' })
-//    const statement = new Statement(connection);
-//    let results = await statement.exec(sql)
-
-//    console.log(results)
-
-//    res.send(results);
-// }
-
-
-
-// https://www.npmjs.com/package/idb-pconnector
-
-// api-routes.js uncomment line 42
-// api-ctrl.js - uncomment exports.getAs400Description - line 414
-// allProduct.ejs - check returned object and adapt setValue - line 221
-
 
 // =================================================================================================
 //                                       SERIES
@@ -483,29 +462,7 @@ exports.getSerieDetails = async (req, res) => {
          res.send(finalResults);
       })
    })
-
-
-
-   // const { productId } = req.query;
-   // const query = "SELECT DISTINCT AOAROM, Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId, Publish"
-   //    + " FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id"
-   //    + " LEFT JOIN Assets A ON A.Id = PI.ProductId"
-   //    + ` WHERE PI.ProductId = ${productId} AND Language = 'en'`
-   // let finalResults = []
-
-   // con.query(query, (err, productResults, fields) => {
-   //    if (err) throw err;
-
-   //    finalResults.push(productResults);
-   //    con.query(`SELECT RP.LinkedProductID, RP.Type, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = ${productId};`, (error, relatedResults, fields) => {
-   //       if (error) throw error;
-
-   //       finalResults.push(relatedResults);
-   //       res.send(finalResults);
-   //    })
-   // });
 }
-
 
 exports.searchSerie = async (req, res) => {
    const { searchQuery } = req.body;
@@ -722,8 +679,6 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
 exports.getRelatedProductSerie = async (req, res) => {
    const { serieId } = req.query;
 
-   console.log(serieId);
-
    const query = `SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid FROM Product LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
 
    con.query(query, (err, results) => {
@@ -762,9 +717,37 @@ exports.getSerieSpecs = async (req, res) => {
 
 exports.updateSerieSpecs = async (req, res) => {
    const { SerieMasterId, SeriesProductLinkId, Value } = req.body;
-   console.log(req.body);
 
    const query = `UPDATE SeriesData SET Value = "${Value}" WHERE SerieMasterId = "${SerieMasterId}" AND SeriesProductLinkId = "${SeriesProductLinkId}";`
+
+   con.query(query, (err, results) => {
+      if (err) throw err;
+
+      res.send(results);
+   })
+}
+
+exports.addSerieSpecs = async (req, res) => {
+   const { serieId, Key, Group, SubGroup } = req.body;
+   const maxIdQuery = `SELECT MAX(Id) AS maxId FROM SeriesMaster`;
+   const maxSequence = `SELECT MAX(Sequence) as maxSequence FROM SeriesMaster WHERE Sid = "${serieId}";`;
+
+   let nextSequence;
+   con.query(maxSequence, (err, sequenceResult) => {
+      if (err) throw err;
+      nextSequence = sequenceResult[0].maxSequence + 1;
+      const query = `INSERT INTO SeriesMaster (SeriesMaster.Sid, SeriesMaster.Key, SeriesMaster.Group, SubGroup, Sequence) VALUES ('${serieId}', '${Key}', '${Group}', '${SubGroup}', '${nextSequence}');`
+
+      con.query(query, (err, result) => {
+         if (err) throw err;
+         res.send(result);
+      })
+   })
+}
+
+
+exports.getSpecGroup = async (req, res) => {
+   const query = `SELECT DISTINCT SeriesMaster.Group FROM SeriesMaster;`
 
    con.query(query, (err, results) => {
       if (err) throw err;
