@@ -334,7 +334,7 @@
                success: function (response) {
                   const res = JSON.parse(response.responseText);
                   if (res.serverStatus === 2) {
-                     Ext.getCmp('viewport').setActiveItem('SerieDetails')
+                     Ext.getCmp('viewport').setActiveItem('SeriesMasterSpecs')
                      Ext.Msg.alert("INFO", "New Specification added successfully");
                   }
                },
@@ -1328,7 +1328,14 @@
                      linkedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
                      linkedProductStore.load();
 
+
+
                      Ext.getCmp("viewport").setActiveItem("SerieDetails");
+
+                     serieMasterStore.getProxy().setExtraParam('Sid', selectedRecord.data.Sid)
+                     SeriesMasterSpecs.setTitle('Serie master specs - ' + selectedRecord.data.Key)
+
+
                      // tab
                      // sessionStorage.setItem('serieId', selectedRecord.data.Sid)
                      // relatedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
@@ -1486,27 +1493,23 @@
                      "-",
                      {
                         xtype: "button",
-                        id: "viewSerieSpecs",
-                        text: "View Serie Specs",
+                        id: "viewSerieMaster",
+                        text: "View Serie Master specs",
                         iconCls: "fa fa-tasks",
                         handler: function () {
-                           console.log('viewSerieSpecs');
-                        },
-                     },
-                     "-",
-                     {
-                        xtype: "button",
-                        id: "addNewSpecs",
-                        text: "Add Serie Specs",
-                        iconCls: "fa fa-plus",
-                        handler: function () {
-                           Ext.getCmp('viewport').setActiveItem('addSerieSpecs')
+
+
+                           serieMasterStore.load();
+
+                           Ext.getCmp("viewport").setActiveItem("SeriesMasterSpecs");
+
                         },
                      },
                   ],
                },
             ],
          });
+
 
          //<!-- ----------------------------------------------------------------------- -->
          //<!--                           Add related product                           -->
@@ -1646,19 +1649,8 @@
             items: [screenAddRelated],
             tbar: [
                {
-                  text: "Save",
-                  id: "addRelatedSave",
-                  iconCls: "fas fa-save",
-                  handler: function () {
-                     addSeriesRelatedProd()
-                     Ext.getCmp('addForm2').reset();
-                     Ext.getCmp("viewport").setActiveItem("SerieDetails");
-                  },
-               },
-               "-",
-               {
-                  text: "Cancel",
-                  tooltip: "Cancel",
+                  text: "Back",
+                  tooltip: "Back",
                   id: 'cancel3',
                   iconCls: "fas fa-undo",
                   handler: function () {
@@ -1668,6 +1660,18 @@
                      Ext.getCmp("viewport").setActiveItem("SerieDetails");
                   },
                },
+            "-",
+               {
+                  text: "Save",
+                  id: "addRelatedSave",
+                  iconCls: "fas fa-save",
+                  handler: function () {
+                     addSeriesRelatedProd()
+                     Ext.getCmp('addForm2').reset();
+                     Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                  },
+               },
+              
             ],
          });
 
@@ -1728,17 +1732,7 @@
                   dock: "top",
                   id: "toolBar",
                   items: [
-                     {
-                        xtype: "button",
-                        id: "Back",
-                        text: "Back",
-                        iconCls: "fa fa-undo-alt",
-                        scale: "small",
-                        handler: function () {
-                           Ext.getCmp('viewport').setActiveItem('linkedProducts')
-                        },
-                     },
-                     "-",
+                     
                      {
                         xtype: "button",
                         id: "Back",
@@ -1767,11 +1761,128 @@
          });
 
 
+
+
+
+         // <!-- ----------------------------------------------------------------------- -->
+         // <!--                           GRID SERIES MASTER                            -->
+         // <!-- ----------------------------------------------------------------------- -->
+
+         const tbarItemsMaster = [
+            {
+               xtype: "toolbar",
+               dock: "top",
+               id: "bottomToolBarMaster",
+               items: [
+                  {
+                     xtype: "button",
+                     id: "MasterBack",
+                     text: "Back",
+                     iconCls: "fa fa-undo-alt",
+                     scale: "small",
+                     handler: function () {
+                        Ext.getCmp('viewport').setActiveItem('SerieDetails')
+                     },
+                  },
+                  '-',
+                  {
+                     xtype: "button",
+                     id: "addNewSpecs",
+                     text: "Add Serie Specs",
+                     iconCls: "fa fa-plus",
+                     handler: function () {
+                        Ext.getCmp('viewport').setActiveItem('addSerieSpecs')
+
+                     }
+                  }
+               ]
+            }
+         ]
+
+
+         const ModelSerieMaster = Ext.define("Categories", {
+            extend: "Ext.data.Model",
+            fields: ["Id", "Key", "Group", "Sequence"],
+         });
+         const serieMasterStore = Ext.create("Ext.data.Store", {
+            id: "serieMasterStore",
+            autoLoad: false,
+            model: ModelSerieMaster,
+
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/api/getSerieMaster",
+               noCache: true,
+               reader: {
+                  type: "json",
+
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+            listeners: {
+               beforeload: function (store) {
+
+               },
+            },
+         });
+
+         const serieMasterColumns = [
+            {
+               header: "Serie master ID",
+               sortable: true,
+               width: 150,
+               dataIndex: "Id"
+            },
+            {
+               header: "Key",
+               sortable: true,
+               width: 200,
+               dataIndex: "Key",
+            },
+            {
+               header: "Group",
+               sortable: true,
+               width: 150,
+               dataIndex: "Group"
+            },
+            {
+               header: "Sequence",
+               sortable: true,
+               width: 100,
+               dataIndex: "Sequence"
+            },
+         ]
+
+
+         const SeriesMasterSpecs = Ext.create("Ext.grid.GridPanel", {
+            id: "SeriesMasterSpecs",
+            flex: 1,
+            scrollable: true,
+            title: "Serie master specs",
+            trackOver: true,
+            loadMask: true,
+            store: serieMasterStore,
+            columns: serieMasterColumns,
+            enableColumnMove: false,
+            sortable: true,
+            frame: false,
+            height: 690,
+            dockedItems: [...tbarItemsMaster],
+            listeners: {
+               dblclick: {
+                  element: "body",
+                  fn: () => {
+
+                  },
+               },
+            },
+         });
+
          // <!-- ----------------------------------------------------------------------- -->
          // <!--                                TAB Panel                                -->
          // <!-- ----------------------------------------------------------------------- -->
-
-
          var tab01 = Ext.widget('panel', {
             activeTab: 0,
             layout: 'fit',
@@ -1837,6 +1948,17 @@
             layout: 'fit',
             title: 'Add New Specs',
             tbar: [
+            {
+                  xtype: "button",
+                  text: "Back",
+                  id: "addSpecBack",
+                  iconCls: "fa fa-undo-alt",
+                  handler: function () {
+                     Ext.getCmp('addSpecForm').reset();
+                     Ext.getCmp('viewport').setActiveItem('SeriesMasterSpecs');
+                  }
+               },
+               '-',
                {
                   xtype: "button",
                   text: "Save",
@@ -1847,16 +1969,7 @@
                      addSerieSpecifications(serieIDGlobal);
                   }
                },
-               {
-                  xtype: "button",
-                  text: "Back",
-                  id: "addSpecBack",
-                  iconCls: "fa fa-undo-alt",
-                  handler: function () {
-                     Ext.getCmp('addSpecForm').reset();
-                     Ext.getCmp('viewport').setActiveItem('SerieDetails');
-                  }
-               },
+              
             ],
             items: [
                {
@@ -1905,7 +2018,7 @@
             id: "viewport",
             layout: "card",
             activeItem: 'SeriesGrid',
-            items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, SerieSpecs, linkedProducts, addSerieSpecs],
+            items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, SerieSpecs, linkedProducts, addSerieSpecs, SeriesMasterSpecs],
             // tab
             // activeItem: 0,
             // items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, scrntab],
