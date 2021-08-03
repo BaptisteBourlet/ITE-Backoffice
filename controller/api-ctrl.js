@@ -319,15 +319,40 @@ exports.getProductDet = async (req, res) => {
 exports.searchProduct = async (req, res) => {
    const { searchQuery, searchTarget } = req.body;
 
-   let target = searchTarget === "productCode" ? "Product.Code" : "ProductInfo.Catalog";
+   let target, searchQueryAdapt;
 
-   let searchText = target === "Product.Code" ? searchQuery.replace(' ', '-') : searchQuery;
+   switch (searchTarget) {
+      case 'productCode':
+         target = 'Product.Code';
+         searchQueryAdapt = searchQuery.replace(/ /g, '-');
+         break;
+      case 'Tree':
+         target = 'InfoTree.Tree';
+         searchQueryAdapt = searchQuery.replace(/ /g, '.');
+         break;
+      case 'PN':
+         target = 'Product.As400Code';
+         searchQueryAdapt = searchQuery;
+         break;
+      case 'productName':
+         target = 'ProductInfo.Catalog';
+         searchQueryAdapt = searchQuery;
+         break;
+      case 'AS400':
+         target = 'ProductInfo.Description';
+         searchQueryAdapt = searchQuery;
+         break;
+      default:
+         target = 'Product.Code';
+         searchQueryAdapt = searchQuery;
+   }
+  
 
    const query = "SELECT Product.Id as Id, Description, Catalog, CODE, As400Code, Tree"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + " LEFT JOIN InfoTree ON ProductInfo.ProductId = InfoTree.LinkId AND InfoTree.Type = 'C'"
-      + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchText}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
+      + " LEFT JOIN InfoTree ON ProductInfo.ProductId = InfoTree.LinkId AND InfoTree.Type = 'P'"
+      + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchQueryAdapt}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
