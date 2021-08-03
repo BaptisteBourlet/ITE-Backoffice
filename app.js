@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const apiRoutes = require('./routes/api-routes')
-PORT = 3000;
+PORT = 12080;
 app = express();
 
 
@@ -28,6 +28,10 @@ app.get('/series-overview', function (req, res) {
 app.get('/related-series', (req, res) => {
    res.render('SeriesLink');
 })
+
+  app.get('/series-details', function(req, res) {
+   res.render('seriesDetails');
+ });
 
 app.listen(PORT, () => {
    console.log('listening on port ' + PORT);
