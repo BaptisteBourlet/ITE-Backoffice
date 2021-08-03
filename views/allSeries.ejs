@@ -655,6 +655,14 @@
                               },
                            }
                         }
+                     } else if (key == "SPLid") {
+                        return {
+                           header: key,
+                           sortable: true,
+                           width: width,
+                           dataIndex: key,
+                           hidden: true
+                        }
                      } else {
                         return {
                            header: key,
@@ -666,7 +674,6 @@
                   })
 
                   linkedProducts.reconfigure(undefined, allColumns);
-
                   res
                      ? linkedProductStore.setData(res)
                      : console.log("no response received");
