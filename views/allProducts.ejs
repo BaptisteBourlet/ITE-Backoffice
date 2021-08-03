@@ -46,7 +46,7 @@
     //		           APPLICATION START
     // ========================================================================================================
     Ext.onReady(() => {
-      
+
       let edit = false;
       let productIDGlobal = "";
 
@@ -452,6 +452,7 @@
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
+            console.log(res);
             Ext.getCmp(`${language.toUpperCase()}Cat`).setValue(res[0].Catalog);
             Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
             Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
@@ -719,9 +720,9 @@
               text: "New",
               scale: "small",
               handler: function () {
+                Ext.getCmp('tabTrans').setActiveTab(0)
                 Ext.getCmp("addSave").setHidden(false);
                 Ext.getCmp("editSave").setHidden(true);
-                setPanelHidden();
                 Ext.getCmp("panelAdd").setTitle("Add product");
                 Ext.getCmp("viewport").setActiveItem("panelAdd");
               },
@@ -735,6 +736,7 @@
               scale: "small",
               handler: function () {
                 edit = true;
+                
                 const selectedRecord = Ext.getCmp("AllProductGrid")
                   .getSelectionModel()
                   .getSelection()[0];
@@ -742,13 +744,17 @@
                 if (selectedRecord === undefined) {
                   Ext.Msg.alert("INFO", "No record selected");
                 } else {
+                  productIDGlobal = selectedRecord.data.Id;
                   Ext.getCmp("addSave").setHidden(true);
                   Ext.getCmp("editSave").setHidden(false);
-                  setPanelHidden();
                   Ext.getCmp("panelAdd").setTitle("Edit Product");
+                  Ext.getCmp('tabTrans').setActiveTab(0)
+                  getOtherLanguageDetail('fr', productIDGlobal)
+                  getOtherLanguageDetail('de', productIDGlobal)
+                  getOtherLanguageDetail('sp', productIDGlobal)
+                  getOtherLanguageDetail('ru', productIDGlobal)
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
                   getProductDetails(selectedRecord.data.Id);
-                  productIDGlobal = selectedRecord.data.Id;
                 }
               },
             },
@@ -995,12 +1001,12 @@
                 iconCls: "fa fa-edit",
                 handler: function () {
                   edit = true;
-                  setPanelHidden();
                   Ext.getCmp("addSave").setHidden(true);
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp('panelAdd').setTitle('Edit product');
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
                   getProductDetails(productIDGlobal);
+                  
                 },
               },
               "-",
@@ -1066,6 +1072,335 @@
         },
       });
 
+      var TabTranslations = Ext.create('Ext.TabPanel', {
+        fullscreen: true,
+        tabBarPosition: 'bottom',
+        id : 'tabTrans',
+        defaults: {
+          styleHtmlContent: true
+        },
+
+        items: [
+          {
+            title: 'English',
+            items: [
+              {
+                xtype: "fieldset",
+                title: "English Translations",
+                anchor: "100%",
+                hidden: false,
+                id: "ENFIELD",
+                layoutConfig: {
+                  // The total column count must be specified here
+                  columns: 9,
+                },
+                items: [
+                  {
+                    xtype: "textfield",
+                    id: "Cat",
+                    name: "Cat",
+                    fieldLabel: "Catalog",
+                    maxLenght: 118,
+                    width: 500,
+                    allowBlank: false,
+                    submitvalue: true,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "textfield",
+                    id: "desc",
+                    name: "desc",
+                    fieldLabel: "Description",
+                    maxLenght: 123,
+                    width: 500,
+                    allowBlank: false,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "htmleditor",
+                    id: "FDesc",
+                    name: "FDesc",
+                    fieldLabel: "Full description",
+                    enableColors: true,
+                    enableAlignments: false,
+                    submitvalue: true,
+                    allowBlank: false,
+                    enableFont: false,
+                  },
+                  // Baptiste move Catalog field
+                  {
+                    xtype: "htmleditor",
+                    id: "spec",
+                    name: "spec",
+                    fieldLabel: "Specification",
+                    enableColors: true,
+                    enableAlignments: false,
+                    allowBlank: false,
+                    selectOnFocus: false,
+                    enableFont: false,
+                  },
+                ],
+              }
+            ]
+          },
+          {
+            title: 'French',
+          
+            items: [
+              {
+                xtype: "fieldset",
+                title: "French Translations",
+                anchor: "100%",
+                hidden: false,
+                id: "FRFIELD",
+                layoutConfig: {
+                  // The total column count must be specified here
+                  columns: 9,
+                },
+                items: [
+                  {
+                    xtype: "textfield",
+                    id: "FRCat",
+                    name: "FRCat",
+                    fieldLabel: "Catalog",
+                    maxLenght: 118,
+                    width: 500,
+                    allowBlank: true,
+                    submitvalue: true,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "textfield",
+                    id: "FRdesc",
+                    name: "FRdesc",
+                    fieldLabel: "Description",
+                    maxLenght: 123,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "htmleditor",
+                    id: "FRFDesc",
+                    name: "FRFDesc",
+                    fieldLabel: "Full description",
+                    allowBlank: true,
+                    enableColors: true,
+                    enableAlignments: false,
+                    submitvalue: true,
+                    enableFont: false,
+                  },
+                  {
+                    xtype: "htmleditor",
+                    id: "FRspec",
+                    name: "FRspec",
+                    fieldLabel: "Specification",
+                    enableColors: true,
+                    enableAlignments: false,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    enableFont: false,
+                  },
+                ],
+              },
+            ]
+          },
+          {
+            title: 'German',
+            
+            items: [
+              {
+                xtype: "fieldset",
+                title: "German Translations",
+                anchor: "100%",
+                hidden: false,
+                id: "DEFIELD",
+                layoutConfig: {
+                  // The total column count must be specified here
+                  columns: 9,
+                },
+                items: [
+                  {
+                    xtype: "textfield",
+                    id: "DECat",
+                    name: "DECat",
+                    fieldLabel: "Catalog",
+                    maxLenght: 118,
+                    width: 500,
+                    allowBlank: true,
+                    submitvalue: true,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "textfield",
+                    id: "DEdesc",
+                    name: "DEdesc",
+                    fieldLabel: "Description",
+                    maxLenght: 123,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "htmleditor",
+                    id: "DEFDesc",
+                    name: "DEFDesc",
+                    fieldLabel: "Full description",
+                    enableColors: true,
+                    enableAlignments: false,
+                    submitvalue: true,
+                    allowBlank: true,
+                    enableFont: false,
+                  },
+                  {
+                    xtype: "htmleditor",
+                    id: "DEspec",
+                    name: "DEspec",
+                    fieldLabel: "Specification",
+                    enableColors: true,
+                    enableAlignments: false,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    enableFont: false,
+                  },
+                ],
+              },
+            ]
+          },
+          {
+            title: 'Spanish',
+           
+            items: [
+              {
+                xtype: "fieldset",
+                labelStyle: "font-weight: bold; ",
+                title: "Spanish Translations",
+                anchor: "100%",
+                hidden: false,
+                id: "SPFIELD",
+                layoutConfig: {
+                  // The total column count must be specified here
+                  columns: 9,
+                },
+                items: [
+                  {
+                    xtype: "textfield",
+                    id: "SPCat",
+                    name: "SPCat",
+                    fieldLabel: "Catalog",
+                    allowBlank: true,
+                    maxLenght: 118,
+                    width: 500,
+                    submitvalue: true,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "textfield",
+                    id: "SPdesc",
+                    name: "SPdesc",
+                    fieldLabel: "Description",
+                    maxLenght: 123,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "htmleditor",
+                    id: "SPFDesc",
+                    name: "SPFDesc",
+                    fieldLabel: "Full description",
+                    enableColors: true,
+                    enableAlignments: false,
+                    submitvalue: true,
+                    allowBlank: true,
+                    enableFont: false,
+                  },
+                  {
+                    xtype: "htmleditor",
+                    id: "SPspec",
+                    name: "SPspec",
+                    fieldLabel: "Specification",
+                    enableColors: true,
+                    enableAlignments: false,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    enableFont: false,
+                  },
+                ],
+              },
+            ]
+          },
+          {
+            title: 'Russian',
+            
+            items: [
+              {
+                xtype: "fieldset",
+                title: "Russian Translations",
+                anchor: "100%",
+                hidden: false,
+                id: "RUFIELD",
+                layoutConfig: {
+                  // The total column count must be specified here
+                  columns: 9,
+                },
+                items: [
+                  {
+                    xtype: "textfield",
+                    id: "RUCat",
+                    name: "RUCat",
+                    fieldLabel: "Catalog",
+                    maxLenght: 118,
+                    allowBlank: true,
+                    width: 500,
+                    submitvalue: true,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "textfield",
+                    id: "RUdesc",
+                    name: "RUdesc",
+                    fieldLabel: "Description",
+                    maxLenght: 123,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                  },
+                  {
+                    xtype: "htmleditor",
+                    id: "RUFDesc",
+                    name: "RUFDesc",
+                    fieldLabel: "Full description",
+                    enableColors: true,
+                    enableAlignments: false,
+                    submitvalue: true,
+                    allowBlank: true,
+                    enableFont: false,
+                  },
+                  {
+                    xtype: "htmleditor",
+                    id: "RUspec",
+                    name: "RUspec",
+                    fieldLabel: "Specification",
+                    enableColors: true,
+                    enableAlignments: false,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    enableFont: false,
+                  },
+                ],
+              },
+            ]
+          }
+        ]
+      });
+
+
       var itemsAdd = [
         {
           xtype: "textfield",
@@ -1111,357 +1446,12 @@
           allowBlank: true,
           selectOnFocus: false,
         },
-        {
-          xtype: "fieldset",
-          title: "English Translations",
-          anchor: "100%",
-          hidden: false,
-          id: "ENFIELD",
-          layoutConfig: {
-            // The total column count must be specified here
-            columns: 9,
-          },
-          items: [
-            {
-              xtype: "textfield",
-              id: "Cat",
-              name: "Cat",
-              fieldLabel: "Catalog",
-              maxLenght: 118,
-              width: 500,
-              allowBlank: false,
-              submitvalue: true,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "textfield",
-              id: "desc",
-              name: "desc",
-              fieldLabel: "Description",
-              maxLenght: 123,
-              width: 500,
-              allowBlank: false,
-              selectOnFocus: false,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "htmleditor",
-              id: "FDesc",
-              name: "FDesc",
-              fieldLabel: "Full description",
-              enableColors: true,
-              enableAlignments: false,
-              submitvalue: true,
-              allowBlank: false,
-              enableFont: false,
-            },
-            // Baptiste move Catalog field
-            {
-              xtype: "htmleditor",
-              id: "spec",
-              name: "spec",
-              fieldLabel: "Specification",
-              enableColors: true,
-              enableAlignments: false,
-              allowBlank: false,
-              selectOnFocus: false,
-              enableFont: false,
-            },
-          ],
-        },
-        {
-          xtype: "button",
-          text: "French translations",
-          margin: 10,
-          handler: function () {
-            if (Ext.getCmp("FRFIELD").isHidden() == true) {
-              Ext.getCmp("FRFIELD").setHidden(false);
-            } else {
-              Ext.getCmp("FRFIELD").setHidden(true);
-            }
 
-            if (edit === true) {
-              getOtherLanguageDetail('fr', productIDGlobal)
-            }
-          },
-        },
-        {
-          xtype: "fieldset",
-          title: "French Translations",
-          anchor: "100%",
-          hidden: true,
-          id: "FRFIELD",
-          layoutConfig: {
-            // The total column count must be specified here
-            columns: 9,
-          },
-          items: [
-            {
-              xtype: "textfield",
-              id: "FRCat",
-              name: "FRCat",
-              fieldLabel: "Catalog",
-              maxLenght: 118,
-              width: 500,
-              allowBlank: true,
-              submitvalue: true,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "textfield",
-              id: "FRdesc",
-              name: "FRdesc",
-              fieldLabel: "Description",
-              maxLenght: 123,
-              width: 500,
-              allowBlank: true,
-              selectOnFocus: false,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "htmleditor",
-              id: "FRFDesc",
-              name: "FRFDesc",
-              fieldLabel: "Full description",
-              allowBlank: true,
-              enableColors: true,
-              enableAlignments: false,
-              submitvalue: true,
-              enableFont: false,
-            },
-            {
-              xtype: "htmleditor",
-              id: "FRspec",
-              name: "FRspec",
-              fieldLabel: "Specification",
-              enableColors: true,
-              enableAlignments: false,
-              allowBlank: true,
-              selectOnFocus: false,
-              enableFont: false,
-            },
-          ],
-        },
-        {
-          xtype: "button",
-          text: "German translations",
-          margin: 10,
-          handler: function () {
-            if (Ext.getCmp("DEFIELD").isHidden() == true) {
-              Ext.getCmp("DEFIELD").setHidden(false);
-            } else {
-              Ext.getCmp("DEFIELD").setHidden(true);
-            }
+        TabTranslations,
 
-            if (edit === true) {
-              getOtherLanguageDetail('de', productIDGlobal)
-            }
-          },
-        },
-        {
-          xtype: "fieldset",
-          title: "German Translations",
-          anchor: "100%",
-          hidden: true,
-          id: "DEFIELD",
-          layoutConfig: {
-            // The total column count must be specified here
-            columns: 9,
-          },
-          items: [
-            {
-              xtype: "textfield",
-              id: "DECat",
-              name: "DECat",
-              fieldLabel: "Catalog",
-              maxLenght: 118,
-              width: 500,
-              allowBlank: true,
-              submitvalue: true,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "textfield",
-              id: "DEdesc",
-              name: "DEdesc",
-              fieldLabel: "Description",
-              maxLenght: 123,
-              width: 500,
-              allowBlank: true,
-              selectOnFocus: false,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "htmleditor",
-              id: "DEFDesc",
-              name: "DEFDesc",
-              fieldLabel: "Full description",
-              enableColors: true,
-              enableAlignments: false,
-              submitvalue: true,
-              allowBlank: true,
-              enableFont: false,
-            },
-            {
-              xtype: "htmleditor",
-              id: "DEspec",
-              name: "DEspec",
-              fieldLabel: "Specification",
-              enableColors: true,
-              enableAlignments: false,
-              allowBlank: true,
-              selectOnFocus: false,
-              enableFont: false,
-            },
-          ],
-        },
-        {
-          xtype: "button",
-          text: "Spanish translations",
-          margin: 10,
-          handler: function () {
-            if (Ext.getCmp("SPFIELD").isHidden() == true) {
-              Ext.getCmp("SPFIELD").setHidden(false);
-            } else {
-              Ext.getCmp("SPFIELD").setHidden(true);
-            }
 
-            if (edit === true) {
-              getOtherLanguageDetail('sp', productIDGlobal)
-            }
-          },
-        },
-        {
-          xtype: "fieldset",
-          labelStyle: "font-weight: bold; ",
-          title: "Spanish Translations",
-          anchor: "100%",
-          hidden: true,
-          id: "SPFIELD",
-          layoutConfig: {
-            // The total column count must be specified here
-            columns: 9,
-          },
-          items: [
-            {
-              xtype: "textfield",
-              id: "SPCat",
-              name: "SPCat",
-              fieldLabel: "Catalog",
-              allowBlank: true,
-              maxLenght: 118,
-              width: 500,
-              submitvalue: true,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "textfield",
-              id: "SPdesc",
-              name: "SPdesc",
-              fieldLabel: "Description",
-              maxLenght: 123,
-              width: 500,
-              allowBlank: true,
-              selectOnFocus: false,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "htmleditor",
-              id: "SPFDesc",
-              name: "SPFDesc",
-              fieldLabel: "Full description",
-              enableColors: true,
-              enableAlignments: false,
-              submitvalue: true,
-              allowBlank: true,
-              enableFont: false,
-            },
-            {
-              xtype: "htmleditor",
-              id: "SPspec",
-              name: "SPspec",
-              fieldLabel: "Specification",
-              enableColors: true,
-              enableAlignments: false,
-              allowBlank: true,
-              selectOnFocus: false,
-              enableFont: false,
-            },
-          ],
-        },
-        {
-          xtype: "button",
-          text: "Russian translations",
-          margin: 10,
-          handler: function () {
-            if (Ext.getCmp("RUFIELD").isHidden() == true) {
-              Ext.getCmp("RUFIELD").setHidden(false);
-            } else {
-              Ext.getCmp("RUFIELD").setHidden(true);
-            }
 
-            if (edit === true) {
-              getOtherLanguageDetail('ru', productIDGlobal)
-            }
-          },
-        },
-        {
-          xtype: "fieldset",
-          title: "Russian Translations",
-          anchor: "100%",
-          hidden: true,
-          id: "RUFIELD",
-          layoutConfig: {
-            // The total column count must be specified here
-            columns: 9,
-          },
-          items: [
-            {
-              xtype: "textfield",
-              id: "RUCat",
-              name: "RUCat",
-              fieldLabel: "Catalog",
-              maxLenght: 118,
-              allowBlank: true,
-              width: 500,
-              submitvalue: true,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "textfield",
-              id: "RUdesc",
-              name: "RUdesc",
-              fieldLabel: "Description",
-              maxLenght: 123,
-              width: 500,
-              allowBlank: true,
-              selectOnFocus: false,
-              margin: "25 0 25 0",
-            },
-            {
-              xtype: "htmleditor",
-              id: "RUFDesc",
-              name: "RUFDesc",
-              fieldLabel: "Full description",
-              enableColors: true,
-              enableAlignments: false,
-              submitvalue: true,
-              allowBlank: true,
-              enableFont: false,
-            },
-            {
-              xtype: "htmleditor",
-              id: "RUspec",
-              name: "RUspec",
-              fieldLabel: "Specification",
-              enableColors: true,
-              enableAlignments: false,
-              allowBlank: true,
-              selectOnFocus: false,
-              enableFont: false,
-            },
-          ],
-        },
+
       ];
       // spareparts, accessory, related product, categry, id+display( search), english field needed, html edit box
       // Hide cancel button
@@ -1523,7 +1513,6 @@
             handler: function () {
               setProductSessionStorage();
               addRecord();
-              setPanelHidden();
               Ext.getCmp("addForm").reset();
             },
           },
@@ -1534,7 +1523,6 @@
             handler: function () {
               setProductSessionStorage();
               editProduct();
-              setPanelHidden();
               Ext.getCmp("addForm").reset();
             },
           },
@@ -1546,7 +1534,7 @@
             handler: function () {
               edit = false;
               Ext.getCmp("addForm").reset();
-              setPanelHidden();
+
               clearEditInfo();
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();

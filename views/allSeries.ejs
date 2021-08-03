@@ -1686,6 +1686,31 @@
             },
          });
 
+
+         const getRelatedCatalog = (ProductId) => {
+            Ext.Ajax.request({
+               url: "/api/getRelatedCatalog",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  ProductId: ProductId,
+               },
+               success: function (response) {
+                  const res = JSON.parse(response.responseText);
+                 
+                        
+                        Ext.getCmp("Productcatalog").setValue(res[0].Catalog);
+
+                     
+                  
+               },
+               failure: function (response) {
+                  console.log("failed", response);
+               },
+            });
+         };
+
          var itemsAddRelated = [
             {
                xtype: "combo",
@@ -1701,6 +1726,17 @@
                selectOnFocus: false,
                anyMatch: true,
                queryMode: "local",
+               listeners: {
+                  select: function () {
+                     let ProductId = this.getValue();
+                     getRelatedCatalog(ProductId);
+                  }
+               }
+            },
+            {
+               xtype: 'displayfield',
+               id: 'Productcatalog',
+               fieldLabel: "Product description",
 
             }
          ]
