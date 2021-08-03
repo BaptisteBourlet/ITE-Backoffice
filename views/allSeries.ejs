@@ -934,28 +934,7 @@
                      scale: "small",
                      handler: function () { deleteSeries() },
                   },
-                  "-",
-                  {
-                     xtype: 'button',
-                     id: "manageSequence",
-                     text: 'Manage Sequence',
-                     iconCls: "fa fa-tasks",
-                     scale: "small",
-                     handler: function () {
-                        window.open('/manage-sequence');
-                     },
-                  },
-                  "-",
-                  {
-                     xtype: 'button',
-                     id: "allProducts",
-                     text: 'Products Overview',
-                     iconCls: "fa fa-tasks",
-                     scale: "small",
-                     handler: function () {
-                        window.open('/');
-                     },
-                  },
+                  
                ],
             },
             {
@@ -1421,26 +1400,14 @@
                      serieIDGlobal = selectedRecord.data.Sid;
                      sessionStorage.setItem('serieIDGlobal', serieIDGlobal)
                      getSerieDetails(selectedRecord.data.Sid);
-                     Ext.getCmp("scrntab").setTitle(
-                        `SERIE DETAILS - ${selectedRecord.data.Key}`
-                     );
+                 
                      linkedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
                      linkedProductStore.load();
-
-
 
                      Ext.getCmp("viewport").setActiveItem("SerieDetails");
 
                      serieMasterStore.getProxy().setExtraParam('Sid', selectedRecord.data.Sid)
                      SeriesMasterSpecs.setTitle('Serie master specs - ' + selectedRecord.data.Key)
-
-
-                     // tab
-                     // sessionStorage.setItem('serieId', selectedRecord.data.Sid)
-                     // relatedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
-                     // relatedProductStore.load();
-
-                     // Ext.getCmp("viewport").setActiveItem("scrntab");
                   },
                },
             },
@@ -2063,69 +2030,7 @@
             },
          });
 
-         // <!-- ----------------------------------------------------------------------- -->
-         // <!--                                TAB Panel                                -->
-         // <!-- ----------------------------------------------------------------------- -->
-         var tab01 = Ext.widget('panel', {
-            activeTab: 0,
-            layout: 'fit',
-            id: 'b01',
-            title: 'Series details',
-            border: false,
-            items: [{
-               xtype: "component",
-               border: false,
-               id: 'tab01',
-               autoEl: {
-                  tag: "iframe",
-                  src: '/series-details'
-               }
-            }]
-         });
-
-         var tab02 = Ext.widget('panel', {
-            activeTab: 0,
-            layout: 'fit',
-            title: 'test',
-            border: false,
-            id: 'b02',
-            items: [{
-               xtype: "component",
-               border: false,
-               id: 'tab02',
-               autoEl: {
-                  tag: "iframe",
-                  src: '/'
-               }
-            }]
-         });
-
-
-         var scrntab = Ext.create('Ext.TabPanel', {
-            fullscreen: true,
-            tabBarPosition: 'bottom',
-            id: 'scrntab',
-            title: 'series',
-            defaults: {
-               styleHtmlContent: true
-            },
-            items: [tab01, tab02],
-            listeners: {
-               tabChange: function (tabPanel, newTab, currentTab) {
-                  //console.log(newTab.id);
-                  //newTab.setSrc();
-                  //document.getElementById('ta' + newTab.id).contentWindow.location.reload();
-                  try {
-                     document.getElementById('ta' + newTab.id).src = document.getElementById('ta' + newTab.id).src
-                  } catch {
-                  }
-
-
-               }
-            }
-         });
-
-
+    
          const addSerieSpecs = Ext.create('Ext.panel.Panel', {
             id: "addSerieSpecs",
             layout: 'fit',
@@ -2280,9 +2185,6 @@
             layout: "card",
             activeItem: 'SeriesGrid',
             items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, linkedProducts, addSerieSpecs, SeriesMasterSpecs, specValueAddPanel],
-            // tab
-            // activeItem: 0,
-            // items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, scrntab],
          });
       });
    </script>

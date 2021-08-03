@@ -50,7 +50,7 @@
     @media (max-width: 481px) {
 
       #productDetails,
-      #mainPanel {
+      #AllProductGrid {
         display: none !important;
       }
 
@@ -316,7 +316,7 @@
             const res = JSON.parse(response.responseText);
             mainStore.reload();
             Ext.Msg.alert("INFO!", `Product has been edited successfully`);
-            Ext.getCmp("viewport").setActiveItem("mainPanel");
+            Ext.getCmp("viewport").setActiveItem("AllProductGrid");
           },
           failure: function (response) {
             console.log("failed", response);
@@ -464,7 +464,7 @@
                       Ext.getCmp('fromAddSave').setHidden(false);
                       Ext.getCmp("viewport").setActiveItem("panelAdd2");
                     } else {
-                      Ext.getCmp("viewport").setActiveItem('mainPanel');
+                      Ext.getCmp("viewport").setActiveItem('AllProductGrid');
                     }
                   }
                 );
@@ -499,7 +499,6 @@
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
-            console.log(res);
             let keys = Object.keys(res[0]);
 
             let allColumns = keys.map(key => { //ongoing
@@ -815,7 +814,10 @@
       ];
 
 
+
+
       const tbarItems = [
+       
         {
           xtype: "toolbar",
           dock: "top",
@@ -875,28 +877,7 @@
               scale: "small",
               handler: function () { deleteProduct() },
             },
-            "-",
-            {
-              xtype: 'button',
-              id: "manageSequence",
-              text: 'Manage Sequence',
-              iconCls: "fa fa-tasks",
-              scale: "small",
-              handler: function () {
-                window.open('/manage-sequence');
-              },
-            },
-            "-",
-            {
-              xtype: 'button',
-              id: "allSeries",
-              text: 'Series Overview',
-              iconCls: "fa fa-tasks",
-              scale: "small",
-              handler: function () {
-                window.open('/series-overview');
-              },
-            },
+            
           ],
         },
         {
@@ -1185,7 +1166,7 @@
                   Ext.getCmp("relatedProducts").removeAll();
                   Ext.getCmp("relatedAccessories").removeAll();
                   Ext.getCmp("relatedParts").removeAll();
-                  Ext.getCmp("viewport").setActiveItem("mainPanel");
+                  Ext.getCmp("viewport").setActiveItem("AllProductGrid");
                 },
               },
               "-",
@@ -1235,27 +1216,6 @@
         ],
       });
 
-      const mainPanel = Ext.create("Ext.panel.Panel", {
-        id: "mainPanel",
-        title: "ADMIN DASHDOARD",
-        flex: 1,
-        trackOver: true,
-        loadMask: true,
-        header: true,
-        height: 600,
-        renderTo: Ext.getBody(),
-        items: [
-          {
-            xtype: "container",
-            width: "100%",
-            layout: {
-              type: "hbox",
-              align: "stretch",
-            },
-            items: [AllProductGrid],
-          },
-        ],
-      });
 
       const CATEGORY = Ext.define("Categories", {
         extend: "Ext.data.Model",
@@ -1698,7 +1658,7 @@
                 updateRec();
               }
               if (e.getKey() == e.ESC) {
-                Ext.getCmp("viewport").setActiveItem("mainPanel");
+                Ext.getCmp("viewport").setActiveItem("AllProductGrid");
               }
             },
           },
@@ -1768,7 +1728,7 @@
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
               Ext.getCmp("relatedParts").removeAll();
-              Ext.getCmp("viewport").setActiveItem("mainPanel");
+              Ext.getCmp("viewport").setActiveItem("AllProductGrid");
             },
           },
         ],
@@ -1870,7 +1830,7 @@
               // Baptiste
               addRelatedProd();
               resetForm2()
-              Ext.getCmp("viewport").setActiveItem("mainPanel");
+              Ext.getCmp("viewport").setActiveItem("AllProductGrid");
             },
           },
           {
@@ -1883,7 +1843,7 @@
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
               Ext.getCmp("relatedParts").removeAll();
-              Ext.getCmp("viewport").setActiveItem("mainPanel");
+              Ext.getCmp("viewport").setActiveItem("AllProductGrid");
             },
           },
           "-",
@@ -1894,7 +1854,7 @@
             handler: function () {
               resetForm2();
               Ext.getCmp("addForm").reset();
-              Ext.getCmp("viewport").setActiveItem("mainPanel");
+              Ext.getCmp("viewport").setActiveItem("AllProductGrid");
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
               Ext.getCmp("relatedParts").removeAll();
@@ -2041,7 +2001,6 @@
               },
 
             });
-
           }
         })
       }
@@ -2075,34 +2034,36 @@
       });
 
       linkedProducts.on("edit", (editor, event) => { //cellediting
-        let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
-        let value = linkedProductStore.getModifiedRecords()[0].data[key]
-        let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
-
-        Ext.Ajax.request({
-          url: "/api/updateSerieSpecs",
-          method: "POST",
-          cors: true,
-          useDefaultXhrHeader: false,
-          params: {
-            key: key,
-            value: value,
-            SPLid: SPLid,
-          },
-          success: function (response) {
-            Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
-
-            linkedProductStore.getProxy().setExtraParam('serieId', serieIDGlobal);
-            linkedProductStore.reload();
-          },
-          failure: function (response) {
-            Ext.getBody().unmask();
-            Ext.Msg.alert(
-              "ERROR",
-              "Failed to update Specification. Contact your IT team."
-            );
-          },
-        });
+        if (linkedProductStore.getModifiedRecords()[0]) {
+          let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
+          let value = linkedProductStore.getModifiedRecords()[0].data[key]
+          let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
+  
+          Ext.Ajax.request({
+            url: "/api/updateSerieSpecs",
+            method: "POST",
+            cors: true,
+            useDefaultXhrHeader: false,
+            params: {
+              key: key,
+              value: value,
+              SPLid: SPLid,
+            },
+            success: function (response) {
+              Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
+  
+              linkedProductStore.getProxy().setExtraParam('serieId', serieIDGlobal);
+              linkedProductStore.reload();
+            },
+            failure: function (response) {
+              Ext.getBody().unmask();
+              Ext.Msg.alert(
+                "ERROR",
+                "Failed to update Specification. Contact your IT team."
+              );
+            },
+          });
+        }
       })
 
 
@@ -2114,7 +2075,7 @@
         id: "viewport",
         layout: "card",
         activeItem: 0,
-        items: [mainPanel, productDetails, panelAdd, panelAdd2, linkedProducts],
+        items: [AllProductGrid, productDetails, panelAdd, panelAdd2, linkedProducts],
       });
     });
 

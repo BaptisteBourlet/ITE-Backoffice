@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALL PRODUCTS - ITE BACK OFFICE MANAGEMENT</title>
+  <link rel="stylesheet" type="text/css"
+    href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+  <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+  <style>
+    .grid-image {
+      width: auto;
+      height: 70px;
+    }
+
+    .x-grid-cell-inner {
+      overflow: hidden;
+      padding: 10px 6px;
+      white-space: nowrap;
+    }
+
+    .a span {
+      background-color: rgb(253, 253, 253);
+      padding: 2px;
+      color: black;
+    }
+
+    .fieldClass {
+      border-bottom: 1px dashed rgb(173, 173, 173);
+      padding: 7px 0px;
+    }
+
+    #ENFIELD-legendTitle,
+    #SPFIELD-legendTitle,
+    #FRFIELD-legendTitle,
+    #DEFIELD-legendTitle,
+    #RUFIELD-legendTitle {
+      font-weight: bold;
+    }
+  </style>
+  <script type="text/javascript">
+    //=========================================================================================================
+    //		           APPLICATION START
+    // ========================================================================================================
+    Ext.onReady(() => {
+
+
+        var tab01 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            id: 'b01',
+            title: 'Products Overview',
+            border: false,
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab01',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/allProducts'
+               }
+            }]
+         });
+
+         var tab02 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Manage sequence',
+            border: false,
+            id: 'b02',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab02',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/manage-sequence'
+               }
+            }]
+         });
+
+         var tab03 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Series Overview',
+            border: false,
+            id: 'b03',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab03',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/series-overview'
+               }
+            }]
+         });
+
+         var scrntab = Ext.create('Ext.TabPanel', {
+            fullscreen: true,
+            tabBarPosition: 'bottom',
+            id: 'scrntab',
+            title: 'ADMIN DASHDOARD',
+            defaults: {
+               styleHtmlContent: true
+            },
+            items: [tab01, tab02, tab03],
+            listeners: {
+               tabChange: function (tabPanel, newTab, currentTab) {
+                  try {
+                     document.getElementById('ta' + newTab.id).src = document.getElementById('ta' + newTab.id).src
+                  } catch {
+                  }
+
+
+               }
+            }
+         });
+
+			// viewport wrapper met login
+			new Ext.Viewport({
+				id: 'viewport',
+				layout: 'card',
+				items: [scrntab]
+			});
+			// Send screen
+			Ext.getCmp('viewport').layout.setActiveItem(0);
+
+		});
+    
+
+</script>
+</head>
+
+<body></body>
+
+</html>

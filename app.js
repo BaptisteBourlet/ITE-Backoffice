@@ -14,6 +14,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/api', apiRoutes);
 
 app.get('/', (req, res) => {
+   res.render('mainTab.ejs')
+})
+
+app.get('/allProducts', (req, res) => {
    res.render('allProducts')
 })
 
