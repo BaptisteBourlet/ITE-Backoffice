@@ -24,21 +24,47 @@ const con = mysql.createConnection({
 // UPDATE InfoTree SET Sequence = ${newSequence} WHERE Parent = ${Category} AND LinkId = ${targetId}
 // SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product P LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent = 4 AND PI.Language = 'en' AND P.hasDetails = 1;
 // con.query(`SELECT MAX(Sequence) FROM RelatedProducts WHERE Type = "${Type}" AND ProductId = ${globalProductID};`)
-
+// const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
+//    + " FROM ProductInfo"
+//    + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
+//    + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type = 'C'"
+//    + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
 
 
 
 exports.getSomething = async (req, res) => {
 
-   const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
-      + " FROM ProductInfo"
-      + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type = 'C'"
-      + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
+   const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesData.Value FROM Product"
+      + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
+      + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
+      + " LEFT JOIN SeriesData ON SeriesProductLink.SPLid = SeriesData.SeriesProductLinkId"
+      + ` WHERE SeriesProductLink.SeriesId = "5" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
+
+
    con.query(query, (err, results, fields) => {
       if (err) throw err;
 
-      res.send(results)
+      let idArray = [];
+      let result = [];
+      results.forEach(res => {
+         if (!idArray.includes(res.Id)) {
+            idArray.push(res.Id);
+         }
+      })
+
+      for (let i = 0; i < idArray.length; i++) {
+         let obj = {};
+         for (const { Id, Key, Value, CODE, Catalog } of results) {
+            if (Id === idArray[i]) {
+               obj[Key] = Value;
+               obj.id = Id;
+               obj.Code = CODE;
+               obj.Name = Catalog;
+            }
+         }
+         result.push(obj);
+      }
+      res.send(result)
    })
 }
 
@@ -105,7 +131,7 @@ exports.getCategories = async (req, res) => {
 
 exports.addProduct = async (req, res) => {
    const { Code, As400, CreateOn, Category, Pub, Slug } = req.body;
-   
+
 
    con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
       if (err) {
@@ -664,13 +690,39 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
 exports.getRelatedProductSerie = async (req, res) => {
    const { serieId } = req.query;
 
-   const query = `SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid FROM Product LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
+   const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesData.Value FROM Product"
+      + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
+      + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
+      + " LEFT JOIN SeriesData ON SeriesProductLink.SPLid = SeriesData.SeriesProductLinkId"
+      + ` WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
 
-   con.query(query, (err, results) => {
+
+   con.query(query, (err, results, fields) => {
       if (err) throw err;
-      res.status(200).send(results);
-   }
-   )
+
+      let idArray = [];
+      let result = [];
+      results.forEach(res => {
+         if (!idArray.includes(res.Id)) {
+            idArray.push(res.Id);
+         }
+      })
+
+      for (let i = 0; i < idArray.length; i++) {
+         let obj = {};
+         for (const { Id, Key, Value, CODE, Catalog, SPLid } of results) {
+            if (Id === idArray[i]) {
+               obj.id = Id;
+               obj.Code = CODE;
+               obj.Name = Catalog;
+               obj.SPLid = SPLid;
+               obj[Key] = Value;
+            }
+         }
+         result.push(obj);
+      }
+      res.send(result)
+   })
 }
 
 
@@ -701,9 +753,9 @@ exports.getSerieSpecs = async (req, res) => {
 
 
 exports.updateSerieSpecs = async (req, res) => {
-   const { SerieMasterId, SeriesProductLinkId, Value } = req.body;
+   const { SPLid, key, value } = req.body;
 
-   const query = `UPDATE SeriesData SET Value = "${Value}" WHERE SerieMasterId = "${SerieMasterId}" AND SeriesProductLinkId = "${SeriesProductLinkId}";`
+   const query = `UPDATE SeriesData SET Value = "${value}" WHERE SeriesData.Key = "${key}" AND SeriesProductLinkId = "${SPLid}";`
 
    con.query(query, (err, results) => {
       if (err) throw err;
@@ -740,7 +792,7 @@ exports.getSpecGroup = async (req, res) => {
    })
 }
 
-   
+
 
 /* ------------------------------- SeriesMaster ------------------------------ */
 
@@ -755,4 +807,10 @@ exports.getSerieMaster = async (req, res) => {
 
       res.send(results);
    })
+}
+
+exports.addSerieSpecValue = async (req, res) => {
+   const { Key, Value, Group, SubGroup, SeriesMasterId } = req.body;
+
+   console.log(req.body);
 }

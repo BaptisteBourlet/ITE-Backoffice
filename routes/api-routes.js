@@ -74,6 +74,8 @@ router.post('/updateSerieSpecs', apiCtrl.updateSerieSpecs);
 
 router.post('/addSerieSpecs', apiCtrl.addSerieSpecs);
 
+router.post('/addSerieSpecValue', apiCtrl.addSerieSpecValue);
+
 router.get('/getSerieMaster', apiCtrl.getSerieMaster);
 
 module.exports = router;
