@@ -1853,7 +1853,7 @@
             // },
          });
 
-         linkedProducts.on("edit", (editor, event) => {
+         linkedProducts.on("edit", (editor, event) => { //cellediting
             let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
             let value = linkedProductStore.getModifiedRecords()[0].data[key]
             let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];

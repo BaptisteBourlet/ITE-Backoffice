@@ -755,7 +755,7 @@ exports.getSerieSpecs = async (req, res) => {
 exports.updateSerieSpecs = async (req, res) => {
    const { SPLid, key, value } = req.body;
 
-   const query = `UPDATE SeriesData SET Value = "${value}" WHERE SeriesData.Key = "${key}" AND SeriesProductLinkId = "${SPLid}";`
+   const query = `UPDATE SeriesData SET Value = '${value}' WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
 
    con.query(query, (err, results) => {
       if (err) throw err;
