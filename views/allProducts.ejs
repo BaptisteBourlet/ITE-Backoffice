@@ -72,7 +72,7 @@
 
       let edit = false;
       let productIDGlobal = "";
-
+      let serieIDGlobal = "";
       Ext.define('MyApp.view.Form', {
         extend: 'Ext.form.Panel',
         xtype: 'my-form',
@@ -206,6 +206,33 @@
         }
       };
 
+      const checkIfSerie = (productId) => {
+        Ext.Ajax.request({
+          url: "/api/checkIfSerie",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            productId: productId,
+          },
+
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+
+            console.log(res);
+            if (res.isSerie) {
+              Ext.getCmp('editSerieSpecs').setHidden(false);
+              serieIDGlobal = res.serieId;
+            } else {
+              Ext.getCmp('editSerieSpecs').setHidden(true)
+            }
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      }
+
       const getProductDetails = (productId) => {
         Ext.Ajax.request({
           url: "/api/getProductDetails",
@@ -218,7 +245,6 @@
 
           success: function (response) {
             const res = JSON.parse(response.responseText);
-            console.log(res);
             if (edit === false) {
               displayProductInfo(res[0][0]);
             } else {
@@ -288,7 +314,6 @@
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
-            console.log(res);
             mainStore.reload();
             Ext.Msg.alert("INFO!", `Product has been edited successfully`);
             Ext.getCmp("viewport").setActiveItem("mainPanel");
@@ -462,6 +487,69 @@
           },
         });
       };
+
+      const getRelatedProductSerie = (serieId) => {
+        Ext.Ajax.request({
+          url: "/api/getRelatedProductSerie",
+          method: "GET",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            serieId: serieId,
+          },
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+            console.log(res);
+            let keys = Object.keys(res[0]);
+
+            let allColumns = keys.map(key => { //ongoing
+              let width = 150;
+              if (key === 'Name') {
+                width = 300;
+              }
+
+              if (key !== "Name" && key !== "id" && key !== "Code" && key !== "SPLid") {
+                return {
+                  header: key,
+                  sortable: true,
+                  width: width,
+                  dataIndex: key,
+                  editor: {
+                    completeOnEnter: true,
+                    field: {
+                      xtype: "textfield",
+                      allowBlank: false,
+                    },
+                  }
+                }
+              } else if (key == "SPLid") {
+                return {
+                  header: key,
+                  sortable: true,
+                  width: width,
+                  dataIndex: key,
+                  hidden: true
+                }
+              } else {
+                return {
+                  header: key,
+                  sortable: true,
+                  width: width,
+                  dataIndex: key,
+                }
+              }
+            })
+
+            linkedProducts.reconfigure(undefined, allColumns);
+            res
+              ? linkedProductStore.setData(res)
+              : console.log("no response received");
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      }
 
       const getOtherLanguageDetail = (language, productId) => {
         Ext.Ajax.request({
@@ -665,72 +753,67 @@
         },
       });
 
-      const firstCatModel = Ext.define("FIRSTCAT", {
+      const linkedProductModel = Ext.define("Categories", {
         extend: "Ext.data.Model",
-        fields: ["WorkingTitle", "Id"],
+        fields: ["Id", "CODE", "Catalog"],
       });
 
-      const firstCatStore = Ext.create("Ext.data.Store", {
-        id: "firstCatStore",
+      const linkedProductStore = Ext.create("Ext.data.Store", {
+        id: "mainStore",
         autoLoad: true,
-        model: firstCatModel,
+        model: linkedProductModel,
         proxy: {
           type: "ajax",
-          method: "POST",
-          url: "/api/getFirstCat",
+          method: "GET",
+          url: "/api/getRelatedProductSerie",
           noCache: true,
           reader: {
             type: "json",
-            rootProperty: "firstCat",
-            totalProperty: "totalCount",
-          },
-          cors: true,
-          useDefaultXhrHeader: false,
-        },
-      });
-      const secondCatStore = Ext.create("Ext.data.Store", {
-        id: "secondCatStore",
-        autoLoad: true,
-        model: firstCatModel,
-        proxy: {
-          type: "ajax",
-          method: "POST",
-          url: "/api/getSecondCat",
-          noCache: true,
-          reader: {
-            type: "json",
-            rootProperty: "secondCat",
-            totalProperty: "totalCount",
+
           },
           cors: true,
           useDefaultXhrHeader: false,
         },
         listeners: {
-          beforeload: function (store) { },
+          beforeload: function (store) {
+          },
         },
       });
 
-      const thirdCatStore = Ext.create("Ext.data.Store", {
-        id: "thirdCatStore",
-        autoLoad: true,
-        model: firstCatModel,
-        proxy: {
-          type: "ajax",
-          method: "POST",
-          url: "/api/getThirdCat",
-          noCache: true,
-          reader: {
-            type: "json",
-            rootProperty: "thirdCat",
-            totalProperty: "totalCount",
-          },
-          cors: true,
-          useDefaultXhrHeader: false,
+
+      let linkedProductColumns = [];
+
+
+      const linkedProductTbar = [
+        {
+          xtype: "toolbar",
+          dock: "top",
+          id: "linkedProductTbar",
+          items: [
+            {
+              xtype: "button",
+              id: "serieLinkBack",
+              text: "Back",
+              iconCls: "fa fa-undo-alt",
+              scale: "small",
+              handler: function () {
+                Ext.getCmp('viewport').setActiveItem('productDetails');
+              },
+            },
+            // "-",
+            // {
+            //   xtype: "button",
+            //   id: "addLinkedProducts",
+            //   text: "Add Linked Product",
+            //   iconCls: "fa fa-plus",
+            //   handler: function () {
+            //     Ext.getCmp("viewport").setActiveItem("panelAddRelated");
+            //   },
+            // },
+          ],
         },
-        listeners: {
-          beforeload: function (store) { },
-        },
-      });
+      ];
+
 
       const tbarItems = [
         {
@@ -976,8 +1059,9 @@
                 .getSelectionModel()
                 .getSelection()[0];
               getProductDetails(selectedRecord.data.Id);
-              // getAs400Description(selectedRecord.data.As400Code);
               productIDGlobal = selectedRecord.data.Id;
+              checkIfSerie(productIDGlobal);
+
               Ext.getCmp("productDetails").setTitle(
                 `PRODUCT DETAILS - ${selectedRecord.data.CODE}`
               );
@@ -1121,12 +1205,22 @@
                   getOtherLanguageDetail('de', productIDGlobal)
                   getOtherLanguageDetail('sp', productIDGlobal)
                   getOtherLanguageDetail('ru', productIDGlobal)
-
                 },
               },
               "-",
               {
                 xtype: "button", //ongoing
+                id: "editSerieSpecs",
+                text: "Edit Serie Specs",
+                iconCls: "fa fa-edit",
+                handler: function () {
+                  Ext.getCmp('viewport').setActiveItem('linkedProducts');
+                  getRelatedProductSerie(serieIDGlobal);
+                },
+              },
+              "-",
+              {
+                xtype: "button",
                 id: "addRelatedProducts",
                 text: "Add Related Product",
                 iconCls: "fa fa-plus",
@@ -1957,6 +2051,61 @@
         fields: ["Description"],
       });
 
+
+      const linkedProducts = Ext.create("Ext.grid.GridPanel", {
+        id: "linkedProducts",
+        flex: 1,
+        scrollable: true,
+        title: "Linked Products",
+        trackOver: true,
+        loadMask: true,
+        store: linkedProductStore,
+        columns: linkedProductColumns,
+        enableColumnMove: false,
+        sortable: true,
+        frame: false,
+        renderTo: Ext.getBody(),
+        height: 690,
+        dockedItems: [...linkedProductTbar],
+        selModel: 'cellmodel',
+        plugins: {
+          ptype: 'cellediting',
+          clicksToEdit: 1
+        },
+      });
+
+      linkedProducts.on("edit", (editor, event) => { //cellediting
+        let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
+        let value = linkedProductStore.getModifiedRecords()[0].data[key]
+        let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
+
+        Ext.Ajax.request({
+          url: "/api/updateSerieSpecs",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            key: key,
+            value: value,
+            SPLid: SPLid,
+          },
+          success: function (response) {
+            Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
+
+            linkedProductStore.getProxy().setExtraParam('serieId', serieIDGlobal);
+            linkedProductStore.reload();
+          },
+          failure: function (response) {
+            Ext.getBody().unmask();
+            Ext.Msg.alert(
+              "ERROR",
+              "Failed to update Specification. Contact your IT team."
+            );
+          },
+        });
+      })
+
+
       //=========================================================================================================
       //		           VIEW PORT
       // ========================================================================================================
@@ -1965,7 +2114,7 @@
         id: "viewport",
         layout: "card",
         activeItem: 0,
-        items: [mainPanel, productDetails, panelAdd, panelAdd2],
+        items: [mainPanel, productDetails, panelAdd, panelAdd2, linkedProducts],
       });
     });
 

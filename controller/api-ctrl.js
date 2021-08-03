@@ -33,38 +33,46 @@ const con = mysql.createConnection({
 
 
 exports.getSomething = async (req, res) => {
+   const query = "SELECT SeriesId FROM SeriesProductLink WHERE ProductId = '71'";
 
-   const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesData.Value FROM Product"
-      + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
-      + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
-      + " LEFT JOIN SeriesData ON SeriesProductLink.SPLid = SeriesData.SeriesProductLinkId"
-      + ` WHERE SeriesProductLink.SeriesId = "5" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
-
-
-   con.query(query, (err, results, fields) => {
+   con.query(query, (err, results) => {
       if (err) throw err;
 
-      let idArray = [];
-      let result = [];
-      results.forEach(res => {
-         if (!idArray.includes(res.Id)) {
-            idArray.push(res.Id);
-         }
-      })
+      let serieId = results[0].SeriesId
 
-      for (let i = 0; i < idArray.length; i++) {
-         let obj = {};
-         for (const { Id, Key, Value, CODE, Catalog } of results) {
-            if (Id === idArray[i]) {
-               obj[Key] = Value;
-               obj.id = Id;
-               obj.Code = CODE;
-               obj.Name = Catalog;
+      const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesData.Value FROM Product"
+         + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
+         + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
+         + " LEFT JOIN SeriesData ON SeriesProductLink.SPLid = SeriesData.SeriesProductLinkId"
+         + ` WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
+
+
+      con.query(query, (err, results, fields) => {
+         if (err) throw err;
+
+         let idArray = [];
+         let result = [];
+         results.forEach(res => {
+            if (!idArray.includes(res.Id)) {
+               idArray.push(res.Id);
             }
+         })
+
+         for (let i = 0; i < idArray.length; i++) {
+            let obj = {};
+            for (const { Id, Key, Value, CODE, Catalog, SPLid } of results) {
+               if (Id === idArray[i]) {
+                  obj.id = Id;
+                  obj.Code = CODE;
+                  obj.Name = Catalog;
+                  obj.SPLid = SPLid;
+                  obj[Key] = Value;
+               }
+            }
+            result.push(obj);
          }
-         result.push(obj);
-      }
-      res.send(result)
+         res.send(results);
+      })
    })
 }
 
@@ -346,7 +354,7 @@ exports.searchProduct = async (req, res) => {
          target = 'Product.Code';
          searchQueryAdapt = searchQuery;
    }
-  
+
 
    const query = "SELECT Product.Id as Id, Description, Catalog, CODE, As400Code, Tree"
       + " FROM ProductInfo"
@@ -839,4 +847,20 @@ exports.addSerieSpecValue = async (req, res) => {
    const { Key, Value, Group, SubGroup, SeriesMasterId } = req.body;
 
    console.log(req.body);
+}
+
+
+exports.checkIfSerie = async (req, res) => {
+   const { productId } = req.body;
+   const query = `SELECT SeriesId FROM SeriesProductLink WHERE ProductId = '${productId}'`;
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      if (result[0] !== undefined) {
+         res.send({isSerie: true, serieId: result[0].SeriesId});
+      } else {
+         res.send({isSerie: false});
+      }
+   })
 }
