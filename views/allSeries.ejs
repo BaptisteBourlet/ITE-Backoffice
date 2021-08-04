@@ -52,6 +52,14 @@
             display: block !important;
          }
       }
+
+      #ENFIELD-legendTitle,
+      #SPFIELD-legendTitle,
+      #FRFIELD-legendTitle,
+      #DEFIELD-legendTitle,
+      #RUFIELD-legendTitle {
+         font-weight: bold;
+      }
    </style>
    <script type="text/javascript">
       //=========================================================================================================
@@ -934,7 +942,7 @@
                      scale: "small",
                      handler: function () { deleteSeries() },
                   },
-                  
+
                ],
             },
             {
@@ -978,6 +986,7 @@
             fullscreen: true,
             tabBarPosition: 'bottom',
             id: 'tabTrans',
+            width: "100%",
             defaults: {
                styleHtmlContent: true
             },
@@ -998,43 +1007,68 @@
                         },
                         items: [
                            {
-                              xtype: "textfield",
-                              id: "Title",
-                              name: "Title",
-                              fieldLabel: "Title",
-                              maxLenght: 118,
-                              width: 500,
-                              allowBlank: false,
-                              submitvalue: true,
-                              margin: "25 0 25 0",
-                           },
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "textfield",
+                                          id: "Title",
+                                          name: "Title",
+                                          fieldLabel: "Title",
+                                          maxLenght: 118,
+                                          width: 500,
+                                          allowBlank: false,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
 
-                           {
-                              xtype: "htmleditor",
-                              id: "FDesc",
-                              name: "FDesc",
-                              fieldLabel: "Full description",
-                              enableColors: true,
-                              enableAlignments: false,
-                              submitvalue: true,
-                              allowBlank: false,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
-                           },
-                           // Baptiste move Catalog field
-                           {
-                              xtype: "htmleditor",
-                              id: "spec",
-                              name: "spec",
-                              fieldLabel: "Specification",
-                              enableColors: true,
-                              enableAlignments: false,
-                              allowBlank: false,
-                              selectOnFocus: false,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "FDesc",
+                                          name: "FDesc",
+                                          fieldLabel: "Full description",
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          submitvalue: true,
+                                          allowBlank: false,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                       },
+                                    ]
+                                 },
+                                 {
+                                    xtype: 'my-form',
+                                    border: false,
+                                    width: '55%',
+                                    frame: false,
+                                    items: [
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "spec",
+                                          name: "spec",
+                                          fieldLabel: "Specification",
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          allowBlank: false,
+                                          selectOnFocus: false,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                          margin: "25 0 25 0",
+                                       },
+                                    ]
+                                 }
+                              ]
                            },
                         ],
                      },
@@ -1056,42 +1090,68 @@
                         },
                         items: [
                            {
-                              xtype: "textfield",
-                              id: "FRTitle",
-                              name: "FRTitle",
-                              fieldLabel: "Title",
-                              maxLenght: 118,
-                              width: 500,
-                              allowBlank: true,
-                              submitvalue: true,
-                              margin: "25 0 25 0",
-                           },
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "textfield",
+                                          id: "FRTitle",
+                                          name: "FRTitle",
+                                          fieldLabel: "Title",
+                                          maxLenght: 118,
+                                          width: 500,
+                                          allowBlank: true,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
 
-                           {
-                              xtype: "htmleditor",
-                              id: "FRFDesc",
-                              name: "FRFDesc",
-                              fieldLabel: "Full description",
-                              allowBlank: true,
-                              enableColors: true,
-                              enableAlignments: false,
-                              submitvalue: true,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
-                           },
-                           {
-                              xtype: "htmleditor",
-                              id: "FRspec",
-                              name: "FRspec",
-                              fieldLabel: "Specification",
-                              enableColors: true,
-                              enableAlignments: false,
-                              allowBlank: true,
-                              selectOnFocus: false,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "FRFDesc",
+                                          name: "FRFDesc",
+                                          fieldLabel: "Full description",
+                                          allowBlank: true,
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          submitvalue: true,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                       },
+                                    ]
+                                 },
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "FRspec",
+                                          name: "FRspec",
+                                          fieldLabel: "Specification",
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          allowBlank: true,
+                                          selectOnFocus: false,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                          margin: "25 0 25 0",
+                                       },
+                                    ]
+                                 }
+                              ]
                            },
                         ],
                      },
@@ -1113,42 +1173,68 @@
                         },
                         items: [
                            {
-                              xtype: "textfield",
-                              id: "DETitle",
-                              name: "DETitle",
-                              fieldLabel: "Title",
-                              maxLenght: 118,
-                              width: 500,
-                              allowBlank: true,
-                              submitvalue: true,
-                              margin: "25 0 25 0",
-                           },
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "textfield",
+                                          id: "DETitle",
+                                          name: "DETitle",
+                                          fieldLabel: "Title",
+                                          maxLenght: 118,
+                                          width: 500,
+                                          allowBlank: true,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
 
-                           {
-                              xtype: "htmleditor",
-                              id: "DEFDesc",
-                              name: "DEFDesc",
-                              fieldLabel: "Full description",
-                              enableColors: true,
-                              enableAlignments: false,
-                              submitvalue: true,
-                              allowBlank: true,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
-                           },
-                           {
-                              xtype: "htmleditor",
-                              id: "DEspec",
-                              name: "DEspec",
-                              fieldLabel: "Specification",
-                              enableColors: true,
-                              enableAlignments: false,
-                              allowBlank: true,
-                              selectOnFocus: false,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "DEFDesc",
+                                          name: "DEFDesc",
+                                          fieldLabel: "Full description",
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          submitvalue: true,
+                                          allowBlank: true,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                       },
+                                    ]
+                                 },
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "DEspec",
+                                          name: "DEspec",
+                                          fieldLabel: "Specification",
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          allowBlank: true,
+                                          selectOnFocus: false,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                          margin: "25 0 25 0",
+                                       },
+                                    ]
+                                 }
+                              ]
                            },
                         ],
                      },
@@ -1171,42 +1257,68 @@
                         },
                         items: [
                            {
-                              xtype: "textfield",
-                              id: "SPTitle",
-                              name: "SPTitle",
-                              fieldLabel: "Title",
-                              allowBlank: true,
-                              maxLenght: 118,
-                              width: 500,
-                              submitvalue: true,
-                              margin: "25 0 25 0",
-                           },
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "textfield",
+                                          id: "SPTitle",
+                                          name: "SPTitle",
+                                          fieldLabel: "Title",
+                                          allowBlank: true,
+                                          maxLenght: 118,
+                                          width: 500,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
 
-                           {
-                              xtype: "htmleditor",
-                              id: "SPFDesc",
-                              name: "SPFDesc",
-                              fieldLabel: "Full description",
-                              enableColors: true,
-                              enableAlignments: false,
-                              submitvalue: true,
-                              allowBlank: true,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
-                           },
-                           {
-                              xtype: "htmleditor",
-                              id: "SPspec",
-                              name: "SPspec",
-                              fieldLabel: "Specification",
-                              enableColors: true,
-                              enableAlignments: false,
-                              allowBlank: true,
-                              selectOnFocus: false,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "SPFDesc",
+                                          name: "SPFDesc",
+                                          fieldLabel: "Full description",
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          submitvalue: true,
+                                          allowBlank: true,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                       },
+                                    ]
+                                 },
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "SPspec",
+                                          name: "SPspec",
+                                          fieldLabel: "Specification",
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          allowBlank: true,
+                                          selectOnFocus: false,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                          margin: "25 0 25 0",
+                                       },
+                                    ]
+                                 }
+                              ]
                            },
                         ],
                      },
@@ -1228,47 +1340,72 @@
                         },
                         items: [
                            {
-                              xtype: "textfield",
-                              id: "RUTitle",
-                              name: "RUTitle",
-                              fieldLabel: "Title",
-                              maxLenght: 118,
-                              allowBlank: true,
-                              width: 500,
-                              submitvalue: true,
-                              margin: "25 0 25 0",
-                           },
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "textfield",
+                                          id: "RUTitle",
+                                          name: "RUTitle",
+                                          fieldLabel: "Title",
+                                          maxLenght: 118,
+                                          allowBlank: true,
+                                          width: 500,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
 
-                           {
-                              xtype: "htmleditor",
-                              id: "RUFDesc",
-                              name: "RUFDesc",
-                              fieldLabel: "Full description",
-                              enableColors: true,
-                              enableAlignments: false,
-                              submitvalue: true,
-                              allowBlank: true,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
-                           },
-                           {
-                              xtype: "htmleditor",
-                              id: "RUspec",
-                              name: "RUspec",
-                              fieldLabel: "Specification",
-                              enableColors: true,
-                              enableAlignments: false,
-                              allowBlank: true,
-                              selectOnFocus: false,
-                              enableFont: false,
-                              height: 400,
-                              width: 560,
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "RUFDesc",
+                                          name: "RUFDesc",
+                                          fieldLabel: "Full description",
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          submitvalue: true,
+                                          allowBlank: true,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                       },
+                                    ]
+                                 },
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "htmleditor",
+                                          id: "RUspec",
+                                          name: "RUspec",
+                                          fieldLabel: "Specification",
+                                          enableColors: true,
+                                          enableAlignments: false,
+                                          allowBlank: true,
+                                          selectOnFocus: false,
+                                          enableFont: false,
+                                          height: 400,
+                                          width: 560,
+                                       },
+                                    ]
+                                 }
+                              ]
                            },
                         ],
                      },
                   ]
-               }
+               },
             ]
          });
 
@@ -1309,7 +1446,7 @@
                   },
                },
             },
-            width: 1200,
+            width: '100%',
             waitMsgTarget: true,
             autoScroll: true,
             style: "padding: 3px 3px 3px 3px;",
@@ -1324,7 +1461,7 @@
                      {
                         xtype: 'my-form',
                         id: "addForm",
-                        columnWidth: 0.9,
+                        columnWidth: 1,
                         border: false,
                         items: itemsAdd,
                      },
@@ -1400,7 +1537,7 @@
                      serieIDGlobal = selectedRecord.data.Sid;
                      sessionStorage.setItem('serieIDGlobal', serieIDGlobal)
                      getSerieDetails(selectedRecord.data.Sid);
-                 
+
                      linkedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
                      linkedProductStore.load();
 
@@ -2030,7 +2167,7 @@
             },
          });
 
-    
+
          const addSerieSpecs = Ext.create('Ext.panel.Panel', {
             id: "addSerieSpecs",
             layout: 'fit',

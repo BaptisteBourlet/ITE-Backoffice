@@ -10,37 +10,7 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
-  <style>
-    .grid-image {
-      width: auto;
-      height: 70px;
-    }
-
-    .x-grid-cell-inner {
-      overflow: hidden;
-      padding: 10px 6px;
-      white-space: nowrap;
-    }
-
-    .a span {
-      background-color: rgb(253, 253, 253);
-      padding: 2px;
-      color: black;
-    }
-
-    .fieldClass {
-      border-bottom: 1px dashed rgb(173, 173, 173);
-      padding: 7px 0px;
-    }
-
-    #ENFIELD-legendTitle,
-    #SPFIELD-legendTitle,
-    #FRFIELD-legendTitle,
-    #DEFIELD-legendTitle,
-    #RUFIELD-legendTitle {
-      font-weight: bold;
-    }
-  </style>
+  
   <script type="text/javascript">
     //=========================================================================================================
     //		           APPLICATION START
@@ -99,6 +69,23 @@
             }]
          });
 
+         var tab04 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Chapters translated',
+            border: false,
+            id: 'b04',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab04',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/ChaptersTranslated'
+               }
+            }]
+         });
+
          var scrntab = Ext.create('Ext.TabPanel', {
             fullscreen: true,
             tabBarPosition: 'bottom',
@@ -107,7 +94,7 @@
             defaults: {
                styleHtmlContent: true
             },
-            items: [tab01, tab02, tab03],
+            items: [tab01, tab02, tab03, tab04],
             listeners: {
                tabChange: function (tabPanel, newTab, currentTab) {
                   try {

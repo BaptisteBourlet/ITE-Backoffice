@@ -817,7 +817,7 @@
 
 
       const tbarItems = [
-       
+
         {
           xtype: "toolbar",
           dock: "top",
@@ -877,7 +877,7 @@
               scale: "small",
               handler: function () { deleteProduct() },
             },
-            
+
           ],
         },
         {
@@ -1265,58 +1265,85 @@
                 },
                 items: [
                   {
-                    xtype: "textfield",
-                    id: "Cat",
-                    name: "Cat",
-                    fieldLabel: "Catalog",
-                    maxLenght: 118,
-                    width: 500,
-                    allowBlank: false,
-                    submitvalue: true,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "textfield",
-                    id: "desc",
-                    name: "desc",
-                    fieldLabel: "Description",
-                    maxLenght: 123,
-                    width: 500,
-                    allowBlank: false,
-                    selectOnFocus: false,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "htmleditor",
-                    id: "FDesc",
-                    name: "FDesc",
-                    fieldLabel: "Full description",
-                    enableColors: true,
-                    enableAlignments: false,
-                    submitvalue: true,
-                    allowBlank: false,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
-                  },
-                  // Baptiste move Catalog field
-                  {
-                    xtype: "htmleditor",
-                    id: "spec",
-                    name: "spec",
-                    fieldLabel: "Specification",
-                    enableColors: true,
-                    enableAlignments: false,
-                    allowBlank: false,
-                    selectOnFocus: false,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
+                    layout: {
+                      type: 'hbox',
+                      align: 'stretch'
+                    },
+                    border: false,
+                    items: [
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+                          {
+                            xtype: "textfield",
+                            id: "Cat",
+                            name: "Cat",
+                            fieldLabel: "Catalog",
+                            maxLenght: 118,
+                            width: 500,
+                            allowBlank: false,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "textfield",
+                            id: "desc",
+                            name: "desc",
+                            fieldLabel: "Description",
+                            maxLenght: 123,
+                            width: 500,
+                            allowBlank: false,
+                            selectOnFocus: false,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "htmleditor",
+                            id: "FDesc",
+                            name: "FDesc",
+                            fieldLabel: "Full description",
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            allowBlank: false,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                          },
+                        ]
+                      },
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+
+                          {
+                            xtype: "htmleditor",
+                            id: "spec",
+                            name: "spec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: false,
+                            selectOnFocus: false,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                            margin: "25 0 25 0",
+                          },
+                        ]
+                      }
+                    ]
                   },
                 ],
-              }
+              },
             ]
           },
+
           {
             title: 'French',
 
@@ -1333,52 +1360,78 @@
                 },
                 items: [
                   {
-                    xtype: "textfield",
-                    id: "FRCat",
-                    name: "FRCat",
-                    fieldLabel: "Catalog",
-                    maxLenght: 118,
-                    width: 500,
-                    allowBlank: true,
-                    submitvalue: true,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "textfield",
-                    id: "FRdesc",
-                    name: "FRdesc",
-                    fieldLabel: "Description",
-                    maxLenght: 123,
-                    width: 500,
-                    allowBlank: true,
-                    selectOnFocus: false,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "htmleditor",
-                    id: "FRFDesc",
-                    name: "FRFDesc",
-                    fieldLabel: "Full description",
-                    allowBlank: true,
-                    enableColors: true,
-                    enableAlignments: false,
-                    submitvalue: true,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
-                  },
-                  {
-                    xtype: "htmleditor",
-                    id: "FRspec",
-                    name: "FRspec",
-                    fieldLabel: "Specification",
-                    enableColors: true,
-                    enableAlignments: false,
-                    allowBlank: true,
-                    selectOnFocus: false,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
+                    layout: {
+                      type: 'hbox',
+                      align: 'stretch'
+                    },
+                    border: false,
+                    items: [
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+                          {
+                            xtype: "textfield",
+                            id: "FRCat",
+                            name: "FRCat",
+                            fieldLabel: "Catalog",
+                            maxLenght: 118,
+                            width: 500,
+                            allowBlank: true,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "textfield",
+                            id: "FRdesc",
+                            name: "FRdesc",
+                            fieldLabel: "Description",
+                            maxLenght: 123,
+                            width: 500,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "htmleditor",
+                            id: "FRFDesc",
+                            name: "FRFDesc",
+                            fieldLabel: "Full description",
+                            allowBlank: true,
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                          },
+                        ]
+                      },
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+                          {
+                            xtype: "htmleditor",
+                            id: "FRspec",
+                            name: "FRspec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                            margin: "25 0 25 0",
+                          },
+                        ]
+                      }
+                    ]
                   },
                 ],
               },
@@ -1400,52 +1453,78 @@
                 },
                 items: [
                   {
-                    xtype: "textfield",
-                    id: "DECat",
-                    name: "DECat",
-                    fieldLabel: "Catalog",
-                    maxLenght: 118,
-                    width: 500,
-                    allowBlank: true,
-                    submitvalue: true,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "textfield",
-                    id: "DEdesc",
-                    name: "DEdesc",
-                    fieldLabel: "Description",
-                    maxLenght: 123,
-                    width: 500,
-                    allowBlank: true,
-                    selectOnFocus: false,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "htmleditor",
-                    id: "DEFDesc",
-                    name: "DEFDesc",
-                    fieldLabel: "Full description",
-                    enableColors: true,
-                    enableAlignments: false,
-                    submitvalue: true,
-                    allowBlank: true,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
-                  },
-                  {
-                    xtype: "htmleditor",
-                    id: "DEspec",
-                    name: "DEspec",
-                    fieldLabel: "Specification",
-                    enableColors: true,
-                    enableAlignments: false,
-                    allowBlank: true,
-                    selectOnFocus: false,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
+                    layout: {
+                      type: 'hbox',
+                      align: 'stretch'
+                    },
+                    border: false,
+                    items: [
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+                          {
+                            xtype: "textfield",
+                            id: "DECat",
+                            name: "DECat",
+                            fieldLabel: "Catalog",
+                            maxLenght: 118,
+                            width: 500,
+                            allowBlank: true,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "textfield",
+                            id: "DEdesc",
+                            name: "DEdesc",
+                            fieldLabel: "Description",
+                            maxLenght: 123,
+                            width: 500,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "htmleditor",
+                            id: "DEFDesc",
+                            name: "DEFDesc",
+                            fieldLabel: "Full description",
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            allowBlank: true,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                          },
+                        ]
+                      },
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+                          {
+                            xtype: "htmleditor",
+                            id: "DEspec",
+                            name: "DEspec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                            margin: "25 0 25 0",
+                          },
+                        ]
+                      }
+                    ]
                   },
                 ],
               },
@@ -1468,52 +1547,78 @@
                 },
                 items: [
                   {
-                    xtype: "textfield",
-                    id: "SPCat",
-                    name: "SPCat",
-                    fieldLabel: "Catalog",
-                    allowBlank: true,
-                    maxLenght: 118,
-                    width: 500,
-                    submitvalue: true,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "textfield",
-                    id: "SPdesc",
-                    name: "SPdesc",
-                    fieldLabel: "Description",
-                    maxLenght: 123,
-                    width: 500,
-                    allowBlank: true,
-                    selectOnFocus: false,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "htmleditor",
-                    id: "SPFDesc",
-                    name: "SPFDesc",
-                    fieldLabel: "Full description",
-                    enableColors: true,
-                    enableAlignments: false,
-                    submitvalue: true,
-                    allowBlank: true,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
-                  },
-                  {
-                    xtype: "htmleditor",
-                    id: "SPspec",
-                    name: "SPspec",
-                    fieldLabel: "Specification",
-                    enableColors: true,
-                    enableAlignments: false,
-                    allowBlank: true,
-                    selectOnFocus: false,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
+                    layout: {
+                      type: 'hbox',
+                      align: 'stretch'
+                    },
+                    border: false,
+                    items: [
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+                          {
+                            xtype: "textfield",
+                            id: "SPCat",
+                            name: "SPCat",
+                            fieldLabel: "Catalog",
+                            allowBlank: true,
+                            maxLenght: 118,
+                            width: 500,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "textfield",
+                            id: "SPdesc",
+                            name: "SPdesc",
+                            fieldLabel: "Description",
+                            maxLenght: 123,
+                            width: 500,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "htmleditor",
+                            id: "SPFDesc",
+                            name: "SPFDesc",
+                            fieldLabel: "Full description",
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            allowBlank: true,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                          },
+                        ]
+                      },
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+                          {
+                            xtype: "htmleditor",
+                            id: "SPspec",
+                            name: "SPspec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                            margin: "25 0 25 0",
+                          },
+                        ]
+                      }
+                    ]
                   },
                 ],
               },
@@ -1535,57 +1640,83 @@
                 },
                 items: [
                   {
-                    xtype: "textfield",
-                    id: "RUCat",
-                    name: "RUCat",
-                    fieldLabel: "Catalog",
-                    maxLenght: 118,
-                    allowBlank: true,
-                    width: 500,
-                    submitvalue: true,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "textfield",
-                    id: "RUdesc",
-                    name: "RUdesc",
-                    fieldLabel: "Description",
-                    maxLenght: 123,
-                    width: 500,
-                    allowBlank: true,
-                    selectOnFocus: false,
-                    margin: "25 0 25 0",
-                  },
-                  {
-                    xtype: "htmleditor",
-                    id: "RUFDesc",
-                    name: "RUFDesc",
-                    fieldLabel: "Full description",
-                    enableColors: true,
-                    enableAlignments: false,
-                    submitvalue: true,
-                    allowBlank: true,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
-                  },
-                  {
-                    xtype: "htmleditor",
-                    id: "RUspec",
-                    name: "RUspec",
-                    fieldLabel: "Specification",
-                    enableColors: true,
-                    enableAlignments: false,
-                    allowBlank: true,
-                    selectOnFocus: false,
-                    enableFont: false,
-                    height: 400,
-                    width: 560,
+                    layout: {
+                      type: 'hbox',
+                      align: 'stretch'
+                    },
+                    border: false,
+                    items: [
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+                          {
+                            xtype: "textfield",
+                            id: "RUCat",
+                            name: "RUCat",
+                            fieldLabel: "Catalog",
+                            maxLenght: 118,
+                            allowBlank: true,
+                            width: 500,
+                            submitvalue: true,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "textfield",
+                            id: "RUdesc",
+                            name: "RUdesc",
+                            fieldLabel: "Description",
+                            maxLenght: 123,
+                            width: 500,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            margin: "25 0 25 0",
+                          },
+                          {
+                            xtype: "htmleditor",
+                            id: "RUFDesc",
+                            name: "RUFDesc",
+                            fieldLabel: "Full description",
+                            enableColors: true,
+                            enableAlignments: false,
+                            submitvalue: true,
+                            allowBlank: true,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                          },
+                        ]
+                      },
+                      {
+                        xtype: 'my-form',
+                        width: '40%',
+                        frame: false,
+                        border: false,
+                        items: [
+                          {
+                            xtype: "htmleditor",
+                            id: "RUspec",
+                            name: "RUspec",
+                            fieldLabel: "Specification",
+                            enableColors: true,
+                            enableAlignments: false,
+                            allowBlank: true,
+                            selectOnFocus: false,
+                            enableFont: false,
+                            height: 400,
+                            width: 560,
+                            margin: "25 0 25 0",
+                          },
+                        ]
+                      }
+                    ]
                   },
                 ],
               },
             ]
-          }
+          },
         ]
       });
 
@@ -1620,7 +1751,6 @@
           fieldLabel: "Category",
           displayField: "Name",
           valueField: "Id",
-          anchor: "100%",
           allowBlank: false,
           selectOnFocus: false,
           anyMatch: true,
@@ -1678,7 +1808,7 @@
               {
                 xtype: 'my-form',
                 id: "addForm",
-                columnWidth: 0.9,
+                columnWidth: 1,
                 border: false,
                 items: itemsAdd,
               },
@@ -2038,7 +2168,7 @@
           let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
           let value = linkedProductStore.getModifiedRecords()[0].data[key]
           let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
-  
+
           Ext.Ajax.request({
             url: "/api/updateSerieSpecs",
             method: "POST",
@@ -2051,7 +2181,7 @@
             },
             success: function (response) {
               Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
-  
+
               linkedProductStore.getProxy().setExtraParam('serieId', serieIDGlobal);
               linkedProductStore.reload();
             },

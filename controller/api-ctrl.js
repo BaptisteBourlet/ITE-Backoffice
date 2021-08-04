@@ -84,7 +84,7 @@ exports.getAllProducts = async (req, res) => {
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
       + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type = 'P'"
-      + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
+      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 ORDER BY ProductInfo.ProductId LIMIT 100;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
@@ -291,26 +291,24 @@ exports.deleteProduct = async (req, res) => {
    const { ProductId } = req.body;
    let errorString = '';
 
-   con.query(`DELETE FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId};`, (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-   })
-   con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
-      if (err) {
-         console.log(err);
-         errorString += 'ProductInfo, '
-      }
-
-      con.query(`DELETE FROM Product WHERE Id = "${ProductId}";`, (err, results, fields) => {
+   // con.query(`DELETE FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId};`, (err, results, fields) => {
+   //    if (err) {
+   //       console.log(err)
+   //    }
+   // })
+   // con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
+   //    if (err) {
+   //       console.log(err);
+   //       errorString += 'ProductInfo, '
+   //    }
+  
+      con.query(`UPDATE Product SET Publish = 0 WHERE Id = "${ProductId}";`, (err, results, fields) => {
          if (err) {
-            console.log('Oridyt', err)
             errorString += 'Product, '
          }
          res.send(results)
       })
 
-   })
 }
 
 
@@ -360,7 +358,7 @@ exports.searchProduct = async (req, res) => {
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
       + " LEFT JOIN InfoTree ON ProductInfo.ProductId = InfoTree.LinkId AND InfoTree.Type = 'P'"
-      + ` WHERE ProductInfo.Language = 'en' AND ${target} LIKE '%${searchQueryAdapt}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
+      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 AND ${target} LIKE '%${searchQueryAdapt}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
@@ -862,5 +860,42 @@ exports.checkIfSerie = async (req, res) => {
       } else {
          res.send({isSerie: false});
       }
+   })
+}
+
+/* ------------------------- TranslatedChapter CRUD ------------------------- */
+
+exports.getTransltedChapters = async (req, res) => {
+   
+   const query = `SELECT * FROM TranslatedChapters;`;
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
+exports.addTranslatedChapter = async (req, res) => {
+   const { Chapter, Language, Translated } = req.body;
+
+   con.query(`INSERT INTO TranslatedChapters (Chapter, Language, Translated) VALUES ("${Chapter}", "${Language}", "${Translated}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+
+
+exports.deleteTranslatedChapter = async (req, res) => {
+   const { chapterTransltedId } = req.body;
+
+   con.query(`DELETE FROM TranslatedChapters WHERE id = ${chapterTransltedId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err);
+      }
+      res.send(results)
    })
 }

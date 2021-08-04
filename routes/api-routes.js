@@ -80,4 +80,14 @@ router.get('/getSerieMaster', apiCtrl.getSerieMaster);
 
 router.post('/checkIfSerie', apiCtrl.checkIfSerie);
 
+
+/* --------------------------- Translted Chapters --------------------------- */
+
+router.get('/getTransltedChapters', apiCtrl.getTransltedChapters);
+
+router.post('/addTranslatedChapter', apiCtrl.addTranslatedChapter);
+
+router.post('/deleteTranslatedChapter', apiCtrl.deleteTranslatedChapter);
+
+
 module.exports = router;
