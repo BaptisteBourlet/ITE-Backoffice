@@ -34,43 +34,13 @@ const con = mysql.createConnection({
 
 exports.getSomething = async (req, res) => {
    const query = "SELECT SeriesId FROM SeriesProductLink WHERE ProductId = '71'";
-
-   con.query(query, (err, results) => {
+   const maxSequence = `SELECT MAX(Sequence) as maxSequence, COUNT(*) AS count FROM SeriesMaster WHERE Sid = "5";`;
+   con.query(maxSequence, (err, results) => {
       if (err) throw err;
 
       let serieId = results[0].SeriesId
-
-      const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesData.Value FROM Product"
-         + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
-         + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
-         + " LEFT JOIN SeriesData ON SeriesProductLink.SPLid = SeriesData.SeriesProductLinkId"
-         + ` WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
-
-
-      con.query(query, (err, results, fields) => {
-         if (err) throw err;
-
-         let idArray = [];
-         let result = [];
-         results.forEach(res => {
-            if (!idArray.includes(res.Id)) {
-               idArray.push(res.Id);
-            }
-         })
-
-         for (let i = 0; i < idArray.length; i++) {
-            let obj = {};
-            for (const { Id, Key, Value, CODE, Catalog, SPLid } of results) {
-               if (Id === idArray[i]) {
-                  obj.id = Id;
-                  obj.Code = CODE;
-                  obj.Name = Catalog;
-                  obj.SPLid = SPLid;
-                  obj[Key] = Value;
-               }
-            }
-            result.push(obj);
-         }
+      const getSPLid = `SELECT SPLid FROM SeriesProductLink WHERE SeriesId = "5"`;
+      con.query(getSPLid, (err, results) => {
          res.send(results);
       })
    })
@@ -355,7 +325,6 @@ exports.searchProduct = async (req, res) => {
          searchQueryAdapt = searchQuery;
    }
 
-
    const query = "SELECT Product.Id as Id, Description, Catalog, CODE, As400Code, Tree"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
@@ -366,37 +335,6 @@ exports.searchProduct = async (req, res) => {
       if (err) {
          console.log(err)
       }
-      res.send(results)
-   })
-}
-
-
-
-exports.getFirstCat = async (req, res) => {
-   con.query("SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';", (err, results, fields) => {
-      if (err) throw err;
-
-      res.send(results)
-   })
-}
-
-exports.getSecondCat = async (req, res) => {
-   const { firstCat } = req.query
-
-   con.query(`SELECT * FROM Category WHERE ParentId = "${firstCat}" AND Publish = '1';`, (err, results, fields) => {
-      if (err) throw err;
-
-      res.send(results)
-   })
-}
-
-
-exports.getThirdCat = async (req, res) => {
-   const { secondCat } = req.query
-
-   con.query(`SELECT * FROM Category WHERE ParentId = "${secondCat}" AND Publish = '1';`, (err, results, fields) => {
-      if (err) throw err;
-
       res.send(results)
    })
 }
@@ -686,7 +624,6 @@ exports.deleteSeries = async (req, res) => {
    const { SeriesId } = req.body;
    let errorString = '';
 
-
    con.query(`DELETE FROM SeriesProductLink WHERE SeriesId = ${SeriesId};`, (err, results, fields) => {
       if (err) {
          console.log(err);
@@ -730,7 +667,6 @@ exports.getRelatedProductSerie = async (req, res) => {
       + " LEFT JOIN SeriesData ON SeriesProductLink.SPLid = SeriesData.SeriesProductLinkId"
       + ` WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
 
-
    con.query(query, (err, results, fields) => {
       if (err) throw err;
 
@@ -758,7 +694,6 @@ exports.getRelatedProductSerie = async (req, res) => {
       res.send(result)
    })
 }
-
 
 exports.addSeriesRelatedProduct = async (req, res) => {
    const { ProductId, SeriesId } = req.body;
@@ -798,24 +733,39 @@ exports.updateSerieSpecs = async (req, res) => {
    })
 }
 
-exports.addSerieSpecs = async (req, res) => {
+exports.addSerieMasterSpecs = async (req, res) => {
    const { serieId, Key, Group, SubGroup } = req.body;
-   const maxIdQuery = `SELECT MAX(Id) AS maxId FROM SeriesMaster`;
-   const maxSequence = `SELECT MAX(Sequence) as maxSequence FROM SeriesMaster WHERE Sid = "${serieId}";`;
-
    let nextSequence;
-   con.query(maxSequence, (err, sequenceResult) => {
+   let nextSerieCount;
+   const maxSequence = `SELECT MAX(Sequence) as maxSequence, COUNT(*) AS count FROM SeriesMaster WHERE Sid = "${serieId}";`;
+   const masterInsert = `INSERT INTO SeriesMaster (SeriesMaster.Sid, SeriesMaster.Key, SeriesMaster.Group, SubGroup, Sequence) VALUES ('${serieId}', '${Key}', '${Group}', '${SubGroup}', '${nextSequence}');`;
+   const getSPLid = `SELECT SPLid FROM SeriesProductLink WHERE SeriesId = "${serieId}"`;
+
+
+   con.query(maxSequence, (err, sequenceResult) => { // get maxSequence from SeriesMaster
       if (err) throw err;
       nextSequence = sequenceResult[0].maxSequence + 1;
-      const query = `INSERT INTO SeriesMaster (SeriesMaster.Sid, SeriesMaster.Key, SeriesMaster.Group, SubGroup, Sequence) VALUES ('${serieId}', '${Key}', '${Group}', '${SubGroup}', '${nextSequence}');`
-
-      con.query(query, (err, result) => {
+      nextSerieCount = sequenceResult[0].count + 1;
+      con.query(masterInsert, (err, result) => { // insert into SeriesMaster
          if (err) throw err;
-         res.send(result);
+         let newSerieMasterId = result.insertId;
+
+         con.query(getSPLid, (err, SPLresults) => { // get all SeriesProductLinkIds
+            if (err) throw err;
+
+            SPLresults.forEach((serieProductLink) => { //insert evert SerieProductLink to SeriesData
+               const insertToData = `INSERT INTO SeriesData (SerieMasterId, Value, SeriesProductLinkId, SeriesData.Key, SeriesData.Group, Sequence, Name) VALUES ("${newSerieMasterId}", " ", "${serieProductLink.SPLid}", "${Key}", "${Group}", "${nextSerieCount}", "${Key}");`
+
+               con.query(insertToData, (err, result) => {
+                  if (err) throw err;
+               })
+            })
+
+            res.send(SPLresults);
+         })
       })
    })
 }
-
 
 exports.getSpecGroup = async (req, res) => {
    const query = `SELECT DISTINCT SeriesMaster.Group FROM SeriesMaster;`
@@ -858,9 +808,9 @@ exports.checkIfSerie = async (req, res) => {
       if (err) throw err;
 
       if (result[0] !== undefined) {
-         res.send({isSerie: true, serieId: result[0].SeriesId});
+         res.send({ isSerie: true, serieId: result[0].SeriesId });
       } else {
-         res.send({isSerie: false});
+         res.send({ isSerie: false });
       }
    })
 }

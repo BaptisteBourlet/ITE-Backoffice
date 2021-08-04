@@ -16,12 +16,6 @@ router.post('/getOtherLanguageDetail', apiCtrl.getOtherLanguageDetail);
 
 router.get('/getCategories', apiCtrl.getCategories);
 
-router.get('/getFirstCat', apiCtrl.getFirstCat);
-
-router.get('/getSecondCat', apiCtrl.getSecondCat);
-
-router.get('/getThirdCat', apiCtrl.getThirdCat);
-
 router.post('/addProduct', apiCtrl.addProduct);
 
 router.post('/editProduct', apiCtrl.editProduct);
@@ -41,8 +35,6 @@ router.post('/getRelatedCatalog', apiCtrl.getRelatedCatalog);
 router.get('/getSequenceResults', apiCtrl.getSequenceResults);
 
 router.post('/changeSequence', apiCtrl.changeSequence);
-
-// router.post('/getAs400Description', apiCtrl.getAs400Description);
 
 // =================================================================================================
 //                                       SERIES
@@ -72,7 +64,7 @@ router.get('/getSpecGroup', apiCtrl.getSpecGroup);
 
 router.post('/updateSerieSpecs', apiCtrl.updateSerieSpecs);
 
-router.post('/addSerieSpecs', apiCtrl.addSerieSpecs);
+router.post('/addSerieMasterSpecs', apiCtrl.addSerieMasterSpecs);
 
 router.post('/addSerieSpecValue', apiCtrl.addSerieSpecValue);
 

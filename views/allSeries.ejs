@@ -369,9 +369,9 @@
          });
 
 
-         const addSerieSpecifications = (serieId) => {
+         const addSerieMasterSpecs = (serieId) => {
             Ext.Ajax.request({
-               url: "/api/addSerieSpecs",
+               url: "/api/addSerieMasterSpecs",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -383,9 +383,10 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-                  if (res.serverStatus === 2) {
-                     Ext.getCmp('viewport').setActiveItem('SeriesMasterSpecs')
+                  if (res) {
                      Ext.Msg.alert("INFO", "New Specification added successfully");
+                     serieMasterStore.reload();
+                     Ext.getCmp('viewport').setActiveItem('SeriesMasterSpecs')
                   }
                },
                failure: function (response) {
@@ -934,7 +935,7 @@
                      scale: "small",
                      handler: function () { deleteSeries() },
                   },
-                  
+
                ],
             },
             {
@@ -1400,7 +1401,7 @@
                      serieIDGlobal = selectedRecord.data.Sid;
                      sessionStorage.setItem('serieIDGlobal', serieIDGlobal)
                      getSerieDetails(selectedRecord.data.Sid);
-                 
+
                      linkedProductStore.getProxy().setExtraParam('serieId', selectedRecord.data.Sid);
                      linkedProductStore.load();
 
@@ -1938,7 +1939,7 @@
                   {
                      xtype: "button",
                      id: "addNewSpecs",
-                     text: "Add Serie Specs",
+                     text: "Add Serie Master Specs",
                      iconCls: "fa fa-plus",
                      handler: function () {
                         Ext.getCmp('viewport').setActiveItem('addSerieSpecs')
@@ -2030,7 +2031,7 @@
             },
          });
 
-    
+
          const addSerieSpecs = Ext.create('Ext.panel.Panel', {
             id: "addSerieSpecs",
             layout: 'fit',
@@ -2053,8 +2054,8 @@
                   id: "addSpecSave",
                   iconCls: "fa fa-save",
                   handler: function () {
+                     addSerieMasterSpecs(serieIDGlobal);
                      Ext.getCmp('addSpecForm').reset();
-                     addSerieSpecifications(serieIDGlobal);
                   }
                },
 
