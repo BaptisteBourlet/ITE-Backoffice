@@ -19,6 +19,8 @@
         // ========================================================================================================
         Ext.onReady(() => {
 
+            let edit = false;
+            let chapterId 
 
             Ext.define('MyApp.view.Form', {
                 extend: 'Ext.form.Panel',
@@ -108,27 +110,25 @@
                             iconCls: "fa fa-edit",
                             scale: "small",
                             handler: function () {
+                                edit = true;
 
+                                const selectedRecord = Ext.getCmp("chapterTransltedGrid")
+                                  .getSelectionModel()
+                                  .getSelection()[0];
 
-                                // const selectedRecord = Ext.getCmp("AllProductGrid")
-                                //   .getSelectionModel()
-                                //   .getSelection()[0];
-
-                                // if (selectedRecord === undefined) {
-                                //   Ext.Msg.alert("INFO", "No record selected");
-                                // } else {
-                                //   productIDGlobal = selectedRecord.data.Id;
-                                //   Ext.getCmp("addSave").setHidden(true);
-                                //   Ext.getCmp("editSave").setHidden(false);
-                                //   Ext.getCmp("panelAdd").setTitle("Edit Product");
-                                //   Ext.getCmp('tabTrans').setActiveTab(0)
-                                //   getOtherLanguageDetail('fr', productIDGlobal)
-                                //   getOtherLanguageDetail('de', productIDGlobal)
-                                //   getOtherLanguageDetail('sp', productIDGlobal)
-                                //   getOtherLanguageDetail('ru', productIDGlobal)
-                                //   Ext.getCmp("viewport").setActiveItem("panelAdd");
-                                //   getProductDetails(selectedRecord.data.Id);
-                                // }
+                                if (selectedRecord === undefined) {
+                                  Ext.Msg.alert("INFO", "No record selected");
+                                } else {
+                                  chapterId = selectedRecord.data.id;
+                                  Ext.getCmp("Chapter").setValue(selectedRecord.data.Chapter)
+                                  Ext.getCmp("Translated").setValue(selectedRecord.data.Translated)
+                                  Ext.getCmp("Language").setValue(selectedRecord.data.Language)
+                                  Ext.getCmp("addSave").setHidden(true);
+                                  Ext.getCmp("editSave").setHidden(false);
+                                  Ext.getCmp("panelAdd").setTitle("Edit translated chapter");
+                                  
+                                  Ext.getCmp("viewport").setActiveItem("panelAdd");
+                                }
                             },
                         },
                         "-",
@@ -234,6 +234,53 @@
                     cors: true,
                     useDefaultXhrHeader: false,
                     params: {
+                        Chapter: Ext.getCmp("Chapter").getValue(),
+                        Language: Ext.getCmp("Language").getValue(),
+                        Translated: getCheckboxValue(),
+
+                    },
+                    success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                            var data = JSON.parse(check);
+                            if (data) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "Translated Chapter",
+                                    `You have successfully add the translated chapter`,
+                                );
+                                Ext.getCmp("viewport").setActiveItem('chapterTransltedGrid');
+                                chaptersTranslatedStore.reload();
+                            } else {
+                                // display error message
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to add the translated chapter. Contact your IT team."
+                                );
+                            }
+                        }
+                    },
+                    failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                            "ERROR",
+                            "Failed to add the translated chapter. Contact your IT team."
+                        );
+                    }
+                });
+            };
+
+            var editChapterTranslated = function () {
+                Ext.getBody().mask("Saving", "x-msg-loading");
+                Ext.Ajax.request({
+                    url: "/api/updateTranslatedChapters",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        id: chapterId,
                         Chapter: Ext.getCmp("Chapter").getValue(),
                         Language: Ext.getCmp("Language").getValue(),
                         Translated: getCheckboxValue(),
@@ -425,7 +472,7 @@
                         iconCls: "fas fa-save",
                         handler: function () {
                             edit = false;
-                            editSerie();
+                            editChapterTranslated();
                             Ext.getCmp("addForm").reset();
                         },
                     },

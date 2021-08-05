@@ -97,7 +97,7 @@ exports.getOtherLanguageDetail = async (req, res) => {
    })
 }
 
-
+ 
 exports.getCategories = async (req, res) => {
    con.query("SELECT Id, WorkingTitle AS Name FROM Category WHERE Publish = '1'", (err, results, fields) => {
       if (err) {
@@ -847,5 +847,17 @@ exports.deleteTranslatedChapter = async (req, res) => {
          console.log(err);
       }
       res.send(results)
+   })
+}
+
+exports.updateTranslatedChapters = async (req, res) => {
+   const { id, Chapter, Language, Translated } = req.body;
+
+   const query = `UPDATE TranslatedChapters SET Chapter = '${Chapter}', Language = '${Language}', Translated = '${Translated}' WHERE id = ${id};`
+
+   con.query(query, (err, results) => {
+      if (err) throw err;
+
+      res.send(results);
    })
 }
