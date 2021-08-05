@@ -433,7 +433,8 @@ exports.getSerieDetails = async (req, res) => {
    let finalResults = [];
    const serieQuery = `SELECT Series.Key, Title, FullDescription, Specification FROM SeriesInfo LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.SeriesId = "${serieId}" AND SeriesInfo.Language = "en";`;
 
-   const relatedQuery = `SELECT LinkedProductID, Type, Code, Description FROM RelatedProducts WHERE SeriesId = "${serieId}";`
+   const relatedQuery = `SELECT SeriesInfo.Title, LinkedSeriesID, LinkedProductID, Type, Code, Description FROM RelatedProducts
+      LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = RelatedProducts.LinkedSeriesID WHERE RelatedProducts.SeriesId = "${serieId}";`
 
    con.query(serieQuery, (err, serieResults) => {
       if (err) throw err;

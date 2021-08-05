@@ -85,7 +85,7 @@
             if (exist) {
                return products.map((product) => {
                   if (product.Type === "R") {
-                     let description = product.Description ? product.Description : "N/A";
+                     let description = product.Description ? product.Description : product.Title;
                      return {
                         xtype: "button",
                         text: `${description} [${product.Code}]`,
@@ -95,12 +95,16 @@
                            Ext.getCmp("relatedProducts").removeAll();
                            Ext.getCmp("relatedAccessories").removeAll();
                            Ext.getCmp("relatedParts").removeAll();
-                           getProductDetails(product.LinkedProductID);
+                           if (product.LinkedSeriesID) {
+                              getSerieDetails(product.LinkedSeriesID);
+                           } else {
+                              getProductDetails(product.LinkedProductID);
+                           }
                            productIDGlobal = product.LinkedProductID;
-                           Ext.getCmp("productDetails").setTitle(
-                              `PRODUCT DETAILS - ${product.Code}`
-                           );
-                           Ext.getCmp("viewport").setActiveItem("productDetails");
+                           // Ext.getCmp("productDetails").setTitle(
+                           //    `PRODUCT DETAILS - ${product.Code}`
+                           // );
+                           // Ext.getCmp("viewport").setActiveItem("productDetails");
                         },
                      };
                   }
@@ -138,12 +142,12 @@
                            Ext.getCmp("relatedProducts").removeAll();
                            Ext.getCmp("relatedAccessories").removeAll();
                            Ext.getCmp("relatedParts").removeAll();
-                           getProductDetails(product.LinkedProductID);
+                           getSerieDetails(product.LinkedProductID ?? product.LinkedSeriesID);
                            productIDGlobal = product.LinkedProductID;
-                           Ext.getCmp("productDetails").setTitle(
-                              `PRODUCT DETAILS - ${product.Code}`
-                           );
-                           Ext.getCmp("viewport").setActiveItem("productDetails");
+                           // Ext.getCmp("productDetails").setTitle(
+                           //    `PRODUCT DETAILS - ${product.Code}`
+                           // );
+                           // Ext.getCmp("viewport").setActiveItem("productDetails");
                         },
                      };
                   }
@@ -181,12 +185,12 @@
                            Ext.getCmp("relatedProducts").removeAll();
                            Ext.getCmp("relatedAccessories").removeAll();
                            Ext.getCmp("relatedParts").removeAll();
-                           getProductDetails(product.LinkedProductID);
+                           getSerieDetails(product.LinkedProductID ?? product.LinkedSeriesID);
                            productIDGlobal = product.LinkedProductID;
-                           Ext.getCmp("productDetails").setTitle(
-                              `PRODUCT DETAILS - ${product.Code}`
-                           );
-                           Ext.getCmp("viewport").setActiveItem("productDetails");
+                           // Ext.getCmp("productDetails").setTitle(
+                           //    `PRODUCT DETAILS - ${product.Code}`
+                           // );
+                           // Ext.getCmp("viewport").setActiveItem("productDetails");
                         },
                      };
                   }
@@ -216,13 +220,40 @@
                success: function (response) {
                   const res = JSON.parse(response.responseText);
 
-
                   if (edit === false) {
                      displaySerieInfo(res[0][0]);
                   } else {
                      getEditInfo(res[0][0]);
                   }
 
+                  Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
+                  Ext.getCmp("relatedAccessories").add(relatedAccessories(res[1]));
+                  Ext.getCmp("relatedParts").add(relatedParts(res[1]));
+               },
+               failure: function (response) {
+                  console.log("failed", response);
+               },
+            });
+         };
+
+         const getProductDetails = (productId) => {
+            Ext.Ajax.request({
+               url: "/api/getProductDetails",
+               method: "GET",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  productId: productId,
+               },
+
+               success: function (response) {
+                  const res = JSON.parse(response.responseText);
+                  if (edit === false) {
+
+                     Ext.getCmp('productInfoContainer').removeAll();
+                     Ext.getCmp('productInfoContainer').add(productDetailItems);
+                     displayProductInfo(res[0][0]);
+                  }
                   Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
                   Ext.getCmp("relatedAccessories").add(relatedAccessories(res[1]));
                   Ext.getCmp("relatedParts").add(relatedParts(res[1]));
@@ -246,14 +277,26 @@
             Ext.getCmp("key").setValue(serie.Key);
             Ext.getCmp("title").setValue(serie.Title);
             Ext.getCmp("fullDescription").setValue(
-               serie.FullDescription ?? "No Full Description"
+               serie.FullDescription || "No Full Description"
             );
             Ext.getCmp("specification").setValue(
-               serie.Specification ?? "No Specification"
+               serie.Specification || "No Specification"
             );
          };
 
 
+         const displayProductInfo = (product) => {
+            Ext.getCmp("productName").setValue(product.Catalog);
+            Ext.getCmp("productCode").setValue(product.CODE);
+            Ext.getCmp("as400Code").setValue(product.As400Code);
+            Ext.getCmp("as400Description").setValue(product.Description);
+            Ext.getCmp("fullDescription").setValue(
+               product.FullDescription ?? "No Full Description"
+            );
+            Ext.getCmp("specification").setValue(
+               product.Specification ?? "No Specification"
+            );
+         };
 
          const getOtherLanguageDetail = (language, serieId) => {
 
@@ -1485,6 +1528,9 @@
                   iconCls: "fas fa-save",
                   handler: function () {
                      addSerie();
+                     Ext.getCmp("relatedProducts").removeAll();
+                     Ext.getCmp("relatedAccessories").removeAll();
+                     Ext.getCmp("relatedParts").removeAll();
                      Ext.getCmp('addForm').reset()
                   },
                },
@@ -1495,6 +1541,9 @@
                   handler: function () {
                      edit = false;
                      editSerie();
+                     Ext.getCmp("relatedProducts").removeAll();
+                     Ext.getCmp("relatedAccessories").removeAll();
+                     Ext.getCmp("relatedParts").removeAll();
                      Ext.getCmp("addForm").reset();
                   },
                },
@@ -1506,6 +1555,9 @@
                   iconCls: "fas fa-undo",
                   handler: function () {
                      edit = false;
+                     Ext.getCmp("relatedProducts").removeAll();
+                     Ext.getCmp("relatedAccessories").removeAll();
+                     Ext.getCmp("relatedParts").removeAll();
                      Ext.getCmp('addForm').reset();
                      Ext.getCmp("viewport").setActiveItem("SeriesGrid");
                   },
@@ -1550,6 +1602,83 @@
                },
             },
          });
+
+         const serieDetailItems = [
+            {
+               xtype: "displayfield",
+               id: "key",
+               fieldLabel: "<b>Serie</b>",
+               labelWidth: 150,
+               fieldCls: "fieldClass",
+            },
+            {
+               xtype: "displayfield",
+               id: "title",
+               labelWidth: 150,
+               fieldLabel: "<b>Serie Title</b>",
+               fieldCls: "fieldClass",
+            },
+            {
+               xtype: "displayfield",
+               id: "fullDescription",
+               fieldLabel: "<b>Full Description</b>",
+               labelWidth: 150,
+               fieldCls: "fieldClass",
+            },
+            {
+               xtype: "displayfield",
+               id: "specification",
+               fieldLabel: "<b>Specification</b>",
+               labelWidth: 150,
+               fieldCls: "fieldClass",
+            },
+         ]
+
+
+         const productDetailItems = [
+            {
+               xtype: "displayfield",
+               id: "productName",
+               fieldLabel: "<b>Product</b>",
+               labelWidth: 150,
+               fieldCls: "fieldClass",
+            },
+            {
+               xtype: "displayfield",
+               id: "productCode",
+               labelWidth: 150,
+               fieldLabel: "<b>Product Code</b>",
+               fieldCls: "fieldClass",
+            },
+            {
+               xtype: "displayfield",
+               id: "as400Code",
+               fieldLabel: "<b>AS400CODE</b>",
+               labelWidth: 150,
+               fieldCls: "fieldClass",
+            },
+            {
+               xtype: "displayfield",
+               id: "as400Description",
+               fieldLabel: "<b>AS/400 Description</b>",
+               labelWidth: 150,
+               fieldCls: "fieldClass",
+            },
+            {
+               xtype: "displayfield",
+               id: "fullDescription",
+               fieldLabel: "<b>Full Description</b>",
+               labelWidth: 150,
+               fieldCls: "fieldClass",
+            },
+            {
+               xtype: "displayfield",
+               id: "specification",
+               fieldLabel: "<b>Specification</b>",
+               labelWidth: 150,
+               fieldCls: "fieldClass",
+            },
+         ]
 
          const SerieDetails = Ext.create("Ext.panel.Panel", {
             id: "SerieDetails",
@@ -1603,36 +1732,7 @@
                      type: "vbox",
                      align: "stretch",
                   },
-                  items: [
-                     {
-                        xtype: "displayfield",
-                        id: "key",
-                        fieldLabel: "<b>Serie</b>",
-                        labelWidth: 150,
-                        fieldCls: "fieldClass",
-                     },
-                     {
-                        xtype: "displayfield",
-                        id: "title",
-                        labelWidth: 150,
-                        fieldLabel: "<b>Serie Title</b>",
-                        fieldCls: "fieldClass",
-                     },
-                     {
-                        xtype: "displayfield",
-                        id: "fullDescription",
-                        fieldLabel: "<b>Full Description</b>",
-                        labelWidth: 150,
-                        fieldCls: "fieldClass",
-                     },
-                     {
-                        xtype: "displayfield",
-                        id: "specification",
-                        fieldLabel: "<b>Specification</b>",
-                        labelWidth: 150,
-                        fieldCls: "fieldClass",
-                     },
-                  ],
+                  items: serieDetailItems
                },
             ],
             dockedItems: [
@@ -1714,6 +1814,9 @@
                },
             ],
          });
+
+
+
 
 
          //<!-- ----------------------------------------------------------------------- -->
