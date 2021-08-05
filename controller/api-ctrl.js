@@ -2,6 +2,8 @@
 const { DB } = require('../database')
 const mysql = require('mysql');
 const storage = require('node-sessionstorage');
+const multer = require('multer');
+const imgUpload = multer({ dest: 'assets/' });
 
 
 const con = mysql.createConnection({
@@ -271,13 +273,13 @@ exports.deleteProduct = async (req, res) => {
    //       console.log(err);
    //       errorString += 'ProductInfo, '
    //    }
-  
-      con.query(`UPDATE Product SET Publish = 0 WHERE Id = "${ProductId}";`, (err, results, fields) => {
-         if (err) {
-            errorString += 'Product, '
-         }
-         res.send(results)
-      })
+
+   con.query(`UPDATE Product SET Publish = 0 WHERE Id = "${ProductId}";`, (err, results, fields) => {
+      if (err) {
+         errorString += 'Product, '
+      }
+      res.send(results)
+   })
 
 }
 
@@ -433,7 +435,8 @@ exports.getSerieDetails = async (req, res) => {
    let finalResults = [];
    const serieQuery = `SELECT Series.Key, Title, FullDescription, Specification FROM SeriesInfo LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.SeriesId = "${serieId}" AND SeriesInfo.Language = "en";`;
 
-   const relatedQuery = `SELECT LinkedProductID, Type, Code, Description FROM RelatedProducts WHERE SeriesId = "${serieId}";`
+   const relatedQuery = `SELECT SeriesInfo.Title, LinkedSeriesID, LinkedProductID, Type, Code, Description FROM RelatedProducts
+      LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = RelatedProducts.LinkedSeriesID WHERE RelatedProducts.SeriesId = "${serieId}";`
 
    con.query(serieQuery, (err, serieResults) => {
       if (err) throw err;
@@ -863,3 +866,19 @@ exports.updateTranslatedChapters = async (req, res) => {
    })
 }
 
+
+exports.uploadProductImage = async (req, res) => {
+   let nextSequence;
+   const { originalname } = req.file;
+   const { ProductId, Label } = req.body;
+   const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE ProductId = "${ProductId}"`;
+   con.query(maxSequence, (err, result) => {
+      if (err) throw err;
+      nextSequence = result[0].maxSequence + 1;
+      const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${originalname}", "${Label}", "${nextSequence}");`
+      con.query(insertAssets, (err, result) => {
+         if (err) throw err;
+         res.status(200).send({ ...result, success: true, file: originalname });
+      })
+   })
+}
