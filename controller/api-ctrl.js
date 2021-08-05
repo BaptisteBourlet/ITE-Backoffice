@@ -816,8 +816,9 @@ exports.checkIfSerie = async (req, res) => {
 /* ------------------------- TranslatedChapter CRUD ------------------------- */
 
 exports.getTransltedChapters = async (req, res) => {
-   
-   const query = `SELECT * FROM TranslatedChapters;`;
+   let query = ''
+      query = 'SELECT * FROM TranslatedChapters ORDER BY Chapter;'
+  
 
    con.query(query, (err, result) => {
       if (err) throw err;
@@ -861,3 +862,4 @@ exports.updateTranslatedChapters = async (req, res) => {
       res.send(results);
    })
 }
+

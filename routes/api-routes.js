@@ -84,4 +84,5 @@ router.post('/deleteTranslatedChapter', apiCtrl.deleteTranslatedChapter);
 router.post('/updateTranslatedChapters', apiCtrl.updateTranslatedChapters);
 
 
+
 module.exports = router;

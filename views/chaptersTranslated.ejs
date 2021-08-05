@@ -20,7 +20,7 @@
         Ext.onReady(() => {
 
             let edit = false;
-            let chapterId 
+            let chapterId
 
             Ext.define('MyApp.view.Form', {
                 extend: 'Ext.form.Panel',
@@ -28,27 +28,7 @@
 
             });
 
-            const ChaptersTranslatedModel = Ext.define("ChaptersTranslatedModel", {
-                extend: "Ext.data.Model",
-                fields: ["id", "Chapter", "Language", "Translated"],
-            });
-
-            const chaptersTranslatedStore = Ext.create("Ext.data.Store", {
-                id: "chaptersTranslatedStore",
-                autoLoad: true,
-                model: ChaptersTranslatedModel,
-                proxy: {
-                    type: "ajax",
-                    method: "POST",
-                    url: "/api/getTransltedChapters",
-                    noCache: true,
-                    reader: {
-                        type: "json",
-                    },
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                },
-            });
+            
 
             const mainGridColumns = [
                 {
@@ -113,21 +93,21 @@
                                 edit = true;
 
                                 const selectedRecord = Ext.getCmp("chapterTransltedGrid")
-                                  .getSelectionModel()
-                                  .getSelection()[0];
+                                    .getSelectionModel()
+                                    .getSelection()[0];
 
                                 if (selectedRecord === undefined) {
-                                  Ext.Msg.alert("INFO", "No record selected");
+                                    Ext.Msg.alert("INFO", "No record selected");
                                 } else {
-                                  chapterId = selectedRecord.data.id;
-                                  Ext.getCmp("Chapter").setValue(selectedRecord.data.Chapter)
-                                  Ext.getCmp("Translated").setValue(selectedRecord.data.Translated)
-                                  Ext.getCmp("Language").setValue(selectedRecord.data.Language)
-                                  Ext.getCmp("addSave").setHidden(true);
-                                  Ext.getCmp("editSave").setHidden(false);
-                                  Ext.getCmp("panelAdd").setTitle("Edit translated chapter");
-                                  
-                                  Ext.getCmp("viewport").setActiveItem("panelAdd");
+                                    chapterId = selectedRecord.data.id;
+                                    Ext.getCmp("Chapter").setValue(selectedRecord.data.Chapter)
+                                    Ext.getCmp("Translated").setValue(selectedRecord.data.Translated)
+                                    Ext.getCmp("Language").setValue(selectedRecord.data.Language)
+                                    Ext.getCmp("addSave").setHidden(true);
+                                    Ext.getCmp("editSave").setHidden(false);
+                                    Ext.getCmp("panelAdd").setTitle("Edit translated chapter");
+
+                                    Ext.getCmp("viewport").setActiveItem("panelAdd");
                                 }
                             },
                         },
@@ -145,50 +125,68 @@
 
                     ],
                 },
-                {
-                    xtype: "toolbar",
-                    dock: "top",
-                    id: "searchBar",
-                    items: [
-                        {
-                            xtype: "textfield",
-                            id: "searchChapter",
-                            iconCls: "fa fa-search",
-                            width: 130,
-                            labelWidth: 20,
-                            emptyText: "Search chapter",
-                            enableKeyEvents: true,
-                            listeners: {
-                                keyup: (field, event) => {
-                                    //   if (event.getKey() === 13) {
-                                    //     searchProduct("searchProductCode", "productCode");
-                                    //   }
-                                    // },
-                                    // change: () => {
-                                    //   Ext.getCmp("searchProductName").setValue("");
-                                    //   Ext.getCmp("searchAS400").setValue("");
-                                    //   Ext.getCmp("searchPN").setValue("");
-                                    //   Ext.getCmp("searchTree").setValue("");
-                                }
-                            },
-                        },
+                // {
+                //     xtype: "toolbar",
+                //     dock: "top",
+                //     id: "searchBar",
+                //     items: [
+                //         {
+                //             xtype: "numberfield",
+                //             id: "searchChapter",
+                //             iconCls: "fa fa-search",
+                //             width: 130,
+                //             labelWidth: 20,
+                //             emptyText: "Search chapter",
+                //             enableKeyEvents: true,
+                //             listeners: {
 
-                        {
-                            xtype: "button",
-                            id: "resetSearch",
-                            iconCls: "fas fa-undo-alt",
-                            text: "reset",
-                            style: "padding: 7px; border: none; background-color: #000",
-                            listeners: {
-                                click: () => {
-                                    Ext.getCmp("searchChapter").setValue("");
-                                    chaptersTranslatedStore.reload();
-                                },
-                            },
-                        },
-                    ],
-                },
+                //                 change: () => {
+                //                     console.log(Ext.getCmp('searchChapter').getValue())
+                //                     chaptersTranslatedStore.getProxy().setExtraParam('searchChapter', Ext.getCmp('searchChapter').getValue());
+                //                     chaptersTranslatedStore.reload()
+                //                 }
+                //             },
+                //         },
+
+                        // {
+                        //     xtype: "button",
+                        //     id: "resetSearch",
+                        //     iconCls: "fas fa-undo-alt",
+                        //     text: "reset",
+                        //     style: "padding: 7px; border: none; background-color: #000",
+                        //     listeners: {
+                        //         click: () => {
+                        //             Ext.getCmp("searchChapter").setValue("");
+                        //             chaptersTranslatedStore.reload();
+                        //         },
+                        //     },
+                        // },
+                //     ],
+                // },
             ];
+
+            const ChaptersTranslatedModel = Ext.define("ChaptersTranslatedModel", {
+                extend: "Ext.data.Model",
+                fields: ["id", "Chapter", "Language", "Translated"],
+            });
+
+            const chaptersTranslatedStore = Ext.create("Ext.data.Store", {
+                id: "chaptersTranslatedStore",
+                autoLoad: true,
+                model: ChaptersTranslatedModel,
+                proxy: {
+                    type: "ajax",
+                    method: "POST",
+                    url: "/api/getTransltedChapters",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+                    },
+                    
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+            });
 
             const chapterTransltedGrid = Ext.create("Ext.grid.GridPanel", {
                 id: "chapterTransltedGrid",
