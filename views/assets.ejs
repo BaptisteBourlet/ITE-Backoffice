@@ -11,7 +11,32 @@
     <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
     <style>
+        #small-view {
+            display: none;
+        }
 
+        @media (max-width: 481px) {
+            #AssetsGrid {
+                display: none !important;
+            }
+
+            #small-view {
+                margin-top: 4rem;
+                font-size: 40px;
+                height: 100vh;
+                width: 100vw;
+                line-height: 50px;
+                display: block !important;
+            }
+        }
+
+        #ENFIELD-legendTitle,
+        #SPFIELD-legendTitle,
+        #FRFIELD-legendTitle,
+        #DEFIELD-legendTitle,
+        #RUFIELD-legendTitle {
+            font-weight: bold;
+        }
     </style>
     <script type="text/javascript">
         //=========================================================================================================
@@ -983,7 +1008,9 @@
 </head>
 
 <body>
-
+    <div id="small-view">
+        This Appplication is not meant for small devices.
+    </div>
 </body>
 
 </html>
