@@ -20,8 +20,6 @@
         Ext.onReady(() => {
 
             let edit = false;
-            let valueFieldCombo = ''
-            let displayFieldCombo = ''
 
             Ext.define('MyApp.view.Form', {
                 extend: 'Ext.form.Panel',
@@ -54,16 +52,20 @@
                 {
                     header: "Catalog",
                     sortable: true,
-                    width: 700,
+                    width: 600,
                     dataIndex: "Catalog",
-
                 },
-
                 {
                     header: "Type",
                     sortable: true,
                     width: 150,
                     dataIndex: "Type",
+                },
+                {
+                    header: "Label",
+                    sortable: true,
+                    width: 200,
+                    dataIndex: "Label",
                 },
                 {
                     header: "Path",
@@ -184,10 +186,13 @@
                                 if (selectedRecord === undefined) {
                                     Ext.Msg.alert("INFO", "No record selected");
                                 } else {
-                                    chapterId = selectedRecord.data.id;
-                                    Ext.getCmp("Chapter").setValue(selectedRecord.data.Chapter)
-                                    Ext.getCmp("Translated").setValue(selectedRecord.data.Translated)
-                                    Ext.getCmp("Language").setValue(selectedRecord.data.Language)
+                                    sessionStorage.setItem('Id', selectedRecord.data.Id)
+
+                                    Ext.getCmp("ProductDesc").setValue(selectedRecord.data.ProductId)
+                                    Ext.getCmp("Type").setValue(selectedRecord.data.Type)
+                                    Ext.getCmp("Path").setValue(selectedRecord.data.Path)
+                                    Ext.getCmp("Label").setValue(selectedRecord.data.Label)
+                                    Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
                                     Ext.getCmp("panelAdd").setTitle("Edit assets");
@@ -292,17 +297,19 @@
                             handler: function () {
                                 edit = true;
 
-                                const selectedRecord = Ext.getCmp("AssetsGrid")
+                                const selectedRecord = Ext.getCmp("AssetsSerieGrid")
                                     .getSelectionModel()
                                     .getSelection()[0];
-
+                                console.log(selectedRecord.data.Path)
                                 if (selectedRecord === undefined) {
                                     Ext.Msg.alert("INFO", "No record selected");
                                 } else {
-                                    chapterId = selectedRecord.data.id;
-                                    Ext.getCmp("Chapter").setValue(selectedRecord.data.Chapter)
-                                    Ext.getCmp("Translated").setValue(selectedRecord.data.Translated)
-                                    Ext.getCmp("Language").setValue(selectedRecord.data.Language)
+                                    sessionStorage.setItem('Id', selectedRecord.data.Id)
+                                    Ext.getCmp("ProductDesc").setValue(selectedRecord.data.SerieId)
+                                    Ext.getCmp("Type").setValue(selectedRecord.data.Type)
+                                    Ext.getCmp("Path").setValue(selectedRecord.data.Path)
+                                    Ext.getCmp("Label").setValue(selectedRecord.data.Label)
+                                    Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
                                     Ext.getCmp("panelAdd").setTitle("Edit assets");
@@ -493,27 +500,23 @@
                     selectOnFocus: false,
                     anyMatch: true,
                     queryMode: "local",
-                    listeners: {
-                        change: function () {
-                            console.log(valueFieldCombo)
-                            if (Ext.getCmp('Type').getValue() == null) {
-                                Ext.Msg.alert(
-                                    "Error",
-                                    `You have to choose a type first`,
-                                );
-                            }
-                        },
-                    },
+
                 },
                 {
                     xtype: 'filefield',
-                    name: 'Path',
-                    id: 'Path',
-                    fieldLabel: 'Photo',
-                    msgTarget: 'side',
-                    allowBlank: false,
-                    width: 500,
-                    buttonText: 'Select Photo...'
+                    accept: 'image/*',
+                    id: 'image',
+                    name: 'image',
+                    fieldLabel: 'Select an Image',
+                    style: "margin: 10px 0px;",
+                    allowBlank: false
+                },
+                {
+                    xtype: 'displayfield',
+                    id: 'productIdImage',
+                    name: 'productIdImage',
+                    style: "margin: 10px 0px;",
+                    hidden: true
                 },
 
                 {
@@ -570,6 +573,12 @@
                     sortable: true,
                     width: 150,
                     dataIndex: "Type",
+                },
+                {
+                    header: "Label",
+                    sortable: true,
+                    width: 200,
+                    dataIndex: "Label",
                 },
                 {
                     header: "Path",
@@ -663,7 +672,6 @@
                 sortable: true,
                 frame: false,
                 height: 690,
-                selModel: 'cellmodel',
                 plugins: {
                     ptype: 'cellediting',
                     clicksToEdit: 1
