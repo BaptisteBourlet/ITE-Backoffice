@@ -96,7 +96,10 @@ router.post('/deleteTranslatedChapter', apiCtrl.deleteTranslatedChapter);
 
 router.post('/updateTranslatedChapters', apiCtrl.updateTranslatedChapters);
 
+router.post('/uploadProductImage', imgUpload.single('image'), apiCtrl.uploadProductImage);
 
-router.post('/uploadImage', imgUpload.single('image'), apiCtrl.uploadProductImage);
+router.post('/uploadSerieImage', imgUpload.single('image'), apiCtrl.uploadSerieImage);
+
+router.get('/image', apiCtrl.imageMagick);
 
 module.exports = router;

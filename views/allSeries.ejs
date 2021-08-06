@@ -219,7 +219,7 @@
 
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-
+                  Ext.getCmp('seriesIdImage').setValue(serieId);
                   if (edit === false) {
                      displaySerieInfo(res[0][0]);
                   } else {
@@ -1775,6 +1775,16 @@
                      "-",
                      {
                         xtype: "button",
+                        id: "addImage",
+                        text: "Add Image",
+                        iconCls: "fa fa-plus",
+                        handler: function () {
+                           Ext.getCmp('viewport').setActiveItem('imagePanel');
+                        },
+                     },
+                     "-",
+                     {
+                        xtype: "button",
                         id: "linkedProductsBtn",
                         text: "View Linked Products",
                         iconCls: "fa fa-tasks",
@@ -2417,6 +2427,93 @@
                },
             ]
          })
+
+
+         const imagePanel = Ext.create('Ext.panel.Panel', {
+            id: "imagePanel",
+            layout: 'fit',
+            title: 'Upload image',
+            items: [
+               {
+                  xtype: "form",
+                  id: "imageForm",
+                  frame: true,
+                  border: false,
+                  scrollable: true,
+                  viewModel: {},
+                  layout: "anchor",
+                  defaults: {
+                     anchor: "30%",
+                  },
+                  items: [
+                     {
+                        xtype: 'filefield',
+                        accept: 'image/*',
+                        id: 'image',
+                        name: 'image',
+                        fieldLabel: 'Select an Image',
+                        style: "margin: 10px 0px;",
+                        allowBlank: false
+                     },
+                     {
+                        xtype: 'displayfield',
+                        id: 'seriesIdImage',
+                        name: 'seriesIdImage',
+                        style: "margin: 10px 0px;",
+                        hidden: true
+                     },
+                     {
+                        xtype: 'textfield',
+                        id: 'imageLabel',
+                        name: 'imageLabel',
+                        style: "margin: 10px 0px;",
+                        fieldLabel: 'Label',
+                        allowBlank: false
+                     },
+                  ],
+               },
+            ],
+            tbar: [
+               {
+                  text: "Back",
+                  id: "imageBack",
+                  iconCls: "fas fa-undo",
+                  handler: function () {
+                     Ext.getCmp('viewport').setActiveItem('SerieDetails');
+                  }
+               },
+               "-",
+               {
+                  text: "Upload",
+                  id: "upload",
+                  iconCls: "fas fa-save",
+                  handler: function () {
+                     var form = Ext.getCmp('imageForm')
+                     if (form.isValid()) {
+                        form.submit({
+                           url: '/api/uploadSerieImage',
+                           headers: { 'Content-Type': 'multipart/form-data' },
+                           method: "POST",
+                           waitMsg: 'Uploading your photo...',
+                           params: {
+                              SeriesId: Ext.getCmp('seriesIdImage').getValue(),
+                              Label: Ext.getCmp('imageLabel').getValue(),
+                           },
+                           success: function (fp, object) {
+                              form.reset();
+                              Ext.Msg.alert('Success', 'Your photo "' + object.result.file + '" has been uploaded.');
+                           },
+                           failure: () => {
+                              Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                           }
+                        });
+                     } else {
+                        Ext.Msg.alert("INFO", "Form is not valid!")
+                     }
+                  },
+               },
+            ]
+         })
          //=========================================================================================================
          //		           VIEW PORT
          // ========================================================================================================
@@ -2425,7 +2522,7 @@
             id: "viewport",
             layout: "card",
             activeItem: 'SeriesGrid',
-            items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, linkedProducts, addSerieSpecs, SeriesMasterSpecs, specValueAddPanel],
+            items: [SeriesGrid, SerieDetails, panelAdd, panelAddRelated, linkedProducts, addSerieSpecs, SeriesMasterSpecs, specValueAddPanel, imagePanel],
          });
       });
    </script>

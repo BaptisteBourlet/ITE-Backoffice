@@ -4,8 +4,9 @@ const mysql = require('mysql');
 const storage = require('node-sessionstorage');
 const multer = require('multer');
 const imgUpload = multer({ dest: 'assets/' });
-
-
+const appRoot = require('app-root-path');
+const imageMagick = require('imagemagick');
+// imageMagick.convert.path = '/usr/bin/convert';
 const con = mysql.createConnection({
    host: DB.host,
    user: DB.user,
@@ -99,7 +100,7 @@ exports.getOtherLanguageDetail = async (req, res) => {
    })
 }
 
- 
+
 exports.getCategories = async (req, res) => {
    con.query("SELECT Id, WorkingTitle AS Name FROM Category WHERE Publish = '1'", (err, results, fields) => {
       if (err) {
@@ -820,8 +821,8 @@ exports.checkIfSerie = async (req, res) => {
 
 exports.getTransltedChapters = async (req, res) => {
    let query = ''
-      query = 'SELECT * FROM TranslatedChapters ORDER BY Chapter;'
-  
+   query = 'SELECT * FROM TranslatedChapters ORDER BY Chapter;'
+
 
    con.query(query, (err, result) => {
       if (err) throw err;
@@ -867,18 +868,215 @@ exports.updateTranslatedChapters = async (req, res) => {
 }
 
 
+// upload and save image done by upload middleware, check api-routes.
+// after image saved, it will be resized and paths will be saved to Assets database here 
 exports.uploadProductImage = async (req, res) => {
-   let nextSequence;
+   let nextSequence, landscape;
    const { originalname } = req.file;
    const { ProductId, Label } = req.body;
    const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE ProductId = "${ProductId}"`;
+   const imageSizes = [
+      {
+         size: 'large',
+         width: 1280,
+         height: 1280
+      },
+      {
+         size: 'medium',
+         width: 800,
+         height: 800
+      },
+      {
+         size: 'small',
+         width: 400,
+         height: 400,
+      },
+      {
+         size: 'thumb',
+         width: 200,
+         height: 200,
+      },
+   ]
+
+
    con.query(maxSequence, (err, result) => {
       if (err) throw err;
       nextSequence = result[0].maxSequence + 1;
+
+
       const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${originalname}", "${Label}", "${nextSequence}");`
+
+      // insert original size
       con.query(insertAssets, (err, result) => {
          if (err) throw err;
-         res.status(200).send({ ...result, success: true, file: originalname });
+
+      })
+
+      // Check if image is landscape;
+      imageMagick.identify(`${appRoot}/assets/${originalname}`, (err, features) => {
+         if (err) {
+            console.log('imageMagick', err);
+         }
+         landscape = features.width > features.height ? true : false;
+
+         // insert other sizes
+         imageSizes.forEach(size => {
+            let newName = originalname.split('.');
+            newName[0] = `${newName[0]}-${size.size}`;
+            newName = newName.join('.');
+
+            let options = {
+               srcPath: `${appRoot}/assets/${originalname}`,
+               dstPath: `${appRoot}/assets/${newName}`,
+            }
+
+            // set maxWidth or maxHeight depending on image type
+            if (landscape) {
+               options.width = size.width;
+            } else {
+               options.height = size.height;
+            }
+
+            imageMagick.resize(options, function (err, stdout, sdterr) {
+               if (err) throw err;
+               const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${newName}", "${Label}", "${nextSequence}");`
+
+               con.query(insertAssets, (err, result) => {
+                  if (err) throw err;
+
+                  if (size.size === "large") {
+                     res.status(200).send({ ...result, success: true, file: originalname });
+                  }
+               })
+            });
+         })
       })
    })
+}
+
+
+// upload and save image done by upload middleware, check api-routes.
+// after image saved, it will be resized and paths will be saved to Assets database here 
+exports.uploadSerieImage = async (req, res) => {
+   let nextSequence, landscape;
+   const { originalname } = req.file;
+   const { SeriesId, Label } = req.body;
+   const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE SerieId = "${SeriesId}"`;
+   const imageSizes = [
+      {
+         size: 'large',
+         width: 1280,
+         height: 1280
+      },
+      {
+         size: 'medium',
+         width: 800,
+         height: 800
+      },
+      {
+         size: 'small',
+         width: 400,
+         height: 400,
+      },
+      {
+         size: 'thumb',
+         width: 200,
+         height: 200,
+      },
+   ]
+
+   con.query(maxSequence, (err, result) => {
+      if (err) throw err;
+      nextSequence = result[0].maxSequence + 1;
+
+
+      const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${originalname}", "${Label}", "${nextSequence}");`
+
+      // insert original size
+      con.query(insertAssets, (err, result) => {
+         if (err) throw err;
+
+      })
+
+      // Check if image is landscape;
+      imageMagick.identify(`${appRoot}/assets/${originalname}`, (err, features) => {
+         if (err) {
+            console.log('imageMagick', err);
+         }
+         landscape = features.width > features.height ? true : false;
+
+         // insert other sizes
+         imageSizes.forEach(size => {
+            let newName = originalname.split('.');
+            newName[0] = `${newName[0]}-${size.size}`;
+            newName = newName.join('.');
+
+            let options = {
+               srcPath: `${appRoot}/assets/${originalname}`,
+               dstPath: `${appRoot}/assets/${newName}`,
+            }
+
+            // set maxWidth or maxHeight depending on image type
+            if (landscape) {
+               options.width = size.width;
+            } else {
+               options.height = size.height;
+            }
+
+            imageMagick.resize(options, function (err, stdout, sdterr) {
+               if (err) throw err;
+               const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
+
+               con.query(insertAssets, (err, result) => {
+                  if (err) throw err;
+
+                  if (size.size === "large") {
+                     res.status(200).send({ ...result, success: true, file: originalname });
+                  }
+               })
+            });
+         })
+      })
+   })
+}
+
+
+
+exports.imageMagick = async (req, res) => {
+   imageMagick.identify(appRoot + '/assets/doge.jpg', (err, features) => {
+      if (err) {
+         console.log('imageMagick', err);
+      }
+      // console.log(features);
+      console.log(features.width > features.height);
+
+      res.send(features);
+   })
+
+   // imageMagick.convert([appRoot + '/assets/doge.jpg', '-resize', '25x120', 'doge-small.jpg'],
+   //    function (err, stdout) {
+   //       if (err) throw err;
+   //       console.log('stdout:', stdout);
+   //    });
+
+   // const options = {
+   //    srcPath: appRoot + '/assets/doge.jpg',
+   //    dstPath: appRoot + '/assets/doge-large.jpg',
+   //    width: 200,
+   //    // quality: 0.8,
+   //    // format: 'jpg',
+   //    // progressive: false,
+   //    // srcData: appRoot + '/assets/doge-small.jpg',
+   //    // srcFormat: null,
+   //    // height: 0,
+   //    // strip: true,
+   //    // filter: 'Lagrange',
+   //    // sharpening: 0.2,
+   //    // customArgs: []
+   // }
+   // imageMagick.resize(options, function (err, stdout, sdterr) {
+   //    if (err) throw err;
+   //    console.log('stdout:', stdout);
+   //    console.log('sdterr:', sdterr);
+   // });
 }
