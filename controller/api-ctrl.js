@@ -998,7 +998,7 @@ exports.uploadProductImage = async (req, res) => {
                newName = newName.join('.');
 
                // set maxWidth or maxHeight depending on image type
-               let resizeOption = landscape ? `${width}` : `x${height}`;
+               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                imagemagickCli
                   .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
                   .then(({ stdout, stderr }) => {
@@ -1077,7 +1077,7 @@ exports.uploadSerieImage = async (req, res) => {
                newName = newName.join('.');
 
                // set maxWidth or maxHeight depending on image type
-               let resizeOption = landscape ? `${width}` : `x${height}`;
+               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                imagemagickCli
                   .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
                   .then(({ stdout, stderr }) => {
