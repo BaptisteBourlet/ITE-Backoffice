@@ -2,1015 +2,1020 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ITE BACK OFFICE MANAGEMENT</title>
-    <link rel="stylesheet" type="text/css"
-        href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
-    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
-    <style>
-        #small-view {
-            display: none;
-        }
-
-        @media (max-width: 481px) {
-            #AssetsGrid {
-                display: none !important;
-            }
-
-            #small-view {
-                margin-top: 4rem;
-                font-size: 40px;
-                height: 100vh;
-                width: 100vw;
-                line-height: 50px;
-                display: block !important;
-            }
-        }
-
-        #ENFIELD-legendTitle,
-        #SPFIELD-legendTitle,
-        #FRFIELD-legendTitle,
-        #DEFIELD-legendTitle,
-        #RUFIELD-legendTitle {
-            font-weight: bold;
-        }
-    </style>
-    <script type="text/javascript">
-        //=========================================================================================================
-        //		           APPLICATION START
-        // ========================================================================================================
-        Ext.onReady(() => {
-
-            let edit = false;
-            let valueFieldCombo = ''
-            let displayFieldCombo = ''
-
-            Ext.define('MyApp.view.Form', {
-                extend: 'Ext.form.Panel',
-                xtype: 'my-form',
-
-            });
-
-
-            const mainGridColumns = [
-                {
-                    header: "ID",
-                    sortable: true,
-                    width: 80,
-                    dataIndex: "Id",
-                },
-                {
-                    header: "Product ID",
-                    sortable: true,
-                    width: 100,
-                    dataIndex: "ProductId",
-
-                },
-                {
-                    header: "Code",
-                    sortable: true,
-                    width: 100,
-                    dataIndex: "CODE",
-
-                },
-                {
-                    header: "Catalog",
-                    sortable: true,
-                    width: 700,
-                    dataIndex: "Catalog",
-
-                },
-
-                {
-                    header: "Type",
-                    sortable: true,
-                    width: 150,
-                    dataIndex: "Type",
-                },
-                {
-                    header: "Path",
-                    sortable: true,
-                    width: 200,
-                    dataIndex: "Path",
-                },
-                {
-                    header: "Sequence",
-                    sortable: true,
-                    width: 100,
-                    dataIndex: "Sequence",
-                    field: {
-                        xtype: 'numberfield',
-                        allowBlank: true,
-                        decimalPrecision: 0,
-                        minValue: 0,
-                        onFocusLeave: function (e) {
-                            var me = this
-
-                            var selectedrecords = AssetsGrid.getSelectionModel().getSelection();
-                            var teller = selectedrecords.length;
-                            currentsubfileRecord = selectedrecords[0];
-
-                            Ext.Ajax.request({
-
-                                url: '/api/updateSequence',
-                                params: {
-                                    Id: currentsubfileRecord.data.Id,
-                                    Sequence: currentsubfileRecord.data.Sequence,
-
-                                },
-                                success: function (response) {
-
-                                    // check for errors and display error message
-                                    var check = response.responseText;
-                                    if (check) {
-                                        var data = eval("(" + response.responseText + ")");
-                                        if (data) {
-                                            // Remember record id's to reselect records after update of the row
-                                            var selectedrecords = AssetsGrid.getSelectionModel().getSelection();
-                                            recordIds = [];
-                                            selectedIdx = [];
-                                            for (var i = 0, len = selectedrecords.length; i < len; i++) {
-                                                recordIds[i] = selectedrecords[i].id;
-                                                selectedIdx[i] = AssetsGrid.getStore().indexOfId(recordIds[i]);
-                                            }
-                                            // reload subfile			
-                                            AssetsStore.reload(
-                                                // reselect records after update	
-                                                {
-                                                    callback: function () {
-                                                        for (var i = 0, len = selectedIdx.length; i < len; i++) {
-                                                            AssetsGrid.getSelectionModel().select(selectedIdx[i]);
-                                                        }
-                                                    },
-                                                    scope: this
-                                                }
-                                            );
-                                            // display subfile
-                                            Ext.getCmp('viewport').layout.setActiveItem('AssetsGrid');
-                                        } else {
-                                            // display error message
-                                            f = Ext.getCmp(data.FLD);
-                                            f.markInvalid(data.MSG);
-                                            f.focus();
-                                        };
-                                        Ext.getBody().unmask();
-                                    };
-                                },
-                                failure: function (response) {
-                                    Ext.getBody().unmask();
-                                }
-                            });
-                        }
-                    },
-                },
-
-            ];
-
-
-
-            const tbarItems = [
-
-                {
-                    xtype: "toolbar",
-                    dock: "top",
-                    id: "bottomToolBar",
-                    items: [
-                        {
-                            xtype: "button",
-                            id: "add",
-                            iconCls: "fa fa-plus-circle",
-                            text: "New",
-                            scale: "small",
-                            handler: function () {
-
-                                Ext.getCmp("addSave").setHidden(false);
-                                Ext.getCmp("editSave").setHidden(true);
-                                Ext.getCmp("panelAdd").setTitle("Add assets");
-                                Ext.getCmp("viewport").setActiveItem("panelAdd");
-                            },
-                        },
-                        "-",
-                        {
-                            xtype: "button",
-                            id: "edit",
-                            text: "Edit",
-                            iconCls: "fa fa-edit",
-                            scale: "small",
-                            handler: function () {
-                                edit = true;
-
-                                const selectedRecord = Ext.getCmp("AssetsGrid")
-                                    .getSelectionModel()
-                                    .getSelection()[0];
-
-                                if (selectedRecord === undefined) {
-                                    Ext.Msg.alert("INFO", "No record selected");
-                                } else {
-                                    chapterId = selectedRecord.data.id;
-                                    Ext.getCmp("Chapter").setValue(selectedRecord.data.Chapter)
-                                    Ext.getCmp("Translated").setValue(selectedRecord.data.Translated)
-                                    Ext.getCmp("Language").setValue(selectedRecord.data.Language)
-                                    Ext.getCmp("addSave").setHidden(true);
-                                    Ext.getCmp("editSave").setHidden(false);
-                                    Ext.getCmp("panelAdd").setTitle("Edit assets");
-
-                                    Ext.getCmp("viewport").setActiveItem("panelAdd");
-                                }
-                            },
-                        },
-                        "-",
-                        {
-                            xtype: "button",
-                            id: "delete",
-                            text: "Delete",
-                            iconCls: "fa fa-trash-alt",
-                            scale: "small",
-                            handler: function () {
-                                deleteAssets()
-                            },
-                        },
-                        "-",
-                        {
-                            xtype: "button",
-                            id: "SerieAssets",
-                            text: "Overview Serie Assets",
-                            iconCls: "fa fa-tasks",
-                            scale: "small",
-                            handler: function () {
-                                Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid')
-                            },
-                        },
-
-                    ],
-                },
-                // {
-                //     xtype: "toolbar",
-                //     dock: "top",
-                //     id: "searchBar",
-                //     items: [
-                //         {
-                //             xtype: "numberfield",
-                //             id: "searchChapter",
-                //             iconCls: "fa fa-search",
-                //             width: 130,
-                //             labelWidth: 20,
-                //             emptyText: "Search chapter",
-                //             enableKeyEvents: true,
-                //             listeners: {
-
-                //                 change: () => {
-                //                     console.log(Ext.getCmp('searchChapter').getValue())
-                //                     AssetsStore.getProxy().setExtraParam('searchChapter', Ext.getCmp('searchChapter').getValue());
-                //                     AssetsStore.reload()
-                //                 }
-                //             },
-                //         },
-
-                // {
-                //     xtype: "button",
-                //     id: "resetSearch",
-                //     iconCls: "fas fa-undo-alt",
-                //     text: "reset",
-                //     style: "padding: 7px; border: none; background-color: #000",
-                //     listeners: {
-                //         click: () => {
-                //             Ext.getCmp("searchChapter").setValue("");
-                //             AssetsStore.reload();
-                //         },
-                //     },
-                // },
-                //     ],
-                // },
-            ];
-
-            const tbarItemsSeries = [
-
-                {
-                    xtype: "toolbar",
-                    dock: "top",
-                    id: "bottomToolBarSeries",
-                    items: [
-                        {
-                            xtype: "button",
-                            id: "addSeries",
-                            iconCls: "fa fa-plus-circle",
-                            text: "New",
-                            scale: "small",
-                            handler: function () {
-
-                                Ext.getCmp("addSave").setHidden(false);
-                                Ext.getCmp("editSave").setHidden(true);
-                                Ext.getCmp("panelAdd").setTitle("Add assets");
-                                Ext.getCmp("viewport").setActiveItem("panelAdd");
-                            },
-                        },
-                        "-",
-                        {
-                            xtype: "button",
-                            id: "editSeries",
-                            text: "Edit",
-                            iconCls: "fa fa-edit",
-                            scale: "small",
-                            handler: function () {
-                                edit = true;
-
-                                const selectedRecord = Ext.getCmp("AssetsGrid")
-                                    .getSelectionModel()
-                                    .getSelection()[0];
-
-                                if (selectedRecord === undefined) {
-                                    Ext.Msg.alert("INFO", "No record selected");
-                                } else {
-                                    chapterId = selectedRecord.data.id;
-                                    Ext.getCmp("Chapter").setValue(selectedRecord.data.Chapter)
-                                    Ext.getCmp("Translated").setValue(selectedRecord.data.Translated)
-                                    Ext.getCmp("Language").setValue(selectedRecord.data.Language)
-                                    Ext.getCmp("addSave").setHidden(true);
-                                    Ext.getCmp("editSave").setHidden(false);
-                                    Ext.getCmp("panelAdd").setTitle("Edit assets");
-
-                                    Ext.getCmp("viewport").setActiveItem("panelAdd");
-                                }
-                            },
-                        },
-                        "-",
-                        {
-                            xtype: "button",
-                            id: "deleteSeries",
-                            text: "Delete",
-                            iconCls: "fa fa-trash-alt",
-                            scale: "small",
-                            handler: function () {
-                                deleteAssets()
-                            },
-                        },
-                        "-",
-                        {
-                            xtype: "button",
-                            id: "ProductAssets",
-                            text: "Overview Products Assets",
-                            iconCls: "fa fa-tasks",
-                            scale: "small",
-                            handler: function () {
-                                Ext.getCmp("viewport").setActiveItem('AssetsGrid')
-                            },
-                        },
-
-                    ],
-                },
-                // {
-                //     xtype: "toolbar",
-                //     dock: "top",
-                //     id: "searchBar",
-                //     items: [
-                //         {
-                //             xtype: "numberfield",
-                //             id: "searchChapter",
-                //             iconCls: "fa fa-search",
-                //             width: 130,
-                //             labelWidth: 20,
-                //             emptyText: "Search chapter",
-                //             enableKeyEvents: true,
-                //             listeners: {
-
-                //                 change: () => {
-                //                     console.log(Ext.getCmp('searchChapter').getValue())
-                //                     AssetsStore.getProxy().setExtraParam('searchChapter', Ext.getCmp('searchChapter').getValue());
-                //                     AssetsStore.reload()
-                //                 }
-                //             },
-                //         },
-
-                // {
-                //     xtype: "button",
-                //     id: "resetSearch",
-                //     iconCls: "fas fa-undo-alt",
-                //     text: "reset",
-                //     style: "padding: 7px; border: none; background-color: #000",
-                //     listeners: {
-                //         click: () => {
-                //             Ext.getCmp("searchChapter").setValue("");
-                //             AssetsStore.reload();
-                //         },
-                //     },
-                // },
-                //     ],
-                // },
-            ];
-
-            const SeriesAssetsModel = Ext.define("AssetsModel", {
-                extend: "Ext.data.Model",
-                fields: ["Id", "ProductId", "SerieId", "Type", "Path", "Label", "Sequence", "CODE", "Catalog"],
-            });
-
-            const SeriesAssetsStore = Ext.create("Ext.data.Store", {
-                id: "SeriesAssetsStore",
-                autoLoad: true,
-                model: SeriesAssetsModel,
-                proxy: {
-                    type: "ajax",
-                    method: "GET",
-                    url: "/api/getSeriesAssets",
-                    noCache: true,
-                    reader: {
-                        type: "json",
-                    },
-
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                },
-            });
-
-            var TypeStore = Ext.create("Ext.data.Store", {
-                fields: ["TypeCode", "TypeName"],
-                data: [
-                    { TypeCode: "product-image", TypeName: "Product" },
-                    { TypeCode: "serie-image", TypeName: "Serie" }
-                ],
-                storeId: "TypeStore",
-            });
-
-            const ProductDet = Ext.define("ProductDet", {
-                extend: "Ext.data.Model",
-                fields: ["CODE", "Id"],
-            });
-
-            const ProductDetStore = Ext.create("Ext.data.Store", {
-                id: "ProductDetStore",
-                autoLoad: true,
-                model: ProductDet,
-                proxy: {
-                    type: "ajax",
-                    method: "GET",
-                    url: "/api/getProductDet",
-                    noCache: true,
-                    reader: {
-                        type: "json",
-                    },
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                },
-            });
-
-            const SeriesDet = Ext.define("SeriesDet", {
-                extend: "Ext.data.Model",
-                fields: ["Sid", "Key"],
-            });
-
-            const SeriesDetStore = Ext.create("Ext.data.Store", {
-                id: "SeriesDetStore",
-                autoLoad: true,
-                model: SeriesDet,
-                proxy: {
-                    type: "ajax",
-                    method: "GET",
-                    url: "/api/getSeriesDet",
-                    noCache: true,
-                    reader: {
-                        type: "json",
-                    },
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                },
-            });
-
-
-
-            var itemsAdd2 = [
-                {
-                    xtype: "combo",
-                    id: "Type",
-                    name: "Type",
-                    store: TypeStore,
-                    width: 500,
-                    fieldLabel: "Type",
-                    displayField: "TypeName",
-                    valueField: "TypeCode",
-                    allowBlank: false,
-                    selectOnFocus: false,
-                    editable: false,
-                    listeners: {
-                        change: function () {
-                            if (this.getValue() == 'product-image') {
-                                Ext.getCmp('ProductDesc').setStore(ProductDetStore)
-
-                            } else {
-                                Ext.getCmp('ProductDesc').setStore(SeriesDetStore)
-                            }
-
-                        }
-                    }
-                },
-
-                {
-                    xtype: "combo",
-                    id: "ProductDesc",
-                    name: "ProductDesc",
-                    width: 500,
-                    fieldLabel: "Products/Series",
-                    displayField: 'CODE',
-                    valueField: 'Id',
-                    emptyText: 'Please choose a type first..',
-                    allowBlank: false,
-                    selectOnFocus: false,
-                    anyMatch: true,
-                    queryMode: "local",
-                    listeners: {
-                        change: function () {
-                            console.log(valueFieldCombo)
-                            if (Ext.getCmp('Type').getValue() == null) {
-                                Ext.Msg.alert(
-                                    "Error",
-                                    `You have to choose a type first`,
-                                );
-                            }
-                        },
-                    },
-                },
-                {
-                    xtype: 'filefield',
-                    name: 'Path',
-                    id: 'Path',
-                    fieldLabel: 'Photo',
-                    msgTarget: 'side',
-                    allowBlank: false,
-                    width: 500,
-                    buttonText: 'Select Photo...'
-                },
-
-                {
-                    xtype: 'textfield',
-                    fieldLabel: 'Label',
-                    id: "Label",
-                    name: "Label",
-                    allowBlank: true,
-                    maxLenght: 255,
-                    width: 500,
-                },
-                {
-                    xtype: 'numberfield',
-                    fieldLabel: 'Sequence',
-                    id: "Sequence",
-                    name: "Sequence",
-                    allowBlank: false,
-                    maxValue: 99,
-                    minValue: 0,
-                    width: 500,
-                },
-
-            ];
-
-
-            const SeriesGridColumns = [
-                {
-                    header: "ID",
-                    sortable: true,
-                    width: 80,
-                    dataIndex: "Id",
-                },
-                {
-                    header: "Serie ID",
-                    sortable: true,
-                    width: 100,
-                    dataIndex: "SerieId",
-                },
-                {
-                    header: "Key",
-                    sortable: true,
-                    width: 150,
-                    dataIndex: "Key",
-                },
-                {
-                    header: "Title",
-                    sortable: true,
-                    width: 300,
-                    dataIndex: "Title",
-                },
-
-                {
-                    header: "Type",
-                    sortable: true,
-                    width: 150,
-                    dataIndex: "Type",
-                },
-                {
-                    header: "Path",
-                    sortable: true,
-                    width: 200,
-                    dataIndex: "Path",
-                },
-                {
-                    header: "Sequence",
-                    sortable: true,
-                    width: 100,
-                    dataIndex: "Sequence",
-                    field: {
-                        xtype: 'numberfield',
-                        allowBlank: true,
-                        decimalPrecision: 0,
-                        minValue: 0,
-
-                        onFocusLeave: function (e) {
-                            var me = this
-
-                            var selectedrecords = AssetsSerieGrid.getSelectionModel().getSelection();
-                            var teller = selectedrecords.length;
-                            currentsubfileRecord = selectedrecords[0];
-                            Ext.Ajax.request({
-
-                                url: '/api/updateSequence',
-                                params: {
-                                    Id: currentsubfileRecord.data.Id,
-                                    Sequence: currentsubfileRecord.data.Sequence,
-
-                                },
-                                success: function (response) {
-
-                                    // check for errors and display error message
-                                    var check = response.responseText;
-                                    if (check) {
-                                        var data = eval("(" + response.responseText + ")");
-                                        if (data) {
-                                            // Remember record id's to reselect records after update of the row
-                                            var selectedrecords = AssetsSerieGrid.getSelectionModel().getSelection();
-                                            recordIds = [];
-                                            selectedIdx = [];
-                                            for (var i = 0, len = selectedrecords.length; i < len; i++) {
-                                                recordIds[i] = selectedrecords[i].id;
-                                                selectedIdx[i] = AssetsSerieGrid.getStore().indexOfId(recordIds[i]);
-                                            }
-                                            // reload subfile			
-                                            SeriesAssetsStore.reload(
-                                                // reselect records after update	
-                                                {
-                                                    callback: function () {
-                                                        for (var i = 0, len = selectedIdx.length; i < len; i++) {
-                                                            AssetsSerieGrid.getSelectionModel().select(selectedIdx[i]);
-                                                        }
-                                                    },
-                                                    scope: this
-                                                }
-                                            );
-                                            // display subfile
-                                            Ext.getCmp('viewport').layout.setActiveItem('AssetsSerieGrid');
-                                        } else {
-                                            // display error message
-                                            f = Ext.getCmp(data.FLD);
-                                            f.markInvalid(data.MSG);
-                                            f.focus();
-                                        };
-                                        Ext.getBody().unmask();
-                                    };
-                                },
-                                failure: function (response) {
-                                    Ext.getBody().unmask();
-                                }
-                            });
-                        }
-                    },
-                },
-
-            ];
-
-            const AssetsSerieGrid = Ext.create("Ext.grid.GridPanel", {
-                id: "AssetsSerieGrid",
-                flex: 1,
-                scrollable: true,
-                title: "Assets - Series",
-                trackOver: true,
-                loadMask: true,
-                store: SeriesAssetsStore, // store
-                columns: SeriesGridColumns, //columns
-                enableColumnMove: false,
-                sortable: true,
-                frame: false,
-                height: 690,
-                selModel: 'cellmodel',
-                plugins: {
-                    ptype: 'cellediting',
-                    clicksToEdit: 1
-                },
-                dockedItems: [...tbarItemsSeries],
-
-            });
-
-
-            const AssetsModel = Ext.define("AssetsModel", {
-                extend: "Ext.data.Model",
-                fields: ["Id", "ProductId", "SerieId", "Type", "Path", "Label", "Sequence", "CODE", "Catalog"],
-            });
-
-            const AssetsStore = Ext.create("Ext.data.Store", {
-                id: "AssetsStore",
-                autoLoad: true,
-                model: AssetsModel,
-                proxy: {
-                    type: "ajax",
-                    method: "GET",
-                    url: "/api/getAssets",
-                    noCache: true,
-                    reader: {
-                        type: "json",
-                    },
-
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                },
-            });
-
-            const AssetsGrid = Ext.create("Ext.grid.GridPanel", {
-                id: "AssetsGrid",
-                flex: 1,
-                scrollable: true,
-                title: "Assets - Products",
-                trackOver: true,
-                loadMask: true,
-                store: AssetsStore, // store
-                columns: mainGridColumns, //columns
-                enableColumnMove: false,
-                sortable: true,
-                frame: false,
-                selModel: 'cellmodel',
-                plugins: {
-                    ptype: 'cellediting',
-                    clicksToEdit: 1
-                },
-                height: 690,
-                dockedItems: [...tbarItems],
-                listeners: {
-                    dblclick: {
-                        element: "body",
-                        fn: () => {
+   <meta charset="UTF-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>ITE BACK OFFICE MANAGEMENT</title>
+   <link rel="stylesheet" type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+   <style>
+      .x-grid-cell-inner {
+         overflow: hidden;
+         padding: 10px 6px;
+         white-space: nowrap;
+      }
+
+      #small-view {
+         display: none;
+      }
+
+      @media (max-width: 481px) {
+         #AssetsGrid {
+            display: none !important;
+         }
+
+         #small-view {
+            margin-top: 4rem;
+            font-size: 40px;
+            height: 100vh;
+            width: 100vw;
+            line-height: 50px;
+            display: block !important;
+         }
+      }
+
+      #ENFIELD-legendTitle,
+      #SPFIELD-legendTitle,
+      #FRFIELD-legendTitle,
+      #DEFIELD-legendTitle,
+      #RUFIELD-legendTitle {
+         font-weight: bold;
+      }
+   </style>
+   <script type="text/javascript">
+      //=========================================================================================================
+      //		           APPLICATION START
+      // ========================================================================================================
+      Ext.onReady(() => {
+
+         let edit = false;
+         let valueFieldCombo = ''
+         let displayFieldCombo = ''
+
+         Ext.define('MyApp.view.Form', {
+            extend: 'Ext.form.Panel',
+            xtype: 'my-form',
+
+         });
+
+
+         const mainGridColumns = [
+            {
+               header: "ID",
+               sortable: true,
+               width: 80,
+               dataIndex: "Id",
+            },
+            {
+               header: "Product ID",
+               sortable: true,
+               width: 100,
+               dataIndex: "ProductId",
+
+            },
+            {
+               header: "Code",
+               sortable: true,
+               width: 100,
+               dataIndex: "CODE",
+
+            },
+            {
+               header: "Catalog",
+               sortable: true,
+               width: 700,
+               dataIndex: "Catalog",
+
+            },
+
+            {
+               header: "Type",
+               sortable: true,
+               width: 150,
+               dataIndex: "Type",
+            },
+            {
+               header: "Path",
+               sortable: true,
+               width: 200,
+               dataIndex: "Path",
+            },
+            {
+               header: "Sequence",
+               sortable: true,
+               width: 100,
+               dataIndex: "Sequence",
+               field: {
+                  xtype: 'numberfield',
+                  allowBlank: true,
+                  decimalPrecision: 0,
+                  minValue: 0,
+                  onFocusLeave: function (e) {
+                     var me = this
+
+                     var selectedrecords = AssetsGrid.getSelectionModel().getSelection();
+                     var teller = selectedrecords.length;
+                     currentsubfileRecord = selectedrecords[0];
+
+                     Ext.Ajax.request({
+
+                        url: '/api/updateSequence',
+                        params: {
+                           Id: currentsubfileRecord.data.Id,
+                           Sequence: currentsubfileRecord.data.Sequence,
 
                         },
-                    },
-                },
-            });
+                        success: function (response) {
 
-            var getCheckboxValue = function () {
-
-                if (Ext.getCmp('Translated').getValue() == true) {
-
-                    return 1
-                } else {
-                    return 0
-                }
-            }
-
-
-            var addAssets = function () {
-                Ext.getBody().mask("Saving", "x-msg-loading");
-                Ext.Ajax.request({
-                    url: "/api/addAssets",
-                    method: "POST",
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                    params: {
-                        Type: Ext.getCmp("Type").getValue(),
-                        ProductId: Ext.getCmp("ProductId").getValue(),
-                        SerieId: Ext.getCmp("SerieId").getValue(),
-                        Path: Ext.getCmp("SerieId").getValue(),
-                        Label: Ext.getCmp("Label").getValue(),
-                        Sequence: Ext.getCmp("Sequence").getValue(),
-
-                    },
-                    success: function (response) {
-                        // check for errors and display error message
-                        var check = response.responseText;
-                        if (check) {
-                            var data = JSON.parse(check);
-                            if (data) {
-                                Ext.getBody().unmask();
-                                Ext.Msg.alert(
-                                    "assets",
-                                    `You have successfully add the assets`,
-                                );
-                                Ext.getCmp("viewport").setActiveItem('AssetsGrid');
-                                AssetsStore.reload();
-                            } else {
-                                // display error message
-                                Ext.getBody().unmask();
-                                Ext.Msg.alert(
-                                    "ERROR",
-                                    "Failed to add the assets. Contact your IT team."
-                                );
-                            }
-                        }
-                    },
-                    failure: function (response) {
-                        Ext.getBody().unmask();
-                        Ext.Msg.alert(
-                            "ERROR",
-                            "Failed to add the assets. Contact your IT team."
-                        );
-                    }
-                });
-            };
-
-            var editAssets = function () {
-                Ext.getBody().mask("Saving", "x-msg-loading");
-                Ext.Ajax.request({
-                    url: "/api/updateAssets",
-                    method: "POST",
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                    params: {
-                        id: chapterId,
-                        Chapter: Ext.getCmp("Chapter").getValue(),
-                        Language: Ext.getCmp("Language").getValue(),
-                        Translated: getCheckboxValue(),
-
-                    },
-                    success: function (response) {
-                        // check for errors and display error message
-                        var check = response.responseText;
-                        if (check) {
-                            var data = JSON.parse(check);
-                            if (data) {
-                                Ext.getBody().unmask();
-                                Ext.Msg.alert(
-                                    "Assets",
-                                    `You have successfully add the assets`,
-                                );
-                                Ext.getCmp("viewport").setActiveItem('AssetsGrid');
-                                AssetsStore.reload();
-                            } else {
-                                // display error message
-                                Ext.getBody().unmask();
-                                Ext.Msg.alert(
-                                    "ERROR",
-                                    "Failed to add the assets. Contact your IT team."
-                                );
-                            }
-                        }
-                    },
-                    failure: function (response) {
-                        Ext.getBody().unmask();
-                        Ext.Msg.alert(
-                            "ERROR",
-                            "Failed to add the assets. Contact your IT team."
-                        );
-                    }
-                });
-            };
-
-
-            var deleteAssets = function () {
-                const selectedRecord = Ext.getCmp("AssetsGrid")
-                    .getSelectionModel()
-                    .getSelection()[0];
-                Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this assets ?", function (btn, text) {
-                    if (btn == 'yes') {
-                        Ext.getBody().mask('Deleting', 'x-msg-loading');
-                        Ext.Ajax.request({
-                            url: "/api/deleteAssets",
-                            method: "POST",
-                            cors: true,
-                            useDefaultXhrHeader: false,
-                            params: {
-                                Id: selectedRecord.data.Id
-                            },
-                            success: function (response) {
-                                // check for errors and display error message
-                                var check = response.responseText;
-                                if (check) {
-                                    var data = eval("(" + response.responseText + ")");
-
-                                    if (data.serverStatus == 2) {
-                                        AssetsStore.reload();
-                                        Ext.getBody().unmask();
-                                        Ext.Msg.alert(
-                                            "Success",
-                                            "You have successfully deleted the assets"
-                                        );
-                                    } else {
-                                        // display error message
-                                        Ext.getBody().unmask();
-                                        Ext.Msg.alert(
-                                            "ERROR",
-                                            "Failed to delete the assets. Contact your IT team."
-                                        );
+                           // check for errors and display error message
+                           var check = response.responseText;
+                           if (check) {
+                              var data = eval("(" + response.responseText + ")");
+                              if (data) {
+                                 // Remember record id's to reselect records after update of the row
+                                 var selectedrecords = AssetsGrid.getSelectionModel().getSelection();
+                                 recordIds = [];
+                                 selectedIdx = [];
+                                 for (var i = 0, len = selectedrecords.length; i < len; i++) {
+                                    recordIds[i] = selectedrecords[i].id;
+                                    selectedIdx[i] = AssetsGrid.getStore().indexOfId(recordIds[i]);
+                                 }
+                                 // reload subfile			
+                                 AssetsStore.reload(
+                                    // reselect records after update	
+                                    {
+                                       callback: function () {
+                                          for (var i = 0, len = selectedIdx.length; i < len; i++) {
+                                             AssetsGrid.getSelectionModel().select(selectedIdx[i]);
+                                          }
+                                       },
+                                       scope: this
                                     }
-                                }
-                            },
-                            failure: function (response) {
-                                Ext.getBody().unmask();
-                                Ext.Msg.alert(
-                                    "ERROR",
-                                    "Failed to delete assets. Contact your IT team."
-                                );
-                            },
+                                 );
+                                 // display subfile
+                                 Ext.getCmp('viewport').layout.setActiveItem('AssetsGrid');
+                              } else {
+                                 // display error message
+                                 f = Ext.getCmp(data.FLD);
+                                 f.markInvalid(data.MSG);
+                                 f.focus();
+                              };
+                              Ext.getBody().unmask();
+                           };
+                        },
+                        failure: function (response) {
+                           Ext.getBody().unmask();
+                        }
+                     });
+                  }
+               },
+            },
 
-                        });
-                    }
-                })
+         ];
+
+
+
+         const tbarItems = [
+
+            {
+               xtype: "toolbar",
+               dock: "top",
+               id: "bottomToolBar",
+               items: [
+                  {
+                     xtype: "button",
+                     id: "add",
+                     iconCls: "fa fa-plus-circle",
+                     text: "New",
+                     scale: "small",
+                     handler: function () {
+
+                        Ext.getCmp("addSave").setHidden(false);
+                        Ext.getCmp("editSave").setHidden(true);
+                        Ext.getCmp("panelAdd").setTitle("Add assets");
+                        Ext.getCmp("viewport").setActiveItem("panelAdd");
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: "edit",
+                     text: "Edit",
+                     iconCls: "fa fa-edit",
+                     scale: "small",
+                     handler: function () {
+                        edit = true;
+
+                        const selectedRecord = Ext.getCmp("AssetsGrid")
+                           .getSelectionModel()
+                           .getSelection()[0];
+
+                        if (selectedRecord === undefined) {
+                           Ext.Msg.alert("INFO", "No record selected");
+                        } else {
+                           chapterId = selectedRecord.data.id;
+                           Ext.getCmp("Chapter").setValue(selectedRecord.data.Chapter)
+                           Ext.getCmp("Translated").setValue(selectedRecord.data.Translated)
+                           Ext.getCmp("Language").setValue(selectedRecord.data.Language)
+                           Ext.getCmp("addSave").setHidden(true);
+                           Ext.getCmp("editSave").setHidden(false);
+                           Ext.getCmp("panelAdd").setTitle("Edit assets");
+
+                           Ext.getCmp("viewport").setActiveItem("panelAdd");
+                        }
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: "delete",
+                     text: "Delete",
+                     iconCls: "fa fa-trash-alt",
+                     scale: "small",
+                     handler: function () {
+                        deleteAssets()
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: "SerieAssets",
+                     text: "Overview Serie Assets",
+                     iconCls: "fa fa-tasks",
+                     scale: "small",
+                     handler: function () {
+                        Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid')
+                     },
+                  },
+
+               ],
+            },
+            // {
+            //     xtype: "toolbar",
+            //     dock: "top",
+            //     id: "searchBar",
+            //     items: [
+            //         {
+            //             xtype: "numberfield",
+            //             id: "searchChapter",
+            //             iconCls: "fa fa-search",
+            //             width: 130,
+            //             labelWidth: 20,
+            //             emptyText: "Search chapter",
+            //             enableKeyEvents: true,
+            //             listeners: {
+
+            //                 change: () => {
+            //                     console.log(Ext.getCmp('searchChapter').getValue())
+            //                     AssetsStore.getProxy().setExtraParam('searchChapter', Ext.getCmp('searchChapter').getValue());
+            //                     AssetsStore.reload()
+            //                 }
+            //             },
+            //         },
+
+            // {
+            //     xtype: "button",
+            //     id: "resetSearch",
+            //     iconCls: "fas fa-undo-alt",
+            //     text: "reset",
+            //     style: "padding: 7px; border: none; background-color: #000",
+            //     listeners: {
+            //         click: () => {
+            //             Ext.getCmp("searchChapter").setValue("");
+            //             AssetsStore.reload();
+            //         },
+            //     },
+            // },
+            //     ],
+            // },
+         ];
+
+         const tbarItemsSeries = [
+
+            {
+               xtype: "toolbar",
+               dock: "top",
+               id: "bottomToolBarSeries",
+               items: [
+                  {
+                     xtype: "button",
+                     id: "addSeries",
+                     iconCls: "fa fa-plus-circle",
+                     text: "New",
+                     scale: "small",
+                     handler: function () {
+
+                        Ext.getCmp("addSave").setHidden(false);
+                        Ext.getCmp("editSave").setHidden(true);
+                        Ext.getCmp("panelAdd").setTitle("Add assets");
+                        Ext.getCmp("viewport").setActiveItem("panelAdd");
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: "editSeries",
+                     text: "Edit",
+                     iconCls: "fa fa-edit",
+                     scale: "small",
+                     handler: function () {
+                        edit = true;
+
+                        const selectedRecord = Ext.getCmp("AssetsGrid")
+                           .getSelectionModel()
+                           .getSelection()[0];
+
+                        if (selectedRecord === undefined) {
+                           Ext.Msg.alert("INFO", "No record selected");
+                        } else {
+                           chapterId = selectedRecord.data.id;
+                           Ext.getCmp("Chapter").setValue(selectedRecord.data.Chapter)
+                           Ext.getCmp("Translated").setValue(selectedRecord.data.Translated)
+                           Ext.getCmp("Language").setValue(selectedRecord.data.Language)
+                           Ext.getCmp("addSave").setHidden(true);
+                           Ext.getCmp("editSave").setHidden(false);
+                           Ext.getCmp("panelAdd").setTitle("Edit assets");
+
+                           Ext.getCmp("viewport").setActiveItem("panelAdd");
+                        }
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: "deleteSeries",
+                     text: "Delete",
+                     iconCls: "fa fa-trash-alt",
+                     scale: "small",
+                     handler: function () {
+                        deleteAssets()
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: "ProductAssets",
+                     text: "Overview Products Assets",
+                     iconCls: "fa fa-tasks",
+                     scale: "small",
+                     handler: function () {
+                        Ext.getCmp("viewport").setActiveItem('AssetsGrid')
+                     },
+                  },
+
+               ],
+            },
+            // {
+            //     xtype: "toolbar",
+            //     dock: "top",
+            //     id: "searchBar",
+            //     items: [
+            //         {
+            //             xtype: "numberfield",
+            //             id: "searchChapter",
+            //             iconCls: "fa fa-search",
+            //             width: 130,
+            //             labelWidth: 20,
+            //             emptyText: "Search chapter",
+            //             enableKeyEvents: true,
+            //             listeners: {
+
+            //                 change: () => {
+            //                     console.log(Ext.getCmp('searchChapter').getValue())
+            //                     AssetsStore.getProxy().setExtraParam('searchChapter', Ext.getCmp('searchChapter').getValue());
+            //                     AssetsStore.reload()
+            //                 }
+            //             },
+            //         },
+
+            // {
+            //     xtype: "button",
+            //     id: "resetSearch",
+            //     iconCls: "fas fa-undo-alt",
+            //     text: "reset",
+            //     style: "padding: 7px; border: none; background-color: #000",
+            //     listeners: {
+            //         click: () => {
+            //             Ext.getCmp("searchChapter").setValue("");
+            //             AssetsStore.reload();
+            //         },
+            //     },
+            // },
+            //     ],
+            // },
+         ];
+
+         const SeriesAssetsModel = Ext.define("AssetsModel", {
+            extend: "Ext.data.Model",
+            fields: ["Id", "ProductId", "SerieId", "Type", "Path", "Label", "Sequence", "CODE", "Catalog"],
+         });
+
+         const SeriesAssetsStore = Ext.create("Ext.data.Store", {
+            id: "SeriesAssetsStore",
+            autoLoad: true,
+            model: SeriesAssetsModel,
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/api/getSeriesAssets",
+               noCache: true,
+               reader: {
+                  type: "json",
+               },
+
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+         });
+
+         var TypeStore = Ext.create("Ext.data.Store", {
+            fields: ["TypeCode", "TypeName"],
+            data: [
+               { TypeCode: "product-image", TypeName: "Product" },
+               { TypeCode: "serie-image", TypeName: "Serie" }
+            ],
+            storeId: "TypeStore",
+         });
+
+         const ProductDet = Ext.define("ProductDet", {
+            extend: "Ext.data.Model",
+            fields: ["CODE", "Id"],
+         });
+
+         const ProductDetStore = Ext.create("Ext.data.Store", {
+            id: "ProductDetStore",
+            autoLoad: true,
+            model: ProductDet,
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/api/getProductDet",
+               noCache: true,
+               reader: {
+                  type: "json",
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+         });
+
+         const SeriesDet = Ext.define("SeriesDet", {
+            extend: "Ext.data.Model",
+            fields: ["Sid", "Key"],
+         });
+
+         const SeriesDetStore = Ext.create("Ext.data.Store", {
+            id: "SeriesDetStore",
+            autoLoad: true,
+            model: SeriesDet,
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/api/getSeriesDet",
+               noCache: true,
+               reader: {
+                  type: "json",
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+         });
+
+
+
+         var itemsAdd2 = [
+            {
+               xtype: "combo",
+               id: "Type",
+               name: "Type",
+               store: TypeStore,
+               width: 500,
+               fieldLabel: "Type",
+               displayField: "TypeName",
+               valueField: "TypeCode",
+               allowBlank: false,
+               selectOnFocus: false,
+               editable: false,
+               listeners: {
+                  change: function () {
+                     if (this.getValue() == 'product-image') {
+                        Ext.getCmp('ProductDesc').setStore(ProductDetStore)
+
+                     } else {
+                        Ext.getCmp('ProductDesc').setStore(SeriesDetStore)
+                     }
+
+                  }
+               }
+            },
+
+            {
+               xtype: "combo",
+               id: "ProductDesc",
+               name: "ProductDesc",
+               width: 500,
+               fieldLabel: "Products/Series",
+               displayField: 'CODE',
+               valueField: 'Id',
+               emptyText: 'Please choose a type first..',
+               allowBlank: false,
+               selectOnFocus: false,
+               anyMatch: true,
+               queryMode: "local",
+               listeners: {
+                  change: function () {
+                     console.log(valueFieldCombo)
+                     if (Ext.getCmp('Type').getValue() == null) {
+                        Ext.Msg.alert(
+                           "Error",
+                           `You have to choose a type first`,
+                        );
+                     }
+                  },
+               },
+            },
+            {
+               xtype: 'filefield',
+               name: 'Path',
+               id: 'Path',
+               fieldLabel: 'Photo',
+               msgTarget: 'side',
+               allowBlank: false,
+               width: 500,
+               buttonText: 'Select Photo...'
+            },
+
+            {
+               xtype: 'textfield',
+               fieldLabel: 'Label',
+               id: "Label",
+               name: "Label",
+               allowBlank: true,
+               maxLenght: 255,
+               width: 500,
+            },
+            {
+               xtype: 'numberfield',
+               fieldLabel: 'Sequence',
+               id: "Sequence",
+               name: "Sequence",
+               allowBlank: false,
+               maxValue: 99,
+               minValue: 0,
+               width: 500,
+            },
+
+         ];
+
+
+         const SeriesGridColumns = [
+            {
+               header: "ID",
+               sortable: true,
+               width: 80,
+               dataIndex: "Id",
+            },
+            {
+               header: "Serie ID",
+               sortable: true,
+               width: 100,
+               dataIndex: "SerieId",
+            },
+            {
+               header: "Key",
+               sortable: true,
+               width: 150,
+               dataIndex: "Key",
+            },
+            {
+               header: "Title",
+               sortable: true,
+               width: 300,
+               dataIndex: "Title",
+            },
+
+            {
+               header: "Type",
+               sortable: true,
+               width: 150,
+               dataIndex: "Type",
+            },
+            {
+               header: "Path",
+               sortable: true,
+               width: 200,
+               dataIndex: "Path",
+            },
+            {
+               header: "Sequence",
+               sortable: true,
+               width: 100,
+               dataIndex: "Sequence",
+               field: {
+                  xtype: 'numberfield',
+                  allowBlank: true,
+                  decimalPrecision: 0,
+                  minValue: 0,
+
+                  onFocusLeave: function (e) {
+                     var me = this
+
+                     var selectedrecords = AssetsSerieGrid.getSelectionModel().getSelection();
+                     var teller = selectedrecords.length;
+                     currentsubfileRecord = selectedrecords[0];
+                     Ext.Ajax.request({
+
+                        url: '/api/updateSequence',
+                        params: {
+                           Id: currentsubfileRecord.data.Id,
+                           Sequence: currentsubfileRecord.data.Sequence,
+
+                        },
+                        success: function (response) {
+
+                           // check for errors and display error message
+                           var check = response.responseText;
+                           if (check) {
+                              var data = eval("(" + response.responseText + ")");
+                              if (data) {
+                                 // Remember record id's to reselect records after update of the row
+                                 var selectedrecords = AssetsSerieGrid.getSelectionModel().getSelection();
+                                 recordIds = [];
+                                 selectedIdx = [];
+                                 for (var i = 0, len = selectedrecords.length; i < len; i++) {
+                                    recordIds[i] = selectedrecords[i].id;
+                                    selectedIdx[i] = AssetsSerieGrid.getStore().indexOfId(recordIds[i]);
+                                 }
+                                 // reload subfile			
+                                 SeriesAssetsStore.reload(
+                                    // reselect records after update	
+                                    {
+                                       callback: function () {
+                                          for (var i = 0, len = selectedIdx.length; i < len; i++) {
+                                             AssetsSerieGrid.getSelectionModel().select(selectedIdx[i]);
+                                          }
+                                       },
+                                       scope: this
+                                    }
+                                 );
+                                 // display subfile
+                                 Ext.getCmp('viewport').layout.setActiveItem('AssetsSerieGrid');
+                              } else {
+                                 // display error message
+                                 f = Ext.getCmp(data.FLD);
+                                 f.markInvalid(data.MSG);
+                                 f.focus();
+                              };
+                              Ext.getBody().unmask();
+                           };
+                        },
+                        failure: function (response) {
+                           Ext.getBody().unmask();
+                        }
+                     });
+                  }
+               },
+            },
+
+         ];
+
+         const AssetsSerieGrid = Ext.create("Ext.grid.GridPanel", {
+            id: "AssetsSerieGrid",
+            flex: 1,
+            scrollable: true,
+            title: "Assets - Series",
+            trackOver: true,
+            loadMask: true,
+            store: SeriesAssetsStore, // store
+            columns: SeriesGridColumns, //columns
+            enableColumnMove: false,
+            sortable: true,
+            frame: false,
+            height: 690,
+            selModel: 'cellmodel',
+            plugins: {
+               ptype: 'cellediting',
+               clicksToEdit: 1
+            },
+            dockedItems: [...tbarItemsSeries],
+
+         });
+
+
+         const AssetsModel = Ext.define("AssetsModel", {
+            extend: "Ext.data.Model",
+            fields: ["Id", "ProductId", "SerieId", "Type", "Path", "Label", "Sequence", "CODE", "Catalog"],
+         });
+
+         const AssetsStore = Ext.create("Ext.data.Store", {
+            id: "AssetsStore",
+            autoLoad: true,
+            model: AssetsModel,
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/api/getAssets",
+               noCache: true,
+               reader: {
+                  type: "json",
+               },
+
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+         });
+
+         const AssetsGrid = Ext.create("Ext.grid.GridPanel", {
+            id: "AssetsGrid",
+            flex: 1,
+            scrollable: true,
+            title: "Assets - Products",
+            trackOver: true,
+            loadMask: true,
+            store: AssetsStore, // store
+            columns: mainGridColumns, //columns
+            enableColumnMove: false,
+            sortable: true,
+            frame: false,
+            selModel: 'cellmodel',
+            plugins: {
+               ptype: 'cellediting',
+               clicksToEdit: 1
+            },
+            height: 690,
+            dockedItems: [...tbarItems],
+            listeners: {
+               dblclick: {
+                  element: "body",
+                  fn: () => {
+
+                  },
+               },
+            },
+         });
+
+         var getCheckboxValue = function () {
+
+            if (Ext.getCmp('Translated').getValue() == true) {
+
+               return 1
+            } else {
+               return 0
             }
+         }
 
 
-            var screenAdd = new Ext.FormPanel({
-                frame: false,
-                header: false,
-                border: false,
-                defaults: {
-                    labelAlign: "right",
-                    labelWidth: 105,
-                    listeners: {
-                        specialkey: function (field, e) {
-                            if (e.getKey() == e.ENTER) {
-                                updateRec();
-                            }
-                            if (e.getKey() == e.ESC) {
-                                Ext.getCmp("viewport").setActiveItem("AssetsGrid");
-                            }
-                        },
-                    },
-                },
-                width: '100%',
-                waitMsgTarget: true,
-                autoScroll: true,
-                style: "padding: 3px 3px 3px 3px;",
-                items: [
-                    {
-                        layout: "column",
-                        layoutConfig: {
-                            columns: 2,
-                        },
+         var addAssets = function () {
+            Ext.getBody().mask("Saving", "x-msg-loading");
+            Ext.Ajax.request({
+               url: "/api/addAssets",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  Type: Ext.getCmp("Type").getValue(),
+                  ProductId: Ext.getCmp("ProductId").getValue(),
+                  SerieId: Ext.getCmp("SerieId").getValue(),
+                  Path: Ext.getCmp("SerieId").getValue(),
+                  Label: Ext.getCmp("Label").getValue(),
+                  Sequence: Ext.getCmp("Sequence").getValue(),
+
+               },
+               success: function (response) {
+                  // check for errors and display error message
+                  var check = response.responseText;
+                  if (check) {
+                     var data = JSON.parse(check);
+                     if (data) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "assets",
+                           `You have successfully add the assets`,
+                        );
+                        Ext.getCmp("viewport").setActiveItem('AssetsGrid');
+                        AssetsStore.reload();
+                     } else {
+                        // display error message
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add the assets. Contact your IT team."
+                        );
+                     }
+                  }
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to add the assets. Contact your IT team."
+                  );
+               }
+            });
+         };
+
+         var editAssets = function () {
+            Ext.getBody().mask("Saving", "x-msg-loading");
+            Ext.Ajax.request({
+               url: "/api/updateAssets",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  id: chapterId,
+                  Chapter: Ext.getCmp("Chapter").getValue(),
+                  Language: Ext.getCmp("Language").getValue(),
+                  Translated: getCheckboxValue(),
+
+               },
+               success: function (response) {
+                  // check for errors and display error message
+                  var check = response.responseText;
+                  if (check) {
+                     var data = JSON.parse(check);
+                     if (data) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "Assets",
+                           `You have successfully add the assets`,
+                        );
+                        Ext.getCmp("viewport").setActiveItem('AssetsGrid');
+                        AssetsStore.reload();
+                     } else {
+                        // display error message
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add the assets. Contact your IT team."
+                        );
+                     }
+                  }
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to add the assets. Contact your IT team."
+                  );
+               }
+            });
+         };
+
+
+         var deleteAssets = function () {
+            const selectedRecord = Ext.getCmp("AssetsGrid")
+               .getSelectionModel()
+               .getSelection()[0];
+            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this assets ?", function (btn, text) {
+               if (btn == 'yes') {
+                  Ext.getBody().mask('Deleting', 'x-msg-loading');
+                  Ext.Ajax.request({
+                     url: "/api/deleteAssets",
+                     method: "POST",
+                     cors: true,
+                     useDefaultXhrHeader: false,
+                     params: {
+                        Id: selectedRecord.data.Id
+                     },
+                     success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                           var data = eval("(" + response.responseText + ")");
+
+                           if (data.serverStatus == 2) {
+                              AssetsStore.reload();
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                 "Success",
+                                 "You have successfully deleted the assets"
+                              );
+                           } else {
+                              // display error message
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                 "ERROR",
+                                 "Failed to delete the assets. Contact your IT team."
+                              );
+                           }
+                        }
+                     },
+                     failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to delete assets. Contact your IT team."
+                        );
+                     },
+
+                  });
+               }
+            })
+         }
+
+
+         var screenAdd = new Ext.FormPanel({
+            frame: false,
+            header: false,
+            border: false,
+            defaults: {
+               labelAlign: "right",
+               labelWidth: 105,
+               listeners: {
+                  specialkey: function (field, e) {
+                     if (e.getKey() == e.ENTER) {
+                        updateRec();
+                     }
+                     if (e.getKey() == e.ESC) {
+                        Ext.getCmp("viewport").setActiveItem("AssetsGrid");
+                     }
+                  },
+               },
+            },
+            width: '100%',
+            waitMsgTarget: true,
+            autoScroll: true,
+            style: "padding: 3px 3px 3px 3px;",
+            items: [
+               {
+                  layout: "column",
+                  layoutConfig: {
+                     columns: 2,
+                  },
+                  border: false,
+                  items: [
+                     {
+                        xtype: 'my-form',
+                        id: "addForm",
+                        columnWidth: 1,
                         border: false,
-                        items: [
-                            {
-                                xtype: 'my-form',
-                                id: "addForm",
-                                columnWidth: 1,
-                                border: false,
-                                items: itemsAdd2,
-                            },
-                        ],
-                    },
-                ],
-            });
+                        items: itemsAdd2,
+                     },
+                  ],
+               },
+            ],
+         });
 
-            // outer panel container to hold tbar and keypress definitions
-            var panelAdd = new Ext.Panel({
-                layout: "fit",
-                id: "panelAdd",
-                title: "Add product",
-                header: true,
-                items: [screenAdd],
-                tbar: [
-                    {
-                        text: "Save",
-                        id: "addSave",
-                        iconCls: "fas fa-save",
-                        handler: function () {
-                            addAssets();
-                            Ext.getCmp('addForm').reset()
-                        },
-                    },
-                    {
-                        text: "Save",
-                        id: "editSave",
-                        iconCls: "fas fa-save",
-                        handler: function () {
-                            edit = false;
-                            editAssets();
-                            Ext.getCmp("addForm").reset();
-                        },
-                    },
-                    "-",
-                    {
-                        text: "Cancel",
-                        tooltip: "Cancel",
-                        id: 'cancel',
-                        iconCls: "fas fa-undo",
-                        handler: function () {
-                            edit = false;
-                            Ext.getCmp('addForm').reset();
-                            Ext.getCmp("viewport").setActiveItem("AssetsGrid");
-                        },
-                    },
-                ],
-            });
+         // outer panel container to hold tbar and keypress definitions
+         var panelAdd = new Ext.Panel({
+            layout: "fit",
+            id: "panelAdd",
+            title: "Add product",
+            header: true,
+            items: [screenAdd],
+            tbar: [
+               {
+                  text: "Save",
+                  id: "addSave",
+                  iconCls: "fas fa-save",
+                  handler: function () {
+                     addAssets();
+                     Ext.getCmp('addForm').reset()
+                  },
+               },
+               {
+                  text: "Save",
+                  id: "editSave",
+                  iconCls: "fas fa-save",
+                  handler: function () {
+                     edit = false;
+                     editAssets();
+                     Ext.getCmp("addForm").reset();
+                  },
+               },
+               "-",
+               {
+                  text: "Cancel",
+                  tooltip: "Cancel",
+                  id: 'cancel',
+                  iconCls: "fas fa-undo",
+                  handler: function () {
+                     edit = false;
+                     Ext.getCmp('addForm').reset();
+                     Ext.getCmp("viewport").setActiveItem("AssetsGrid");
+                  },
+               },
+            ],
+         });
 
 
 
-            Ext.create("Ext.container.Viewport", {
-                id: "viewport",
-                layout: "card",
-                activeItem: 0,
-                items: [AssetsGrid, panelAdd, AssetsSerieGrid],
-            });
-        });
+         Ext.create("Ext.container.Viewport", {
+            id: "viewport",
+            layout: "card",
+            activeItem: 0,
+            items: [AssetsGrid, panelAdd, AssetsSerieGrid],
+         });
+      });
 
-    </script>
+   </script>
 </head>
-
 <body>
-    <div id="small-view">
-        This Appplication is not meant for small devices.
-    </div>
+   <div id="small-view">
+      This Appplication is not meant for small devices.
+   </div>
 </body>
 
 </html>

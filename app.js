@@ -46,9 +46,9 @@ app.get('/related-series', (req, res) => {
  });
 
 
- app.get('/image-upload', (req, res) => {
-    res.render('imageUpload');
- })
+//  app.get('/image-upload', (req, res) => {
+//     res.render('imageUpload');
+//  })
 
 app.listen(PORT, () => {
    console.log('listening on port ' + PORT);

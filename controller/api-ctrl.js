@@ -3,9 +3,11 @@ const { DB } = require('../database')
 const mysql = require('mysql');
 const storage = require('node-sessionstorage');
 const multer = require('multer');
-const imgUpload = multer({ dest: 'assets/' });
 const appRoot = require('app-root-path');
 const imageMagick = require('imagemagick');
+
+const imagemagickCli = require('imagemagick-cli');
+
 // imageMagick.convert.path = '/usr/bin/convert';
 const con = mysql.createConnection({
    host: DB.host,
@@ -56,7 +58,7 @@ exports.getAllProducts = async (req, res) => {
    const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type = 'P'"
+      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P', 'S') AND InfoTree.Tree != ''"
       + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 ORDER BY ProductInfo.ProductId LIMIT 100;`;
 
    con.query(query, (err, results, fields) => {
@@ -936,6 +938,9 @@ exports.deleteAssets = async (req, res) => {
       res.send(results)
    })
 }
+
+
+
 // upload and save image done by upload middleware, check api-routes.
 // after image saved, it will be resized and paths will be saved to Assets database here 
 exports.uploadProductImage = async (req, res) => {
@@ -966,11 +971,9 @@ exports.uploadProductImage = async (req, res) => {
       },
    ]
 
-
    con.query(maxSequence, (err, result) => {
       if (err) throw err;
       nextSequence = result[0].maxSequence + 1;
-
 
       const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${originalname}", "${Label}", "${nextSequence}");`
 
@@ -980,45 +983,37 @@ exports.uploadProductImage = async (req, res) => {
 
       })
 
-      // Check if image is landscape;
-      imageMagick.identify(`${appRoot}/assets/${originalname}`, (err, features) => {
-         if (err) {
-            console.log('imageMagick', err);
-         }
-         landscape = features.width > features.height ? true : false;
+      imagemagickCli
+         .exec(`identify assets/${originalname}`)
+         .then(({ stdout, stderr }) => {
+            let dimensions = stdout.split(' ')[2].split('x');
+            const width = dimensions[0];
+            const height = dimensions[1];
+            landscape = parseInt(width) > parseInt(height) ? true : false;
 
-         // insert other sizes
-         imageSizes.forEach(size => {
-            let newName = originalname.split('.');
-            newName[0] = `${newName[0]}-${size.size}`;
-            newName = newName.join('.');
+            // insert other sizes
+            imageSizes.forEach(size => {
+               let newName = originalname.split('.');
+               newName[0] = `${newName[0]}-${size.size}`;
+               newName = newName.join('.');
 
-            let options = {
-               srcPath: `${appRoot}/assets/${originalname}`,
-               dstPath: `${appRoot}/assets/${newName}`,
-            }
+               // set maxWidth or maxHeight depending on image type
+               let resizeOption = landscape ? `${width}` : `x${height}`;
+               imagemagickCli
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                  .then(({ stdout, stderr }) => {
+                     const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${newName}", "${Label}", "${nextSequence}");`
 
-            // set maxWidth or maxHeight depending on image type
-            if (landscape) {
-               options.width = size.width;
-            } else {
-               options.height = size.height;
-            }
+                     con.query(insertAssets, (err, result) => {
+                        if (err) throw err;
 
-            imageMagick.resize(options, function (err, stdout, sdterr) {
-               if (err) throw err;
-               const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${newName}", "${Label}", "${nextSequence}");`
-
-               con.query(insertAssets, (err, result) => {
-                  if (err) throw err;
-
-                  if (size.size === "large") {
-                     res.status(200).send({ ...result, success: true, file: originalname });
-                  }
-               })
-            });
-         })
-      })
+                        if (size.size === "large") {
+                           res.status(200).send({ ...result, success: true, file: originalname });
+                        }
+                     })
+                  });
+            })
+         });
    })
 }
 
@@ -1067,60 +1062,53 @@ exports.uploadSerieImage = async (req, res) => {
       })
 
       // Check if image is landscape;
-      imageMagick.identify(`${appRoot}/assets/${originalname}`, (err, features) => {
-         if (err) {
-            console.log('imageMagick', err);
-         }
-         landscape = features.width > features.height ? true : false;
+      imagemagickCli
+         .exec(`identify assets/${originalname}`)
+         .then(({ stdout, stderr }) => {
+            let dimensions = stdout.split(' ')[2].split('x');
+            const width = dimensions[0];
+            const height = dimensions[1];
+            landscape = parseInt(width) > parseInt(height) ? true : false;
 
-         // insert other sizes
-         imageSizes.forEach(size => {
-            let newName = originalname.split('.');
-            newName[0] = `${newName[0]}-${size.size}`;
-            newName = newName.join('.');
+            // insert other sizes
+            imageSizes.forEach(size => {
+               let newName = originalname.split('.');
+               newName[0] = `${newName[0]}-${size.size}`;
+               newName = newName.join('.');
 
-            let options = {
-               srcPath: `${appRoot}/assets/${originalname}`,
-               dstPath: `${appRoot}/assets/${newName}`,
-            }
+               // set maxWidth or maxHeight depending on image type
+               let resizeOption = landscape ? `${width}` : `x${height}`;
+               imagemagickCli
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                  .then(({ stdout, stderr }) => {
+                     const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
 
-            // set maxWidth or maxHeight depending on image type
-            if (landscape) {
-               options.width = size.width;
-            } else {
-               options.height = size.height;
-            }
+                     con.query(insertAssets, (err, result) => {
+                        if (err) throw err;
 
-            imageMagick.resize(options, function (err, stdout, sdterr) {
-               if (err) throw err;
-               const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
-
-               con.query(insertAssets, (err, result) => {
-                  if (err) throw err;
-
-                  if (size.size === "large") {
-                     res.status(200).send({ ...result, success: true, file: originalname });
-                  }
-               })
-            });
-         })
-      })
+                        if (size.size === "large") {
+                           res.status(200).send({ ...result, success: true, file: originalname });
+                        }
+                     })
+                  });
+            })
+         });
    })
 }
 
 
 
+// this route is for testing purposes only
 exports.imageMagick = async (req, res) => {
-   imageMagick.identify(appRoot + '/assets/doge.jpg', (err, features) => {
-      if (err) {
-         console.log('imageMagick', err);
-      }
-      // console.log(features);
-      console.log(features.width > features.height);
+   // imageMagick.identify(appRoot + '/assets/doge.jpg', (err, features) => {
+   //    if (err) {
+   //       console.log('imageMagick', err);
+   //    }
+   //    // console.log(features);
+   //    console.log(features.width > features.height);
 
-      res.send(features);
-   })
-
+   //    res.send(features);
+   // })
    // imageMagick.convert([appRoot + '/assets/doge.jpg', '-resize', '25x120', 'doge-small.jpg'],
    //    function (err, stdout) {
    //       if (err) throw err;
@@ -1147,4 +1135,11 @@ exports.imageMagick = async (req, res) => {
    //    console.log('stdout:', stdout);
    //    console.log('sdterr:', sdterr);
    // });
+   imagemagickCli
+      .exec('convert assets/doge.jpg -resize "100" assets/doge-small.jpg')
+      .then(({ stdout, stderr }) => {
+         // console.log(`Output: ${stdout}`);
+
+         res.send(stdout)
+      });
 }
