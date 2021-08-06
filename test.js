@@ -1,29 +1,33 @@
-let response = [{ "Id": 71, "CODE": "DLC-040", "Catalog": "Drain line heater, 1m 40W 1322 ohm/mt ", "SPLid": 253, "Key": "Length m", "Value": "1 m" }, { "Id": 71, "CODE": "DLC-040", "Catalog": "Drain line heater, 1m 40W 1322 ohm/mt ", "SPLid": 253, "Key": "Wattage#in 230 V", "Value": "40 W" }, { "Id": 71, "CODE": "DLC-040", "Catalog": "Drain line heater, 1m 40W 1322 ohm/mt ", "SPLid": 253, "Key": "Wattage#in 110V", "Value": "10 W" }, { "Id": 71, "CODE": "DLC-040", "Catalog": "Drain line heater, 1m 40W 1322 ohm/mt ", "SPLid": 253, "Key": "Grounding", "Value": "xxx" }, { "Id": 115, "CODE": "DLC-040-E", "Catalog": "Drain line heater with earth contact, 1m 40W 1322 ohm/mt ", "SPLid": 254, "Key": "Length m", "Value": "1 m" }, { "Id": 115, "CODE": "DLC-040-E", "Catalog": "Drain line heater with earth contact, 1m 40W 1322 ohm/mt ", "SPLid": 254, "Key": "Wattage#in 230 V", "Value": "40 W" }, { "Id": 115, "CODE": "DLC-040-E", "Catalog": "Drain line heater with earth contact, 1m 40W 1322 ohm/mt ", "SPLid": 254, "Key": "Wattage#in 110V", "Value": "10 W" }, { "Id": 115, "CODE": "DLC-040-E", "Catalog": "Drain line heater with earth contact, 1m 40W 1322 ohm/mt ", "SPLid": 254, "Key": "Grounding", "Value": "vvv" }, { "Id": 75, "CODE": "DLC-052", "Catalog": "Drain line heater, 1,3m 52W 783 ohm/mt ", "SPLid": 255, "Key": "Length m", "Value": "1,3 m" }, { "Id": 75, "CODE": "DLC-052", "Catalog": "Drain line heater, 1,3m 52W 783 ohm/mt ", "SPLid": 255, "Key": "Wattage#in 230 V", "Value": "52 W" }, { "Id": 75, "CODE": "DLC-052", "Catalog": "Drain line heater, 1,3m 52W 783 ohm/mt ", "SPLid": 255, "Key": "Wattage#in 110V", "Value": "13 W" }, { "Id": 75, "CODE": "DLC-052", "Catalog": "Drain line heater, 1,3m 52W 783 ohm/mt ", "SPLid": 255, "Key": "Grounding", "Value": "xxx" }, { "Id": 79, "CODE": "DLC-060", "Catalog": "Drain line heater, 1,5m 60W 588 ohm/mt ", "SPLid": 256, "Key": "Length m", "Value": "1,5 m" }, { "Id": 79, "CODE": "DLC-060", "Catalog": "Drain line heater, 1,5m 60W 588 ohm/mt ", "SPLid": 256, "Key": "Wattage#in 230 V", "Value": "60 W" }, { "Id": 79, "CODE": "DLC-060", "Catalog": "Drain line heater, 1,5m 60W 588 ohm/mt ", "SPLid": 256, "Key": "Wattage#in 110V", "Value": "15 W" }, { "Id": 79, "CODE": "DLC-060", "Catalog": "Drain line heater, 1,5m 60W 588 ohm/mt ", "SPLid": 256, "Key": "Grounding", "Value": "xxx" }, { "Id": 83, "CODE": "DLC-080", "Catalog": "Drain line heater, 2m 80W 330 ohm/mt", "SPLid": 257, "Key": "Length m", "Value": "2 m" }, { "Id": 83, "CODE": "DLC-080", "Catalog": "Drain line heater, 2m 80W 330 ohm/mt", "SPLid": 257, "Key": "Wattage#in 230 V", "Value": "80 W" }, { "Id": 83, "CODE": "DLC-080", "Catalog": "Drain line heater, 2m 80W 330 ohm/mt", "SPLid": 257, "Key": "Wattage#in 110V", "Value": "20 W" }, { "Id": 83, "CODE": "DLC-080", "Catalog": "Drain line heater, 2m 80W 330 ohm/mt", "SPLid": 257, "Key": "Grounding", "Value": "xxx" }, { "Id": 119, "CODE": "DLC-080-E", "Catalog": "Drain line heater with earth contact, 2m 80W 330 ohm/mt ", "SPLid": 258, "Key": "Length m", "Value": "2 m" }, { "Id": 119, "CODE": "DLC-080-E", "Catalog": "Drain line heater with earth contact, 2m 80W 330 ohm/mt ", "SPLid": 258, "Key": "Wattage#in 230 V", "Value": "80 W" }, { "Id": 119, "CODE": "DLC-080-E", "Catalog": "Drain line heater with earth contact, 2m 80W 330 ohm/mt ", "SPLid": 258, "Key": "Wattage#in 110V", "Value": "20 W" }, { "Id": 119, "CODE": "DLC-080-E", "Catalog": "Drain line heater with earth contact, 2m 80W 330 ohm/mt ", "SPLid": 258, "Key": "Grounding", "Value": "vvv" }, { "Id": 87, "CODE": "DLC-120", "Catalog": "Drain line heater, 3m 120W 147 ohm/mt", "SPLid": 259, "Key": "Length m", "Value": "3 m" }, { "Id": 87, "CODE": "DLC-120", "Catalog": "Drain line heater, 3m 120W 147 ohm/mt", "SPLid": 259, "Key": "Wattage#in 230 V", "Value": "120 W" }, { "Id": 87, "CODE": "DLC-120", "Catalog": "Drain line heater, 3m 120W 147 ohm/mt", "SPLid": 259, "Key": "Wattage#in 110V", "Value": "30 W" }, { "Id": 87, "CODE": "DLC-120", "Catalog": "Drain line heater, 3m 120W 147 ohm/mt", "SPLid": 259, "Key": "Grounding", "Value": "xxx" }, { "Id": 123, "CODE": "DLC-120-E", "Catalog": "Drain line heater with earth contact, 3m 120W 147 ohm/mt ", "SPLid": 260, "Key": "Length m", "Value": "3 m" }, { "Id": 123, "CODE": "DLC-120-E", "Catalog": "Drain line heater with earth contact, 3m 120W 147 ohm/mt ", "SPLid": 260, "Key": "Wattage#in 230 V", "Value": "120 W" }, { "Id": 123, "CODE": "DLC-120-E", "Catalog": "Drain line heater with earth contact, 3m 120W 147 ohm/mt ", "SPLid": 260, "Key": "Wattage#in 110V", "Value": "30 W" }, { "Id": 123, "CODE": "DLC-120-E", "Catalog": "Drain line heater with earth contact, 3m 120W 147 ohm/mt ", "SPLid": 260, "Key": "Grounding", "Value": "vvv" }, { "Id": 91, "CODE": "DLC-160", "Catalog": "Drain line heater, 4m 160W 82 ohm/mt ", "SPLid": 261, "Key": "Length m", "Value": "4 m" }, { "Id": 91, "CODE": "DLC-160", "Catalog": "Drain line heater, 4m 160W 82 ohm/mt ", "SPLid": 261, "Key": "Wattage#in 230 V", "Value": "160 W" }, { "Id": 91, "CODE": "DLC-160", "Catalog": "Drain line heater, 4m 160W 82 ohm/mt ", "SPLid": 261, "Key": "Wattage#in 110V", "Value": "40 W" }, { "Id": 91, "CODE": "DLC-160", "Catalog": "Drain line heater, 4m 160W 82 ohm/mt ", "SPLid": 261, "Key": "Grounding", "Value": "xxx" }, { "Id": 127, "CODE": "DLC-160-E", "Catalog": "Drain line heater with earth contact, 4m 160W 82 ohm/mt ", "SPLid": 262, "Key": "Length m", "Value": "4 m" }, { "Id": 127, "CODE": "DLC-160-E", "Catalog": "Drain line heater with earth contact, 4m 160W 82 ohm/mt ", "SPLid": 262, "Key": "Wattage#in 230 V", "Value": "160 W" }, { "Id": 127, "CODE": "DLC-160-E", "Catalog": "Drain line heater with earth contact, 4m 160W 82 ohm/mt ", "SPLid": 262, "Key": "Wattage#in 110V", "Value": "40 W" }, { "Id": 127, "CODE": "DLC-160-E", "Catalog": "Drain line heater with earth contact, 4m 160W 82 ohm/mt ", "SPLid": 262, "Key": "Grounding", "Value": "vvv" }, { "Id": 95, "CODE": "DLC-200", "Catalog": "Drain line heater, 5m 200W 53 ohm/mt ", "SPLid": 263, "Key": "Length m", "Value": "5 m" }, { "Id": 95, "CODE": "DLC-200", "Catalog": "Drain line heater, 5m 200W 53 ohm/mt ", "SPLid": 263, "Key": "Wattage#in 230 V", "Value": "200 W" }, { "Id": 95, "CODE": "DLC-200", "Catalog": "Drain line heater, 5m 200W 53 ohm/mt ", "SPLid": 263, "Key": "Wattage#in 110V", "Value": "50 W" }, { "Id": 95, "CODE": "DLC-200", "Catalog": "Drain line heater, 5m 200W 53 ohm/mt ", "SPLid": 263, "Key": "Grounding", "Value": "xxx" }, { "Id": 99, "CODE": "DLC-240", "Catalog": "Drain line heater, 6m 240W 36 ohm/mt ", "SPLid": 264, "Key": "Length m", "Value": "6 m" }, { "Id": 99, "CODE": "DLC-240", "Catalog": "Drain line heater, 6m 240W 36 ohm/mt ", "SPLid": 264, "Key": "Wattage#in 230 V", "Value": "240 W" }, { "Id": 99, "CODE": "DLC-240", "Catalog": "Drain line heater, 6m 240W 36 ohm/mt ", "SPLid": 264, "Key": "Wattage#in 110V", "Value": "60 W" }, { "Id": 99, "CODE": "DLC-240", "Catalog": "Drain line heater, 6m 240W 36 ohm/mt ", "SPLid": 264, "Key": "Grounding", "Value": "xxx" }, { "Id": 130, "CODE": "DLC-240-E", "Catalog": "Drain line line heater with earth contact, 6m 240W 36 ohm/mt ", "SPLid": 265, "Key": "Length m", "Value": "6 m" }, { "Id": 130, "CODE": "DLC-240-E", "Catalog": "Drain line line heater with earth contact, 6m 240W 36 ohm/mt ", "SPLid": 265, "Key": "Wattage#in 230 V", "Value": "240 W" }, { "Id": 130, "CODE": "DLC-240-E", "Catalog": "Drain line line heater with earth contact, 6m 240W 36 ohm/mt ", "SPLid": 265, "Key": "Wattage#in 110V", "Value": "60 W" }, { "Id": 130, "CODE": "DLC-240-E", "Catalog": "Drain line line heater with earth contact, 6m 240W 36 ohm/mt ", "SPLid": 265, "Key": "Grounding", "Value": "vvv" }, { "Id": 103, "CODE": "DLC-320", "Catalog": "Drain line heater, 8m 320W 21 ohm/mt", "SPLid": 266, "Key": "Length m", "Value": "8 m" }, { "Id": 103, "CODE": "DLC-320", "Catalog": "Drain line heater, 8m 320W 21 ohm/mt", "SPLid": 266, "Key": "Wattage#in 230 V", "Value": "320 W" }, { "Id": 103, "CODE": "DLC-320", "Catalog": "Drain line heater, 8m 320W 21 ohm/mt", "SPLid": 266, "Key": "Wattage#in 110V", "Value": "80 W" }, { "Id": 103, "CODE": "DLC-320", "Catalog": "Drain line heater, 8m 320W 21 ohm/mt", "SPLid": 266, "Key": "Grounding", "Value": "xxx" }, { "Id": 107, "CODE": "DLC-360", "Catalog": "Drain line heater, 9m 360W 16 ohm/mt", "SPLid": 267, "Key": "Length m", "Value": "9 m" }, { "Id": 107, "CODE": "DLC-360", "Catalog": "Drain line heater, 9m 360W 16 ohm/mt", "SPLid": 267, "Key": "Wattage#in 230 V", "Value": "360 W" }, { "Id": 107, "CODE": "DLC-360", "Catalog": "Drain line heater, 9m 360W 16 ohm/mt", "SPLid": 267, "Key": "Wattage#in 110V", "Value": "90 W" }, { "Id": 107, "CODE": "DLC-360", "Catalog": "Drain line heater, 9m 360W 16 ohm/mt", "SPLid": 267, "Key": "Grounding", "Value": "xxx" }, { "Id": 111, "CODE": "DLC-400", "Catalog": "Drain line heater, 10m 400W 13.7 ohm/mt", "SPLid": 268, "Key": "Length m", "Value": "10 m" }, { "Id": 111, "CODE": "DLC-400", "Catalog": "Drain line heater, 10m 400W 13.7 ohm/mt", "SPLid": 268, "Key": "Wattage#in 230 V", "Value": "400 W" }, { "Id": 111, "CODE": "DLC-400", "Catalog": "Drain line heater, 10m 400W 13.7 ohm/mt", "SPLid": 268, "Key": "Wattage#in 110V", "Value": "100 W" }, { "Id": 111, "CODE": "DLC-400", "Catalog": "Drain line heater, 10m 400W 13.7 ohm/mt", "SPLid": 268, "Key": "Grounding", "Value": "xxx" }]
+const imageSizes = [
+   {
+      size: 'large',
+      width: 1280,
+   },
+   {
+      size: 'medium',
+      width: 800,
+      height: 800
+   },
+   {
+      size: 'small',
+      width: 400,
+      width: 400,
+   },
+   {
+      size: 'thumb',
+      width: 200,
+      width: 200,
+   },
+]
 
-let idArray = [];
-let results = [];
-response.forEach(res => {
-   if (!idArray.includes(res.Id)) {
-      idArray.push(res.Id);
-   }
+
+let image = 'doge.jpg';
+
+imageSizes.forEach(size => {
+   let newName = image.split('.');
+   newName[0] =`${newName[0]}-${size.size}`;
+   newName = newName.join('.');
+
+
+   
 })
-
-for (let i = 0; i < idArray.length; i++) {
-   let obj = {};
-   for (const {Id, Key, Value, CODE, Catalog} of response) {
-      if (Id === idArray[i]) {
-         obj[Key] = Value;
-         obj.id = Id;
-         obj.Code = CODE;
-         obj.Name = Catalog;
-      }
-   }
-   results.push(obj);
-}
-
-console.log(results)
-
-
-
-
-
