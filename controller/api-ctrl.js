@@ -816,8 +816,7 @@ exports.checkIfSerie = async (req, res) => {
 /* ------------------------- TranslatedChapter CRUD ------------------------- */
 
 exports.getTransltedChapters = async (req, res) => {
-   let query = ''
-      query = 'SELECT * FROM TranslatedChapters ORDER BY Chapter;'
+   const query = 'SELECT * FROM TranslatedChapters ORDER BY Chapter;'
   
 
    con.query(query, (err, result) => {
@@ -863,3 +862,74 @@ exports.updateTranslatedChapters = async (req, res) => {
    })
 }
 
+/* ------------------------------- CRUD ASSETS ------------------------------ */
+
+exports.getAssets = async (req, res) => {
+   const query = 'SELECT Assets.Id, Assets.ProductId, Type, Path, Label, Sequence, Product.CODE, ProductInfo.Catalog FROM Assets'
+   + " LEFT JOIN Product ON Product.Id = Assets.ProductId"
+   + " LEFT JOIN ProductInfo ON ProductInfo.ProductId = Product.Id WHERE ProductInfo.Language = 'en' ORDER BY Assets.ProductId;"
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
+
+exports.getSeriesAssets = async (req, res) => {
+   const query = 'SELECT Assets.Id, Assets.SerieId, Type, Path, Label, Sequence, Series.Key, SeriesInfo.Title FROM Assets'
+   + " LEFT JOIN Series ON Series.Sid = Assets.SerieId"
+   + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.Language = 'en' ORDER BY Assets.SerieId;"
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
+exports.addAssets = async (req, res) => {
+   const { ProductId, SerieId, Type, Path, Label, Sequence } = req.body;
+   
+
+   con.query(`INSERT INTO Assets (ProductId, SerieId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "${SerieId}", "${Type}", "${Path}", "${Label}", "${Sequence}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+exports.getSeriesDet = async (req, res) => {
+   const query = 'SELECT Sid AS Id, Series.Key AS CODE FROM Series;'
+  
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
+exports.updateSequence = async (req, res) => {
+   const { Id, Sequence } = req.body;
+
+   const query = `UPDATE Assets SET Sequence = ${Sequence} WHERE Id = ${Id};`
+  
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
+exports.deleteAssets = async (req, res) => {
+   const { Id } = req.body;
+
+   con.query(`DELETE FROM Assets WHERE id = ${Id};`, (err, results, fields) => {
+      if (err) {
+         console.log(err);
+      }
+      res.send(results)
+   })
+}

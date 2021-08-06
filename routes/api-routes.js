@@ -83,6 +83,20 @@ router.post('/deleteTranslatedChapter', apiCtrl.deleteTranslatedChapter);
 
 router.post('/updateTranslatedChapters', apiCtrl.updateTranslatedChapters);
 
+/* --------------------------------- ASSETS --------------------------------- */
+
+router.get('/getAssets', apiCtrl.getAssets);
+
+router.get('/getSeriesAssets', apiCtrl.getSeriesAssets);
+
+router.get('/getSeriesDet', apiCtrl.getSeriesDet);
+
+router.post('/updateSequence', apiCtrl.updateSequence);
+
+router.post('/deleteAssets', apiCtrl.deleteAssets);
+
+
+
 
 
 module.exports = router;

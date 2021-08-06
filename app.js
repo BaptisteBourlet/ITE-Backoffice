@@ -41,6 +41,11 @@ app.get('/related-series', (req, res) => {
    res.render('chaptersTranslated');
  });
 
+ app.get('/assets', function(req, res) {
+   res.render('assets');
+ });
+
+
 app.listen(PORT, () => {
    console.log('listening on port ' + PORT);
 })

@@ -86,6 +86,23 @@
             }]
          });
 
+         var tab05 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Assets',
+            border: false,
+            id: 'b05',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab05',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/assets'
+               }
+            }]
+         });
+
          var scrntab = Ext.create('Ext.TabPanel', {
             fullscreen: true,
             tabBarPosition: 'bottom',
@@ -94,7 +111,7 @@
             defaults: {
                styleHtmlContent: true
             },
-            items: [tab01, tab02, tab03, tab04],
+            items: [tab01, tab02, tab03, tab04, tab05],
             listeners: {
                tabChange: function (tabPanel, newTab, currentTab) {
                   try {
