@@ -2,23 +2,24 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ALL PRODUCTS - ITE BACK OFFICE MANAGEMENT</title>
-  <link rel="stylesheet" type="text/css"
-    href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
-  <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
-  
-  <script type="text/javascript">
-    //=========================================================================================================
-    //		           APPLICATION START
-    // ========================================================================================================
-    Ext.onReady(() => {
+   <meta charset="UTF-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>ALL PRODUCTS - ITE BACK OFFICE MANAGEMENT</title>
+   <link rel="stylesheet" type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+   <script type="text/javascript">
 
 
-        var tab01 = Ext.widget('panel', {
+      //=========================================================================================================
+      //		           APPLICATION START
+      // ========================================================================================================
+      Ext.onReady(() => {
+
+
+         var tab01 = Ext.widget('panel', {
             activeTab: 0,
             layout: 'fit',
             id: 'b01',
@@ -124,21 +125,22 @@
             }
          });
 
-			// viewport wrapper met login
-			new Ext.Viewport({
-				id: 'viewport',
-				layout: 'card',
-				items: [scrntab]
-			});
-			// Send screen
-			Ext.getCmp('viewport').layout.setActiveItem(0);
+         // viewport wrapper met login
+         new Ext.Viewport({
+            id: 'viewport',
+            layout: 'card',
+            items: [scrntab]
+         });
+         // Send screen
+         Ext.getCmp('viewport').layout.setActiveItem(0);
 
-		});
-    
+      });
 
-</script>
+
+   </script>
 </head>
 
-<body></body>
+<body>
+</body>
 
 </html>
