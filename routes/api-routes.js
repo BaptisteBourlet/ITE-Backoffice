@@ -108,6 +108,9 @@ router.post('/updateSequence', apiCtrl.updateSequence);
 
 router.post('/deleteAssets', apiCtrl.deleteAssets);
 
+router.post('/searchAssetsProduct', apiCtrl.searchAssetsProduct);
+
+router.post('/searchAssetsSeries', apiCtrl.searchAssetsSeries);
 
 
 router.post('/uploadProductImage', imgUpload.single('image'), apiCtrl.uploadProductImage);
