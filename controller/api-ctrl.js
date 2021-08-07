@@ -883,6 +883,23 @@ exports.getAssets = async (req, res) => {
    })
 }
 
+
+exports.searchAssetsProduct = async (req, res) => {
+   const { searchQuery } = req.body;
+
+   const query = 'SELECT Assets.Id, Assets.ProductId, Type, Path, Label, Sequence, Product.CODE, ProductInfo.Catalog FROM Assets'
+   + " LEFT JOIN Product ON Product.Id = Assets.ProductId"
+   + ` LEFT JOIN ProductInfo ON ProductInfo.ProductId = Product.Id WHERE ProductInfo.Language = 'en' AND Product.CODE LIKE '%${searchQuery}%' ORDER BY Assets.ProductId;`;
+   
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+
 exports.getSeriesAssets = async (req, res) => {
    const query = 'SELECT Assets.Id, Assets.SerieId, Type, Path, Label, Sequence, Series.Key, SeriesInfo.Title FROM Assets'
       + " LEFT JOIN Series ON Series.Sid = Assets.SerieId"
@@ -892,6 +909,21 @@ exports.getSeriesAssets = async (req, res) => {
       if (err) throw err;
 
       res.send(result);
+   })
+}
+
+exports.searchAssetsSeries = async (req, res) => {
+   const { searchQuery } = req.body;
+
+   const query = 'SELECT Assets.Id, Assets.SerieId, Type, Path, Label, Sequence, Series.Key, SeriesInfo.Title FROM Assets'
+   + " LEFT JOIN Series ON Series.Sid = Assets.SerieId"
+   + ` LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.Language = 'en' AND Series.Key LIKE '%${searchQuery}%' ORDER BY Assets.SerieId;`
+   
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
    })
 }
 
