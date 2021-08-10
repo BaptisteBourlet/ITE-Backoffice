@@ -7,7 +7,7 @@ const appRoot = require('app-root-path');
 // multer middleware to upload images
 var storage = multer.diskStorage({
    destination: function (req, file, cb) {
-      cb(null, appRoot + '/assets')
+      cb(null, appRoot + '/ite/assets')
    },
    filename: function (req, file, cb) {
       cb(null, file.originalname)
@@ -116,6 +116,10 @@ router.post('/searchAssetsSeries', apiCtrl.searchAssetsSeries);
 router.post('/uploadProductImage', imgUpload.single('image'), apiCtrl.uploadProductImage);
 
 router.post('/uploadSerieImage', imgUpload.single('image'), apiCtrl.uploadSerieImage);
+
+router.post('/updateuploadProductImage', imgUpload.single('image'), apiCtrl.updateuploadProductImage);
+
+router.post('/updateuploadSerieImage', imgUpload.single('image'), apiCtrl.updateuploadSerieImage);
 
 router.get('/image', apiCtrl.imageMagick);
 

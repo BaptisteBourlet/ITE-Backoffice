@@ -890,9 +890,9 @@ exports.searchAssetsProduct = async (req, res) => {
    const { searchQuery } = req.body;
 
    const query = 'SELECT Assets.Id, Assets.ProductId, Type, Path, Label, Sequence, Product.CODE, ProductInfo.Catalog FROM Assets'
-   + " LEFT JOIN Product ON Product.Id = Assets.ProductId"
-   + ` LEFT JOIN ProductInfo ON ProductInfo.ProductId = Product.Id WHERE ProductInfo.Language = 'en' AND Product.CODE LIKE '%${searchQuery}%' ORDER BY Assets.ProductId;`;
-   
+      + " LEFT JOIN Product ON Product.Id = Assets.ProductId"
+      + ` LEFT JOIN ProductInfo ON ProductInfo.ProductId = Product.Id WHERE ProductInfo.Language = 'en' AND Product.CODE LIKE '%${searchQuery}%' ORDER BY Assets.ProductId;`;
+
    con.query(query, (err, results, fields) => {
       if (err) {
          console.log(err)
@@ -918,9 +918,9 @@ exports.searchAssetsSeries = async (req, res) => {
    const { searchQuery } = req.body;
 
    const query = 'SELECT Assets.Id, Assets.SerieId, Type, Path, Label, Sequence, Series.Key, SeriesInfo.Title FROM Assets'
-   + " LEFT JOIN Series ON Series.Sid = Assets.SerieId"
-   + ` LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.Language = 'en' AND Series.Key LIKE '%${searchQuery}%' ORDER BY Assets.SerieId;`
-   
+      + " LEFT JOIN Series ON Series.Sid = Assets.SerieId"
+      + ` LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.Language = 'en' AND Series.Key LIKE '%${searchQuery}%' ORDER BY Assets.SerieId;`
+
    con.query(query, (err, results, fields) => {
       if (err) {
          console.log(err)
@@ -964,9 +964,9 @@ exports.updateSequence = async (req, res) => {
 }
 
 exports.deleteAssets = async (req, res) => {
-   const { Id } = req.body;
+   const { itemId } = req.body;
 
-   con.query(`DELETE FROM Assets WHERE id = ${Id};`, (err, results, fields) => {
+   con.query(`DELETE FROM Assets WHERE id = ${itemId};`, (err, results, fields) => {
       if (err) {
          console.log(err);
       }
@@ -1019,7 +1019,7 @@ exports.uploadProductImage = async (req, res) => {
       })
 
       imagemagickCli
-         .exec(`identify assets/${originalname}`)
+         .exec(`identify ite/assets/${originalname}`)
          .then(({ stdout, stderr }) => {
             let dimensions = stdout.split(' ')[2].split('x');
             const width = dimensions[0];
@@ -1035,7 +1035,7 @@ exports.uploadProductImage = async (req, res) => {
                // set maxWidth or maxHeight depending on image type
                let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                imagemagickCli
-                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                  .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
                   .then(({ stdout, stderr }) => {
                      const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${newName}", "${Label}", "${nextSequence}");`
 
@@ -1056,6 +1056,7 @@ exports.uploadProductImage = async (req, res) => {
 // upload and save image done by upload middleware, check api-routes.
 // after image saved, it will be resized and paths will be saved to Assets database here 
 exports.uploadSerieImage = async (req, res) => {
+
    let nextSequence, landscape;
    const { originalname } = req.file;
    const { SeriesId, Label } = req.body;
@@ -1093,12 +1094,99 @@ exports.uploadSerieImage = async (req, res) => {
       // insert original size
       con.query(insertAssets, (err, result) => {
          if (err) throw err;
+      })
+
+
+
+      // Check if image is landscape;
+
+      imagemagickCli
+         .exec(`identify ite/assets/${originalname}`)
+         .then(({ stdout, stderr }) => {
+            if (stderr) throw stderr;
+
+            let dimensions = stdout.split(' ')[2].split('x');
+            const width = dimensions[0];
+            const height = dimensions[1];
+            landscape = parseInt(width) > parseInt(height) ? true : false;
+
+            // insert other sizes
+            imageSizes.forEach(size => {
+               let newName = originalname.split('.');
+
+               newName[0] = `${newName[0]}-${size.size}`;
+               newName = newName.join('.');
+
+               // set maxWidth or maxHeight depending on image type
+               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+               imagemagickCli
+                  .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
+                  .then(({ stdout, stderr }) => {
+
+                     const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
+
+                     con.query(insertAssets, (err, result) => {
+                        if (err) throw err;
+                        if (size.size === "large") {
+                           res.status(200).send({ ...result, success: true, file: originalname });
+                        }
+                     })
+                  })
+            })
+         })
+
+   })
+}
+
+
+/* ------------------------------ UPDATE ASSETS ----------------------------- */
+
+// upload and save image done by upload middleware, check api-routes.
+// after image saved, it will be resized and paths will be saved to Assets database here 
+exports.updateuploadProductImage = async (req, res) => {
+   let nextSequence, landscape;
+   const { originalname } = req.file;
+   const { ProductId, Label, oldPath } = req.body;
+   const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE ProductId = "${ProductId}"`;
+   const test = oldPath.split('-')
+   test.splice(-1,1)
+   const imageSizes = [
+      {
+         size: 'large',
+         width: 1280,
+         height: 1280
+      },
+      {
+         size: 'medium',
+         width: 800,
+         height: 800
+      },
+      {
+         size: 'small',
+         width: 400,
+         height: 400,
+      },
+      {
+         size: 'thumb',
+         width: 200,
+         height: 200,
+      },
+   ]
+
+   con.query(maxSequence, (err, result) => {
+      if (err) throw err;
+      nextSequence = result[0].maxSequence + 1;
+
+      const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${originalname}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path ="${oldPath}" AND ProductId = ${ProductId};`
+
+      // insert original size
+      con.query(insertAssets, (err, result) => {
+         if (err) throw err;
 
       })
 
-      // Check if image is landscape;
       imagemagickCli
-         .exec(`identify assets/${originalname}`)
+         .exec(`identify ite/assets/${originalname}`)
          .then(({ stdout, stderr }) => {
             let dimensions = stdout.split(' ')[2].split('x');
             const width = dimensions[0];
@@ -1114,9 +1202,9 @@ exports.uploadSerieImage = async (req, res) => {
                // set maxWidth or maxHeight depending on image type
                let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                imagemagickCli
-                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                  .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
                   .then(({ stdout, stderr }) => {
-                     const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
+                     const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path LIKE "${test.join('')+'-'+size.size}%" AND ProductId = ${ProductId};`
 
                      con.query(insertAssets, (err, result) => {
                         if (err) throw err;
@@ -1132,6 +1220,90 @@ exports.uploadSerieImage = async (req, res) => {
 }
 
 
+// upload and save image done by upload middleware, check api-routes.
+// after image saved, it will be resized and paths will be saved to Assets database here 
+exports.updateuploadSerieImage = async (req, res) => {
+
+   let nextSequence, landscape;
+   const { originalname } = req.file;  
+   const { SeriesId, Label, oldPath } = req.body;
+   const test = oldPath.split('-')
+   test.splice(-1,1)
+   const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE SerieId = "${SeriesId}"`;
+   const imageSizes = [
+      {
+         size: 'large',
+         width: 1280,
+         height: 1280
+      },
+      {
+         size: 'medium',
+         width: 800,
+         height: 800
+      },
+      {
+         size: 'small',
+         width: 400,
+         height: 400,
+      },
+      {
+         size: 'thumb',
+         width: 200,
+         height: 200,
+      },
+   ]
+
+   con.query(maxSequence, (err, result) => {
+      if (err) throw err;
+      nextSequence = result[0].maxSequence + 1;
+
+
+      const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${originalname}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path = "${oldPath}" ;`
+
+      // insert original size
+      con.query(insertAssets, (err, result) => {
+         if (err) throw err;
+      })
+
+      // Check if image is landscape;
+
+      imagemagickCli
+         .exec(`identify ite/assets/${originalname}`)
+         .then(({ stdout, stderr }) => {
+            if (stderr) throw stderr;
+
+            let dimensions = stdout.split(' ')[2].split('x');
+            const width = dimensions[0];
+            const height = dimensions[1];
+            landscape = parseInt(width) > parseInt(height) ? true : false;
+
+            // insert other sizes
+            imageSizes.forEach(size => {
+               let newName = originalname.split('.');
+
+               newName[0] = `${newName[0]}-${size.size}`;
+               newName = newName.join('.');
+             
+               // set maxWidth or maxHeight depending on image type
+               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+               imagemagickCli
+                  .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
+                  .then(({ stdout, stderr }) => {
+                     
+                     const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path LIKE "${test.join('')+'-'+size.size}%";`
+
+                     con.query(insertAssets, (err, result) => {
+                        if (err) throw err;
+                        if (size.size === "large") {
+                           res.status(200).send({ ...result, success: true, file: originalname });
+                        }
+                     })
+                  })
+            })
+         })
+
+   })
+}
 
 // this route is for testing purposes only
 exports.imageMagick = async (req, res) => {

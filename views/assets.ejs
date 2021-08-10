@@ -45,6 +45,7 @@
         Ext.onReady(() => {
 
             let edit = false;
+            let wichGrid = true;
 
             Ext.define('MyApp.view.Form', {
                 extend: 'Ext.form.Panel',
@@ -53,8 +54,9 @@
             });
 
             var renderImage = function (val) {
-                return '<img src="https://cdinvest.imageert.be/ite/assets/' + val + '" width="100" height="100">'
+                return '<img src="ite/assets/' + val + '" width="100" height="100">'
             }
+
             const mainGridColumns = [
                 {
                     header: "ID",
@@ -221,12 +223,12 @@
                                     Ext.Msg.alert("INFO", "No record selected");
                                 } else {
                                     sessionStorage.setItem('Id', selectedRecord.data.Id)
-
+                                    sessionStorage.setItem('oldPath', selectedRecord.data.Path)
                                     Ext.getCmp("ProductDesc").setValue(selectedRecord.data.ProductId)
                                     Ext.getCmp("Type").setValue(selectedRecord.data.Type)
-                                    Ext.getCmp("Path").setValue(selectedRecord.data.Path)
+                                    Ext.getCmp("image").setValue(renderImage() + selectedRecord.data.Path)
                                     Ext.getCmp("Label").setValue(selectedRecord.data.Label)
-                                    Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
+                                    //Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
                                     Ext.getCmp("panelAdd").setTitle("Edit assets");
@@ -254,6 +256,7 @@
                             iconCls: "fa fa-tasks",
                             scale: "small",
                             handler: function () {
+                                wichGrid = false;
                                 Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid')
                             },
                         },
@@ -333,16 +336,16 @@
                                 const selectedRecord = Ext.getCmp("AssetsSerieGrid")
                                     .getSelectionModel()
                                     .getSelection()[0];
-                                console.log(selectedRecord.data.Path)
                                 if (selectedRecord === undefined) {
                                     Ext.Msg.alert("INFO", "No record selected");
                                 } else {
                                     sessionStorage.setItem('Id', selectedRecord.data.Id)
+                                    sessionStorage.setItem('oldPath', selectedRecord.data.Path)
                                     Ext.getCmp("ProductDesc").setValue(selectedRecord.data.SerieId)
                                     Ext.getCmp("Type").setValue(selectedRecord.data.Type)
-                                    Ext.getCmp("Path").setValue(selectedRecord.data.Path)
+                                    //Ext.getCmp("Path").setValue(selectedRecord.data.Path)
                                     Ext.getCmp("Label").setValue(selectedRecord.data.Label)
-                                    Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
+                                    //Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
                                     Ext.getCmp("panelAdd").setTitle("Edit assets");
@@ -370,6 +373,7 @@
                             iconCls: "fa fa-tasks",
                             scale: "small",
                             handler: function () {
+                                wichGrid = true;
                                 Ext.getCmp("viewport").setActiveItem('AssetsGrid')
                             },
                         },
@@ -541,7 +545,6 @@
                         }
                     }
                 },
-
                 {
                     xtype: "combo",
                     id: "ProductDesc",
@@ -567,8 +570,6 @@
                     allowBlank: false,
                     width: 500,
                 },
-
-
                 {
                     xtype: 'textfield',
                     fieldLabel: 'Label',
@@ -962,55 +963,14 @@
                                     "assets",
                                     `You have successfully add the assets`,
                                 );
-                                Ext.getCmp("viewport").setActiveItem('AssetsGrid');
-                                AssetsStore.reload();
-                            } else {
-                                // display error message
-                                Ext.getBody().unmask();
-                                Ext.Msg.alert(
-                                    "ERROR",
-                                    "Failed to add the assets. Contact your IT team."
-                                );
-                            }
-                        }
-                    },
-                    failure: function (response) {
-                        Ext.getBody().unmask();
-                        Ext.Msg.alert(
-                            "ERROR",
-                            "Failed to add the assets. Contact your IT team."
-                        );
-                    }
-                });
-            };
+                                if (wichGrid == true) {
+                                    Ext.getCmp("viewport").setActiveItem('AssetsGrid');
+                                    AssetsStore.reload();
+                                } else {
+                                    Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid');
+                                    SeriesAssetsStore.reload();
+                                }
 
-            var editAssets = function () {
-                Ext.getBody().mask("Saving", "x-msg-loading");
-                Ext.Ajax.request({
-                    url: "/api/updateAssets",
-                    method: "POST",
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                    params: {
-                        id: chapterId,
-                        Chapter: Ext.getCmp("Chapter").getValue(),
-                        Language: Ext.getCmp("Language").getValue(),
-                        Translated: getCheckboxValue(),
-
-                    },
-                    success: function (response) {
-                        // check for errors and display error message
-                        var check = response.responseText;
-                        if (check) {
-                            var data = JSON.parse(check);
-                            if (data) {
-                                Ext.getBody().unmask();
-                                Ext.Msg.alert(
-                                    "Assets",
-                                    `You have successfully add the assets`,
-                                );
-                                Ext.getCmp("viewport").setActiveItem('AssetsGrid');
-                                AssetsStore.reload();
                             } else {
                                 // display error message
                                 Ext.getBody().unmask();
@@ -1033,9 +993,23 @@
 
 
             var deleteAssets = function () {
-                const selectedRecord = Ext.getCmp("AssetsGrid")
+
+                const selectedRecordProd = Ext.getCmp("AssetsGrid")
                     .getSelectionModel()
                     .getSelection()[0];
+
+                const selectedRecordProdSer = Ext.getCmp("AssetsSerieGrid")
+                    .getSelectionModel()
+                    .getSelection()[0];
+                if (selectedRecordProd == 'product-image') {
+                    var selectedRecord = Ext.getCmp("AssetsGrid")
+                        .getSelectionModel()
+                        .getSelection()[0];
+                } else {
+                    var selectedRecord = Ext.getCmp("AssetsSerieGrid")
+                        .getSelectionModel()
+                        .getSelection()[0];
+                }
                 Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this assets ?", function (btn, text) {
                     if (btn == 'yes') {
                         Ext.getBody().mask('Deleting', 'x-msg-loading');
@@ -1045,7 +1019,7 @@
                             cors: true,
                             useDefaultXhrHeader: false,
                             params: {
-                                Id: selectedRecord.data.Id
+                                itemId: selectedRecord.data.Id
                             },
                             success: function (response) {
                                 // check for errors and display error message
@@ -1054,7 +1028,11 @@
                                     var data = eval("(" + response.responseText + ")");
 
                                     if (data.serverStatus == 2) {
-                                        AssetsStore.reload();
+                                        if (selectedRecord.data.Type) {
+                                            SeriesAssetsStore.reload();
+                                        } else {
+                                            SeriesAssetsStore.reload();
+                                        }
                                         Ext.getBody().unmask();
                                         Ext.Msg.alert(
                                             "Success",
@@ -1157,6 +1135,13 @@
                                             form.reset();
                                             Ext.Msg.alert('Success', 'Your photo "' + object.result.file + '" has been uploaded.');
                                             Ext.getCmp('addForm').reset()
+                                            if (wichGrid == true) {
+                                                Ext.getCmp("viewport").setActiveItem('AssetsGrid');
+                                                AssetsStore.reload()
+                                            } else {
+                                                Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid');
+                                                SeriesAssetsStore.reload()
+                                            }
                                         },
                                         failure: () => {
                                             Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
@@ -1174,13 +1159,22 @@
                                         method: "POST",
                                         waitMsg: 'Uploading your photo...',
                                         params: {
-                                            SerieId: Ext.getCmp('ProductDesc').getValue(),
+                                            SeriesId: Ext.getCmp('ProductDesc').getValue(),
                                             Label: Ext.getCmp('Label').getValue(),
                                         },
                                         success: function (fp, object) {
                                             form.reset();
                                             Ext.Msg.alert('Success', 'Your photo "' + object.result.file + '" has been uploaded.');
                                             Ext.getCmp('addForm').reset()
+                                            if (wichGrid == true) {
+                                                AssetsStore.reload()
+                                                Ext.getCmp("viewport").setActiveItem('AssetsGrid');
+
+                                            } else {
+                                                SeriesAssetsStore.reload()
+
+                                                Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid');
+                                            }
                                         },
                                         failure: () => {
                                             Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
@@ -1201,9 +1195,80 @@
                         iconCls: "fas fa-save",
                         handler: function () {
                             edit = false;
-                            editAssets();
-                            Ext.getCmp("addForm").reset();
-                        },
+                            var form = Ext.getCmp('addForm')
+
+                            if (Ext.getCmp('Type').getValue() == 'product-image') {
+                                if (form.isValid()) {
+                                    form.submit({
+                                        url: '/api/updateuploadProductImage',
+                                        headers: { 'Content-Type': 'multipart/form-data' },
+                                        method: "POST",
+                                        waitMsg: 'Uploading your photo...',
+                                        params: {
+                                            oldPath: sessionStorage.getItem('oldPath'),
+                                            ProductId: Ext.getCmp('ProductDesc').getValue(),
+                                            Label: Ext.getCmp('Label').getValue(),
+                                        },
+                                        success: function (fp, object) {
+                                            form.reset();
+                                            Ext.Msg.alert('Success', 'Your photo "' + object.result.file + '" has been uploaded.');
+                                            Ext.getCmp('addForm').reset()
+
+                                            if (wichGrid == true) {
+                                                Ext.getCmp("viewport").setActiveItem('AssetsGrid');
+                                                AssetsStore.reload()
+                                            } else {
+                                                Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid');
+                                                SeriesAssetsStore.reload()
+                                            }
+                                        },
+                                        failure: () => {
+                                            Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                        }
+                                    });
+                                } else {
+                                    Ext.Msg.alert("INFO", "Form is not valid!")
+                                }
+
+                            } else if (Ext.getCmp('Type').getValue() == 'serie-image') {
+                                if (form.isValid()) {
+                                    form.submit({
+                                        url: '/api/updateuploadSerieImage',
+                                        headers: { 'Content-Type': 'multipart/form-data' },
+                                        method: "POST",
+                                        waitMsg: 'Uploading your photo...',
+                                        params: {
+                                            oldPath: sessionStorage.getItem('oldPath'),
+                                            SeriesId: Ext.getCmp('ProductDesc').getValue(),
+                                            Label: Ext.getCmp('Label').getValue(),
+                                        },
+                                        success: function (fp, object) {
+                                            form.reset();
+                                            Ext.Msg.alert('Success', 'Your photo "' + object.result.file + '" has been uploaded.');
+                                            Ext.getCmp('addForm').reset()
+                                            if (wichGrid == true) {
+
+                                                Ext.getCmp("viewport").setActiveItem('AssetsGrid');
+                                                AssetsStore.reload()
+                                            } else {
+
+                                                Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid');
+                                                SeriesAssetsStore.reload()
+
+                                            }
+
+                                        },
+                                        failure: () => {
+                                            Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                        }
+                                    });
+                                } else {
+                                    Ext.Msg.alert("INFO", "Form is not valid!")
+                                }
+                            } else {
+                                console.log('bug')
+                            }
+                        }
                     },
                     "-",
                     {
@@ -1214,12 +1279,17 @@
                         handler: function () {
                             edit = false;
                             Ext.getCmp('addForm').reset();
-                            Ext.getCmp("viewport").setActiveItem("AssetsGrid");
+                            if (wichGrid == true) {
+                                Ext.getCmp("viewport").setActiveItem('AssetsGrid');
+
+                            } else {
+                                Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid');
+
+                            }
                         },
                     },
                 ],
             });
-
 
 
             Ext.create("Ext.container.Viewport", {
