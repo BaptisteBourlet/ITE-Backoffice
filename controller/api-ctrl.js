@@ -1149,7 +1149,7 @@ exports.updateuploadProductImage = async (req, res) => {
    const { ProductId, Label, oldPath } = req.body;
    const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE ProductId = "${ProductId}"`;
    const test = oldPath.split('-')
-   test.splice(-1,1)
+   test.splice(-1, 1)
    const imageSizes = [
       {
          size: 'large',
@@ -1204,7 +1204,7 @@ exports.updateuploadProductImage = async (req, res) => {
                imagemagickCli
                   .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
                   .then(({ stdout, stderr }) => {
-                     const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path LIKE "${test.join('')+'-'+size.size}%" AND ProductId = ${ProductId};`
+                     const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path LIKE "${test.join('') + '-' + size.size}%" AND ProductId = ${ProductId};`
 
                      con.query(insertAssets, (err, result) => {
                         if (err) throw err;
@@ -1225,10 +1225,10 @@ exports.updateuploadProductImage = async (req, res) => {
 exports.updateuploadSerieImage = async (req, res) => {
 
    let nextSequence, landscape;
-   const { originalname } = req.file;  
+   const { originalname } = req.file;
    const { SeriesId, Label, oldPath } = req.body;
    const test = oldPath.split('-')
-   test.splice(-1,1)
+   test.splice(-1, 1)
    const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE SerieId = "${SeriesId}"`;
    const imageSizes = [
       {
@@ -1283,14 +1283,14 @@ exports.updateuploadSerieImage = async (req, res) => {
 
                newName[0] = `${newName[0]}-${size.size}`;
                newName = newName.join('.');
-             
+
                // set maxWidth or maxHeight depending on image type
                let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                imagemagickCli
                   .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
                   .then(({ stdout, stderr }) => {
-                     
-                     const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path LIKE "${test.join('')+'-'+size.size}%";`
+
+                     const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path LIKE "${test.join('') + '-' + size.size}%";`
 
                      con.query(insertAssets, (err, result) => {
                         if (err) throw err;
@@ -1349,4 +1349,181 @@ exports.imageMagick = async (req, res) => {
 
    //       res.send(stdout)
    //    });
+}
+
+
+/* ------------------------------- LABELS CRUD ------------------------------ */
+
+
+exports.getLabels = async (req, res) => {
+   let query = ''
+   query = 'SELECT * FROM Labels;'
+
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
+exports.addLabels = async (req, res) => {
+   const {
+      Key, Language, Value,
+      FRLanguage, FRValue,
+      SPLanguage, SPValue,
+      DELanguage, DEValue,
+      RULanguage, RUValue,
+   } = req.body;
+
+
+   if ( Value !== "") {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${Language}", "${Value}");`, (err, results, fields) => {
+         if (err) throw err;
+
+         res.status(200).send(results);
+      });
+   } else {
+      console.log('english wasnt filled in')
+   }
+
+   if ( FRValue !== '') {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${FRLanguage}", "${FRValue}");`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('french wasnt filled in')
+   }
+
+   if ( DEValue !== '') {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${DELanguage}", "${DEValue}");`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('german wasnt filled in')
+   }
+
+   if ( RUValue !== '') {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${RULanguage}", "${RUValue}");`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('russian wasnt filled in')
+   }
+
+   if ( SPValue !== '') {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${SPLanguage}", "${SPValue}");`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('spanish wasnt filled in')
+   }
+
+
+}
+
+
+exports.DeleteLabels = async (req, res) => {
+   const { Lid } = req.body;
+
+   con.query(`DELETE FROM Labels WHERE Lid = ${Lid};`, (err, results, fields) => {
+      if (err) {
+         console.log(err);
+      }
+      res.send(results)
+   })
+}
+
+exports.updateLabels = async (req, res) => {
+   const { 
+      oldKey,
+      Key, Language, Value,
+      FRLanguage, FRValue,
+      SPLanguage, SPValue,
+      DELanguage, DEValue,
+      RULanguage, RUValue
+   } = req.body;
+
+
+   if ( Value !== "") {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${Language}", Labels.Value = "${Value}" WHERE Language = 'en' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+         res.status(200).send(results);
+      });
+   } else {
+      console.log('english wasnt filled in')
+   }
+
+   if ( FRValue !== '') {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${FRLanguage}", Labels.Value = "${FRValue}" WHERE Language = 'fr' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('french wasnt filled in')
+   }
+
+   if ( DEValue !== '') {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${DELanguage}", Labels.Value = "${DEValue}" WHERE Language = 'de' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('german wasnt filled in')
+   }
+
+   if ( RUValue !== '') {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${RULanguage}", Labels.Value = "${RUValue}" WHERE Language = 'ru' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('russian wasnt filled in')
+   }
+
+   if ( SPValue !== '') {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${SPLanguage}", Labels.Value = "${SPValue}" WHERE Language = 'es' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('spanish wasnt filled in')
+   }
+}
+
+
+exports.getLabelsDetails = async (req, res) => {
+   const { Key, language } = req.body;
+   const query = `SELECT Labels.Key, Language, Labels.Value FROM Labels WHERE Language = "${language}" AND Labels.Key = "${Key}";`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) throw err;
+
+      res.status(200).send(results);
+   })
+}
+
+
+exports.searchLabels = async (req, res) => {
+   const { searchQuery, field } = req.body;
+   let query = '';
+
+   if(field == 'Key'){
+       query = `SELECT * FROM Labels WHERE Labels.Key LIKE '%${searchQuery}%';`;
+
+   } else {
+       query = `SELECT * FROM Labels WHERE Labels.Value LIKE '%${searchQuery}%';`;
+   }
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
 }

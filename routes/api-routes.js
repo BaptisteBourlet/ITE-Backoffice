@@ -123,4 +123,19 @@ router.post('/updateuploadSerieImage', imgUpload.single('image'), apiCtrl.update
 
 router.get('/image', apiCtrl.imageMagick);
 
+/* ------------------------------- LABELS CURD ------------------------------ */
+
+router.get('/getLabels', apiCtrl.getLabels);
+
+router.post('/updateLabels', apiCtrl.updateLabels);
+
+router.post('/DeleteLabels', apiCtrl.DeleteLabels);
+
+router.post('/addLabels', apiCtrl.addLabels);
+
+router.post('/getLabelsDetails', apiCtrl.getLabelsDetails);
+
+router.post('/searchLabels', apiCtrl.searchLabels);
+
+
 module.exports = router;

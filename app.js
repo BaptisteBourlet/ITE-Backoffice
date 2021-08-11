@@ -45,6 +45,9 @@ app.get('/related-series', (req, res) => {
    res.render('assets');
  });
 
+ app.get('/labels', function(req, res) {
+   res.render('labels');
+ });
 
 //  app.get('/image-upload', (req, res) => {
 //     res.render('imageUpload');

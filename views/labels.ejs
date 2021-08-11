@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ITE BACK OFFICE MANAGEMENT</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+    <style>
+        #small-view {
+            display: none;
+        }
+
+        @media (max-width: 481px) {
+            #labelsGrid {
+                display: none !important;
+            }
+
+            #small-view {
+                margin-top: 4rem;
+                font-size: 40px;
+                height: 100vh;
+                width: 100vw;
+                line-height: 50px;
+                display: block !important;
+            }
+        }
+
+        #ENFIELD-legendTitle,
+        #SPFIELD-legendTitle,
+        #FRFIELD-legendTitle,
+        #DEFIELD-legendTitle,
+        #RUFIELD-legendTitle {
+            font-weight: bold;
+        }
+    </style>
+    <script type="text/javascript">
+        //=========================================================================================================
+        //		           APPLICATION START
+        // ========================================================================================================
+        Ext.onReady(() => {
+
+            let edit = false;
+            let Lid
+
+            Ext.define('MyApp.view.Form', {
+                extend: 'Ext.form.Panel',
+                xtype: 'my-form',
+
+            });
+
+            const mainGridColumns = [
+                {
+                    header: "ID",
+                    sortable: true,
+                    width: 80,
+                    dataIndex: "Lid",
+                },
+                {
+                    header: "Key",
+                    sortable: true,
+                    width: 200,
+                    dataIndex: "Key",
+
+                },
+                {
+                    header: "Language",
+                    sortable: true,
+                    width: 100,
+                    dataIndex: "Language",
+                },
+                {
+                    header: "Value",
+                    sortable: true,
+                    width: 800,
+                    dataIndex: "Value",
+                },
+
+            ];
+
+
+            const tbarItems = [
+
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "bottomToolBar",
+                    items: [
+                        {
+                            xtype: "button",
+                            id: "add",
+                            iconCls: "fa fa-plus-circle",
+                            text: "New",
+                            scale: "small",
+                            handler: function () {
+
+                                Ext.getCmp("addSave").setHidden(false);
+                                Ext.getCmp("editSave").setHidden(true);
+                                Ext.getCmp("panelAdd").setTitle("Add translation");
+                                Ext.getCmp("viewport").setActiveItem("panelAdd");
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "edit",
+                            text: "Edit",
+                            iconCls: "fa fa-edit",
+                            scale: "small",
+                            handler: function () {
+                                edit = true;
+
+                                const selectedRecord = Ext.getCmp("labelsGrid")
+                                    .getSelectionModel()
+                                    .getSelection()[0];
+
+                                if (selectedRecord === undefined) {
+                                    Ext.Msg.alert("INFO", "No record selected");
+                                } else {
+                                    sessionStorage.setItem('oldKey', selectedRecord.data.Key)
+                                    Ext.getCmp("Key").setValue(selectedRecord.data.Key)
+                                    getLabelsDetails('en', selectedRecord.data.Key)
+                                    getLabelsDetails('fr', selectedRecord.data.Key)
+                                    getLabelsDetails('de', selectedRecord.data.Key)
+                                    getLabelsDetails('es', selectedRecord.data.Key)
+                                    getLabelsDetails('ru', selectedRecord.data.Key)
+                                    Ext.getCmp("addSave").setHidden(true);
+                                    Ext.getCmp("editSave").setHidden(false);
+                                    Ext.getCmp("panelAdd").setTitle("Edit labels");
+
+                                    Ext.getCmp("viewport").setActiveItem("panelAdd");
+                                }
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "delete",
+                            text: "Delete",
+                            iconCls: "fa fa-trash-alt",
+                            scale: "small",
+                            handler: function () {
+                                DeleteLabels()
+                            },
+                        },
+
+                    ],
+                },
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "searchBar",
+                    items: [
+                        {
+                            xtype: "textfield",
+                            id: "searchKey",
+                            iconCls: "fa fa-search",
+                            width: 150,
+                            labelWidth: 20,
+                            emptyText: "Search by key...",
+                            enableKeyEvents: true,
+                            listeners: {
+
+                                change: () => {
+                                    searchLabels('searchKey', 'Key')
+                                }
+                            },
+                        },
+                        {
+                            xtype: "textfield",
+                            id: "searchValue",
+                            iconCls: "fa fa-search",
+                            width: 200,
+                            labelWidth: 20,
+                            emptyText: "Search by value...",
+                            enableKeyEvents: true,
+                            listeners: {
+
+                                change: () => {
+                                    searchLabels('searchValue', 'Value')
+                                }
+                            },
+                        },
+
+                {
+                    xtype: "button",
+                    id: "resetSearch",
+                    iconCls: "fas fa-undo-alt",
+                    text: "reset",
+                    style: "padding: 7px; border: none; background-color: #000",
+                    listeners: {
+                        click: () => {
+                            Ext.getCmp("searchKey").setValue("");
+                            labelsStore.reload();
+                        },
+                    },
+                },
+                    ],
+                },
+            ];
+
+            const searchLabels = (searchField, field) => {
+                let searchQuery = Ext.getCmp(searchField).getValue();
+                Ext.Ajax.request({
+                    url: "/api/searchLabels",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        field: field,
+                        searchQuery: searchQuery,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        res
+                            ? labelsStore.setData(res)
+                            : console.log("no response received");
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            };
+
+            const LabelsModel = Ext.define("LabelsModel", {
+                extend: "Ext.data.Model",
+                fields: ["Lid", "Key", "Language", "Value"],
+            });
+
+            const labelsStore = Ext.create("Ext.data.Store", {
+                id: "labelsStore",
+                autoLoad: true,
+                model: LabelsModel,
+                proxy: {
+                    type: "ajax",
+                    method: "POST",
+                    url: "/api/getLabels",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+                    },
+
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+            });
+
+            const labelsGrid = Ext.create("Ext.grid.GridPanel", {
+                id: "labelsGrid",
+                flex: 1,
+                scrollable: true,
+                title: "Labels",
+                trackOver: true,
+                loadMask: true,
+                store: labelsStore, // store
+                columns: mainGridColumns, //columns
+                enableColumnMove: false,
+                sortable: true,
+                frame: false,
+                renderTo: Ext.getBody(),
+                height: 690,
+                dockedItems: [...tbarItems],
+                listeners: {
+                    dblclick: {
+                        element: "body",
+                        fn: () => {
+
+                        },
+                    },
+                },
+            });
+
+
+            const getLabelsDetails = (language, Key) => {
+                Ext.Ajax.request({
+                    url: "/api/getLabelsDetails",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        language: language,
+                        Key: Key
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+                        
+                        Ext.getCmp(`${language.toUpperCase()}Value`).setValue(res[0].Value);
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+
+            var addLabels = function () {
+                Ext.getBody().mask("Saving", "x-msg-loading");
+                Ext.Ajax.request({
+                    url: "/api/addLabels",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        Language: "en",
+                        Key: Ext.getCmp("Key").getValue().trim(),
+                        Value: Ext.getCmp("ENValue").getValue(),
+                        //FR
+                        FRLanguage: "fr",
+                        FRValue: Ext.getCmp("FRValue").getValue(),
+                        //DE
+                        DELanguage: "de",
+                        DEValue: Ext.getCmp("DEValue").getValue(),
+                        //SP
+                        SPLanguage: "es",
+                        SPValue: Ext.getCmp("ESValue").getValue(),
+                        //RU
+                        RULanguage: "ru",
+                        RUValue: Ext.getCmp("RUValue").getValue(),
+                    },
+                    success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                            var data = JSON.parse(check);
+                            if (data) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "Labels",
+                                    `You have successfully add the labels`,
+                                );
+                                Ext.getCmp("viewport").setActiveItem('labelsGrid');
+                                labelsStore.reload();
+                            } else {
+                                // display error message
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to add the labels. Contact your IT team."
+                                );
+                            }
+                        }
+                    },
+                    failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                            "ERROR",
+                            "Failed to add the labels. Contact your IT team."
+                        );
+                    }
+                });
+            };
+
+            var editLabels = function () {
+                Ext.getBody().mask("Saving", "x-msg-loading");
+                Ext.Ajax.request({
+                    url: "/api/updateLabels",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        oldKey : sessionStorage.getItem('oldKey'),
+                        Language: "en",
+                        Key: Ext.getCmp("Key").getValue().trim(),
+                        Value: Ext.getCmp("ENValue").getValue(),
+                        //FR
+                        FRLanguage: "fr",
+                        FRValue: Ext.getCmp("FRValue").getValue(),
+                        //DE
+                        DELanguage: "de",
+                        DEValue: Ext.getCmp("DEValue").getValue(),
+                        //SP
+                        SPLanguage: "es",
+                        SPValue: Ext.getCmp("ESValue").getValue(),
+                        //RU
+                        RULanguage: "ru",
+                        RUValue: Ext.getCmp("RUValue").getValue(),
+
+                    },
+                    success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                            var data = JSON.parse(check);
+                            if (data) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "Labels",
+                                    `You have successfully add the labels`,
+                                );
+                                Ext.getCmp("viewport").setActiveItem('labelsGrid');
+                                labelsStore.reload();
+                            } else {
+                                // display error message
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to add the labels. Contact your IT team."
+                                );
+                            }
+                        }
+                    },
+                    failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                            "ERROR",
+                            "Failed to add the labels. Contact your IT team."
+                        );
+                    }
+                });
+            };
+
+
+            var DeleteLabels = function () {
+                const selectedRecord = Ext.getCmp("labelsGrid")
+                    .getSelectionModel()
+                    .getSelection()[0];
+                Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this labels ?", function (btn, text) {
+                    if (btn == 'yes') {
+                        Ext.getBody().mask('Deleting', 'x-msg-loading');
+                        Ext.Ajax.request({
+                            url: "/api/DeleteLabels",
+                            method: "POST",
+                            cors: true,
+                            useDefaultXhrHeader: false,
+                            params: {
+                                Lid: selectedRecord.data.Lid
+                            },
+                            success: function (response) {
+                                // check for errors and display error message
+                                var check = response.responseText;
+                                if (check) {
+                                    var data = eval("(" + response.responseText + ")");
+
+                                    if (data.serverStatus == 2) {
+                                        labelsStore.reload();
+                                        Ext.getBody().unmask();
+                                        Ext.Msg.alert(
+                                            "Success",
+                                            "You have successfully deleted the labels"
+                                        );
+                                    } else {
+                                        // display error message
+                                        Ext.getBody().unmask();
+                                        Ext.Msg.alert(
+                                            "ERROR",
+                                            "Failed to delete the labels. Contact your IT team."
+                                        );
+                                    }
+                                }
+                            },
+                            failure: function (response) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to delete labels. Contact your IT team."
+                                );
+                            },
+
+                        });
+                    }
+                })
+            }
+
+
+            var TabTranslations = Ext.create('Ext.TabPanel', {
+                fullscreen: true,
+                tabBarPosition: 'bottom',
+                id: 'tabTrans',
+                defaults: {
+                    styleHtmlContent: true
+                },
+
+                items: [
+                    {
+                        title: 'English',
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "English Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "ENFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+
+                                    {
+                                        xtype: "textfield",
+                                        id: "ENValue",
+                                        name: "ENValue",
+                                        fieldLabel: "Translation",
+                                        maxLenght: 400,
+                                        width: 500,
+                                        allowBlank: false,
+                                        selectOnFocus: false,
+                                        margin: "25 0 25 0",
+                                    },
+
+                                ],
+                            },
+                        ]
+                    },
+
+                    {
+                        title: 'French',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "French Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "FRFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+
+
+                                    {
+                                        xtype: "textfield",
+                                        id: "FRValue",
+                                        name: "FRValue",
+                                        fieldLabel: "Translation",
+                                        maxLenght: 400,
+                                        width: 500,
+                                        allowBlank: true,
+                                        selectOnFocus: false,
+                                        margin: "25 0 25 0",
+                                    },
+
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'German',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "German Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "DEFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        xtype: "textfield",
+                                        id: "DEValue",
+                                        name: "DEValue",
+                                        fieldLabel: "Translation",
+                                        maxLenght: 400,
+                                        width: 500,
+                                        allowBlank: true,
+                                        selectOnFocus: false,
+                                        margin: "25 0 25 0",
+                                    },
+
+                                ]
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Spanish',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                labelStyle: "font-weight: bold; ",
+                                title: "Spanish Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "SPFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+
+                                    {
+                                        xtype: "textfield",
+                                        id: "ESValue",
+                                        name: "ESValue",
+                                        fieldLabel: "Translation",
+                                        maxLenght: 400,
+                                        width: 500,
+                                        allowBlank: true,
+                                        selectOnFocus: false,
+                                        margin: "25 0 25 0",
+                                    },
+
+                                ]
+
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Russian',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "Russian Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "RUFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        xtype: "textfield",
+                                        id: "RUValue",
+                                        name: "RUValue",
+                                        fieldLabel: "Translation",
+                                        maxLenght: 400,
+                                        width: 500,
+                                        allowBlank: true,
+                                        selectOnFocus: false,
+                                        margin: "25 0 25 0",
+                                    },
+                                ]
+                            },
+
+                        ]
+
+                    },
+                ]
+            });
+
+            var itemsAdd = [
+                {
+                    xtype: "textfield",
+                    id: "Key",
+                    name: "Key",
+                    fieldLabel: "Key",
+                    maxLenght: 34,
+                    width: 500,
+                    allowBlank: false,
+                    submitvalue: true,
+                    margin: "25 0 25 0",
+                },
+                TabTranslations
+            ];
+
+            var screenAdd = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                    listeners: {
+                        specialkey: function (field, e) {
+                            if (e.getKey() == e.ENTER) {
+                                updateRec();
+                            }
+                            if (e.getKey() == e.ESC) {
+                                Ext.getCmp("viewport").setActiveItem("labelsGrid");
+                            }
+                        },
+                    },
+                },
+                width: '100%',
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: {
+                            columns: 2,
+                        },
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "addForm",
+                                columnWidth: 1,
+                                border: false,
+                                items: itemsAdd,
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            // outer panel container to hold tbar and keypress definitions
+            var panelAdd = new Ext.Panel({
+                layout: "fit",
+                id: "panelAdd",
+                title: "Add labels",
+                header: true,
+                items: [screenAdd],
+                tbar: [
+                    {
+                        text: "Save",
+                        id: "addSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            addLabels();
+                            Ext.getCmp('addForm').reset()
+                        },
+                    },
+                    {
+                        text: "Save",
+                        id: "editSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            edit = false;
+                            editLabels();
+                            Ext.getCmp("addForm").reset();
+                        },
+                    },
+                    "-",
+                    {
+                        text: "Cancel",
+                        tooltip: "Cancel",
+                        id: 'cancel',
+                        iconCls: "fas fa-undo",
+                        handler: function () {
+                            edit = false;
+                            Ext.getCmp('addForm').reset();
+                            Ext.getCmp("viewport").setActiveItem("labelsGrid");
+                        },
+                    },
+                ],
+            });
+
+
+            Ext.create("Ext.container.Viewport", {
+                id: "viewport",
+                layout: "card",
+                activeItem: 0,
+                items: [labelsGrid, panelAdd],
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div id="small-view">
+        This Appplication is not meant for small devices.
+    </div>
+</body>
+
+</html>
