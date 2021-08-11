@@ -55,11 +55,13 @@ exports.getSomething = async (req, res) => {
 
 // DISTINCT AS400.AOAROM, 
 exports.getAllProducts = async (req, res) => {
-   const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
+   const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesInfo.Title"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
       + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P', 'S') AND InfoTree.Tree != ''"
-      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 ORDER BY ProductInfo.ProductId LIMIT 100;`;
+      + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
+      + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId AND SeriesInfo.Language = 'en'"
+      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1  ORDER BY ProductInfo.ProductId;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {

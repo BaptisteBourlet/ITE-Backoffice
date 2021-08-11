@@ -674,7 +674,7 @@
 
       const Model = Ext.define("ALLPRODUCTS", {
         extend: "Ext.data.Model",
-        fields: ["Id", "Catalog", "Description", "CODE"],
+        fields: ["Id", "Catalog", "Description", "CODE", 'Title'],
       });
 
 
@@ -686,6 +686,12 @@
           width: 80,
           dataIndex: "Id",
           align: "center",
+        },
+        {
+          header: "Serie Title",
+          sortable: true,
+          width: 200,
+          dataIndex: "Title",
         },
         {
           header: "Product Code",
@@ -730,6 +736,7 @@
           dataIndex: "Count",
           hidden: true,
         },
+        
       ];
       const mainStore = Ext.create("Ext.data.Store", {
         id: "mainStore",
