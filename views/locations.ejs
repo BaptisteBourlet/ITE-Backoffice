@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ITE BACK OFFICE MANAGEMENT</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+
+    <style>
+        #small-view {
+            display: none;
+        }
+
+        @media (max-width: 481px) {
+            #locationsGrid {
+                display: none !important;
+            }
+
+            #small-view {
+                margin-top: 4rem;
+                font-size: 40px;
+                height: 100vh;
+                width: 100vw;
+                line-height: 50px;
+                display: block !important;
+            }
+        }
+    </style>
+    <script type="text/javascript">
+        //=========================================================================================================
+        //		           APPLICATION START
+        // ========================================================================================================
+        Ext.onReady(() => {
+
+            let edit = false;
+            let locationsId
+
+            Ext.define('MyApp.view.Form', {
+                extend: 'Ext.form.Panel',
+                xtype: 'my-form',
+
+            });
+
+
+            const mainGridColumns = [
+                {
+                    header: "ID",
+                    sortable: true,
+                    width: 80,
+                    dataIndex: "Id",
+                },
+                {
+                    header: "Type",
+                    sortable: true,
+                    width: 80,
+                    dataIndex: "Type",
+
+                },
+                {
+                    header: "Name",
+                    sortable: true,
+                    width: 80,
+                    dataIndex: "Name",
+                },
+                {
+                    header: "Region",
+                    sortable: true,
+                    width: 300,
+                    dataIndex: "Region",
+                },
+                {
+                    header: "Address",
+                    sortable: true,
+                    width: 200,
+                    dataIndex: "Address",
+                },
+                {
+                    header: "Locality",
+                    sortable: true,
+                    width: 150,
+                    dataIndex: "Locality",
+                },
+                {
+                    header: "Country",
+                    sortable: true,
+                    width: 150,
+                    dataIndex: "Country",
+                },
+                {
+                    header: "Tel",
+                    sortable: true,
+                    width: 150,
+                    dataIndex: "Tel",
+                },
+                {
+                    header: "Email",
+                    sortable: true,
+                    width: 200,
+                    dataIndex: "Email",
+                },
+                {
+                    header: "Office Hours",
+                    sortable: true,
+                    width: 220,
+                    dataIndex: "OfficeHours",
+                },
+                {
+                    header: "Warehouse Hours",
+                    sortable: true,
+                    width: 220,
+                    dataIndex: "WarehouseHours",
+                },
+                {
+                    header: "GPS",
+                    sortable: true,
+                    width: 100,
+                    dataIndex: "GPS",
+                },
+                {
+                    header: "Latitude",
+                    sortable: true,
+                    width: 100,
+                    dataIndex: "Lat",
+                },
+                {
+                    header: "Longitude",
+                    sortable: true,
+                    width: 100,
+                    dataIndex: "Lng",
+                },
+
+
+            ];
+
+
+
+            const tbarItems = [
+
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "bottomToolBar",
+                    items: [
+                        {
+                            xtype: "button",
+                            id: "add",
+                            iconCls: "fa fa-plus-circle",
+                            text: "New",
+                            scale: "small",
+                            handler: function () {
+
+                                Ext.getCmp("addSave").setHidden(false);
+                                Ext.getCmp("editSave").setHidden(true);
+                                Ext.getCmp("panelAdd").setTitle("Add locations");
+                                Ext.getCmp("viewport").setActiveItem("panelAdd");
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "edit",
+                            text: "Edit",
+                            iconCls: "fa fa-edit",
+                            scale: "small",
+                            handler: function () {
+                                edit = true;
+
+                                const selectedRecord = Ext.getCmp("locationsGrid")
+                                    .getSelectionModel()
+                                    .getSelection()[0];
+
+                                if (selectedRecord === undefined) {
+                                    Ext.Msg.alert("INFO", "No record selected");
+                                } else {
+                                    locationsId = selectedRecord.data.Id;
+                                    Ext.getCmp("Type").setValue(selectedRecord.data.Type)
+                                    Ext.getCmp("Name").setValue(selectedRecord.data.Name)
+                                    Ext.getCmp("Region").setValue(selectedRecord.data.Region)
+                                    Ext.getCmp("Address").setValue(selectedRecord.data.Address)
+                                    Ext.getCmp("Locality").setValue(selectedRecord.data.Locality)
+                                    Ext.getCmp("Country").setValue(selectedRecord.data.Country)
+                                    Ext.getCmp("Tel").setValue(selectedRecord.data.Tel)
+                                    Ext.getCmp("Email").setValue(selectedRecord.data.Email)
+                                    Ext.getCmp("OfficeHours").setValue(selectedRecord.data.Region)
+                                    Ext.getCmp("WarehouseHours").setValue(selectedRecord.data.WarehouseHours)
+                                    Ext.getCmp("Lat").setValue(selectedRecord.data.Lat)
+                                    Ext.getCmp("Lng").setValue(selectedRecord.data.Lng)
+                                    Ext.getCmp("addSave").setHidden(true);
+                                    Ext.getCmp("editSave").setHidden(false);
+                                    Ext.getCmp("panelAdd").setTitle("Edit locations");
+
+                                    Ext.getCmp("viewport").setActiveItem("panelAdd");
+                                }
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "delete",
+                            text: "Delete",
+                            iconCls: "fa fa-trash-alt",
+                            scale: "small",
+                            handler: function () {
+                                deleteLocations()
+                            },
+                        },
+
+                    ],
+                },
+                // {
+                //     xtype: "toolbar",
+                //     dock: "top",
+                //     id: "searchBar",
+                //     items: [
+                //         {
+                //             xtype: "numberfield",
+                //             id: "searchChapter",
+                //             iconCls: "fa fa-search",
+                //             width: 130,
+                //             labelWidth: 20,
+                //             emptyText: "Search chapter",
+                //             enableKeyEvents: true,
+                //             listeners: {
+
+                //                 change: () => {
+                //                     console.log(Ext.getCmp('searchChapter').getValue())
+                //                     locationsStore.getProxy().setExtraParam('searchChapter', Ext.getCmp('searchChapter').getValue());
+                //                     locationsStore.reload()
+                //                 }
+                //             },
+                //         },
+
+                // {
+                //     xtype: "button",
+                //     id: "resetSearch",
+                //     iconCls: "fas fa-undo-alt",
+                //     text: "reset",
+                //     style: "padding: 7px; border: none; background-color: #000",
+                //     listeners: {
+                //         click: () => {
+                //             Ext.getCmp("searchChapter").setValue("");
+                //             locationsStore.reload();
+                //         },
+                //     },
+                // },
+                //     ],
+                // },
+            ];
+
+            const locationsModel = Ext.define("locationsModel", {
+                extend: "Ext.data.Model",
+                fields: ["Id", "Type", "Name", "Region", "Address", "Locality", "Country", "Tel", "Email", "OfficeHours", "WarehouseHours", "GPS", "Lat", "Lng"],
+            });
+
+            const locationsStore = Ext.create("Ext.data.Store", {
+                id: "locationsStore",
+                autoLoad: true,
+                model: locationsModel,
+                proxy: {
+                    type: "ajax",
+                    method: "POST",
+                    url: "/api/getLocations",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+                    },
+
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+            });
+
+            const countryModel = Ext.define("countryModel", {
+                extend: "Ext.data.Model",
+                fields: ["name", "code"]
+            });
+            // const countryStore2 = Ext.create("Ext.data.JsonStore", {
+
+            //     // store configs
+            //     storeId: 'countryStore2',
+            //     model: "countryModel",
+            //     autoLoad: true,
+
+            //     url: '/data/countries.json',
+            //     rootProperty: 'data',
+            //     reader: {
+            //         type: "json",
+            //     },
+
+
+
+            // });
+
+            var countryStore2 = Ext.create('Ext.data.Store', {
+                model: 'countryModel',
+                proxy: {
+                    type: 'ajax',
+                    url: '/data/countries.json',
+                    reader: {
+                        type: 'json',
+                        rootProperty: 'data'
+                    }
+                },
+                autoLoad: true
+            });
+
+            // var countryStore = Ext.create('Ext.data.Store', {
+            //     autoLoad: true,
+            //     model: "countryModel",
+            //     proxy: {
+            //         type: 'ajax',
+            //         url: 'data/countries.json',
+            //         method: "GET",
+            //         messageProperty: 'jsonData',
+            //         reader: {
+            //             type: 'json',
+            //             rootProperty: 'data'
+            //         }
+            //     }
+            // });
+
+            const locationsGrid = Ext.create("Ext.grid.GridPanel", {
+                id: "locationsGrid",
+                flex: 1,
+                scrollable: true,
+                title: "Locations",
+                trackOver: true,
+                loadMask: true,
+                store: locationsStore, // store
+                columns: mainGridColumns, //columns
+                enableColumnMove: false,
+                sortable: true,
+                frame: false,
+                renderTo: Ext.getBody(),
+                height: 690,
+                dockedItems: [...tbarItems],
+                listeners: {
+                    dblclick: {
+                        element: "body",
+                        fn: () => {
+
+                        },
+                    },
+                },
+            });
+
+
+            var addLocations = function () {
+                Ext.getBody().mask("Saving", "x-msg-loading");
+                Ext.Ajax.request({
+                    url: "/api/addLocations",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        Type: Ext.getCmp("Type").getValue(),
+                        Name: Ext.getCmp("Name").getValue(),
+                        Region: Ext.getCmp("Region").getValue(),
+                        Address: Ext.getCmp("Address").getValue(),
+                        Locality: Ext.getCmp("Locality").getValue(),
+                        Country: Ext.getCmp("Country").getValue(),
+                        Tel: Ext.getCmp("Tel").getValue(),
+                        Email: Ext.getCmp("Email").getValue(),
+                        OfficeHours: Ext.getCmp("OfficeHours").getValue(),
+                        WarehouseHours: Ext.getCmp("WarehouseHours").getValue(),
+                        GPS: Ext.getCmp("GPS").getValue(),
+                        Lat: Ext.getCmp("Lat").getValue(),
+                        Lng: Ext.getCmp("Lng").getValue(),
+
+                    },
+                    success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                            var data = JSON.parse(check);
+                            if (data) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "locations",
+                                    `You have successfully add the locations`,
+                                );
+                                Ext.getCmp("viewport").setActiveItem('locationsGrid');
+                                locationsStore.reload();
+                            } else {
+                                // display error message
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to add the locations. Contact your IT team."
+                                );
+                            }
+                        }
+                    },
+                    failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                            "ERROR",
+                            "Failed to add the locations. Contact your IT team."
+                        );
+                    }
+                });
+            };
+
+            var editLocations = function () {
+                Ext.getBody().mask("Saving", "x-msg-loading");
+                Ext.Ajax.request({
+                    url: "/api/updateLocations",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        LocationsId: locationsId,
+                        Type: Ext.getCmp("Type").getValue(),
+                        Name: Ext.getCmp("Name").getValue(),
+                        Region: Ext.getCmp("Region").getValue(),
+                        Address: Ext.getCmp("Address").getValue(),
+                        Locality: Ext.getCmp("Locality").getValue(),
+                        Country: Ext.getCmp("Country").getValue(),
+                        Tel: Ext.getCmp("Tel").getValue(),
+                        Email: Ext.getCmp("Email").getValue(),
+                        OfficeHours: Ext.getCmp("OfficeHours").getValue(),
+                        WarehouseHours: Ext.getCmp("WarehouseHours").getValue(),
+                        GPS: Ext.getCmp("GPS").getValue(),
+                        Lat: Ext.getCmp("Lat").getValue(),
+                        Lng: Ext.getCmp("Lng").getValue(),
+
+                    },
+                    success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                            var data = JSON.parse(check);
+                            if (data) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "locations",
+                                    `You have successfully add the locations`,
+                                );
+                                Ext.getCmp("viewport").setActiveItem('locationsGrid');
+                                locationsStore.reload();
+                            } else {
+                                // display error message
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to add the locations. Contact your IT team."
+                                );
+                            }
+                        }
+                    },
+                    failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                            "ERROR",
+                            "Failed to add the locations. Contact your IT team."
+                        );
+                    }
+                });
+            };
+
+
+            var deleteLocations = function () {
+                const selectedRecord = Ext.getCmp("locationsGrid")
+                    .getSelectionModel()
+                    .getSelection()[0];
+                Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this locations ?", function (btn, text) {
+                    if (btn == 'yes') {
+                        Ext.getBody().mask('Deleting', 'x-msg-loading');
+                        Ext.Ajax.request({
+                            url: "/api/deleteLocations",
+                            method: "POST",
+                            cors: true,
+                            useDefaultXhrHeader: false,
+                            params: {
+                                LocationsId: selectedRecord.data.Id
+                            },
+                            success: function (response) {
+                                // check for errors and display error message
+                                var check = response.responseText;
+                                if (check) {
+                                    var data = eval("(" + response.responseText + ")");
+
+                                    if (data.serverStatus == 2) {
+                                        locationsStore.reload();
+                                        Ext.getBody().unmask();
+                                        Ext.Msg.alert(
+                                            "Success",
+                                            "You have successfully deleted the locations"
+                                        );
+                                    } else {
+                                        // display error message
+                                        Ext.getBody().unmask();
+                                        Ext.Msg.alert(
+                                            "ERROR",
+                                            "Failed to delete the locations. Contact your IT team."
+                                        );
+                                    }
+                                }
+                            },
+                            failure: function (response) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to delete locations. Contact your IT team."
+                                );
+                            },
+
+                        });
+                    }
+                })
+            }
+
+            var TypeStore = Ext.create("Ext.data.Store", {
+                fields: ["TypeCode", "TypeName"],
+                data: [
+                    { TypeCode: "O", TypeName: "O" },
+                    { TypeCode: "H", TypeName: "H" }
+                ],
+                storeId: "TypeStore",
+            });
+
+            
+
+            var itemsAdd = [
+                {
+                    xtype: "combo",
+                    id: "Type",
+                    name: "Type",
+                    store: TypeStore,
+                    width: 500,
+                    fieldLabel: "Type",
+                    displayField: "TypeName",
+                    valueField: "TypeCode",
+                    allowBlank: false,
+                    selectOnFocus: false,
+                    anyMatch: true,
+                    queryMode: "local",
+                },
+                {
+                    xtype: "textfield",
+                    id: "Name",
+                    name: "Name",
+                    fieldLabel: "Name",
+                    maxLenght: 3,
+                    width: 500,
+                    allowBlank: false,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "textfield",
+                    id: "Region",
+                    name: "Region",
+                    fieldLabel: "Region",
+                    maxLenght: 55,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "textfield",
+                    id: "Address",
+                    name: "Address",
+                    fieldLabel: "Address",
+                    maxLenght: 34,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "textfield",
+                    id: "Locality",
+                    name: "Locality",
+                    fieldLabel: "Locality",
+                    maxLenght: 29,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+
+                {
+                    xtype: "textfield",
+                    id: "Country",
+                    name: "Country",
+                    fieldLabel: "Country",
+                    maxLenght: 29,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                // {
+                //     xtype: "combo",
+                //     id: "country",
+                //     name: "country",
+                //     store: countryStore2,
+                //     width: 500,
+                //     fieldLabel: "Country",
+                //     displayField: "Name",
+                //     valueField: "name",
+                //     allowBlank: false,
+                //     selectOnFocus: false,
+                //     anyMatch: true,
+                //     queryMode: "local",
+                // },
+                {
+                    xtype: "textfield",
+                    id: "Tel",
+                    name: "Tel",
+                    fieldLabel: "Tel",
+                    maxLenght: 16,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "textfield",
+                    id: "Email",
+                    name: "Email",
+                    fieldLabel: "Email",
+                    maxLenght: 21,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "textfield",
+                    id: "OfficeHours",
+                    name: "OfficeHours",
+                    fieldLabel: "Office hours",
+                    maxLenght: 128,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "textfield",
+                    id: "WarehouseHours",
+                    name: "WarehouseHours",
+                    fieldLabel: "Warehouse hours",
+                    maxLenght: 128,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "textfield",
+                    id: "GPS",
+                    name: "GPS",
+                    fieldLabel: "GPS",
+                    maxLenght: 23,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "numberfield",
+                    id: "Lat",
+                    name: "Lat",
+                    fieldLabel: "Latitude",
+
+                    decimalPrecision: 7,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "numberfield",
+                    id: "Lng",
+                    name: "Lng",
+                    fieldLabel: "Longitude",
+                    decimalPrecision: 7,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+            ];
+
+            var screenAdd = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                    listeners: {
+                        specialkey: function (field, e) {
+                            if (e.getKey() == e.ENTER) {
+                                updateRec();
+                            }
+                            if (e.getKey() == e.ESC) {
+                                Ext.getCmp("viewport").setActiveItem("locationsGrid");
+                            }
+                        },
+                    },
+                },
+                width: '100%',
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: {
+                            columns: 2,
+                        },
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "addForm",
+                                columnWidth: 1,
+                                border: false,
+                                items: itemsAdd,
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            // outer panel container to hold tbar and keypress definitions
+            var panelAdd = new Ext.Panel({
+                layout: "fit",
+                id: "panelAdd",
+                title: "Add product",
+                header: true,
+                items: [screenAdd],
+                tbar: [
+                    {
+                        text: "Save",
+                        id: "addSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            addLocations();
+                            Ext.getCmp('addForm').reset()
+                        },
+                    },
+                    {
+                        text: "Save",
+                        id: "editSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            edit = false;
+                            editLocations();
+                            Ext.getCmp("addForm").reset();
+                        },
+                    },
+                    "-",
+                    {
+                        text: "Cancel",
+                        tooltip: "Cancel",
+                        id: 'cancel',
+                        iconCls: "fas fa-undo",
+                        handler: function () {
+                            edit = false;
+                            Ext.getCmp('addForm').reset();
+                            Ext.getCmp("viewport").setActiveItem("locationsGrid");
+                        },
+                    },
+                ],
+            });
+
+
+            Ext.create("Ext.container.Viewport", {
+                id: "viewport",
+                layout: "card",
+                activeItem: 0,
+                items: [locationsGrid, panelAdd],
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div id="small-view">
+        This Appplication is not meant for small devices.
+    </div>
+</body>
+
+</html>

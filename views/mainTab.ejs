@@ -121,6 +121,23 @@
             }]
          });
 
+         var tab07 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Locations',
+            border: false,
+            id: 'b07',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab07',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/locations'
+               }
+            }]
+         });
+
          var scrntab = Ext.create('Ext.TabPanel', {
             fullscreen: true,
             tabBarPosition: 'bottom',
@@ -129,7 +146,7 @@
             defaults: {
                styleHtmlContent: true
             },
-            items: [tab01, tab02, tab03, tab04, tab05, tab06],
+            items: [tab01, tab02, tab03, tab04, tab05, tab06, tab07],
             listeners: {
                tabChange: function (tabPanel, newTab, currentTab) {
                   try {

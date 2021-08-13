@@ -33,21 +33,25 @@ app.get('/related-series', (req, res) => {
    res.render('SeriesLink');
 })
 
-  app.get('/series-details', function(req, res) {
+app.get('/series-details', function (req, res) {
    res.render('seriesDetails');
- });
+});
 
- app.get('/ChaptersTranslated', function(req, res) {
+app.get('/ChaptersTranslated', function (req, res) {
    res.render('chaptersTranslated');
- });
+});
 
- app.get('/assets', function(req, res) {
+app.get('/assets', function (req, res) {
    res.render('assets');
- });
+});
 
- app.get('/labels', function(req, res) {
+app.get('/labels', function (req, res) {
    res.render('labels');
- });
+});
+
+app.get('/locations', function (req, res) {
+   res.render('locations');
+});
 
 //  app.get('/image-upload', (req, res) => {
 //     res.render('imageUpload');

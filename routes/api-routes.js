@@ -137,5 +137,15 @@ router.post('/getLabelsDetails', apiCtrl.getLabelsDetails);
 
 router.post('/searchLabels', apiCtrl.searchLabels);
 
+/* ----------------------------- LOCATIONS CRUD ----------------------------- */
+
+router.get('/getLocations', apiCtrl.getLocations);
+
+router.post('/addLocations', apiCtrl.addLocations);
+
+router.post('/updateLocations', apiCtrl.updateLocations);
+
+router.post('/deleteLocations', apiCtrl.deleteLocations);
+
 
 module.exports = router;
