@@ -698,19 +698,16 @@
             return `<b>${value}</b>`;
           },
         },
+        
         {
           header: "Tree",
           sortable: true,
           width: 100,
           dataIndex: "Tree",
           align: "left",
+          
         },
-        {
-          header: "Serie Title",
-          sortable: true,
-          width: 200,
-          dataIndex: "Title",
-        },
+
         {
           header: "P/N",
           sortable: true,
@@ -758,8 +755,22 @@
         },
         listeners: {
           beforeload: function (store) { },
+
         },
+
       });
+      mainStore.on('load', function (store, records) {
+        records.forEach(element => {
+          if (element.data.Title != '' && element.data.Title != null){
+            element.data.Tree = element.data.Tree + ' serie'
+          } else {
+            element.data.Tree = element.data.Tree
+          }
+        });
+        
+       
+        //if store has any records, it would print sum of all values of fieldName column.
+      }, this);
 
       const linkedProductModel = Ext.define("Categories", {
         extend: "Ext.data.Model",
