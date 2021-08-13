@@ -707,6 +707,14 @@
           align: "left",
           
         },
+        {
+          header: "Titke",
+          sortable: true,
+          width: 100,
+          dataIndex: "Title",
+          align: "left",
+          
+        },
 
         {
           header: "P/N",
@@ -761,8 +769,11 @@
       });
       mainStore.on('load', function (store, records) {
         records.forEach(element => {
-          if (element.data.Title != '' && element.data.Title != null){
+          if (element.data.Tree != null && element.data.Title != '' && element.data.Title != null){
             element.data.Tree = element.data.Tree + ' serie'
+          } else if ( element.data.Tree == null && element.data.Title != '' && element.data.Title != null){
+           
+            element.data.Tree = 'serie'
           } else {
             element.data.Tree = element.data.Tree
           }
