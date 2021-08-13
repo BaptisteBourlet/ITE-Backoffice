@@ -1021,7 +1021,7 @@ exports.uploadProductImage = async (req, res) => {
       })
 
       imagemagickCli
-         .exec(`identify ite/assets/${originalname}`)
+         .exec(`identify assets/${originalname}`)
          .then(({ stdout, stderr }) => {
             let dimensions = stdout.split(' ')[2].split('x');
             const width = dimensions[0];
@@ -1037,7 +1037,7 @@ exports.uploadProductImage = async (req, res) => {
                // set maxWidth or maxHeight depending on image type
                let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                imagemagickCli
-                  .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
                   .then(({ stdout, stderr }) => {
                      const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${newName}", "${Label}", "${nextSequence}");`
 
@@ -1103,7 +1103,7 @@ exports.uploadSerieImage = async (req, res) => {
       // Check if image is landscape;
 
       imagemagickCli
-         .exec(`identify ite/assets/${originalname}`)
+         .exec(`identify assets/${originalname}`)
          .then(({ stdout, stderr }) => {
             if (stderr) throw stderr;
 
@@ -1122,7 +1122,7 @@ exports.uploadSerieImage = async (req, res) => {
                // set maxWidth or maxHeight depending on image type
                let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                imagemagickCli
-                  .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
                   .then(({ stdout, stderr }) => {
 
                      const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
@@ -1188,7 +1188,7 @@ exports.updateuploadProductImage = async (req, res) => {
       })
 
       imagemagickCli
-         .exec(`identify ite/assets/${originalname}`)
+         .exec(`identify assets/${originalname}`)
          .then(({ stdout, stderr }) => {
             let dimensions = stdout.split(' ')[2].split('x');
             const width = dimensions[0];
@@ -1204,7 +1204,7 @@ exports.updateuploadProductImage = async (req, res) => {
                // set maxWidth or maxHeight depending on image type
                let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                imagemagickCli
-                  .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
                   .then(({ stdout, stderr }) => {
                      const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path LIKE "${test.join('') + '-' + size.size}%" AND ProductId = ${ProductId};`
 
@@ -1270,7 +1270,7 @@ exports.updateuploadSerieImage = async (req, res) => {
       // Check if image is landscape;
 
       imagemagickCli
-         .exec(`identify ite/assets/${originalname}`)
+         .exec(`identify assets/${originalname}`)
          .then(({ stdout, stderr }) => {
             if (stderr) throw stderr;
 
@@ -1289,7 +1289,7 @@ exports.updateuploadSerieImage = async (req, res) => {
                // set maxWidth or maxHeight depending on image type
                let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                imagemagickCli
-                  .exec(`convert ite/assets/${originalname} -resize "${resizeOption}" ite/assets/${newName}`)
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
                   .then(({ stdout, stderr }) => {
 
                      const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path LIKE "${test.join('') + '-' + size.size}%";`
