@@ -19,7 +19,7 @@ const imgUpload = multer({ storage: storage});
 // =================================================================================================
 //                                           PRODUCTS
 // =================================================================================================
-router.get('/getSomething', apiCtrl.getSomething);
+
 
 router.get('/getAllProducts', apiCtrl.getAllProducts);
 
