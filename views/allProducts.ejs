@@ -687,12 +687,7 @@
           dataIndex: "Id",
           align: "center",
         },
-        {
-          header: "Serie Title",
-          sortable: true,
-          width: 200,
-          dataIndex: "Title",
-        },
+
         {
           header: "Product Code",
           sortable: true,
@@ -709,6 +704,12 @@
           width: 100,
           dataIndex: "Tree",
           align: "left",
+        },
+        {
+          header: "Serie Title",
+          sortable: true,
+          width: 200,
+          dataIndex: "Title",
         },
         {
           header: "P/N",
@@ -736,7 +737,7 @@
           dataIndex: "Count",
           hidden: true,
         },
-        
+
       ];
       const mainStore = Ext.create("Ext.data.Store", {
         id: "mainStore",
@@ -1843,9 +1844,11 @@
             id: "addSave",
             iconCls: "fas fa-save",
             handler: function () {
-              setProductSessionStorage();
-              addRecord();
-              Ext.getCmp("addForm").reset();
+              if (Ext.getCmp('addForm').isValid()) {
+                setProductSessionStorage();
+                addRecord();
+                Ext.getCmp("addForm").reset();
+              }
             },
           },
           {
@@ -1853,9 +1856,11 @@
             id: "editSave",
             iconCls: "fas fa-save",
             handler: function () {
-              setProductSessionStorage();
-              editProduct();
-              Ext.getCmp("addForm").reset();
+              if (Ext.getCmp('addForm').isValid()) {
+                setProductSessionStorage();
+                editProduct();
+                Ext.getCmp("addForm").reset();
+              }
             },
           },
           "-",

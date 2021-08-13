@@ -559,7 +559,7 @@
                     fieldLabel: "Region",
                     maxLenght: 55,
                     width: 500,
-                    allowBlank: true,
+                    allowBlank: false,
                     selectOnFocus: false,
                     margin: "25 0 25 0",
                 },
@@ -570,7 +570,7 @@
                     fieldLabel: "Address",
                     maxLenght: 34,
                     width: 500,
-                    allowBlank: true,
+                    allowBlank: false,
                     selectOnFocus: false,
                     margin: "25 0 25 0",
                 },
@@ -581,7 +581,7 @@
                     fieldLabel: "Locality",
                     maxLenght: 29,
                     width: 500,
-                    allowBlank: true,
+                    allowBlank: false,
                     selectOnFocus: false,
                     margin: "25 0 25 0",
                 },
@@ -593,7 +593,7 @@
                     fieldLabel: "Country",
                     maxLenght: 29,
                     width: 500,
-                    allowBlank: true,
+                    allowBlank: false,
                     selectOnFocus: false,
                     margin: "25 0 25 0",
                 },
@@ -618,7 +618,7 @@
                     fieldLabel: "Tel",
                     maxLenght: 16,
                     width: 500,
-                    allowBlank: true,
+                    allowBlank: false,
                     selectOnFocus: false,
                     margin: "25 0 25 0",
                 },
@@ -746,8 +746,10 @@
                         id: "addSave",
                         iconCls: "fas fa-save",
                         handler: function () {
+                            if (Ext.getCmp('addForm').isValid()){
                             addLocations();
                             Ext.getCmp('addForm').reset()
+                            }
                         },
                     },
                     {
@@ -755,9 +757,11 @@
                         id: "editSave",
                         iconCls: "fas fa-save",
                         handler: function () {
+                            if (Ext.getCmp('addForm').isValid()){
                             edit = false;
                             editLocations();
                             Ext.getCmp("addForm").reset();
+                            }
                         },
                     },
                     "-",
