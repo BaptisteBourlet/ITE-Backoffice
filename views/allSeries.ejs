@@ -360,7 +360,7 @@
 
          const addSpecValue = () => {
             const form = Ext.getCmp('addSpecValueForm').getForm();
-            console.log(form.isValid());
+            
             if (form.isValid()) {
                Ext.Ajax.request({
                   url: "/api/addSpecValue",
@@ -1523,15 +1523,18 @@
             items: [screenAdd],
             tbar: [
                {
+                  
                   text: "Save",
                   id: "addSave",
                   iconCls: "fas fa-save",
                   handler: function () {
+                     if(Ext.getCmp('addForm').isValid()){
                      addSerie();
                      Ext.getCmp("relatedProducts").removeAll();
                      Ext.getCmp("relatedAccessories").removeAll();
                      Ext.getCmp("relatedParts").removeAll();
                      Ext.getCmp('addForm').reset()
+                     }
                   },
                },
                {
@@ -1539,12 +1542,14 @@
                   id: "editSave",
                   iconCls: "fas fa-save",
                   handler: function () {
+                     if(Ext.getCmp('addForm').isValid()){
                      edit = false;
                      editSerie();
                      Ext.getCmp("relatedProducts").removeAll();
                      Ext.getCmp("relatedAccessories").removeAll();
                      Ext.getCmp("relatedParts").removeAll();
                      Ext.getCmp("addForm").reset();
+                     }
                   },
                },
                "-",

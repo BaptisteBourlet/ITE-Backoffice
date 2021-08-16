@@ -186,19 +186,19 @@
                             },
                         },
 
-                {
-                    xtype: "button",
-                    id: "resetSearch",
-                    iconCls: "fas fa-undo-alt",
-                    text: "reset",
-                    style: "padding: 7px; border: none; background-color: #000",
-                    listeners: {
-                        click: () => {
-                            Ext.getCmp("searchKey").setValue("");
-                            labelsStore.reload();
+                        {
+                            xtype: "button",
+                            id: "resetSearch",
+                            iconCls: "fas fa-undo-alt",
+                            text: "reset",
+                            style: "padding: 7px; border: none; background-color: #000",
+                            listeners: {
+                                click: () => {
+                                    Ext.getCmp("searchKey").setValue("");
+                                    labelsStore.reload();
+                                },
+                            },
                         },
-                    },
-                },
                     ],
                 },
             ];
@@ -288,7 +288,7 @@
                     },
                     success: function (response) {
                         const res = JSON.parse(response.responseText);
-                        
+
                         Ext.getCmp(`${language.toUpperCase()}Value`).setValue(res[0].Value);
                     },
                     failure: function (response) {
@@ -362,7 +362,7 @@
                     cors: true,
                     useDefaultXhrHeader: false,
                     params: {
-                        oldKey : sessionStorage.getItem('oldKey'),
+                        oldKey: sessionStorage.getItem('oldKey'),
                         Language: "en",
                         Key: Ext.getCmp("Key").getValue().trim(),
                         Value: Ext.getCmp("ENValue").getValue(),
@@ -710,8 +710,11 @@
                         id: "addSave",
                         iconCls: "fas fa-save",
                         handler: function () {
-                            addLabels();
-                            Ext.getCmp('addForm').reset()
+                            if (Ext.getCmp('addForm').isValid()) {
+
+                                addLabels();
+                                Ext.getCmp('addForm').reset()
+                            }
                         },
                     },
                     {
@@ -719,9 +722,11 @@
                         id: "editSave",
                         iconCls: "fas fa-save",
                         handler: function () {
-                            edit = false;
-                            editLabels();
-                            Ext.getCmp("addForm").reset();
+                            if (Ext.getCmp('addForm').isValid()) {
+                                edit = false;
+                                editLabels();
+                                Ext.getCmp("addForm").reset();
+                            }
                         },
                     },
                     "-",

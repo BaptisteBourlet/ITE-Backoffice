@@ -1997,10 +1997,11 @@
             id: "fromAddSave",
             iconCls: "fas fa-save",
             handler: function () {
-              // Baptiste
+              if (Ext.getCmp('addForm2').isValid()) {
               addRelatedProd();
               resetForm2()
               Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+              }
             },
           },
           {
@@ -2008,12 +2009,14 @@
             id: "fromViewSave",
             iconCls: "fas fa-save",
             handler: function () {
+              if (Ext.getCmp('addForm2').isValid()) {
               addRelatedProdFromView();
               resetForm2();
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
               Ext.getCmp("relatedParts").removeAll();
               Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+              }
             },
           },
           "-",

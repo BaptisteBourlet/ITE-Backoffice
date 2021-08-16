@@ -11,7 +11,7 @@
     <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
     <style>
-   #small-view {
+        #small-view {
             display: none;
         }
 
@@ -477,8 +477,10 @@
                         id: "addSave",
                         iconCls: "fas fa-save",
                         handler: function () {
-                            addTranslatedChapter();
-                            Ext.getCmp('addForm').reset()
+                            if (Ext.getCmp('addForm').isValid()) {
+                                addTranslatedChapter();
+                                Ext.getCmp('addForm').reset()
+                            }
                         },
                     },
                     {
@@ -486,9 +488,11 @@
                         id: "editSave",
                         iconCls: "fas fa-save",
                         handler: function () {
-                            edit = false;
-                            editChapterTranslated();
-                            Ext.getCmp("addForm").reset();
+                            if (Ext.getCmp('addForm').isValid()) {
+                                edit = false;
+                                editChapterTranslated();
+                                Ext.getCmp("addForm").reset();
+                            }
                         },
                     },
                     "-",
