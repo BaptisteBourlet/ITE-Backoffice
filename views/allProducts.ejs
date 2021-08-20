@@ -78,6 +78,7 @@
         xtype: 'my-form',
 
       });
+ 
 
       const relatedProducts = (products) => {
         let exist = false;
@@ -284,29 +285,33 @@
             Pub: Ext.getCmp('Pub').getValue() === true ? 1 : 0,
 
             ModifiedOn: formatDate,
-            Description: Ext.getCmp("desc").getValue().trim(),
-            Specification: Ext.getCmp("spec").getValue(),
-            Catalog: Ext.getCmp("Cat").getValue().trim(),
-            FullDescription: Ext.getCmp("FDesc").getValue(),
+            Description: Ext.getCmp("ENdesc").getValue().trim(),
+            Specification: Ext.getCmp("ENspec").getValue(),
+            Catalog: Ext.getCmp("ENCat").getValue().trim(),
+            FullDescription: Ext.getCmp("ENFDesc").getValue(),
             //FR
+            FrDetails: sessionStorage.getItem('FREdit'),
             FRLanguage: "fr",
             FRDescription: Ext.getCmp("FRdesc").getValue().trim(),
             FRSpecification: Ext.getCmp("FRspec").getValue(),
             FRCatalog: Ext.getCmp("FRCat").getValue().trim(),
             FRFullDescription: Ext.getCmp("FRFDesc").getValue(),
             //DE
+            DeDetails: sessionStorage.getItem('DEEdit'),
             DELanguage: "de",
             DEDescription: Ext.getCmp("DEdesc").getValue().trim(),
             DESpecification: Ext.getCmp("DEspec").getValue(),
             DECatalog: Ext.getCmp("DECat").getValue().trim(),
             DEFullDescription: Ext.getCmp("DEFDesc").getValue(),
             //SP
+            EsDetails: sessionStorage.getItem('SPEdit'),
             SPLanguage: "sp",
             SPDescription: Ext.getCmp("SPdesc").getValue().trim(),
             SPSpecification: Ext.getCmp("SPspec").getValue(),
             SPCatalog: Ext.getCmp("SPCat").getValue().trim(),
             SPFullDescription: Ext.getCmp("SPFDesc").getValue(),
             //RU
+            RuDetails: sessionStorage.getItem('RUEdit'),
             RULanguage: "ru",
             RUDescription: Ext.getCmp("RUdesc").getValue().trim(),
             RUSpecification: Ext.getCmp("RUspec").getValue(),
@@ -315,9 +320,12 @@
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
+            console.log(res)
             mainStore.reload();
             Ext.Msg.alert("INFO!", `Product has been edited successfully`);
             Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+            
+            
           },
           failure: function (response) {
             console.log("failed", response);
@@ -369,10 +377,12 @@
         Ext.getCmp("code").setValue(product.CODE);
         Ext.getCmp("As400").setValue(product.As400Code);
         Ext.getCmp("Category").setValue(product.CategoryId);
-        Ext.getCmp("desc").setValue(product.Description);
-        Ext.getCmp("Cat").setValue(product.Catalog);
-        Ext.getCmp("FDesc").setValue(product.FullDescription);
-        Ext.getCmp("spec").setValue(product.Specification);
+
+        Ext.getCmp("ENdesc").setValue(product.Description);
+        Ext.getCmp("ENCat").setValue(product.Catalog);
+        Ext.getCmp("ENFDesc").setValue(product.FullDescription);
+        Ext.getCmp("ENspec").setValue(product.Specification);
+
       };
 
       const clearEditInfo = () => {
@@ -420,10 +430,10 @@
             Slug: sessionStorage.Code.toLowerCase().replaceAll(" ", "-"),
             Language: "en",
             CreatedOn: formatDate,
-            Description: Ext.getCmp("desc").getValue().trim(),
-            Specification: Ext.getCmp("spec").getValue(),
-            Catalog: Ext.getCmp("Cat").getValue().trim(),
-            FullDescription: Ext.getCmp("FDesc").getValue(),
+            Description: Ext.getCmp("ENdesc").getValue().trim(),
+            Specification: Ext.getCmp("ENspec").getValue(),
+            Catalog: Ext.getCmp("ENCat").getValue().trim(),
+            FullDescription: Ext.getCmp("ENFDesc").getValue(),
             //FR
             FRLanguage: "fr",
             FRDescription: Ext.getCmp("FRdesc").getValue().trim(),
@@ -563,11 +573,23 @@
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
-            console.log(res);
-            Ext.getCmp(`${language.toUpperCase()}Cat`).setValue(res[0].Catalog);
-            Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
-            Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
-            Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+            console.log(language + ': ' + res)
+
+            if (res != '') {
+              sessionStorage.setItem(language.toUpperCase()+'Edit', 'true')
+              Ext.getCmp(`${language.toUpperCase()}Cat`).setValue(res[0].Catalog);
+
+              Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
+
+              Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
+
+              Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+             
+            } else {
+              sessionStorage.setItem(language.toUpperCase()+'Edit', 'false')
+              
+            }
+
           },
           failure: function (response) {
             console.log("failed", response);
@@ -698,22 +720,22 @@
             return `<b>${value}</b>`;
           },
         },
-        
+
         {
           header: "Tree",
           sortable: true,
           width: 100,
           dataIndex: "Tree",
           align: "left",
-          
+
         },
         {
-          header: "Titke",
+          header: "Title",
           sortable: true,
           width: 100,
           dataIndex: "Title",
           align: "left",
-          
+          hidden: true
         },
 
         {
@@ -769,17 +791,17 @@
       });
       mainStore.on('load', function (store, records) {
         records.forEach(element => {
-          if (element.data.Tree != null && element.data.Title != '' && element.data.Title != null){
+          if (element.data.Tree != null && element.data.Title != '' && element.data.Title != null) {
             element.data.Tree = element.data.Tree + ' serie'
-          } else if ( element.data.Tree == null && element.data.Title != '' && element.data.Title != null){
-           
+          } else if (element.data.Tree == null && element.data.Title != '' && element.data.Title != null) {
+
             element.data.Tree = 'serie'
           } else {
             element.data.Tree = element.data.Tree
           }
         });
-        
-       
+
+
         //if store has any records, it would print sum of all values of fieldName column.
       }, this);
 
@@ -889,11 +911,14 @@
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp("panelAdd").setTitle("Edit Product");
                   Ext.getCmp('tabTrans').setActiveTab(0)
+                  getOtherLanguageDetail('en', productIDGlobal)
                   getOtherLanguageDetail('fr', productIDGlobal)
                   getOtherLanguageDetail('de', productIDGlobal)
                   getOtherLanguageDetail('sp', productIDGlobal)
                   getOtherLanguageDetail('ru', productIDGlobal)
+
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
+                  
                   getProductDetails(selectedRecord.data.Id);
                 }
               },
@@ -1212,6 +1237,7 @@
                   Ext.getCmp('panelAdd').setTitle('Edit product');
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
                   getProductDetails(productIDGlobal);
+                  getOtherLanguageDetail('en', productIDGlobal)
                   getOtherLanguageDetail('fr', productIDGlobal)
                   getOtherLanguageDetail('de', productIDGlobal)
                   getOtherLanguageDetail('sp', productIDGlobal)
@@ -1319,8 +1345,8 @@
                         items: [
                           {
                             xtype: "textfield",
-                            id: "Cat",
-                            name: "Cat",
+                            id: "ENCat",
+                            name: "ENCat",
                             fieldLabel: "Catalog",
                             maxLenght: 118,
                             width: 500,
@@ -1330,8 +1356,8 @@
                           },
                           {
                             xtype: "textfield",
-                            id: "desc",
-                            name: "desc",
+                            id: "ENdesc",
+                            name: "ENdesc",
                             fieldLabel: "Description",
                             maxLenght: 123,
                             width: 500,
@@ -1341,8 +1367,8 @@
                           },
                           {
                             xtype: "htmleditor",
-                            id: "FDesc",
-                            name: "FDesc",
+                            id: "ENFDesc",
+                            name: "ENFDesc",
                             fieldLabel: "Full description",
                             enableColors: true,
                             enableAlignments: false,
@@ -1363,8 +1389,8 @@
 
                           {
                             xtype: "htmleditor",
-                            id: "spec",
-                            name: "spec",
+                            id: "ENspec",
+                            name: "ENspec",
                             fieldLabel: "Specification",
                             enableColors: true,
                             enableAlignments: false,
@@ -1412,6 +1438,7 @@
                         frame: false,
                         border: false,
                         items: [
+                       
                           {
                             xtype: "textfield",
                             id: "FRCat",
@@ -1505,6 +1532,7 @@
                         frame: false,
                         border: false,
                         items: [
+                        
                           {
                             xtype: "textfield",
                             id: "DECat",
@@ -1599,6 +1627,7 @@
                         frame: false,
                         border: false,
                         items: [
+                        
                           {
                             xtype: "textfield",
                             id: "SPCat",
@@ -1692,6 +1721,7 @@
                         frame: false,
                         border: false,
                         items: [
+                        
                           {
                             xtype: "textfield",
                             id: "RUCat",
@@ -1894,7 +1924,7 @@
               edit = false;
               Ext.getCmp("addForm").reset();
 
-              clearEditInfo();
+              // clearEditInfo();
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
               Ext.getCmp("relatedParts").removeAll();
@@ -1998,9 +2028,9 @@
             iconCls: "fas fa-save",
             handler: function () {
               if (Ext.getCmp('addForm2').isValid()) {
-              addRelatedProd();
-              resetForm2()
-              Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+                addRelatedProd();
+                resetForm2()
+                Ext.getCmp("viewport").setActiveItem("AllProductGrid");
               }
             },
           },
@@ -2010,12 +2040,12 @@
             iconCls: "fas fa-save",
             handler: function () {
               if (Ext.getCmp('addForm2').isValid()) {
-              addRelatedProdFromView();
-              resetForm2();
-              Ext.getCmp("relatedProducts").removeAll();
-              Ext.getCmp("relatedAccessories").removeAll();
-              Ext.getCmp("relatedParts").removeAll();
-              Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+                addRelatedProdFromView();
+                resetForm2();
+                Ext.getCmp("relatedProducts").removeAll();
+                Ext.getCmp("relatedAccessories").removeAll();
+                Ext.getCmp("relatedParts").removeAll();
+                Ext.getCmp("viewport").setActiveItem("AllProductGrid");
               }
             },
           },

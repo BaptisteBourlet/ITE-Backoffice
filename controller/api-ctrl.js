@@ -190,20 +190,24 @@ exports.editProduct = async (req, res) => {
       if (err) throw err;
 
       const { Language, ModifiedOn, Description, Specification, Catalog, FullDescription,
-         FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
-         DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
-         SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
-         RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
+         FRLanguage, FrDetails, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
+         DELanguage, DeDetails, DEDescription, DESpecification, DECatalog, DEFullDescription,
+         SPLanguage, EsDetails, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
+         RULanguage, RuDetails, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
       const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
       const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
       const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
-      const SPQuery = `UPDATE ProductInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp"`;
-      const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
+      const SPQuery = `UPDATE ProductInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp" OR Language = "es"`;
+      const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "ru"`;
 
+      const FrQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${FRLanguage}", "${ModifiedOn}", "${ProductId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}");`
+      const DeQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${DELanguage}", "${ModifiedOn}", "${ProductId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}");`
+      const EsQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${SPLanguage}", "${ModifiedOn}", "${ProductId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}");`
+      const RuQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${RULanguage}", "${ModifiedOn}", "${ProductId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`
 
       if (Description !== "" && Catalog !== "") {
-         con.query(ENQuery, (err, result) => {
+         con.query(ENQuery, (err, results) => {
             if (err) {
                errorString += "English, ";
                console.log(err);
@@ -213,9 +217,10 @@ exports.editProduct = async (req, res) => {
       } else {
          console.log('English wasnt filled in');
       }
-
-      if (FRDescription !== "" && FRCatalog !== "") {
-         con.query(FRQuery, (err, result) => {
+      console.log(FrDetails)
+      if (FrDetails == 'false' && FRDescription !== "" && FRCatalog !== "") {
+         console.log('Fr Insert sql')
+         con.query(FrQueryInsert, (err, results) => {
             if (err) {
                errorString += "French, ";
                console.log(err);
@@ -223,41 +228,85 @@ exports.editProduct = async (req, res) => {
 
          })
       } else {
-         console.log('French wasnt filled in');
+
+         if (FRDescription !== "" && FRCatalog !== "") {
+            con.query(FRQuery, (err, results) => {
+               if (err) {
+                  errorString += "French, ";
+                  console.log(err);
+               }
+
+            })
+         } else {
+            console.log('French wasnt filled in');
+         }
       }
 
-      if (DEDescription !== "" && DECatalog !== "") {
-         con.query(DEQuery, (err, result) => {
-            errorString += "German, ";
-            console.log(err);
+      if (DeDetails == 'false' && DEDescription !== "" && DECatalog !== "") {
+         con.query(DeQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "German, ";
+               console.log(err);
+            }
 
          })
       } else {
-         console.log('German wasnt filled in');
+
+         if (DEDescription !== "" && DECatalog !== "") {
+            con.query(DEQuery, (err, results) => {
+               errorString += "German, ";
+               console.log(err);
+
+            })
+         } else {
+            console.log('German wasnt filled in');
+         }
       }
 
-      if (SPDescription !== "" && SPCatalog !== "") {
-         con.query(SPQuery, (err, result) => {
-            errorString += "Spanish, ";
-            console.log(err);
+      if (EsDetails == 'false' && SPDescription !== "" && SPCatalog !== "") {
+         con.query(EsQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "Spanish, ";
+               console.log(err);
+            }
 
          })
       } else {
-         console.log('Spanish wasnt filled in');
+         if (SPDescription !== "" && SPCatalog !== "") {
+            con.query(SPQuery, (err, results) => {
+               errorString += "Spanish, ";
+               console.log(err);
+
+            })
+         } else {
+            console.log('Spanish wasnt filled in');
+         }
       }
 
-      if (RUDescription !== "" && RUCatalog !== "") {
-         con.query(RUQuery, (err, result) => {
-            errorString += "Russian";
-            console.log(err);
+      if (RuDetails == 'false' && RUDescription !== "" && RUCatalog !== "") {
+         con.query(RuQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "Russian, ";
+               console.log(err);
+            }
 
          })
       } else {
-         console.log('Russian wasnt filled in');
+         if (RUDescription !== "" && RUCatalog !== "") {
+            console.log('Russian CAT : ' + RUCatalog)
+            console.log('Russian : ' + RUDescription)
+            con.query(RUQuery, (err, results) => {
+               errorString += "Russian";
+               console.log(err);
+               console.log(results)
+            })
+         } else {
+            console.log('Russian wasnt filled in');
+         }
       }
 
       let finalResult = { ...results, errorString };
-
+      console.log(finalResult)
       res.send(finalResult);
    })
 }
@@ -1379,7 +1428,7 @@ exports.addLabels = async (req, res) => {
    } = req.body;
 
 
-   if ( Value !== "") {
+   if (Value !== "") {
       con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${Language}", "${Value}");`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1389,7 +1438,7 @@ exports.addLabels = async (req, res) => {
       console.log('english wasnt filled in')
    }
 
-   if ( FRValue !== '') {
+   if (FRValue !== '') {
       con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${FRLanguage}", "${FRValue}");`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1398,7 +1447,7 @@ exports.addLabels = async (req, res) => {
       console.log('french wasnt filled in')
    }
 
-   if ( DEValue !== '') {
+   if (DEValue !== '') {
       con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${DELanguage}", "${DEValue}");`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1407,7 +1456,7 @@ exports.addLabels = async (req, res) => {
       console.log('german wasnt filled in')
    }
 
-   if ( RUValue !== '') {
+   if (RUValue !== '') {
       con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${RULanguage}", "${RUValue}");`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1416,7 +1465,7 @@ exports.addLabels = async (req, res) => {
       console.log('russian wasnt filled in')
    }
 
-   if ( SPValue !== '') {
+   if (SPValue !== '') {
       con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${SPLanguage}", "${SPValue}");`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1441,7 +1490,7 @@ exports.DeleteLabels = async (req, res) => {
 }
 
 exports.updateLabels = async (req, res) => {
-   const { 
+   const {
       oldKey,
       Key, Language, Value,
       FRLanguage, FRValue,
@@ -1451,7 +1500,7 @@ exports.updateLabels = async (req, res) => {
    } = req.body;
 
 
-   if ( Value !== "") {
+   if (Value !== "") {
       con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${Language}", Labels.Value = "${Value}" WHERE Language = 'en' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1461,7 +1510,7 @@ exports.updateLabels = async (req, res) => {
       console.log('english wasnt filled in')
    }
 
-   if ( FRValue !== '') {
+   if (FRValue !== '') {
       con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${FRLanguage}", Labels.Value = "${FRValue}" WHERE Language = 'fr' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1470,7 +1519,7 @@ exports.updateLabels = async (req, res) => {
       console.log('french wasnt filled in')
    }
 
-   if ( DEValue !== '') {
+   if (DEValue !== '') {
       con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${DELanguage}", Labels.Value = "${DEValue}" WHERE Language = 'de' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1479,7 +1528,7 @@ exports.updateLabels = async (req, res) => {
       console.log('german wasnt filled in')
    }
 
-   if ( RUValue !== '') {
+   if (RUValue !== '') {
       con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${RULanguage}", Labels.Value = "${RUValue}" WHERE Language = 'ru' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1488,7 +1537,7 @@ exports.updateLabels = async (req, res) => {
       console.log('russian wasnt filled in')
    }
 
-   if ( SPValue !== '') {
+   if (SPValue !== '') {
       con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${SPLanguage}", Labels.Value = "${SPValue}" WHERE Language = 'es' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
          if (err) throw err;
 
@@ -1515,11 +1564,11 @@ exports.searchLabels = async (req, res) => {
    const { searchQuery, field } = req.body;
    let query = '';
 
-   if(field == 'Key'){
-       query = `SELECT * FROM Labels WHERE Labels.Key LIKE '%${searchQuery}%';`;
+   if (field == 'Key') {
+      query = `SELECT * FROM Labels WHERE Labels.Key LIKE '%${searchQuery}%';`;
 
    } else {
-       query = `SELECT * FROM Labels WHERE Labels.Value LIKE '%${searchQuery}%';`;
+      query = `SELECT * FROM Labels WHERE Labels.Value LIKE '%${searchQuery}%';`;
    }
 
    con.query(query, (err, results, fields) => {
