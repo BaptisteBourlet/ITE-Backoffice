@@ -9,6 +9,7 @@ app.use(express.json());
 
    app.use('/', express.static(__dirname + '/views'));
    app.use('/pictures', express.static(__dirname + '/assets'))
+   app.use('/data', express.static(__dirname + '/data'))
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));

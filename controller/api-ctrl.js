@@ -55,10 +55,10 @@ exports.getSomething = async (req, res) => {
 
 // DISTINCT AS400.AOAROM, 
 exports.getAllProducts = async (req, res) => {
-   const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesInfo.Title"
+   const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesProductLink.ProductId AS SProductId"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P', 'S') AND InfoTree.Tree != ''"
+      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
       + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
       + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId AND SeriesInfo.Language = 'en'"
       + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1  ORDER BY ProductInfo.ProductId;`;
@@ -217,7 +217,6 @@ exports.editProduct = async (req, res) => {
       } else {
          console.log('English wasnt filled in');
       }
-      console.log(FrDetails)
       if (FrDetails == 'false' && FRDescription !== "" && FRCatalog !== "") {
          console.log('Fr Insert sql')
          con.query(FrQueryInsert, (err, results) => {

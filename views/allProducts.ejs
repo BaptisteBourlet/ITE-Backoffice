@@ -220,7 +220,6 @@
           success: function (response) {
             const res = JSON.parse(response.responseText);
 
-            console.log(res);
             if (res.isSerie) {
               Ext.getCmp('editSerieSpecs').setHidden(false);
               serieIDGlobal = res.serieId;
@@ -320,7 +319,6 @@
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
-            console.log(res)
             mainStore.reload();
             Ext.Msg.alert("INFO!", `Product has been edited successfully`);
             Ext.getCmp("viewport").setActiveItem("AllProductGrid");
@@ -573,7 +571,6 @@
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
-            console.log(language + ': ' + res)
 
             if (res != '') {
               sessionStorage.setItem(language.toUpperCase()+'Edit', 'true')
@@ -791,9 +788,11 @@
       });
       mainStore.on('load', function (store, records) {
         records.forEach(element => {
-          if (element.data.Tree != null && element.data.Title != '' && element.data.Title != null) {
+          
+          if (element.data.Tree != null && element.data.SProductId != '' && element.data.SProductId != null) {
             element.data.Tree = element.data.Tree + ' serie'
-          } else if (element.data.Tree == null && element.data.Title != '' && element.data.Title != null) {
+            console.log(element)
+          } else if (element.data.Tree == null && element.data.SProductId != '' && element.data.SProductId != null) {
 
             element.data.Tree = 'serie'
           } else {
