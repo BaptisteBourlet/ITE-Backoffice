@@ -472,7 +472,7 @@ exports.getAllSeries = async (req, res) => {
       + " FROM SeriesInfo"
       + " LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid"
       + " LEFT JOIN InfoTree ON InfoTree.LinkId = Series.Sid AND InfoTree.Type = 'S'"
-      + ` WHERE SeriesInfo.Language = 'en' AND Series.Publish = '1' ORDER BY SeriesInfo.SeriesId LIMIT 100;`;
+      + ` WHERE SeriesInfo.Language = 'en' AND Series.Publish = '1' ORDER BY SeriesInfo.SeriesId;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
@@ -506,11 +506,12 @@ exports.getSerieDetails = async (req, res) => {
 exports.searchSerie = async (req, res) => {
    const { searchQuery } = req.body;
 
-   const query = "SELECT Series.Sid, Series.Key, Title"
-      + " FROM SeriesInfo"
-      + " LEFT JOIN Series ON Series.Sid = SeriesInfo.SeriesId"
-      + ` WHERE SeriesInfo.Language = "en" AND Series.Key LIKE '%${searchQuery}%' AND Series.Publish = "1" ORDER BY SeriesInfo.SeriesId;`;
-
+   const query = "SELECT SeriesInfo.SeriesId as Sid, Title, Series.Key, Tree"
+   + " FROM SeriesInfo"
+   + " LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid"
+   + " LEFT JOIN InfoTree ON InfoTree.LinkId = Series.Sid AND InfoTree.Type = 'S'"
+   + ` WHERE SeriesInfo.Language = "en" AND Series.Key LIKE '%${searchQuery}%' AND Series.Publish = "1" ORDER BY SeriesInfo.SeriesId;`;
+   
    con.query(query, (err, results, fields) => {
       if (err) {
          console.log(err)

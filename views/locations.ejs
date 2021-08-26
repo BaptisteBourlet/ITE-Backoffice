@@ -51,14 +51,23 @@
                 {
                     header: "ID",
                     sortable: true,
-                    width: 80,
+                    width: 60,
                     dataIndex: "Id",
                 },
                 {
                     header: "Type",
                     sortable: true,
-                    width: 80,
+                    width: 100,
                     dataIndex: "Type",
+                    renderer: (value) => {
+                        if(value == 'H'){
+                            return 'Head office'
+                        } else if (value == 'O'){
+                            return 'Office'
+                        } else {
+                            return ''
+                        }
+                    },
 
                 },
                 {
@@ -188,6 +197,7 @@
                                     Ext.getCmp("Email").setValue(selectedRecord.data.Email)
                                     Ext.getCmp("OfficeHours").setValue(selectedRecord.data.Region)
                                     Ext.getCmp("WarehouseHours").setValue(selectedRecord.data.WarehouseHours)
+                                    Ext.getCmp("GPS").setValue(selectedRecord.data.GPS)
                                     Ext.getCmp("Lat").setValue(selectedRecord.data.Lat)
                                     Ext.getCmp("Lng").setValue(selectedRecord.data.Lng)
                                     Ext.getCmp("addSave").setHidden(true);
@@ -518,13 +528,13 @@
             var TypeStore = Ext.create("Ext.data.Store", {
                 fields: ["TypeCode", "TypeName"],
                 data: [
-                    { TypeCode: "O", TypeName: "O" },
-                    { TypeCode: "H", TypeName: "H" }
+                    { TypeCode: "O", TypeName: "Office" },
+                    { TypeCode: "H", TypeName: "Head office" }
                 ],
                 storeId: "TypeStore",
             });
 
-            
+
 
             var itemsAdd = [
                 {
@@ -536,10 +546,10 @@
                     fieldLabel: "Type",
                     displayField: "TypeName",
                     valueField: "TypeCode",
+                    editable: false,
                     allowBlank: false,
                     selectOnFocus: false,
-                    anyMatch: true,
-                    queryMode: "local",
+
                 },
                 {
                     xtype: "textfield",
@@ -594,6 +604,7 @@
                     fieldLabel: "Country",
                     displayField: "name",
                     valueField: "name",
+                    maxLenght: 14,
                     allowBlank: false,
                     selectOnFocus: false,
                     anyMatch: true,
@@ -734,9 +745,9 @@
                         id: "addSave",
                         iconCls: "fas fa-save",
                         handler: function () {
-                            if (Ext.getCmp('addForm').isValid()){
-                            addLocations();
-                            Ext.getCmp('addForm').reset()
+                            if (Ext.getCmp('addForm').isValid()) {
+                                addLocations();
+                                Ext.getCmp('addForm').reset()
                             }
                         },
                     },
@@ -745,10 +756,10 @@
                         id: "editSave",
                         iconCls: "fas fa-save",
                         handler: function () {
-                            if (Ext.getCmp('addForm').isValid()){
-                            edit = false;
-                            editLocations();
-                            Ext.getCmp("addForm").reset();
+                            if (Ext.getCmp('addForm').isValid()) {
+                                edit = false;
+                                editLocations();
+                                Ext.getCmp("addForm").reset();
                             }
                         },
                     },

@@ -666,7 +666,7 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-                  console.log(res);
+                  
                   let keys = Object.keys(res[0]);
 
                   let allColumns = keys.map(key => { //ongoing
@@ -1068,7 +1068,7 @@
                                           id: "Title",
                                           name: "Title",
                                           fieldLabel: "Title",
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           width: 500,
                                           allowBlank: false,
                                           submitvalue: true,
@@ -1151,7 +1151,7 @@
                                           id: "FRTitle",
                                           name: "FRTitle",
                                           fieldLabel: "Title",
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           width: 500,
                                           allowBlank: true,
                                           submitvalue: true,
@@ -1234,7 +1234,7 @@
                                           id: "DETitle",
                                           name: "DETitle",
                                           fieldLabel: "Title",
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           width: 500,
                                           allowBlank: true,
                                           submitvalue: true,
@@ -1319,7 +1319,7 @@
                                           name: "SPTitle",
                                           fieldLabel: "Title",
                                           allowBlank: true,
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           width: 500,
                                           submitvalue: true,
                                           margin: "25 0 25 0",
@@ -1401,7 +1401,7 @@
                                           id: "RUTitle",
                                           name: "RUTitle",
                                           fieldLabel: "Title",
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           allowBlank: true,
                                           width: 500,
                                           submitvalue: true,
@@ -1460,7 +1460,7 @@
                id: "Key",
                name: "Key",
                fieldLabel: "Key",
-               maxLenght: 10,
+               maxLenght: 26,
                width: 500,
                allowBlank: true,
                selectOnFocus: false,
