@@ -360,7 +360,7 @@
 
          const addSpecValue = () => {
             const form = Ext.getCmp('addSpecValueForm').getForm();
-            
+
             if (form.isValid()) {
                Ext.Ajax.request({
                   url: "/api/addSpecValue",
@@ -666,7 +666,7 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-                  
+
                   let keys = Object.keys(res[0]);
 
                   let allColumns = keys.map(key => { //ongoing
@@ -1523,17 +1523,17 @@
             items: [screenAdd],
             tbar: [
                {
-                  
+
                   text: "Save",
                   id: "addSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-                     if(Ext.getCmp('addForm').isValid()){
-                     addSerie();
-                     Ext.getCmp("relatedProducts").removeAll();
-                     Ext.getCmp("relatedAccessories").removeAll();
-                     Ext.getCmp("relatedParts").removeAll();
-                     Ext.getCmp('addForm').reset()
+                     if (Ext.getCmp('addForm').isValid()) {
+                        addSerie();
+                        Ext.getCmp("relatedProducts").removeAll();
+                        Ext.getCmp("relatedAccessories").removeAll();
+                        Ext.getCmp("relatedParts").removeAll();
+                        Ext.getCmp('addForm').reset()
                      }
                   },
                },
@@ -1542,13 +1542,13 @@
                   id: "editSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-                     if(Ext.getCmp('addForm').isValid()){
-                     edit = false;
-                     editSerie();
-                     Ext.getCmp("relatedProducts").removeAll();
-                     Ext.getCmp("relatedAccessories").removeAll();
-                     Ext.getCmp("relatedParts").removeAll();
-                     Ext.getCmp("addForm").reset();
+                     if (Ext.getCmp('addForm').isValid()) {
+                        edit = false;
+                        editSerie();
+                        Ext.getCmp("relatedProducts").removeAll();
+                        Ext.getCmp("relatedAccessories").removeAll();
+                        Ext.getCmp("relatedParts").removeAll();
+                        Ext.getCmp("addForm").reset();
                      }
                   },
                },
@@ -2257,7 +2257,71 @@
                header: "Sequence",
                sortable: true,
                width: 100,
-               dataIndex: "Sequence"
+               dataIndex: "Sequence",
+               field: {
+                        xtype: 'numberfield',
+                        allowBlank: true,
+                        decimalPrecision: 0,
+                        minValue: 0,
+
+                        onFocusLeave: function (e) {
+                            var me = this
+
+                            var selectedrecords = SeriesMasterSpecs.getSelectionModel().getSelection();
+                            var teller = selectedrecords.length;
+                            currentsubfileRecord = selectedrecords[0];
+                            Ext.Ajax.request({
+
+                                url: '/api/updateSequenceSMaster',
+                                params: {
+                                    Id: currentsubfileRecord.data.Id,
+                                    Sequence: currentsubfileRecord.data.Sequence,
+
+                                },
+                                success: function (response) {
+
+                                    // check for errors and display error message
+                                    var check = response.responseText;
+                                    if (check) {
+                                        var data = eval("(" + response.responseText + ")");
+                                        if (data) {
+                                            // Remember record id's to reselect records after update of the row
+                                            var selectedrecords = SeriesMasterSpecs.getSelectionModel().getSelection();
+                                            recordIds = [];
+                                            selectedIdx = [];
+                                            for (var i = 0, len = selectedrecords.length; i < len; i++) {
+                                                recordIds[i] = selectedrecords[i].id;
+                                                selectedIdx[i] = SeriesMasterSpecs.getStore().indexOfId(recordIds[i]);
+                                            }
+                                            // reload subfile			
+                                            SeriesAssetsStore.reload(
+                                                // reselect records after update	
+                                                {
+                                                    callback: function () {
+                                                        for (var i = 0, len = selectedIdx.length; i < len; i++) {
+                                                         SeriesMasterSpecs.getSelectionModel().select(selectedIdx[i]);
+                                                        }
+                                                    },
+                                                    scope: this
+                                                }
+                                            );
+                                            // display subfile
+                                            Ext.getCmp('viewport').layout.setActiveItem('SeriesMasterSpecs');
+                                        } else {
+                                            // display error message
+                                            f = Ext.getCmp(data.FLD);
+                                            f.markInvalid(data.MSG);
+                                            f.focus();
+                                        };
+                                        Ext.getBody().unmask();
+                                    };
+                                },
+                                failure: function (response) {
+                                    Ext.getBody().unmask();
+                                }
+                            });
+                        }
+                    },
             },
          ]
 
@@ -2275,6 +2339,11 @@
             sortable: true,
             frame: false,
             height: 690,
+            selModel: 'cellmodel',
+            plugins: {
+               ptype: 'cellediting',
+               clicksToEdit: 1
+            },
             dockedItems: [...tbarItemsMaster],
             listeners: {
                dblclick: {

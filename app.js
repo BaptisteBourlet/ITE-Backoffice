@@ -4,6 +4,12 @@ const apiRoutes = require('./routes/api-routes')
 PORT = 12080;
 app = express();
 
+// have nested point inlist + css padding left
+// login with right to edit
+// add photo in htmleditor
+// check if translated for all
+// chapter transform lowercase done
+// check delete assets
 
 app.use(express.json());
 

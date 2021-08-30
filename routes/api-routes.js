@@ -85,6 +85,9 @@ router.get('/getSerieMaster', apiCtrl.getSerieMaster);
 
 router.post('/checkIfSerie', apiCtrl.checkIfSerie);
 
+router.post('/updateSequenceSMaster', apiCtrl.updateSequenceSMaster);
+
+
 
 /* --------------------------- Translted Chapters --------------------------- */
 

@@ -788,6 +788,18 @@ exports.updateSerieSpecs = async (req, res) => {
    })
 }
 
+exports.updateSequenceSMaster = async (req, res) => {
+   const { Id, Sequence } = req.body;
+
+   const query = `UPDATE SeriesMaster SET Sequence = ${Sequence} WHERE Id = ${Id};`
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
 exports.addSerieMasterSpecs = async (req, res) => {
    const { serieId, Key, Group, SubGroup } = req.body;
    let nextSequence;
