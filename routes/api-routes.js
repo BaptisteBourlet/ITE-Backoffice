@@ -23,6 +23,9 @@ const imgUpload = multer({ storage: storage});
 
 router.get('/getAllProducts', apiCtrl.getAllProducts);
 
+
+router.get('/getAllProductsTranslations', apiCtrl.getAllProductsTranslations);
+
 router.get('/getProductDetails', apiCtrl.getProductDetails);
 
 router.post('/getOtherLanguageDetail', apiCtrl.getOtherLanguageDetail);

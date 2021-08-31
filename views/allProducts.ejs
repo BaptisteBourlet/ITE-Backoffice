@@ -11,8 +11,6 @@
   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
   <style>
-    
-
     .grid-image {
       width: auto;
       height: 70px;
@@ -34,8 +32,8 @@
       border-bottom: 1px dashed rgb(173, 173, 173);
       padding: 7px 0px;
     }
-    
-    
+
+
 
     #ENFIELD-legendTitle,
     #SPFIELD-legendTitle,
@@ -65,8 +63,6 @@
         display: block !important;
       }
     }
-
-    
   </style>
   <script type="text/javascript">
     //=========================================================================================================
@@ -82,7 +78,7 @@
         xtype: 'my-form',
 
       });
- 
+
 
       const relatedProducts = (products) => {
         let exist = false;
@@ -326,8 +322,8 @@
             mainStore.reload();
             Ext.Msg.alert("INFO!", `Product has been edited successfully`);
             Ext.getCmp("viewport").setActiveItem("AllProductGrid");
-            
-            
+
+
           },
           failure: function (response) {
             console.log("failed", response);
@@ -577,7 +573,7 @@
             const res = JSON.parse(response.responseText);
 
             if (res != '') {
-              sessionStorage.setItem(language.toUpperCase()+'Edit', 'true')
+              sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
               Ext.getCmp(`${language.toUpperCase()}Cat`).setValue(res[0].Catalog);
 
               Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
@@ -585,10 +581,10 @@
               Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
 
               Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
-             
+
             } else {
-              sessionStorage.setItem(language.toUpperCase()+'Edit', 'false')
-              
+              sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
+
             }
 
           },
@@ -759,6 +755,20 @@
           dataIndex: "Description",
         },
         {
+          header: "Translated",
+          sortable: true,
+          width: 100,
+          dataIndex: "Translated",
+          hidden: true,
+        },
+        {
+          header: "Not translated",
+          sortable: true,
+          width: 100,
+          dataIndex: "NotTranslated",
+          hidden: true,
+        },
+        {
           header: "Count",
           sortable: true,
           width: 100,
@@ -792,10 +802,10 @@
       });
       mainStore.on('load', function (store, records) {
         records.forEach(element => {
-          
+
           if (element.data.Tree != null && element.data.SProductId != '' && element.data.SProductId != null) {
             element.data.Tree = element.data.Tree + ' serie'
-            
+
           } else if (element.data.Tree == null && element.data.SProductId != '' && element.data.SProductId != null) {
 
             element.data.Tree = 'serie'
@@ -808,6 +818,54 @@
         //if store has any records, it would print sum of all values of fieldName column.
       }, this);
 
+      const mainStoreT = Ext.create("Ext.data.Store", {
+        id: "mainStoreT",
+        autoLoad: true,
+        model: Model,
+        proxy: {
+          type: "ajax",
+          method: "POST",
+          url: "/api/getAllProductsTranslations",
+          noCache: true,
+          reader: {
+            type: "json",
+            rootProperty: "allProducts",
+            totalProperty: "totalCount",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
+        },
+        listeners: {
+          beforeload: function (store) { },
+
+        },
+
+      });
+      mainStoreT.on('load', function (store, records) {
+        records.forEach(element => {
+
+          if (element.data.Language == 'en') {
+            Ext.getCmp('')
+            element.data.Language = element.data.Tree + ' serie'
+
+          } else if (element.data.Language == 'fr') {
+
+            element.data.Tree = 'serie'
+          } else if (element.data.Language == 'de') {
+
+            element.data.Tree = 'serie'
+          } else if (element.data.Language == 'es') {
+
+            element.data.Tree = 'serie'
+          } else if (element.data.Language == 'ru') {
+
+            element.data.Tree = 'serie'
+          }
+        });
+
+
+        //if store has any records, it would print sum of all values of fieldName column.
+      }, this);
       const linkedProductModel = Ext.define("Categories", {
         extend: "Ext.data.Model",
         fields: ["Id", "CODE", "Catalog"],
@@ -921,7 +979,7 @@
                   getOtherLanguageDetail('ru', productIDGlobal)
 
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
-                  
+
                   getProductDetails(selectedRecord.data.Id);
                 }
               },
@@ -1441,7 +1499,7 @@
                         frame: false,
                         border: false,
                         items: [
-                       
+
                           {
                             xtype: "textfield",
                             id: "FRCat",
@@ -1535,7 +1593,7 @@
                         frame: false,
                         border: false,
                         items: [
-                        
+
                           {
                             xtype: "textfield",
                             id: "DECat",
@@ -1630,7 +1688,7 @@
                         frame: false,
                         border: false,
                         items: [
-                        
+
                           {
                             xtype: "textfield",
                             id: "SPCat",
@@ -1724,7 +1782,7 @@
                         frame: false,
                         border: false,
                         items: [
-                        
+
                           {
                             xtype: "textfield",
                             id: "RUCat",
@@ -1840,15 +1898,15 @@
         },
         {
           xtype: "button",
-          id:'compare',
+          id: 'compare',
           text: "Compare Translations",
-                iconCls: "fa fa-list",
-                handler: function () {
-                 
-                },
+          iconCls: "fa fa-list",
+          handler: function () {
+
+          },
           style: {
-            
-            margin : '5px 5px 5px 40%'
+
+            margin: '5px 5px 5px 40%'
           }
         },
         TabTranslations,

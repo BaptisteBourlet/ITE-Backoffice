@@ -61,12 +61,32 @@ exports.getAllProducts = async (req, res) => {
       + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
       + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
       + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId AND SeriesInfo.Language = 'en'"
-      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1  ORDER BY ProductInfo.ProductId;`;
+      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 ORDER BY ProductInfo.ProductId;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
+      res.send(results)
+   })
+}
+
+
+// DISTINCT AS400.AOAROM, 
+exports.getAllProductsTranslations = async (req, res) => {
+   const query = "SELECT ProductInfo.Language, Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesProductLink.ProductId AS SProductId"
+      + " FROM ProductInfo"
+      + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
+      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
+      + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
+      + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId"
+      + ` WHERE Product.Publish = 1  ORDER BY ProductInfo.ProductId;`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      console.log(results)
       res.send(results)
    })
 }
