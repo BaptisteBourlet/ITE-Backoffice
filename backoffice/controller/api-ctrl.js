@@ -793,6 +793,7 @@ exports.getRelatedProductSerie = async (req, res) => {
          }
          result.push(obj);
       }
+      console.log(result)
       res.send(result)
    })
 }
@@ -840,11 +841,15 @@ exports.getSerieSpecs = async (req, res) => {
 exports.updateSerieSpecs = async (req, res) => {
    const { SPLid, key, value } = req.body;
 
+   console.log('SPLid : '+SPLid + ' key : '+key+' Value : '+value)
+
    const query = `UPDATE SeriesData SET Value = '${value}' WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
 
    con.query(query, (err, results) => {
       if (err) throw err;
 
+
+      console.log(results)
       res.send(results);
    })
 }

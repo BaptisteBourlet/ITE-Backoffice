@@ -11,7 +11,7 @@
   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
   
   <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+  <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
 
   <!-- ----------------------------- PRODUCTION ------------------------------ -->
   <link rel="stylesheet" type="text/css" href="/extjs/ext-all-debug.js" />
@@ -1867,19 +1867,19 @@
           allowBlank: true,
           selectOnFocus: false,
         },
-        // {
-        //   xtype: "button",
-        //   id: 'compare',
-        //   text: "Compare Translations",
-        //   iconCls: "fa fa-list",
-        //   handler: function () {
+        {
+          xtype: "button",
+          id: 'compare',
+          text: "Compare Translations",
+          iconCls: "fa fa-list",
+          handler: function () {
 
-        //   },
-        //   style: {
+          },
+          style: {
 
-        //     margin: '5px 5px 5px 40%'
-        //   }
-        // },
+            margin: '5px 5px 5px 40%'
+          }
+        },
         TabTranslations,
       ];
       // spareparts, accessory, related product, categry, id+display( search), english field needed, html edit box
@@ -2155,6 +2155,8 @@
         });
       };
 
+      
+
 
       var addRelatedProdFromView = function (globalProductID) {
         Ext.getBody().mask("Saving", "x-msg-loading");
@@ -2376,7 +2378,7 @@
               var form = Ext.getCmp('imageForm')
               if (form.isValid()) {
                 form.submit({
-                  url: '/api/uploadProductImage',
+                  url: '/api/uploadProductImage', 
                   headers: { 'Content-Type': 'multipart/form-data' },
                   method: "POST",
                   waitMsg: 'Uploading your photo...',

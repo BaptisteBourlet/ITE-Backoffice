@@ -11,6 +11,8 @@ app = express();
 // chapter transform lowercase done
 // check delete assets
 
+// edit cell te-head series
+
 app.use(express.json());
 
    app.use('/', express.static(__dirname + '/views'));

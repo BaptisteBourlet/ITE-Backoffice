@@ -11,7 +11,7 @@
    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
 
    <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
-   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
 
    <!-- ----------------------------- PRODUCTION ------------------------------ -->
    <link rel="stylesheet" type="text/css" href="/extjs/ext-all-debug.js" />
@@ -691,7 +691,44 @@
                               field: {
                                  xtype: "textfield",
                                  allowBlank: false,
+                                 
                               },
+                              // onFocusLeave: function (e) {
+                              //       var me = this
+                              //       let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
+                              //       let value = linkedProductStore.getModifiedRecords()[0].data[key]
+                              //       let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
+                              //       console.log('key : ' +key)
+                              //       console.log('value : ' +value)
+                              //       console.log('SPlid : ' +SPLid)
+
+
+                              //       var selectedrecords = linkedProducts.getSelectionModel().getSelection();
+                              //       var teller = selectedrecords.length;
+                              //       currentsubfileRecord = selectedrecords[0];
+                              //       Ext.Ajax.request({
+                              //          url: "/api/updateSerieSpecs",
+                              //          method: "POST",
+                              //          cors: true,
+                              //          useDefaultXhrHeader: false,
+                              //          params: {
+                              //             key: key,
+                              //             value: value,
+                              //             SPLid: SPLid,
+                              //          },
+                              //          success: function (response) {
+                              //             Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
+                              //             linkedProductStore.reload();
+                              //          },
+                              //          failure: function (response) {
+                              //             Ext.getBody().unmask();
+                              //             Ext.Msg.alert(
+                              //                "ERROR",
+                              //                "Failed to update Specification. Contact your IT team."
+                              //             );
+                              //          },
+                              //       });
+                              //    }
                            }
                         }
                      } else if (key == "SPLid") {
@@ -925,7 +962,7 @@
                                     if (check) {
                                        var data = eval("(" + response.responseText + ")");
                                        if (data.serverStatus == 2) {
-                                          
+
                                           Ext.getBody().unmask();
                                           Ext.Msg.alert(
                                              "Success",
@@ -2359,7 +2396,7 @@
                                     selectedIdx[i] = SeriesMasterSpecs.getStore().indexOfId(recordIds[i]);
                                  }
                                  // reload subfile			
-                                 SeriesAssetsStore.reload(
+                                 serieMasterStore.reload(
                                     // reselect records after update	
                                     {
                                        callback: function () {
