@@ -764,6 +764,7 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
 exports.getRelatedProductSerie = async (req, res) => {
    const { serieId } = req.query;
 
+   console.log(serieId)
    const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesData.Value FROM Product"
       + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
       + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
@@ -828,12 +829,12 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
 
 exports.getSerieSpecs = async (req, res) => {
    const { serieLink } = req.query;
-
+   
    const query = `SELECT SerieMasterId, Value, Value AS CurrentValue, Name, SeriesProductLinkId FROM SeriesData WHERE SeriesProductLinkId = '${serieLink}';`
 
    con.query(query, (err, results) => {
       if (err) throw err;
-
+    
       res.send(results);
    })
 }
@@ -850,7 +851,7 @@ exports.updateSerieSpecs = async (req, res) => {
       if (err) throw err;
 
 
-      console.log(results)
+      //console.log(results)
       res.send(results);
    })
 }
