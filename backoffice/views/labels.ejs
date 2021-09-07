@@ -10,10 +10,10 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
     <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
     <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
-   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
 
    <!-- ----------------------------- PRODUCTION ------------------------------ -->
-   <link rel="stylesheet" type="text/css" href="/extjs/ext-all-debug.js" />
+   <!-- <link rel="stylesheet" type="text/css" href="/extjs/ext-all-debug.js" /> -->
     <style>
         #small-view {
             display: none;
@@ -71,19 +71,39 @@
                     dataIndex: "Key",
 
                 },
-                {
+                /* {
                     header: "Language",
                     sortable: true,
                     width: 100,
                     dataIndex: "Language",
-                },
+                }, */
                 {
                     header: "Value",
                     sortable: true,
-                    width: 800,
+                    width: 700,
                     dataIndex: "Value",
                 },
-
+                {
+                    header: "Translated to",
+                    width: 150,
+                    dataIndex: "Translated",
+                    renderer: function(value) {
+                        return value.map(lang => `<span title="${lang.Lid}: ${Ext.String.htmlEncode(lang.Value)}">${Ext.String.htmlEncode(lang.Language)}</span>`).join(', ');
+                    }
+                },
+                {
+                    header: "Not translated to",
+                    width: 150,
+                    dataIndex: "NotTranslated",
+                    renderer: function(value) {
+                        if(value) {
+                            return value.join(', ');
+                        } else {
+                            return '';
+                        }
+                        
+                    }
+                }
             ];
 
 
