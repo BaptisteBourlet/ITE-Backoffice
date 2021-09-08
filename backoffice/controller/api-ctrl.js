@@ -763,18 +763,19 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
 exports.getRelatedProductSerie = async (req, res) => {
    const { serieId } = req.query;
 
-   console.log(serieId)
-   const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesData.Value FROM Product"
+   
+   const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesMaster.Group, SeriesMaster.Id AS SerieMasterId, SeriesMaster.SubGroup, SeriesData.Value FROM Product"
       + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
       + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
       + " LEFT JOIN SeriesData ON SeriesProductLink.SPLid = SeriesData.SeriesProductLinkId"
+      + " LEFT JOIN SeriesMaster ON SeriesProductLink.SeriesId = SeriesMaster.Sid"
       + ` WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
 
    con.query(query, (err, results, fields) => {
       if (err) throw err;
-
       let idArray = [];
       let result = [];
+      
       results.forEach(res => {
          if (!idArray.includes(res.Id)) {
             idArray.push(res.Id);
@@ -783,13 +784,15 @@ exports.getRelatedProductSerie = async (req, res) => {
 
       for (let i = 0; i < idArray.length; i++) {
          let obj = {};
-         for (const { Id, Key, Value, CODE, Catalog, SPLid } of results) {
+         for (const { Id, Key, Value, CODE, Catalog, SPLid, Group, SubGroup, SerieMasterId } of results) {
             if (Id === idArray[i]) {
                obj.id = Id;
                obj.Code = CODE;
                obj.Name = Catalog;
                obj.SPLid = SPLid;
-               obj[Key] = Value;
+               obj.SerieMasterId = SerieMasterId;
+               obj[Group] = Value;
+               //obj[Key] = Value;
             }
          }
          result.push(obj);
@@ -801,8 +804,9 @@ exports.getRelatedProductSerie = async (req, res) => {
 
 exports.addSeriesRelatedProduct = async (req, res) => {
    const { ProductId, SeriesId } = req.body;
+   const querySeriesProductLink = `INSERT INTO SeriesProductLink (ProductId, SeriesId) VALUES ("${ProductId}", "${SeriesId}");`
 
-   con.query(`INSERT INTO SeriesProductLink (ProductId, SeriesId) VALUES ("${ProductId}", "${SeriesId}");`, (err, results, fields) => {
+   con.query(querySeriesProductLink, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
@@ -815,11 +819,11 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
    const { ProductId, SeriesId } = req.body;
    let errorString = '';
 
-   con.query(`DELETE FROM SeriesProductLink WHERE ProductId = ${ProductId} AND SeriesId = ${SeriesId};`, (err, results, fields) => {
+   con.query(`DELETE FROM SeriesProductLink WHERE ProductId = '${ProductId}' AND SeriesId = '${SeriesId}';`, (err, results, fields) => {
       if (err) {
          errorString += 'Product, '
       }
-      
+      console.log(results)
       res.send(results)
    })
 
@@ -840,18 +844,29 @@ exports.getSerieSpecs = async (req, res) => {
 
 
 exports.updateSerieSpecs = async (req, res) => {
-   const { SPLid, key, value } = req.body;
+   const { SPLid, key, value, SerieMasterId } = req.body;
 
-   console.log('SPLid : '+SPLid + ' key : '+key+' Value : '+value)
+   console.log('SPLid : '+SPLid + ' key : '+key+' Value : '+value + ' SerieMasterId : '+SerieMasterId)
 
-   const query = `UPDATE SeriesData SET Value = '${value}' WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
-
-   con.query(query, (err, results) => {
+   const queryCheckExist = `SELECT COUNT(Id) FROM SeriesData WHERE SeriesData.key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
+   const queryUpdate = `UPDATE SeriesData SET Value = '${value}' WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
+   const queryInsert = `INSERT INTO SeriesData (SerieMasterId, SeriesData.Key, SeriesData.Value, SeriesProductLinkId) VALUES ("${SerieMasterId}", "${key}", "${value}", "${SPLid}");`
+   
+   con.query(queryCheckExist, (err, results) => {
       if (err) throw err;
 
-
-      //console.log(results)
-      res.send(results);
+      if(results[0]['COUNT(Id)'] == 1){
+         con.query(queryUpdate, (err, result) => {
+            if (err) throw err;
+            res.send(result)
+         })
+      } else if(results[0]['COUNT(Id)'] == 0){
+         con.query( queryInsert, (err, result) => {
+            if (err) throw err;
+            res.send(result)
+         })
+      }
+      
    })
 }
 

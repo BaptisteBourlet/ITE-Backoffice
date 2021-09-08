@@ -632,7 +632,7 @@
 
          const linkedProductModel = Ext.define("Categories", {
             extend: "Ext.data.Model",
-            fields: ["Id", "CODE", "Catalog"],
+            fields: ["Id", "CODE", "Catalog", "Group", "SubGroup"],
          });
 
          const linkedProductStore = Ext.create("Ext.data.Store", {
@@ -672,6 +672,7 @@
                success: function (response) {
                   const res = JSON.parse(response.responseText);
 
+                  console.log(res)
                   let keys = Object.keys(res[0]);
 
                   let allColumns = keys.map(key => { //ongoing
@@ -680,7 +681,8 @@
                         width = 300;
                      }
 
-                     if (key !== "Name" && key !== "id" && key !== "Code" && key !== "SPLid") {
+                     if (key !== "Name" && key !== "id" && key !== "Code" && key !== "SPLid" && key !== "SerieMasterId") {
+                        console.log(keys)
                         return {
                            header: key,
                            sortable: true,
@@ -693,45 +695,10 @@
                                  allowBlank: false,
                                  
                               },
-                              // onFocusLeave: function (e) {
-                              //       var me = this
-                              //       let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
-                              //       let value = linkedProductStore.getModifiedRecords()[0].data[key]
-                              //       let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
-                              //       console.log('key : ' +key)
-                              //       console.log('value : ' +value)
-                              //       console.log('SPlid : ' +SPLid)
-
-
-                              //       var selectedrecords = linkedProducts.getSelectionModel().getSelection();
-                              //       var teller = selectedrecords.length;
-                              //       currentsubfileRecord = selectedrecords[0];
-                              //       Ext.Ajax.request({
-                              //          url: "/api/updateSerieSpecs",
-                              //          method: "POST",
-                              //          cors: true,
-                              //          useDefaultXhrHeader: false,
-                              //          params: {
-                              //             key: key,
-                              //             value: value,
-                              //             SPLid: SPLid,
-                              //          },
-                              //          success: function (response) {
-                              //             Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
-                              //             linkedProductStore.reload();
-                              //          },
-                              //          failure: function (response) {
-                              //             Ext.getBody().unmask();
-                              //             Ext.Msg.alert(
-                              //                "ERROR",
-                              //                "Failed to update Specification. Contact your IT team."
-                              //             );
-                              //          },
-                              //       });
-                              //    }
+                              
                            }
                         }
-                     } else if (key == "SPLid") {
+                     } else if (key == "SPLid" || key == "SerieMasterId") {
                         return {
                            header: key,
                            sortable: true,
@@ -2176,6 +2143,9 @@
             let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
             let value = linkedProductStore.getModifiedRecords()[0].data[key]
             let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
+            let Group = linkedProductStore.getModifiedRecords()[0].data['Group'];
+            let SubGroup = linkedProductStore.getModifiedRecords()[0].data['SubGroup'];
+            let SerieMasterId = linkedProductStore.getModifiedRecords()[0].data['SerieMasterId'];
 
             Ext.Ajax.request({
                url: "/api/updateSerieSpecs",
@@ -2186,6 +2156,7 @@
                   key: key,
                   value: value,
                   SPLid: SPLid,
+                  SerieMasterId: SerieMasterId
                },
                success: function (response) {
                   Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
