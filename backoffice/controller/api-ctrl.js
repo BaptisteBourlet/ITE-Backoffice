@@ -17,6 +17,7 @@ const con = mysql.createConnection({
    multipleStatements: true
 })
 
+const LANGUAGES = [ 'en', 'de', 'es', 'fr', 'ru' ];
 
 // =================================================================================================
 //                                       PRODUCTS
@@ -153,7 +154,7 @@ exports.getOtherLanguageDetail = async (req, res) => {
 
 
 exports.getCategories = async (req, res) => {
-   con.query("SELECT Id, WorkingTitle AS Name FROM Category WHERE Publish = '1'", (err, results, fields) => {
+   con.query("SELECT C.Id, C.WorkingTitle AS Name, IT.Tree FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId and IT.Publish = '1' and IT.Type = 'C' WHERE C.Publish = '1'", (err, results, fields) => {
       if (err) {
          console.log(err)
       }
@@ -1501,12 +1502,57 @@ exports.imageMagick = async (req, res) => {
 
 
 exports.getLabels = async (req, res) => {
-   let query = ''
-   query = 'SELECT * FROM Labels;'
+   let query = 'SELECT * FROM Labels order by Labels.Key';
 
 
-   con.query(query, (err, result) => {
+   con.query(query, (err, ungrouped) => {
       if (err) throw err;
+
+      let result = [];
+      let lastRecord = null;
+
+      function addResult(record) {         
+         let idAssigned = false;
+         for(let language of LANGUAGES) {
+            let translation = record.Translation[language];
+            if(translation) {
+               if(!record.Translated) {
+                  record.Lid = translation.Lid;
+                  record.Value = translation.Value;
+                  record.Language = language;
+                  record.Translated = [ translation ];
+               } else {
+                  record.Translated.push(translation);
+               }
+            } else {
+               if(!record.NotTranslated) {
+                  record.NotTranslated = [language];
+               } else {
+                  record.NotTranslated.push(language);
+               }
+            
+            }
+         }
+         delete record.Translation;
+         result.push(record);
+      }
+
+      for(let record of ungrouped) {
+         if(lastRecord == null) {
+            lastRecord = record;
+            lastRecord.Translation = {};
+            lastRecord.Translation[record.Language] = { Lid: record.Lid, Language: record.Language, Value: record.Value };
+         } else if(lastRecord.Key != record.Key) {
+            addResult(lastRecord);
+            lastRecord = record;
+            lastRecord.Translation = {};
+            lastRecord.Translation[record.Language] = { Lid: record.Lid, Language: record.Language, Value: record.Value };
+         } else {
+            lastRecord.Translation[record.Language] = { Lid: record.Lid, Language: record.Language, Value: record.Value };
+         }
+      }
+
+      addResult(lastRecord);
 
       res.send(result);
    })

@@ -20,7 +20,18 @@
          white-space: nowrap;
       }
 
+      /* This forces the container to be the reference for next selector */
+      .list-extra-container {
+         position: relative;
+         left: 0;
+      }
 
+      .list-extra-info {
+         position: absolute;
+         right: 0;
+         color: #555;
+         font-size: 0.90em;
+      }
 
       #small-view {
          display: none;
@@ -208,7 +219,7 @@
                      id: "CategoryID",
                      iconCls: "fa fa-search",
                      store: CategoryStore,
-                     displayField: 'Name',
+                     //displayField: 'Name',
                      valueField: 'Id',
                      width: 400,
                      labelWidth: 20,
@@ -221,7 +232,10 @@
                            mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
                            mainStore.load()
                         },
-                     }
+                     },
+                     listConfig: {
+                        itemTpl: [ '<div class="list-extra-container">{Name} <tpl if="Tree"><span class="list-extra-info">{Tree}<span></tpl></div>' ]
+                     }                     
                   },
                   {
                      xtype: "button",
