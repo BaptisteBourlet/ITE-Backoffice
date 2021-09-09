@@ -71,18 +71,39 @@
                     dataIndex: "Key",
 
                 },
-                {
-                    header: "Language",
-                    sortable: true,
-                    width: 100,
-                    dataIndex: "Language",
-                },
+                // {
+                //     header: "Language",
+                //     sortable: true,
+                //     width: 100,
+                //     dataIndex: "Language",
+                // },
                 {
                     header: "Value",
                     sortable: true,
                     width: 800,
                     dataIndex: "Value",
                 },
+                {
+                    header: "Translated to",
+                    width: 150,
+                    dataIndex: "Translated",
+                    renderer: function(value) {
+                        return value.map(lang => `<span title="${lang.Lid}: ${Ext.String.htmlEncode(lang.Value)}">${Ext.String.htmlEncode(lang.Language)}</span>`).join(', ');
+                    }
+                },
+                {
+                    header: "Not translated to",
+                    width: 150,
+                    dataIndex: "NotTranslated",
+                    renderer: function(value) {
+                        if(value) {
+                            return value.join(', ');
+                        } else {
+                            return '';
+                        }
+                        
+                    }
+                }
 
             ];
 
