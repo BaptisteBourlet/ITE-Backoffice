@@ -17,7 +17,7 @@ const con = mysql.createConnection({
    multipleStatements: true
 })
 
-const LANGUAGES = [ 'en', 'de', 'es', 'fr', 'ru' ];
+const LANGUAGES = ['en', 'de', 'es', 'fr', 'ru'];
 
 // =================================================================================================
 //                                       PRODUCTS
@@ -93,7 +93,7 @@ exports.getAllProducts = async (req, res) => {
 //       var translatedArray = []
 //       var count = finalResult.length
 //       for (var i = 0; i < finalResult.length; i++) {
-         
+
 //          con.query(`SELECT Language, ProductId FROM ProductInfo WHERE ProductInfo.ProductId = ${finalResult[i].Id};`, (error, translatedResults, fields) => {
 //             if (error) throw error;
 //             for (var x = 0; x < translatedResults.length; x++) {
@@ -102,7 +102,7 @@ exports.getAllProducts = async (req, res) => {
 //                   finalResult.Translated = translatedArray.join(', ')
 //                   translatedArray = []
 //                   translatedArray.push(translatedResults[x].Language)
-                  
+
 //                   //console.log(finalResult.Translated)
 //                } else {
 //                   translatedArray.push(translatedResults[x].Language)
@@ -764,19 +764,18 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
 exports.getRelatedProductSerie = async (req, res) => {
    const { serieId } = req.query;
 
-   
-   const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesMaster.Group, SeriesMaster.Id AS SerieMasterId, SeriesMaster.SubGroup, SeriesData.Value FROM Product"
+
+   const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Group AS serieDataGroup, SeriesData.Name, SeriesMaster.Group, SeriesMaster.Id AS SerieMasterId, SeriesMaster.SubGroup, SeriesData.Value FROM Product"
       + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
       + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
       + " LEFT JOIN SeriesData ON SeriesProductLink.SPLid = SeriesData.SeriesProductLinkId"
       + " LEFT JOIN SeriesMaster ON SeriesProductLink.SeriesId = SeriesMaster.Sid"
-      + ` WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
+      + ` WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesData.Value ASC;`;
 
    con.query(query, (err, results, fields) => {
       if (err) throw err;
       let idArray = [];
       let result = [];
-      
       results.forEach(res => {
          if (!idArray.includes(res.Id)) {
             idArray.push(res.Id);
@@ -785,20 +784,39 @@ exports.getRelatedProductSerie = async (req, res) => {
 
       for (let i = 0; i < idArray.length; i++) {
          let obj = {};
-         for (const { Id, Key, Value, CODE, Catalog, SPLid, Group, SubGroup, SerieMasterId } of results) {
+         for (const { Id, Key, Value, CODE, Catalog, SPLid, Group, SubGroup, SerieMasterId, serieDataGroup, Name } of results) {
             if (Id === idArray[i]) {
                obj.id = Id;
                obj.Code = CODE;
                obj.Name = Catalog;
                obj.SPLid = SPLid;
                obj.SerieMasterId = SerieMasterId;
-               obj[Group] = Value;
+
+               console.log(Name + '-' + SubGroup + ':'+Value)
+               if (SubGroup != null && serieDataGroup == Group && Name == SubGroup) {
+
+                  obj[Group + '-' + SubGroup] = Value;
+
+               } else if (serieDataGroup == Group && Name == SubGroup) {
+                  obj[Group] = Value;
+
+               } else if (serieDataGroup == SubGroup && Name == SubGroup) {
+                  obj[Group] = Value;
+
+               } else if (SubGroup != null && serieDataGroup == null && Value == null) {
+
+                  obj[Group + '-' + SubGroup] = '';
+
+               } else if (SubGroup == null && serieDataGroup == null) {
+
+                  obj[Group] = '';
+               }
+
                //obj[Key] = Value;
             }
          }
          result.push(obj);
       }
-      console.log(result)
       res.send(result)
    })
 }
@@ -824,7 +842,6 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
       if (err) {
          errorString += 'Product, '
       }
-      console.log(results)
       res.send(results)
    })
 
@@ -833,41 +850,40 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
 
 exports.getSerieSpecs = async (req, res) => {
    const { serieLink } = req.query;
-   
+
    const query = `SELECT SerieMasterId, Value, Value AS CurrentValue, Name, SeriesProductLinkId FROM SeriesData WHERE SeriesProductLinkId = '${serieLink}';`
 
    con.query(query, (err, results) => {
       if (err) throw err;
-    
+
       res.send(results);
    })
 }
 
 
 exports.updateSerieSpecs = async (req, res) => {
-   const { SPLid, key, value, SerieMasterId } = req.body;
+   const { SPLid, key, value, SerieMasterId, Group, SubGroup } = req.body;
 
-   console.log('SPLid : '+SPLid + ' key : '+key+' Value : '+value + ' SerieMasterId : '+SerieMasterId)
 
-   const queryCheckExist = `SELECT COUNT(Id) FROM SeriesData WHERE SeriesData.key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
+   const queryCheckExist = `SELECT COUNT(Id) FROM SeriesData WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
    const queryUpdate = `UPDATE SeriesData SET Value = '${value}' WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
-   const queryInsert = `INSERT INTO SeriesData (SerieMasterId, SeriesData.Key, SeriesData.Value, SeriesProductLinkId) VALUES ("${SerieMasterId}", "${key}", "${value}", "${SPLid}");`
-   
+   const queryInsert = `INSERT INTO SeriesData (SerieMasterId, SeriesData.Key, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) VALUES ("${SerieMasterId}", "${key}", '${value}', "${SPLid}", "${Group}", "${SubGroup}" );`
+
    con.query(queryCheckExist, (err, results) => {
       if (err) throw err;
 
-      if(results[0]['COUNT(Id)'] == 1){
+      if (results[0]['COUNT(Id)'] == 1) {
          con.query(queryUpdate, (err, result) => {
             if (err) throw err;
             res.send(result)
          })
-      } else if(results[0]['COUNT(Id)'] == 0){
-         con.query( queryInsert, (err, result) => {
+      } else if (results[0]['COUNT(Id)'] == 0) {
+         con.query(queryInsert, (err, result) => {
             if (err) throw err;
             res.send(result)
          })
       }
-      
+
    })
 }
 
@@ -1511,38 +1527,38 @@ exports.getLabels = async (req, res) => {
       let result = [];
       let lastRecord = null;
 
-      function addResult(record) {         
+      function addResult(record) {
          let idAssigned = false;
-         for(let language of LANGUAGES) {
+         for (let language of LANGUAGES) {
             let translation = record.Translation[language];
-            if(translation) {
-               if(!record.Translated) {
+            if (translation) {
+               if (!record.Translated) {
                   record.Lid = translation.Lid;
                   record.Value = translation.Value;
                   record.Language = language;
-                  record.Translated = [ translation ];
+                  record.Translated = [translation];
                } else {
                   record.Translated.push(translation);
                }
             } else {
-               if(!record.NotTranslated) {
+               if (!record.NotTranslated) {
                   record.NotTranslated = [language];
                } else {
                   record.NotTranslated.push(language);
                }
-            
+
             }
          }
          delete record.Translation;
          result.push(record);
       }
 
-      for(let record of ungrouped) {
-         if(lastRecord == null) {
+      for (let record of ungrouped) {
+         if (lastRecord == null) {
             lastRecord = record;
             lastRecord.Translation = {};
             lastRecord.Translation[record.Language] = { Lid: record.Lid, Language: record.Language, Value: record.Value };
-         } else if(lastRecord.Key != record.Key) {
+         } else if (lastRecord.Key != record.Key) {
             addResult(lastRecord);
             lastRecord = record;
             lastRecord.Translation = {};

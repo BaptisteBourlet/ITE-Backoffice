@@ -682,7 +682,7 @@
                      }
 
                      if (key !== "Name" && key !== "id" && key !== "Code" && key !== "SPLid" && key !== "SerieMasterId") {
-                        console.log(keys)
+                       
                         return {
                            header: key,
                            sortable: true,
@@ -2143,20 +2143,25 @@
             let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
             let value = linkedProductStore.getModifiedRecords()[0].data[key]
             let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
-            let Group = linkedProductStore.getModifiedRecords()[0].data['Group'];
-            let SubGroup = linkedProductStore.getModifiedRecords()[0].data['SubGroup'];
+            let GroupArray = key[0].split('-')
+            
+            let Group = GroupArray[0]
+            let SubGroup = GroupArray[1]
             let SerieMasterId = linkedProductStore.getModifiedRecords()[0].data['SerieMasterId'];
 
+            
             Ext.Ajax.request({
                url: "/api/updateSerieSpecs",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
                params: {
-                  key: key,
+                  key: key[0],
                   value: value,
                   SPLid: SPLid,
-                  SerieMasterId: SerieMasterId
+                  SerieMasterId: SerieMasterId,
+                  Group: Group,
+                  SubGroup: SubGroup
                },
                success: function (response) {
                   Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
