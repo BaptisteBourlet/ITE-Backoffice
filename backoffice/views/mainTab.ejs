@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>ALL PRODUCTS - ITE BACK OFFICE MANAGEMENT</title>
+   <link rel="stylesheet" type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+   <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
+   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+
+   <!-- ----------------------------- PRODUCTION ------------------------------ -->
+   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+   <script type="text/javascript">
+
+
+      //=========================================================================================================
+      //		           APPLICATION START
+      // ========================================================================================================
+      Ext.onReady(() => {
+
+
+         var tab01 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            id: 'b01',
+            title: 'Products Overview',
+            border: false,
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab01',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/allProducts'
+               }
+            }]
+         });
+
+         var tab02 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Manage sequence',
+            border: false,
+            id: 'b02',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab02',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/manage-sequence'
+               }
+            }]
+         });
+
+         var tab03 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Series Overview',
+            border: false,
+            id: 'b03',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab03',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/series-overview'
+               }
+            }]
+         });
+
+         var tab04 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Chapters translated',
+            border: false,
+            id: 'b04',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab04',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/ChaptersTranslated'
+               }
+            }]
+         });
+
+         var tab05 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Assets',
+            border: false,
+            id: 'b05',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab05',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/assets'
+               }
+            }]
+         });
+
+         var tab06 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Labels',
+            border: false,
+            id: 'b06',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab06',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/labels'
+               }
+            }]
+         });
+
+         var tab07 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Locations',
+            border: false,
+            id: 'b07',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab07',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/locations'
+               }
+            }]
+         });
+
+         var scrntab = Ext.create('Ext.TabPanel', {
+            fullscreen: true,
+            tabBarPosition: 'bottom',
+            id: 'scrntab',
+            title: 'ADMIN DASHDOARD',
+            defaults: {
+               styleHtmlContent: true
+            },
+            items: [tab01, tab02, tab03, tab04, tab05, tab06, tab07],
+            listeners: {
+               tabChange: function (tabPanel, newTab, currentTab) {
+                  try {
+                     document.getElementById('ta' + newTab.id).src = document.getElementById('ta' + newTab.id).src
+                  } catch {
+                  }
+
+
+               }
+            }
+         });
+
+         // viewport wrapper met login
+         new Ext.Viewport({
+            id: 'viewport',
+            layout: 'card',
+            items: [scrntab]
+         });
+         // Send screen
+         Ext.getCmp('viewport').layout.setActiveItem(0);
+
+      });
+
+
+   </script>
+</head>
+
+<body>
+</body>
+
+</html>

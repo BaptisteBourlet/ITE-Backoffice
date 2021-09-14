@@ -55,16 +55,38 @@ exports.getSomething = async (req, res) => {
 
 // DISTINCT AS400.AOAROM, 
 exports.getAllProducts = async (req, res) => {
-   const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
+   const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesProductLink.ProductId AS SProductId"
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P', 'S') AND InfoTree.Tree != ''"
-      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 ORDER BY ProductInfo.ProductId LIMIT 100;`;
+      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
+      + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
+      + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId AND SeriesInfo.Language = 'en'"
+      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 ORDER BY ProductInfo.ProductId;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
+      res.send(results)
+   })
+}
+
+
+// DISTINCT AS400.AOAROM, 
+exports.getAllProductsTranslations = async (req, res) => {
+   const query = "SELECT ProductInfo.Language, Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesProductLink.ProductId AS SProductId"
+      + " FROM ProductInfo"
+      + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
+      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
+      + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
+      + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId"
+      + ` WHERE Product.Publish = 1  ORDER BY ProductInfo.ProductId;`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      console.log(results)
       res.send(results)
    })
 }
@@ -188,20 +210,24 @@ exports.editProduct = async (req, res) => {
       if (err) throw err;
 
       const { Language, ModifiedOn, Description, Specification, Catalog, FullDescription,
-         FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
-         DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
-         SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
-         RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
+         FRLanguage, FrDetails, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
+         DELanguage, DeDetails, DEDescription, DESpecification, DECatalog, DEFullDescription,
+         SPLanguage, EsDetails, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
+         RULanguage, RuDetails, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
       const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
       const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
       const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
-      const SPQuery = `UPDATE ProductInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp"`;
-      const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
+      const SPQuery = `UPDATE ProductInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp" OR Language = "es"`;
+      const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "ru"`;
 
+      const FrQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${FRLanguage}", "${ModifiedOn}", "${ProductId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}");`
+      const DeQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${DELanguage}", "${ModifiedOn}", "${ProductId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}");`
+      const EsQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${SPLanguage}", "${ModifiedOn}", "${ProductId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}");`
+      const RuQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${RULanguage}", "${ModifiedOn}", "${ProductId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`
 
       if (Description !== "" && Catalog !== "") {
-         con.query(ENQuery, (err, result) => {
+         con.query(ENQuery, (err, results) => {
             if (err) {
                errorString += "English, ";
                console.log(err);
@@ -211,9 +237,9 @@ exports.editProduct = async (req, res) => {
       } else {
          console.log('English wasnt filled in');
       }
-
-      if (FRDescription !== "" && FRCatalog !== "") {
-         con.query(FRQuery, (err, result) => {
+      if (FrDetails == 'false' && FRDescription !== "" && FRCatalog !== "") {
+         console.log('Fr Insert sql')
+         con.query(FrQueryInsert, (err, results) => {
             if (err) {
                errorString += "French, ";
                console.log(err);
@@ -221,41 +247,85 @@ exports.editProduct = async (req, res) => {
 
          })
       } else {
-         console.log('French wasnt filled in');
+
+         if (FRDescription !== "" && FRCatalog !== "") {
+            con.query(FRQuery, (err, results) => {
+               if (err) {
+                  errorString += "French, ";
+                  console.log(err);
+               }
+
+            })
+         } else {
+            console.log('French wasnt filled in');
+         }
       }
 
-      if (DEDescription !== "" && DECatalog !== "") {
-         con.query(DEQuery, (err, result) => {
-            errorString += "German, ";
-            console.log(err);
+      if (DeDetails == 'false' && DEDescription !== "" && DECatalog !== "") {
+         con.query(DeQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "German, ";
+               console.log(err);
+            }
 
          })
       } else {
-         console.log('German wasnt filled in');
+
+         if (DEDescription !== "" && DECatalog !== "") {
+            con.query(DEQuery, (err, results) => {
+               errorString += "German, ";
+               console.log(err);
+
+            })
+         } else {
+            console.log('German wasnt filled in');
+         }
       }
 
-      if (SPDescription !== "" && SPCatalog !== "") {
-         con.query(SPQuery, (err, result) => {
-            errorString += "Spanish, ";
-            console.log(err);
+      if (EsDetails == 'false' && SPDescription !== "" && SPCatalog !== "") {
+         con.query(EsQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "Spanish, ";
+               console.log(err);
+            }
 
          })
       } else {
-         console.log('Spanish wasnt filled in');
+         if (SPDescription !== "" && SPCatalog !== "") {
+            con.query(SPQuery, (err, results) => {
+               errorString += "Spanish, ";
+               console.log(err);
+
+            })
+         } else {
+            console.log('Spanish wasnt filled in');
+         }
       }
 
-      if (RUDescription !== "" && RUCatalog !== "") {
-         con.query(RUQuery, (err, result) => {
-            errorString += "Russian";
-            console.log(err);
+      if (RuDetails == 'false' && RUDescription !== "" && RUCatalog !== "") {
+         con.query(RuQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "Russian, ";
+               console.log(err);
+            }
 
          })
       } else {
-         console.log('Russian wasnt filled in');
+         if (RUDescription !== "" && RUCatalog !== "") {
+            console.log('Russian CAT : ' + RUCatalog)
+            console.log('Russian : ' + RUDescription)
+            con.query(RUQuery, (err, results) => {
+               errorString += "Russian";
+               console.log(err);
+               console.log(results)
+            })
+         } else {
+            console.log('Russian wasnt filled in');
+         }
       }
 
       let finalResult = { ...results, errorString };
-
+      console.log(finalResult)
       res.send(finalResult);
    })
 }
@@ -422,7 +492,7 @@ exports.getAllSeries = async (req, res) => {
       + " FROM SeriesInfo"
       + " LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid"
       + " LEFT JOIN InfoTree ON InfoTree.LinkId = Series.Sid AND InfoTree.Type = 'S'"
-      + ` WHERE SeriesInfo.Language = 'en' AND Series.Publish = '1' ORDER BY SeriesInfo.SeriesId LIMIT 100;`;
+      + ` WHERE SeriesInfo.Language = 'en' AND Series.Publish = '1' ORDER BY SeriesInfo.SeriesId;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {
@@ -456,11 +526,12 @@ exports.getSerieDetails = async (req, res) => {
 exports.searchSerie = async (req, res) => {
    const { searchQuery } = req.body;
 
-   const query = "SELECT Series.Sid, Series.Key, Title"
-      + " FROM SeriesInfo"
-      + " LEFT JOIN Series ON Series.Sid = SeriesInfo.SeriesId"
-      + ` WHERE SeriesInfo.Language = "en" AND Series.Key LIKE '%${searchQuery}%' AND Series.Publish = "1" ORDER BY SeriesInfo.SeriesId;`;
-
+   const query = "SELECT SeriesInfo.SeriesId as Sid, Title, Series.Key, Tree"
+   + " FROM SeriesInfo"
+   + " LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid"
+   + " LEFT JOIN InfoTree ON InfoTree.LinkId = Series.Sid AND InfoTree.Type = 'S'"
+   + ` WHERE SeriesInfo.Language = "en" AND Series.Key LIKE '%${searchQuery}%' AND Series.Publish = "1" ORDER BY SeriesInfo.SeriesId;`;
+   
    con.query(query, (err, results, fields) => {
       if (err) {
          console.log(err)
@@ -737,6 +808,18 @@ exports.updateSerieSpecs = async (req, res) => {
    })
 }
 
+exports.updateSequenceSMaster = async (req, res) => {
+   const { Id, Sequence } = req.body;
+
+   const query = `UPDATE SeriesMaster SET Sequence = ${Sequence} WHERE Id = ${Id};`
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
 exports.addSerieMasterSpecs = async (req, res) => {
    const { serieId, Key, Group, SubGroup } = req.body;
    let nextSequence;
@@ -822,7 +905,8 @@ exports.checkIfSerie = async (req, res) => {
 /* ------------------------- TranslatedChapter CRUD ------------------------- */
 
 exports.getTransltedChapters = async (req, res) => {
-   const query = 'SELECT * FROM TranslatedChapters ORDER BY Chapter;'
+   let query = ''
+   query = 'SELECT * FROM TranslatedChapters ORDER BY Chapter;'
 
 
    con.query(query, (err, result) => {
@@ -868,6 +952,8 @@ exports.updateTranslatedChapters = async (req, res) => {
    })
 }
 
+
+
 /* ------------------------------- CRUD ASSETS ------------------------------ */
 
 exports.getAssets = async (req, res) => {
@@ -882,6 +968,23 @@ exports.getAssets = async (req, res) => {
    })
 }
 
+
+exports.searchAssetsProduct = async (req, res) => {
+   const { searchQuery } = req.body;
+
+   const query = 'SELECT Assets.Id, Assets.ProductId, Type, Path, Label, Sequence, Product.CODE, ProductInfo.Catalog FROM Assets'
+      + " LEFT JOIN Product ON Product.Id = Assets.ProductId"
+      + ` LEFT JOIN ProductInfo ON ProductInfo.ProductId = Product.Id WHERE ProductInfo.Language = 'en' AND Product.CODE LIKE '%${searchQuery}%' ORDER BY Assets.ProductId;`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+
 exports.getSeriesAssets = async (req, res) => {
    const query = 'SELECT Assets.Id, Assets.SerieId, Type, Path, Label, Sequence, Series.Key, SeriesInfo.Title FROM Assets'
       + " LEFT JOIN Series ON Series.Sid = Assets.SerieId"
@@ -891,6 +994,21 @@ exports.getSeriesAssets = async (req, res) => {
       if (err) throw err;
 
       res.send(result);
+   })
+}
+
+exports.searchAssetsSeries = async (req, res) => {
+   const { searchQuery } = req.body;
+
+   const query = 'SELECT Assets.Id, Assets.SerieId, Type, Path, Label, Sequence, Series.Key, SeriesInfo.Title FROM Assets'
+      + " LEFT JOIN Series ON Series.Sid = Assets.SerieId"
+      + ` LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.Language = 'en' AND Series.Key LIKE '%${searchQuery}%' ORDER BY Assets.SerieId;`
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
    })
 }
 
@@ -929,9 +1047,9 @@ exports.updateSequence = async (req, res) => {
 }
 
 exports.deleteAssets = async (req, res) => {
-   const { Id } = req.body;
+   const { itemId } = req.body;
 
-   con.query(`DELETE FROM Assets WHERE id = ${Id};`, (err, results, fields) => {
+   con.query(`DELETE FROM Assets WHERE id = ${itemId};`, (err, results, fields) => {
       if (err) {
          console.log(err);
       }
@@ -1021,6 +1139,7 @@ exports.uploadProductImage = async (req, res) => {
 // upload and save image done by upload middleware, check api-routes.
 // after image saved, it will be resized and paths will be saved to Assets database here 
 exports.uploadSerieImage = async (req, res) => {
+
    let nextSequence, landscape;
    const { originalname } = req.file;
    const { SeriesId, Label } = req.body;
@@ -1058,10 +1177,97 @@ exports.uploadSerieImage = async (req, res) => {
       // insert original size
       con.query(insertAssets, (err, result) => {
          if (err) throw err;
+      })
+
+
+
+      // Check if image is landscape;
+
+      imagemagickCli
+         .exec(`identify assets/${originalname}`)
+         .then(({ stdout, stderr }) => {
+            if (stderr) throw stderr;
+
+            let dimensions = stdout.split(' ')[2].split('x');
+            const width = dimensions[0];
+            const height = dimensions[1];
+            landscape = parseInt(width) > parseInt(height) ? true : false;
+
+            // insert other sizes
+            imageSizes.forEach(size => {
+               let newName = originalname.split('.');
+
+               newName[0] = `${newName[0]}-${size.size}`;
+               newName = newName.join('.');
+
+               // set maxWidth or maxHeight depending on image type
+               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+               imagemagickCli
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                  .then(({ stdout, stderr }) => {
+
+                     const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
+
+                     con.query(insertAssets, (err, result) => {
+                        if (err) throw err;
+                        if (size.size === "large") {
+                           res.status(200).send({ ...result, success: true, file: originalname });
+                        }
+                     })
+                  })
+            })
+         })
+
+   })
+}
+
+
+/* ------------------------------ UPDATE ASSETS ----------------------------- */
+
+// upload and save image done by upload middleware, check api-routes.
+// after image saved, it will be resized and paths will be saved to Assets database here 
+exports.updateuploadProductImage = async (req, res) => {
+   let nextSequence, landscape;
+   const { originalname } = req.file;
+   const { ProductId, Label, oldPath } = req.body;
+   const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE ProductId = "${ProductId}"`;
+   const test = oldPath.split('-')
+   test.splice(-1, 1)
+   const imageSizes = [
+      {
+         size: 'large',
+         width: 1280,
+         height: 1280
+      },
+      {
+         size: 'medium',
+         width: 800,
+         height: 800
+      },
+      {
+         size: 'small',
+         width: 400,
+         height: 400,
+      },
+      {
+         size: 'thumb',
+         width: 200,
+         height: 200,
+      },
+   ]
+
+   con.query(maxSequence, (err, result) => {
+      if (err) throw err;
+      nextSequence = result[0].maxSequence + 1;
+
+      const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${originalname}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path ="${oldPath}" AND ProductId = ${ProductId};`
+
+      // insert original size
+      con.query(insertAssets, (err, result) => {
+         if (err) throw err;
 
       })
 
-      // Check if image is landscape;
       imagemagickCli
          .exec(`identify assets/${originalname}`)
          .then(({ stdout, stderr }) => {
@@ -1081,7 +1287,7 @@ exports.uploadSerieImage = async (req, res) => {
                imagemagickCli
                   .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
                   .then(({ stdout, stderr }) => {
-                     const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
+                     const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path LIKE "${test.join('') + '-' + size.size}%" AND ProductId = ${ProductId};`
 
                      con.query(insertAssets, (err, result) => {
                         if (err) throw err;
@@ -1097,6 +1303,90 @@ exports.uploadSerieImage = async (req, res) => {
 }
 
 
+// upload and save image done by upload middleware, check api-routes.
+// after image saved, it will be resized and paths will be saved to Assets database here 
+exports.updateuploadSerieImage = async (req, res) => {
+
+   let nextSequence, landscape;
+   const { originalname } = req.file;
+   const { SeriesId, Label, oldPath } = req.body;
+   const test = oldPath.split('-')
+   test.splice(-1, 1)
+   const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE SerieId = "${SeriesId}"`;
+   const imageSizes = [
+      {
+         size: 'large',
+         width: 1280,
+         height: 1280
+      },
+      {
+         size: 'medium',
+         width: 800,
+         height: 800
+      },
+      {
+         size: 'small',
+         width: 400,
+         height: 400,
+      },
+      {
+         size: 'thumb',
+         width: 200,
+         height: 200,
+      },
+   ]
+
+   con.query(maxSequence, (err, result) => {
+      if (err) throw err;
+      nextSequence = result[0].maxSequence + 1;
+
+
+      const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${originalname}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path = "${oldPath}" ;`
+
+      // insert original size
+      con.query(insertAssets, (err, result) => {
+         if (err) throw err;
+      })
+
+      // Check if image is landscape;
+
+      imagemagickCli
+         .exec(`identify assets/${originalname}`)
+         .then(({ stdout, stderr }) => {
+            if (stderr) throw stderr;
+
+            let dimensions = stdout.split(' ')[2].split('x');
+            const width = dimensions[0];
+            const height = dimensions[1];
+            landscape = parseInt(width) > parseInt(height) ? true : false;
+
+            // insert other sizes
+            imageSizes.forEach(size => {
+               let newName = originalname.split('.');
+
+               newName[0] = `${newName[0]}-${size.size}`;
+               newName = newName.join('.');
+
+               // set maxWidth or maxHeight depending on image type
+               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+               imagemagickCli
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                  .then(({ stdout, stderr }) => {
+
+                     const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path LIKE "${test.join('') + '-' + size.size}%";`
+
+                     con.query(insertAssets, (err, result) => {
+                        if (err) throw err;
+                        if (size.size === "large") {
+                           res.status(200).send({ ...result, success: true, file: originalname });
+                        }
+                     })
+                  })
+            })
+         })
+
+   })
+}
 
 // this route is for testing purposes only
 exports.imageMagick = async (req, res) => {
@@ -1134,12 +1424,238 @@ exports.imageMagick = async (req, res) => {
    //    if (err) throw err;
    //    console.log('stdout:', stdout);
    //    console.log('sdterr:', sdterr);
-   // });
-   imagemagickCli
-      .exec('convert assets/doge.jpg -resize "100" assets/doge-small.jpg')
-      .then(({ stdout, stderr }) => {
-         // console.log(`Output: ${stdout}`);
+   // // });
+   // imagemagickCli
+   //    .exec('convert assets/doge.jpg -resize "100" assets/doge-small.jpg')
+   //    .then(({ stdout, stderr }) => {
+   //       // console.log(`Output: ${stdout}`);
 
-         res.send(stdout)
+   //       res.send(stdout)
+   //    });
+}
+
+
+/* ------------------------------- LABELS CRUD ------------------------------ */
+
+
+exports.getLabels = async (req, res) => {
+   let query = ''
+   query = 'SELECT * FROM Labels;'
+
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
+exports.addLabels = async (req, res) => {
+   const {
+      Key, Language, Value,
+      FRLanguage, FRValue,
+      SPLanguage, SPValue,
+      DELanguage, DEValue,
+      RULanguage, RUValue,
+   } = req.body;
+
+
+   if (Value !== "") {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${Language}", "${Value}");`, (err, results, fields) => {
+         if (err) throw err;
+
+         res.status(200).send(results);
       });
+   } else {
+      console.log('english wasnt filled in')
+   }
+
+   if (FRValue !== '') {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${FRLanguage}", "${FRValue}");`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('french wasnt filled in')
+   }
+
+   if (DEValue !== '') {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${DELanguage}", "${DEValue}");`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('german wasnt filled in')
+   }
+
+   if (RUValue !== '') {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${RULanguage}", "${RUValue}");`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('russian wasnt filled in')
+   }
+
+   if (SPValue !== '') {
+      con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${SPLanguage}", "${SPValue}");`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('spanish wasnt filled in')
+   }
+
+
+}
+
+
+exports.DeleteLabels = async (req, res) => {
+   const { Lid } = req.body;
+
+   con.query(`DELETE FROM Labels WHERE Lid = ${Lid};`, (err, results, fields) => {
+      if (err) {
+         console.log(err);
+      }
+      res.send(results)
+   })
+}
+
+exports.updateLabels = async (req, res) => {
+   const {
+      oldKey,
+      Key, Language, Value,
+      FRLanguage, FRValue,
+      SPLanguage, SPValue,
+      DELanguage, DEValue,
+      RULanguage, RUValue
+   } = req.body;
+
+
+   if (Value !== "") {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${Language}", Labels.Value = "${Value}" WHERE Language = 'en' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+         res.status(200).send(results);
+      });
+   } else {
+      console.log('english wasnt filled in')
+   }
+
+   if (FRValue !== '') {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${FRLanguage}", Labels.Value = "${FRValue}" WHERE Language = 'fr' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('french wasnt filled in')
+   }
+
+   if (DEValue !== '') {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${DELanguage}", Labels.Value = "${DEValue}" WHERE Language = 'de' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('german wasnt filled in')
+   }
+
+   if (RUValue !== '') {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${RULanguage}", Labels.Value = "${RUValue}" WHERE Language = 'ru' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('russian wasnt filled in')
+   }
+
+   if (SPValue !== '') {
+      con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${SPLanguage}", Labels.Value = "${SPValue}" WHERE Language = 'es' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+         if (err) throw err;
+
+      });
+   } else {
+      console.log('spanish wasnt filled in')
+   }
+}
+
+
+exports.getLabelsDetails = async (req, res) => {
+   const { Key, language } = req.body;
+   const query = `SELECT Labels.Key, Language, Labels.Value FROM Labels WHERE Language = "${language}" AND Labels.Key = "${Key}";`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) throw err;
+
+      res.status(200).send(results);
+   })
+}
+
+
+exports.searchLabels = async (req, res) => {
+   const { searchQuery, field } = req.body;
+   let query = '';
+
+   if (field == 'Key') {
+      query = `SELECT * FROM Labels WHERE Labels.Key LIKE '%${searchQuery}%';`;
+
+   } else {
+      query = `SELECT * FROM Labels WHERE Labels.Value LIKE '%${searchQuery}%';`;
+   }
+
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+/* ----------------------------- LOCATIONS CRUD ----------------------------- */
+
+
+exports.getLocations = async (req, res) => {
+   let query = ''
+   query = 'SELECT * FROM Locations;'
+
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}
+
+exports.addLocations = async (req, res) => {
+   const { Type, Name, Region, Address, Locality, Country, Tel, Email, OfficeHours, WarehouseHours, GPS, Lat, Lng } = req.body;
+
+   con.query(`INSERT INTO Locations (Type, Name, Region, Address, Locality, Country, Tel, Email, OfficeHours, WarehouseHours, GPS, Lat, Lng) VALUES ("${Type}", "${Name}", "${Region}", "${Address}", "${Locality}", "${Country}", "${Tel}", "${Email}", "${OfficeHours}", "${WarehouseHours}", "${GPS}", "${Lat}", "${Lng}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+exports.deleteLocations = async (req, res) => {
+   const { LocationsId } = req.body;
+
+   con.query(`DELETE FROM Locations WHERE Id = ${LocationsId};`, (err, results, fields) => {
+      if (err) {
+         console.log(err);
+      }
+      res.send(results)
+   })
+}
+
+exports.updateLocations = async (req, res) => {
+   const { LocationsId, Type, Name, Region, Address, Locality, Country, Tel, Email, OfficeHours, WarehouseHours, GPS, Lat, Lng } = req.body;
+
+   const query = `UPDATE Locations SET Locations.Type = '${Type}', Locations.Name = '${Name}', Region = '${Region}', Address = '${Address}', Locality = '${Locality}', Country = '${Country}', Tel = '${Tel}', Email = '${Email}', OfficeHours = '${OfficeHours}', WarehouseHours = '${WarehouseHours}', GPS = '${GPS}', Lat = '${Lat}', Lng = '${Lng}' WHERE Id = ${LocationsId};`
+
+   con.query(query, (err, results) => {
+      if (err) throw err;
+
+      res.send(results);
+   })
 }

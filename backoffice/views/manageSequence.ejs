@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>SEQUENCE MANAGING - ITE BACK OFFICE</title>
+   <link rel="stylesheet" type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+      <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
+   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+
+   <!-- ----------------------------- PRODUCTION ------------------------------ -->
+   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+   <style>
+      .x-grid-cell-inner {
+         overflow: hidden;
+         padding: 10px 6px;
+         white-space: nowrap;
+      }
+
+      /* This forces the container to be the reference for next selector */
+      .list-extra-container {
+         position: relative;
+         left: 0;
+      }
+
+      .list-extra-info {
+         position: absolute;
+         right: 0;
+         color: #555;
+         font-size: 0.90em;
+      }
+
+      #small-view {
+         display: none;
+      }
+
+      @media (max-width: 481px) {
+
+         #mainPanel {
+            display: none !important;
+         }
+
+         #small-view {
+            margin-top: 4rem;
+            font-size: 40px;
+            height: 100vh;
+            width: 100vw;
+            line-height: 50px;
+            display: block !important;
+         }
+      }
+   </style>
+   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+   <script type="text/javascript">
+      //=========================================================================================================
+      //		           APPLICATION START
+      // ========================================================================================================
+      Ext.onReady(() => {
+
+         const saveSequence = () => {
+            const updatedItems = mainStore.getModifiedRecords();
+            let check = {};
+            let sequenceArr = [];
+
+            for (const item of updatedItems) {
+               if (sequenceArr.includes(item.data.Sequence + "")) {
+                  Ext.Msg.alert("INFO", "There are duplicated sequence numbers!")
+                  return;
+               } else {
+                  check[item.data.Id] = true;
+                  sequenceArr = [...sequenceArr, (item.data.Sequence + "")];
+               }
+            }
+
+            updatedItems.forEach(item => {
+               Ext.Ajax.request({
+                  url: "/api/changeSequence",
+                  method: "POST",
+                  cors: true,
+                  useDefaultXhrHeader: false,
+                  params: {
+                     Id: item.data.Id,
+                     Sequence: item.data.Sequence,
+                     Parent: Ext.getCmp('CategoryID').getValue(),
+                     Type: item.data.Type,
+                  },
+                  success: function (response) {
+                     delete check[item.data.Id];
+                     Object.keys(check);
+                     if (Object.keys(check).length === 0) {
+                        Ext.Msg.alert('INFO', "Sequences updated successfully");
+                        mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
+                        mainStore.load()
+                     }
+                  },
+                  failure: function (response) {
+                     Ext.getBody().unmask();
+                     Ext.Msg.alert(
+                        "ERROR",
+                        "Failed to change sequence. Contact your IT team."
+                     );
+                  },
+               });
+            })
+         }
+
+         const CATEGORY = Ext.define("Categories", {
+            extend: "Ext.data.Model",
+            fields: ["Id", "Name"],
+         });
+
+         const CategoryStore = Ext.create("Ext.data.Store", {
+            id: "CategoryStore",
+            autoLoad: true,
+            model: CATEGORY,
+            proxy: {
+               type: "ajax",
+               method: "POST",
+               url: "/api/getCategories",
+               noCache: true,
+               reader: {
+                  type: "json",
+                  rootProperty: "allProducts",
+                  totalProperty: "totalCount",
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+         });
+
+         const mainGridColumns = [
+            {
+               header: "Type",
+               sortable: true,
+               width: 150,
+               dataIndex: "Type",
+               renderer: (value) => {
+                  if (value === "C") {
+                     return "Category"
+                  } else if (value === "P") {
+                     return "Product"
+                  } else {
+                     return "Serie"
+                  }
+               }
+            },
+            {
+               header: "Name",
+               sortable: true,
+               width: 350,
+               dataIndex: "Description",
+            },
+            {
+               header: "Current Sequence",
+               sortable: true,
+               width: 150,
+               dataIndex: "OldSequence",
+            },
+            {
+               header: "New Sequence",
+               sortable: false,
+               width: 150,
+               dataIndex: "Sequence",
+               editor: {
+                  completeOnEnter: true,
+                  field: {
+                     xtype: "numberfield",
+                     allowBlank: false,
+                  },
+               },
+            },
+         ];
+
+
+         var TypeStore = Ext.create("Ext.data.Store", {
+            fields: ["TypeCode", "TypeName"],
+            data: [
+               { TypeCode: "P", TypeName: "Products" },
+               { TypeCode: "C", TypeName: "Categories" },
+               { TypeCode: "S", TypeName: "Series" },
+            ],
+            storeId: "TypeStore",
+         });
+
+         const tbarItems = [
+            {
+               xtype: "toolbar",
+               dock: "top",
+               id: "bottomToolBar",
+               items: [
+                  {
+                     xtype: "button",
+                     id: "sequenceSave",
+                     text: "Save",
+                     iconCls: "fas fa-save",
+                     scale: "small",
+                     handler: function () {
+                        if (mainStore.getModifiedRecords().length === 0) {
+                           Ext.Msg.alert("INFO", "You havent made any changes");
+                        } else {
+                           saveSequence()
+                        }
+                     },
+                  },
+
+               ],
+            },
+            {
+               xtype: "toolbar",
+               dock: "top",
+               id: "searchBar",
+               items: [
+                  {
+                     xtype: "combo",
+                     id: "CategoryID",
+                     iconCls: "fa fa-search",
+                     store: CategoryStore,
+                     //displayField: 'Name',
+                     valueField: 'Id',
+                     width: 400,
+                     labelWidth: 20,
+                     anyMatch: true,
+                     queryMode: "local",
+                     style: "margin-left: 5px; color: grey;",
+                     emptyText: "Select specific category...",
+                     listeners: {
+                        change: function () {
+                           mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
+                           mainStore.load()
+                        },
+                     },
+                     listConfig: {
+                        itemTpl: [ '<div class="list-extra-container">{Name} <tpl if="Tree"><span class="list-extra-info">{Tree}<span></tpl></div>' ]
+                     }                     
+                  },
+                  {
+                     xtype: "button",
+                     id: "resetSearch",
+                     iconCls: "fas fa-undo-alt",
+                     text: "Reset Edit",
+                     style: "padding: 7px; border: none; background-color: #000",
+                     listeners: {
+                        click: () => {
+                           mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
+                           mainStore.load()
+                        },
+                     },
+                  },
+               ],
+            },
+         ];
+
+         const Model = Ext.define("Categories", {
+            extend: "Ext.data.Model",
+            fields: ["Description", "Sequence", "OldSequence", "Type"],
+         });
+         const mainStore = Ext.create("Ext.data.Store", {
+            id: "mainStore",
+            autoLoad: false,
+            model: Model,
+
+            proxy: {
+               type: "ajax",
+               method: "POST",
+               url: "/api/getSequenceResults",
+               noCache: true,
+               reader: {
+                  type: "json",
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+            listeners: {
+               beforeload: function (store) { },
+            },
+         });
+         const mainGrid = Ext.create("Ext.grid.GridPanel", {
+            id: "mainGrid",
+            flex: 1,
+            scrollable: true,
+            title: "Managing Products, Series and Categories Sequence",
+            trackOver: true,
+            loadMask: true,
+            store: mainStore,
+            columns: mainGridColumns,
+            enableColumnMove: false,
+            selModel: 'cellmodel',
+            plugins: {
+               ptype: 'cellediting',
+               clicksToEdit: 1
+            },
+            sortable: true,
+            frame: false,
+            renderTo: Ext.getBody(),
+            height: 690,
+            dockedItems: [...tbarItems],
+         });
+
+         //=========================================================================================================
+         //		           VIEW PORT
+         // ========================================================================================================
+
+         Ext.create("Ext.container.Viewport", {
+            id: "viewport",
+            layout: "card",
+            activeItem: 0,
+            items: [mainGrid],
+         });
+      });
+   </script>
+</head>
+
+<body>
+   <div id="small-view">
+      This Appplication is not meant for small devices.
+   </div>
+</body>
+
+</html>

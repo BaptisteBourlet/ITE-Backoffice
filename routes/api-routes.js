@@ -19,9 +19,12 @@ const imgUpload = multer({ storage: storage});
 // =================================================================================================
 //                                           PRODUCTS
 // =================================================================================================
-router.get('/getSomething', apiCtrl.getSomething);
+
 
 router.get('/getAllProducts', apiCtrl.getAllProducts);
+
+
+router.get('/getAllProductsTranslations', apiCtrl.getAllProductsTranslations);
 
 router.get('/getProductDetails', apiCtrl.getProductDetails);
 
@@ -85,6 +88,9 @@ router.get('/getSerieMaster', apiCtrl.getSerieMaster);
 
 router.post('/checkIfSerie', apiCtrl.checkIfSerie);
 
+router.post('/updateSequenceSMaster', apiCtrl.updateSequenceSMaster);
+
+
 
 /* --------------------------- Translted Chapters --------------------------- */
 
@@ -108,12 +114,44 @@ router.post('/updateSequence', apiCtrl.updateSequence);
 
 router.post('/deleteAssets', apiCtrl.deleteAssets);
 
+router.post('/searchAssetsProduct', apiCtrl.searchAssetsProduct);
+
+router.post('/searchAssetsSeries', apiCtrl.searchAssetsSeries);
 
 
 router.post('/uploadProductImage', imgUpload.single('image'), apiCtrl.uploadProductImage);
 
 router.post('/uploadSerieImage', imgUpload.single('image'), apiCtrl.uploadSerieImage);
 
+router.post('/updateuploadProductImage', imgUpload.single('image'), apiCtrl.updateuploadProductImage);
+
+router.post('/updateuploadSerieImage', imgUpload.single('image'), apiCtrl.updateuploadSerieImage);
+
 router.get('/image', apiCtrl.imageMagick);
+
+/* ------------------------------- LABELS CURD ------------------------------ */
+
+router.get('/getLabels', apiCtrl.getLabels);
+
+router.post('/updateLabels', apiCtrl.updateLabels);
+
+router.post('/DeleteLabels', apiCtrl.DeleteLabels);
+
+router.post('/addLabels', apiCtrl.addLabels);
+
+router.post('/getLabelsDetails', apiCtrl.getLabelsDetails);
+
+router.post('/searchLabels', apiCtrl.searchLabels);
+
+/* ----------------------------- LOCATIONS CRUD ----------------------------- */
+
+router.get('/getLocations', apiCtrl.getLocations);
+
+router.post('/addLocations', apiCtrl.addLocations);
+
+router.post('/updateLocations', apiCtrl.updateLocations);
+
+router.post('/deleteLocations', apiCtrl.deleteLocations);
+
 
 module.exports = router;

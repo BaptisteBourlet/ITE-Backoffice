@@ -360,7 +360,7 @@
 
          const addSpecValue = () => {
             const form = Ext.getCmp('addSpecValueForm').getForm();
-            console.log(form.isValid());
+
             if (form.isValid()) {
                Ext.Ajax.request({
                   url: "/api/addSpecValue",
@@ -666,7 +666,7 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-                  console.log(res);
+
                   let keys = Object.keys(res[0]);
 
                   let allColumns = keys.map(key => { //ongoing
@@ -1068,7 +1068,7 @@
                                           id: "Title",
                                           name: "Title",
                                           fieldLabel: "Title",
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           width: 500,
                                           allowBlank: false,
                                           submitvalue: true,
@@ -1151,7 +1151,7 @@
                                           id: "FRTitle",
                                           name: "FRTitle",
                                           fieldLabel: "Title",
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           width: 500,
                                           allowBlank: true,
                                           submitvalue: true,
@@ -1234,7 +1234,7 @@
                                           id: "DETitle",
                                           name: "DETitle",
                                           fieldLabel: "Title",
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           width: 500,
                                           allowBlank: true,
                                           submitvalue: true,
@@ -1319,7 +1319,7 @@
                                           name: "SPTitle",
                                           fieldLabel: "Title",
                                           allowBlank: true,
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           width: 500,
                                           submitvalue: true,
                                           margin: "25 0 25 0",
@@ -1401,7 +1401,7 @@
                                           id: "RUTitle",
                                           name: "RUTitle",
                                           fieldLabel: "Title",
-                                          maxLenght: 118,
+                                          maxLenght: 46,
                                           allowBlank: true,
                                           width: 500,
                                           submitvalue: true,
@@ -1460,7 +1460,7 @@
                id: "Key",
                name: "Key",
                fieldLabel: "Key",
-               maxLenght: 10,
+               maxLenght: 26,
                width: 500,
                allowBlank: true,
                selectOnFocus: false,
@@ -1523,15 +1523,18 @@
             items: [screenAdd],
             tbar: [
                {
+
                   text: "Save",
                   id: "addSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-                     addSerie();
-                     Ext.getCmp("relatedProducts").removeAll();
-                     Ext.getCmp("relatedAccessories").removeAll();
-                     Ext.getCmp("relatedParts").removeAll();
-                     Ext.getCmp('addForm').reset()
+                     if (Ext.getCmp('addForm').isValid()) {
+                        addSerie();
+                        Ext.getCmp("relatedProducts").removeAll();
+                        Ext.getCmp("relatedAccessories").removeAll();
+                        Ext.getCmp("relatedParts").removeAll();
+                        Ext.getCmp('addForm').reset()
+                     }
                   },
                },
                {
@@ -1539,12 +1542,14 @@
                   id: "editSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-                     edit = false;
-                     editSerie();
-                     Ext.getCmp("relatedProducts").removeAll();
-                     Ext.getCmp("relatedAccessories").removeAll();
-                     Ext.getCmp("relatedParts").removeAll();
-                     Ext.getCmp("addForm").reset();
+                     if (Ext.getCmp('addForm').isValid()) {
+                        edit = false;
+                        editSerie();
+                        Ext.getCmp("relatedProducts").removeAll();
+                        Ext.getCmp("relatedAccessories").removeAll();
+                        Ext.getCmp("relatedParts").removeAll();
+                        Ext.getCmp("addForm").reset();
+                     }
                   },
                },
                "-",
@@ -2252,7 +2257,71 @@
                header: "Sequence",
                sortable: true,
                width: 100,
-               dataIndex: "Sequence"
+               dataIndex: "Sequence",
+               field: {
+                        xtype: 'numberfield',
+                        allowBlank: true,
+                        decimalPrecision: 0,
+                        minValue: 0,
+
+                        onFocusLeave: function (e) {
+                            var me = this
+
+                            var selectedrecords = SeriesMasterSpecs.getSelectionModel().getSelection();
+                            var teller = selectedrecords.length;
+                            currentsubfileRecord = selectedrecords[0];
+                            Ext.Ajax.request({
+
+                                url: '/api/updateSequenceSMaster',
+                                params: {
+                                    Id: currentsubfileRecord.data.Id,
+                                    Sequence: currentsubfileRecord.data.Sequence,
+
+                                },
+                                success: function (response) {
+
+                                    // check for errors and display error message
+                                    var check = response.responseText;
+                                    if (check) {
+                                        var data = eval("(" + response.responseText + ")");
+                                        if (data) {
+                                            // Remember record id's to reselect records after update of the row
+                                            var selectedrecords = SeriesMasterSpecs.getSelectionModel().getSelection();
+                                            recordIds = [];
+                                            selectedIdx = [];
+                                            for (var i = 0, len = selectedrecords.length; i < len; i++) {
+                                                recordIds[i] = selectedrecords[i].id;
+                                                selectedIdx[i] = SeriesMasterSpecs.getStore().indexOfId(recordIds[i]);
+                                            }
+                                            // reload subfile			
+                                            SeriesAssetsStore.reload(
+                                                // reselect records after update	
+                                                {
+                                                    callback: function () {
+                                                        for (var i = 0, len = selectedIdx.length; i < len; i++) {
+                                                         SeriesMasterSpecs.getSelectionModel().select(selectedIdx[i]);
+                                                        }
+                                                    },
+                                                    scope: this
+                                                }
+                                            );
+                                            // display subfile
+                                            Ext.getCmp('viewport').layout.setActiveItem('SeriesMasterSpecs');
+                                        } else {
+                                            // display error message
+                                            f = Ext.getCmp(data.FLD);
+                                            f.markInvalid(data.MSG);
+                                            f.focus();
+                                        };
+                                        Ext.getBody().unmask();
+                                    };
+                                },
+                                failure: function (response) {
+                                    Ext.getBody().unmask();
+                                }
+                            });
+                        }
+                    },
             },
          ]
 
@@ -2270,6 +2339,11 @@
             sortable: true,
             frame: false,
             height: 690,
+            selModel: 'cellmodel',
+            plugins: {
+               ptype: 'cellediting',
+               clicksToEdit: 1
+            },
             dockedItems: [...tbarItemsMaster],
             listeners: {
                dblclick: {
