@@ -75,6 +75,8 @@ router.post('/addSeriesRelatedProduct', apiCtrl.addSeriesRelatedProduct);
 
 router.post('/deleteSerieRelatedProduct', apiCtrl.deleteSerieRelatedProduct);
 
+router.post('/deleteSerieRelatedProductFromDetailsView', apiCtrl.deleteSerieRelatedProductFromDetailsView);
+
 router.get('/getSerieSpecs', apiCtrl.getSerieSpecs);
 
 router.get('/getSpecGroup', apiCtrl.getSpecGroup);

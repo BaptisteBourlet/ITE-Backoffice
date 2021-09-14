@@ -536,7 +536,7 @@ exports.getSerieDetails = async (req, res) => {
    let finalResults = [];
    const serieQuery = `SELECT Series.Key, Title, FullDescription, Specification FROM SeriesInfo LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.SeriesId = "${serieId}" AND SeriesInfo.Language = "en";`;
 
-   const relatedQuery = `SELECT SeriesInfo.Title, LinkedSeriesID, LinkedProductID, Type, Code, Description FROM RelatedProducts
+   const relatedQuery = `SELECT SeriesInfo.Title, LinkedSeriesID, LinkedProductID, Type, Code, Description, RelatedProducts.Id FROM RelatedProducts
       LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = RelatedProducts.LinkedSeriesID WHERE RelatedProducts.SeriesId = "${serieId}";`
 
    con.query(serieQuery, (err, serieResults) => {
@@ -545,10 +545,27 @@ exports.getSerieDetails = async (req, res) => {
       con.query(relatedQuery, (error, relatedResults) => {
          if (error) throw error;
          finalResults.push(relatedResults);
-
+         
          res.send(finalResults);
       })
    })
+}
+
+
+
+exports.deleteSerieRelatedProductFromDetailsView = async (req, res) => {
+   const { Id } = req.body;
+   let errorString = '';
+
+   con.query(`DELETE FROM RelatedProducts WHERE Id = ${Id};`, (err, results, fields) => {
+      if (err) {
+         console.log(err);
+         errorString += 'SeriesProductLink, '
+      }
+      res.send(results)
+   })
+
+   
 }
 
 exports.searchSerie = async (req, res) => {
@@ -792,7 +809,6 @@ exports.getRelatedProductSerie = async (req, res) => {
                obj.SPLid = SPLid;
                obj.SerieMasterId = SerieMasterId;
 
-               console.log(Name + '-' + SubGroup + ':'+Value)
                if (SubGroup != null && serieDataGroup == Group && Name == SubGroup) {
 
                   obj[Group + '-' + SubGroup] = Value;
@@ -835,15 +851,22 @@ exports.addSeriesRelatedProduct = async (req, res) => {
 }
 
 exports.deleteSerieRelatedProduct = async (req, res) => {
-   const { ProductId, SeriesId } = req.body;
+   const { ProductId, SeriesId, SeriesMasterId, SPLid } = req.body;
    let errorString = '';
 
+   con.query(`DELETE FROM SeriesData WHERE SeriesMasterId = '${SeriesMasterId}' AND SeriesProductLinkId = '${SPLid}';`, (err, result, fields) => {
+      if (err) {
+         errorString += 'Product, '
+      }
+   })
    con.query(`DELETE FROM SeriesProductLink WHERE ProductId = '${ProductId}' AND SeriesId = '${SeriesId}';`, (err, results, fields) => {
       if (err) {
          errorString += 'Product, '
       }
       res.send(results)
+
    })
+
 
 }
 
