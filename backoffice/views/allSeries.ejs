@@ -9,6 +9,7 @@
    <link rel="stylesheet" type="text/css"
       href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+   <script type="text/javascript" src="/controller/userAuthServices.js"></script>
 
    <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
@@ -71,6 +72,25 @@
       //		           APPLICATION START
       // ========================================================================================================
       Ext.onReady(() => {
+         // // FOR TESTING 
+         // let userRightObject = {
+         //    english: "V",
+         //    french: "V",
+         //    german: "E",
+         //    pictures: "V",
+         //    related: "E",
+         //    russian: "E",
+         //    spanish: "E",
+         //    usrid: "AG",
+         //    usrname: "Ann De Gucht"
+         // };
+
+         // let userRightString = JSON.stringify(userRightObject);
+         // localStorage.setItem('userRights', userRightString);
+
+         // // =============================================
+
+
          let edit = false;
          let serieIDGlobal = '';
          Ext.define('MyApp.view.Form', {
@@ -1952,7 +1972,7 @@
                      "-",
                      {
                         xtype: "button",
-                        id: "addImage",
+                        id: "addImageBtn",
                         text: "Add Image",
                         iconCls: "fa fa-plus",
                         handler: function () {
@@ -2769,6 +2789,16 @@
                },
             ]
          })
+
+
+
+
+         let userRights = JSON.parse(localStorage.getItem('userRights'));
+
+         if (userRigths) {
+            applyUserRights(userRights);
+         }
+
          //=========================================================================================================
          //		           VIEW PORT
          // ========================================================================================================

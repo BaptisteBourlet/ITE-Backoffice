@@ -15,10 +15,11 @@ app = express();
 
 app.use(express.json());
 
-   app.use('/', express.static(__dirname + '/views'));
-   app.use('/pictures', express.static(__dirname + '/assets'))
-   app.use('/data', express.static(__dirname + '/data'))
-   app.use('/extjs', express.static(__dirname + '/extjs'))
+app.use('/', express.static(__dirname + '/views'));
+app.use('/pictures', express.static(__dirname + '/assets'))
+app.use('/data', express.static(__dirname + '/data'))
+app.use('/extjs', express.static(__dirname + '/extjs'))
+app.use('/controller', express.static(__dirname + '/controller'));
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
