@@ -2888,14 +2888,6 @@
          })
 
 
-
-
-         let userRights = JSON.parse(localStorage.getItem('userRights'));
-
-         if (userRigths) {
-            applyUserRights(userRights);
-         }
-
          // <!-- ------------------------- ADD RELATED PRODUCT ------------------------- -->
 
          var addRelatedProdFromView = function (globalProductID) {
@@ -3080,6 +3072,17 @@
                
             ],
          });
+
+
+         
+
+
+         let userRights = JSON.parse(localStorage.getItem('userRights'));
+
+         if (userRights !== null) {
+            applyUserRights(userRights);
+         }
+
          //=========================================================================================================
          //		           VIEW PORT
          // ========================================================================================================

@@ -2428,10 +2428,9 @@
       })
 
       let userRights = JSON.parse(localStorage.getItem('userRights'));
-
-      if (userRigths) {
+      if (userRights !== null) {
         applyUserRights(userRights);
-      }   
+      }
 
       //=========================================================================================================
       //		           VIEW PORT
