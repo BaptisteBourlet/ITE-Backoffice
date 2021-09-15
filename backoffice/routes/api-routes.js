@@ -73,6 +73,8 @@ router.get('/getRelatedProductSerie', apiCtrl.getRelatedProductSerie);
 
 router.post('/addSeriesRelatedProduct', apiCtrl.addSeriesRelatedProduct);
 
+router.post('/addRelatedProductFromSeriesView', apiCtrl.addRelatedProductFromSeriesView);
+
 router.post('/deleteSerieRelatedProduct', apiCtrl.deleteSerieRelatedProduct);
 
 router.post('/deleteSerieRelatedProductFromDetailsView', apiCtrl.deleteSerieRelatedProductFromDetailsView);

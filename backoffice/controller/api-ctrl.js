@@ -480,6 +480,8 @@ exports.addRelatedProductFromView = async (req, res) => {
 }
 
 
+
+
 exports.getSequenceResults = async (req, res) => {
    const { CategoryID } = req.query;
 
@@ -826,6 +828,9 @@ exports.getRelatedProductSerie = async (req, res) => {
                } else if (SubGroup == null && serieDataGroup == null) {
 
                   obj[Group] = '';
+               } else if (SubGroup == null && Value == null) {
+
+                  obj[Group] = '';
                }
 
                //obj[Key] = Value;
@@ -858,19 +863,30 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
       if (err) {
          errorString += 'Product, '
       }
+      console.log(result)
    })
    con.query(`DELETE FROM SeriesProductLink WHERE ProductId = '${ProductId}' AND SeriesId = '${SeriesId}';`, (err, results, fields) => {
       if (err) {
          errorString += 'Product, '
       }
+      console.log(results)
       res.send(results)
 
    })
 
-
 }
 
-
+exports.addRelatedProductFromSeriesView = async (req, res) => {
+   const { Type, Sequence, serieIDGlobal, LinkedProductID, Catalog, Code } = req.body;
+   con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE SeriesId = "${serieIDGlobal}";`, (err, results) => {
+      con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, SeriesId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", "${LinkedProductID}", ${serieIDGlobal}, "${Catalog}");`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   })
+}
 exports.getSerieSpecs = async (req, res) => {
    const { serieLink } = req.query;
 
