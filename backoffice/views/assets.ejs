@@ -9,11 +9,12 @@
     <link rel="stylesheet" type="text/css"
         href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
     <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/controller/userAuthServices.js"></script>
     <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
-   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
 
-   <!-- ----------------------------- PRODUCTION ------------------------------ -->
-   <!-- <script type="text/javascript" src="/extjs/ext-all-debug.js"></script> -->
+    <!-- ----------------------------- PRODUCTION ------------------------------ -->
+    <!-- <script type="text/javascript" src="/extjs/ext-all-debug.js"></script> -->
     <style>
         #small-view {
             display: none;
@@ -47,6 +48,23 @@
         //		           APPLICATION START
         // ========================================================================================================
         Ext.onReady(() => {
+            // // FOR TESTING 
+            // let userRightObject = {
+            //     english: "V",
+            //     french: "V",
+            //     german: "E",
+            //     pictures: "V",
+            //     related: "E",
+            //     russian: "E",
+            //     spanish: "E",
+            //     usrid: "AG",
+            //     usrname: "Ann De Gucht"
+            // };
+
+            // let userRightString = JSON.stringify(userRightObject);
+            // localStorage.setItem('userRights', userRightString);
+
+            // // =============================================
 
             let edit = false;
             let wichGrid = true;
@@ -58,7 +76,7 @@
             });
 
             var renderImage = function (val) {
-                return '<img src="/pictures/'+val+'" width="100" height="100">'
+                return '<img src="/pictures/' + val + '" width="100" height="100">'
             }
 
             const mainGridColumns = [
@@ -189,7 +207,6 @@
 
 
             const tbarItems = [
-
                 {
                     xtype: "toolbar",
                     dock: "top",
@@ -197,12 +214,11 @@
                     items: [
                         {
                             xtype: "button",
-                            id: "add",
+                            id: "addBtn",
                             iconCls: "fa fa-plus-circle",
                             text: "New",
                             scale: "small",
                             handler: function () {
-
                                 Ext.getCmp("addSave").setHidden(false);
                                 Ext.getCmp("editSave").setHidden(true);
                                 Ext.getCmp("panelAdd").setTitle("Add assets");
@@ -212,7 +228,7 @@
                         "-",
                         {
                             xtype: "button",
-                            id: "edit",
+                            id: "editBtn",
                             text: "Edit",
                             iconCls: "fa fa-edit",
                             scale: "small",
@@ -1294,6 +1310,14 @@
                     },
                 ],
             });
+
+
+            let userRights = JSON.parse(localStorage.getItem('userRights'));
+
+            if (userRigths) {
+                applyUserRights(userRights);
+            }
+
 
 
             Ext.create("Ext.container.Viewport", {

@@ -9,6 +9,7 @@
    <link rel="stylesheet" type="text/css"
       href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+   <script type="text/javascript" src="/controller/userAuthServices.js"></script>
 
    <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
@@ -71,6 +72,25 @@
       //		           APPLICATION START
       // ========================================================================================================
       Ext.onReady(() => {
+         // // FOR TESTING 
+         // let userRightObject = {
+         //    english: "V",
+         //    french: "V",
+         //    german: "E",
+         //    pictures: "V",
+         //    related: "E",
+         //    russian: "E",
+         //    spanish: "E",
+         //    usrid: "AG",
+         //    usrname: "Ann De Gucht"
+         // };
+
+         // let userRightString = JSON.stringify(userRightObject);
+         // localStorage.setItem('userRights', userRightString);
+
+         // // =============================================
+
+
          let edit = false;
          let serieIDGlobal = '';
          Ext.define('MyApp.view.Form', {
@@ -682,7 +702,7 @@
                      }
 
                      if (key !== "Name" && key !== "id" && key !== "Code" && key !== "SPLid" && key !== "SerieMasterId") {
-                       
+
                         return {
                            header: key,
                            sortable: true,
@@ -693,9 +713,9 @@
                               field: {
                                  xtype: "textfield",
                                  allowBlank: false,
-                                 
+
                               },
-                              
+
                            }
                         }
                      } else if (key == "SPLid" || key == "SerieMasterId") {
@@ -1849,7 +1869,7 @@
                      "-",
                      {
                         xtype: "button",
-                        id: "addImage",
+                        id: "addImageBtn",
                         text: "Add Image",
                         iconCls: "fa fa-plus",
                         handler: function () {
@@ -2144,12 +2164,12 @@
             let value = linkedProductStore.getModifiedRecords()[0].data[key]
             let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
             let GroupArray = key[0].split('-')
-            
+
             let Group = GroupArray[0]
             let SubGroup = GroupArray[1]
             let SerieMasterId = linkedProductStore.getModifiedRecords()[0].data['SerieMasterId'];
 
-            
+
             Ext.Ajax.request({
                url: "/api/updateSerieSpecs",
                method: "POST",
@@ -2666,6 +2686,16 @@
                },
             ]
          })
+
+
+
+
+         let userRights = JSON.parse(localStorage.getItem('userRights'));
+
+         if (userRigths) {
+            applyUserRights(userRights);
+         }
+
          //=========================================================================================================
          //		           VIEW PORT
          // ========================================================================================================

@@ -9,10 +9,10 @@
   <link rel="stylesheet" type="text/css"
     href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
-  
+  <script type="text/javascript" src="/controller/userAuthServices.js"></script>
+
   <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
-
   <!-- ----------------------------- PRODUCTION ------------------------------ -->
   <!-- <script type="text/javascript" src="/extjs/ext-all-debug.js"></script> -->
   <style>
@@ -69,11 +69,31 @@
       }
     }
   </style>
+
+
+
   <script type="text/javascript">
     //=========================================================================================================
     //		           APPLICATION START
     // ========================================================================================================
     Ext.onReady(() => {
+      // // FOR TESTING 
+      // let userRightObject = {
+      //   english: "V",
+      //   french: "V",
+      //   german: "E",
+      //   pictures: "V",
+      //   related: "E",
+      //   russian: "E",
+      //   spanish: "E",
+      //   usrid: "AG",
+      //   usrname: "Ann De Gucht"
+      // };
+
+      // let userRightString = JSON.stringify(userRightObject);
+      // localStorage.setItem('userRights', userRightString);
+
+      // // =============================================
 
       let edit = false;
       let productIDGlobal = "";
@@ -853,7 +873,7 @@
       //     let arrayNotTranslated = []
 
       //     if (element.data.Language == 'en') {
-           
+
       //       arrayTranslated.push('en')
 
       //     } else if (element.data.Language == 'fr') {
@@ -1338,7 +1358,7 @@
               "-",
               {
                 xtype: "button",
-                id: "addImage",
+                id: "addImageBtn",
                 text: "Add Image",
                 iconCls: "fa fa-plus",
                 handler: function () {
@@ -1409,6 +1429,7 @@
                         xtype: 'my-form',
                         width: '40%',
                         frame: false,
+                        id: 'formEN',
                         border: false,
                         items: [
                           {
@@ -1462,7 +1483,7 @@
                           },
                         ]
                       },
-                      
+
                     ]
                   },
                 ],
@@ -1496,6 +1517,7 @@
                         xtype: 'my-form',
                         width: '40%',
                         frame: false,
+                        id: 'formFR',
                         border: false,
                         items: [
 
@@ -1550,7 +1572,7 @@
                           },
                         ]
                       },
-                      
+
                     ]
                   },
                 ],
@@ -1584,6 +1606,7 @@
                         width: '40%',
                         frame: false,
                         border: false,
+                        id: 'formDE',
                         items: [
 
                           {
@@ -1637,7 +1660,7 @@
                           },
                         ]
                       },
-                      
+
                     ]
                   },
                 ],
@@ -1671,6 +1694,7 @@
                         xtype: 'my-form',
                         width: '40%',
                         frame: false,
+                        id: 'formSP',
                         border: false,
                         items: [
 
@@ -1725,7 +1749,7 @@
                           },
                         ]
                       },
-                      
+
                     ]
                   },
                 ],
@@ -1758,6 +1782,7 @@
                         xtype: 'my-form',
                         width: '40%',
                         frame: false,
+                        id: 'formRU',
                         border: false,
                         items: [
 
@@ -1812,7 +1837,7 @@
                           },
                         ]
                       },
-                      
+
                     ]
                   },
                 ],
@@ -2155,7 +2180,7 @@
         });
       };
 
-      
+
 
 
       var addRelatedProdFromView = function (globalProductID) {
@@ -2378,7 +2403,7 @@
               var form = Ext.getCmp('imageForm')
               if (form.isValid()) {
                 form.submit({
-                  url: '/api/uploadProductImage', 
+                  url: '/api/uploadProductImage',
                   headers: { 'Content-Type': 'multipart/form-data' },
                   method: "POST",
                   waitMsg: 'Uploading your photo...',
@@ -2402,6 +2427,12 @@
         ]
       })
 
+      let userRights = JSON.parse(localStorage.getItem('userRights'));
+
+      if (userRigths) {
+        applyUserRights(userRights);
+      }   
+
       //=========================================================================================================
       //		           VIEW PORT
       // ========================================================================================================
@@ -2421,6 +2452,8 @@
   <div id="small-view">
     This Appplication is not meant for small devices.
   </div>
+
+
 </body>
 
 </html>
