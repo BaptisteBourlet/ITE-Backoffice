@@ -118,6 +118,70 @@
           return products.map((product) => {
             if (product.Type === "R") {
               return {
+                xtype: "toolbar",
+                dock: "top",
+                style: "border: none; margin: 0px; padding: 0px;",
+                items: [
+                  {
+                    xtype: "button",
+                    text: "",
+                    iconCls: "fa fa-trash-alt",
+                    scale: "small",
+                    style: "border: none; margin: 2px;",
+                    handler: function () {
+                      Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                        if (btn == 'yes') {
+                          Ext.getBody().mask('Deleting', 'x-msg-loading');
+                          Ext.Ajax.request({
+                            // !! Url works for product
+                            url: "/api/deleteSerieRelatedProductFromDetailsView",
+                            method: "POST",
+                            cors: true,
+                            useDefaultXhrHeader: false,
+                            params: {
+                              Id: product.Id,
+                            },
+                            success: function (response) {
+                              // check for errors and display error message
+                              var check = response.responseText;
+                              if (check) {
+                                var data = eval("(" + response.responseText + ")");
+
+                                if (data.serverStatus == 2) {
+                                  Ext.getCmp("relatedProducts").removeAll();
+                                  Ext.getCmp("relatedAccessories").removeAll();
+                                  Ext.getCmp("relatedParts").removeAll();
+                                  getProductDetails(productIDGlobal);
+                                  Ext.getBody().unmask();
+                                  Ext.Msg.alert(
+                                    "Success",
+                                    "You have successfully deleted the related product"
+                                  );
+                                } else {
+                                  // display error message
+                                  Ext.getBody().unmask();
+                                  Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to delete the related product. Contact your IT team."
+                                  );
+                                }
+                              }
+                            },
+                            failure: function (response) {
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                "ERROR",
+                                "Failed to delete related product. Contact your IT team."
+                              );
+                            },
+
+                          });
+                        }
+                      })
+                    
+
+                    },
+                  },{
                 xtype: "button",
                 text: `${product.Description} [${product.Code}]`,
                 cls: "a",
@@ -133,7 +197,8 @@
                   );
                   Ext.getCmp("viewport").setActiveItem("productDetails");
                 },
-              };
+              }
+            ]}
             }
           });
         } else {
@@ -160,6 +225,70 @@
           return products.map((product) => {
             if (product.Type === "A") {
               return {
+                xtype: "toolbar",
+                dock: "top",
+                style: "border: none; margin: 0px; padding: 0px;",
+                items: [
+                  {
+                    xtype: "button",
+                    text: "",
+                    iconCls: "fa fa-trash-alt",
+                    scale: "small",
+                    style: "border: none; margin: 2px;",
+                    handler: function () {
+                      Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                        if (btn == 'yes') {
+                          Ext.getBody().mask('Deleting', 'x-msg-loading');
+                          Ext.Ajax.request({
+                            // !! Url works for product
+                            url: "/api/deleteSerieRelatedProductFromDetailsView",
+                            method: "POST",
+                            cors: true,
+                            useDefaultXhrHeader: false,
+                            params: {
+                              Id: product.Id,
+                            },
+                            success: function (response) {
+                              // check for errors and display error message
+                              var check = response.responseText;
+                              if (check) {
+                                var data = eval("(" + response.responseText + ")");
+
+                                if (data.serverStatus == 2) {
+                                  Ext.getCmp("relatedProducts").removeAll();
+                                  Ext.getCmp("relatedAccessories").removeAll();
+                                  Ext.getCmp("relatedParts").removeAll();
+                                  getProductDetails(productIDGlobal);
+                                  Ext.getBody().unmask();
+                                  Ext.Msg.alert(
+                                    "Success",
+                                    "You have successfully deleted the related product"
+                                  );
+                                } else {
+                                  // display error message
+                                  Ext.getBody().unmask();
+                                  Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to delete the related product. Contact your IT team."
+                                  );
+                                }
+                              }
+                            },
+                            failure: function (response) {
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                "ERROR",
+                                "Failed to delete related product. Contact your IT team."
+                              );
+                            },
+
+                          });
+                        }
+                      })
+                    
+
+                    },
+                  }, {
                 xtype: "button",
                 text: `${product.Description} [${product.Code}]`,
                 cls: "a",
@@ -175,7 +304,9 @@
                   );
                   Ext.getCmp("viewport").setActiveItem("productDetails");
                 },
-              };
+              }
+            ]
+              }
             }
           });
         } else {
@@ -202,22 +333,92 @@
           return products.map((product) => {
             if (product.Type === "P") {
               return {
-                xtype: "button",
-                text: `${product.Description} [${product.Code}]`,
-                cls: "a",
-                style: "border: none; margin: 2px 0px;",
-                handler: () => {
-                  Ext.getCmp("relatedProducts").removeAll();
-                  Ext.getCmp("relatedAccessories").removeAll();
-                  Ext.getCmp("relatedParts").removeAll();
-                  getProductDetails(product.LinkedProductID);
-                  productIDGlobal = product.LinkedProductID;
-                  Ext.getCmp("productDetails").setTitle(
-                    `PRODUCT DETAILS - ${product.Code}`
-                  );
-                  Ext.getCmp("viewport").setActiveItem("productDetails");
-                },
-              };
+                xtype: "toolbar",
+                dock: "top",
+                style: "border: none; margin: 0px; padding: 0px;",
+                items: [
+                  {
+                    xtype: "button",
+                    text: "",
+                    iconCls: "fa fa-trash-alt",
+                    scale: "small",
+                    style: "border: none; margin: 2px;",
+                    handler: function () {
+                      Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                        if (btn == 'yes') {
+                          Ext.getBody().mask('Deleting', 'x-msg-loading');
+                          Ext.Ajax.request({
+                            // !! Url works for product
+                            url: "/api/deleteSerieRelatedProductFromDetailsView",
+                            method: "POST",
+                            cors: true,
+                            useDefaultXhrHeader: false,
+                            params: {
+                              Id: product.Id,
+                            },
+                            success: function (response) {
+                              // check for errors and display error message
+                              var check = response.responseText;
+                              if (check) {
+                                var data = eval("(" + response.responseText + ")");
+
+                                if (data.serverStatus == 2) {
+                                  Ext.getCmp("relatedProducts").removeAll();
+                                  Ext.getCmp("relatedAccessories").removeAll();
+                                  Ext.getCmp("relatedParts").removeAll();
+                                  getProductDetails(productIDGlobal);
+                                  Ext.getBody().unmask();
+                                  Ext.Msg.alert(
+                                    "Success",
+                                    "You have successfully deleted the related product"
+                                  );
+                                } else {
+                                  // display error message
+                                  Ext.getBody().unmask();
+                                  Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to delete the related product. Contact your IT team."
+                                  );
+                                }
+                              }
+                            },
+                            failure: function (response) {
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                "ERROR",
+                                "Failed to delete related product. Contact your IT team."
+                              );
+                            },
+
+                          });
+                        }
+                      })
+
+
+                    },
+                  }, {
+                    xtype: "button",
+                    text: `${product.Description} [${product.Code}]`,
+                    cls: "a",
+                    style: "border: none; margin: 2px 0px;",
+                    handler: () => {
+                      Ext.getCmp("relatedProducts").removeAll();
+                      Ext.getCmp("relatedAccessories").removeAll();
+                      Ext.getCmp("relatedParts").removeAll();
+                      getProductDetails(product.LinkedProductID);
+                      productIDGlobal = product.LinkedProductID;
+                      Ext.getCmp("productDetails").setTitle(
+                        `PRODUCT DETAILS - ${product.Code}`
+                      );
+                      Ext.getCmp("viewport").setActiveItem("productDetails");
+                    },
+                  }
+                ],
+
+              }
+
+
+
             }
           });
         } else {
@@ -225,7 +426,7 @@
             {
               xtype: "displayfield",
               fieldLabel: "<b>Result</b>",
-              value: "No Related Parts",
+              value: "No Spare Parts",
               labelWidth: 44,
             },
           ];
@@ -1224,13 +1425,13 @@
               },
               {
                 xtype: "panel",
-                title: "Related Accessories",
+                title: "Accessories",
                 id: "relatedAccessories",
                 items: [],
               },
               {
                 xtype: "panel",
-                title: "Related Parts",
+                title: "Spare Parts",
                 id: "relatedParts",
                 items: [],
               },
@@ -1907,9 +2108,7 @@
         // },
         TabTranslations,
       ];
-      // spareparts, accessory, related product, categry, id+display( search), english field needed, html edit box
-      // Hide cancel button
-      // remove slug, offline : checkbox, remove cancel (add back button) + first form data-> sessionstorage
+
       var screenAdd = new Ext.FormPanel({
         frame: false,
         header: false,
@@ -2013,7 +2212,6 @@
           fieldLabel: "Type",
           displayField: "TypeName",
           valueField: "TypeCode",
-          anchor: "100%",
           allowBlank: false,
           selectOnFocus: false,
           editable: false,
@@ -2027,7 +2225,6 @@
           fieldLabel: "Product",
           displayField: "CODE",
           valueField: "Id",
-          anchor: "100%",
           allowBlank: false,
           selectOnFocus: false,
           anyMatch: true,
@@ -2045,7 +2242,6 @@
           name: "RPCatalog",
           width: 500,
           fieldLabel: "Product description",
-          anchor: "100%",
           editable: false,
           hideTrigger: true,
           allowBlank: true,
@@ -2114,7 +2310,8 @@
                 Ext.getCmp("relatedProducts").removeAll();
                 Ext.getCmp("relatedAccessories").removeAll();
                 Ext.getCmp("relatedParts").removeAll();
-                Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+                getProductDetails(productIDGlobal)
+                Ext.getCmp("viewport").setActiveItem("productDetails");
               }
             },
           },
@@ -2126,10 +2323,12 @@
             handler: function () {
               resetForm2();
               Ext.getCmp("addForm").reset();
-              Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+              Ext.getCmp("viewport").setActiveItem("productDetails");
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
               Ext.getCmp("relatedParts").removeAll();
+              getProductDetails(productIDGlobal)
+              Ext.getCmp("viewport").setActiveItem("productDetails");
             },
           },
         ],
@@ -2380,7 +2579,7 @@
                 name: 'imageLabel',
                 style: "margin: 10px 0px;",
                 fieldLabel: 'Label',
-                allowBlank: false
+                allowBlank: true
               },
             ],
           },

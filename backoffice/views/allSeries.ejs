@@ -2376,6 +2376,7 @@
                cors: true,
                useDefaultXhrHeader: false,
                params: {
+                  Sid: serieIDGlobal,
                   key: key[0],
                   value: value,
                   SPLid: SPLid,
@@ -2798,7 +2799,9 @@
                   ],
                },
             ]
+            
          })
+
 
 
          const imagePanel = Ext.create('Ext.panel.Panel', {

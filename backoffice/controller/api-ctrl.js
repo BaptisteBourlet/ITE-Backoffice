@@ -132,7 +132,7 @@ exports.getProductDetails = async (req, res) => {
       if (err) throw err;
 
       finalResults.push(productResults);
-      con.query(`SELECT RP.LinkedProductID, RP.Type, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = ${productId};`, (error, relatedResults, fields) => {
+      con.query(`SELECT RP.Id, RP.LinkedProductID, RP.Type, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = ${productId};`, (error, relatedResults, fields) => {
          if (error) throw error;
 
          finalResults.push(relatedResults);
@@ -383,6 +383,8 @@ exports.deleteProduct = async (req, res) => {
    })
 
 }
+
+
 
 
 exports.getProductDet = async (req, res) => {
@@ -783,7 +785,6 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
 exports.getRelatedProductSerie = async (req, res) => {
    const { serieId } = req.query;
 
-
    const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Group AS serieDataGroup, SeriesData.Name, SeriesMaster.Group, SeriesMaster.Id AS SerieMasterId, SeriesMaster.SubGroup, SeriesData.Value FROM Product"
       + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
       + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
@@ -877,7 +878,7 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
 }
 
 exports.addRelatedProductFromSeriesView = async (req, res) => {
-   const { Type, Sequence, serieIDGlobal, LinkedProductID, Catalog, Code } = req.body;
+   const { Type, serieIDGlobal, LinkedProductID, Catalog, Code } = req.body;
    con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE SeriesId = "${serieIDGlobal}";`, (err, results) => {
       con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, SeriesId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", "${LinkedProductID}", ${serieIDGlobal}, "${Catalog}");`, (err, results, fields) => {
          if (err) {
@@ -901,12 +902,11 @@ exports.getSerieSpecs = async (req, res) => {
 
 
 exports.updateSerieSpecs = async (req, res) => {
-   const { SPLid, key, value, SerieMasterId, Group, SubGroup } = req.body;
+   const { SPLid, key, value, SerieMasterId, Group, SubGroup, Sid } = req.body;
 
-
+   const selectSerieMasterId = `SELECT Id FROM SeriesMaster WHERE Sid = '${Sid}' AND SeriesMaster.Group = '${Group}' AND SeriesMaster.SubGroup = '${SubGroup}';`;
    const queryCheckExist = `SELECT COUNT(Id) FROM SeriesData WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
    const queryUpdate = `UPDATE SeriesData SET Value = '${value}' WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
-   const queryInsert = `INSERT INTO SeriesData (SerieMasterId, SeriesData.Key, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) VALUES ("${SerieMasterId}", "${key}", '${value}', "${SPLid}", "${Group}", "${SubGroup}" );`
 
    con.query(queryCheckExist, (err, results) => {
       if (err) throw err;
@@ -917,12 +917,17 @@ exports.updateSerieSpecs = async (req, res) => {
             res.send(result)
          })
       } else if (results[0]['COUNT(Id)'] == 0) {
-         con.query(queryInsert, (err, result) => {
-            if (err) throw err;
-            res.send(result)
-         })
-      }
 
+         con.query(selectSerieMasterId, (err, SidResult) => {
+            if (err) throw err;
+            con.query(`INSERT INTO SeriesData (SerieMasterId, SeriesData.Key, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) VALUES ("${SidResult[0].Id}", "${key}", '${value}', "${SPLid}", "${Group}", "${SubGroup}" );`, (err, result) => {
+               if (err) throw err;
+               
+               res.send(result)
+            })
+         })
+         
+      }
    })
 }
 
