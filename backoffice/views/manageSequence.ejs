@@ -78,7 +78,7 @@
 
             updatedItems.forEach(item => {
                Ext.Ajax.request({
-                  url: "/api/changeSequence",
+                  url: "/apiManageSequence/changeSequence",
                   method: "POST",
                   cors: true,
                   useDefaultXhrHeader: false,
@@ -120,7 +120,7 @@
             proxy: {
                type: "ajax",
                method: "POST",
-               url: "/api/getCategories",
+               url: "/apiManageSequence/getCategories",
                noCache: true,
                reader: {
                   type: "json",
@@ -250,6 +250,18 @@
                         },
                      },
                   },
+                  {
+                     xtype: "button",
+                     id: "AddCategory",
+                     iconCls: "fa fa-plus",
+                     text: "Add Category",
+                     style: "padding: 7px; border: none; background-color: #000",
+                     listeners: {
+                        click: () => {
+                           
+                        },
+                     },
+                  },
                ],
             },
          ];
@@ -266,7 +278,7 @@
             proxy: {
                type: "ajax",
                method: "POST",
-               url: "/api/getSequenceResults",
+               url: "/apiManageSequence/getSequenceResults",
                noCache: true,
                reader: {
                   type: "json",

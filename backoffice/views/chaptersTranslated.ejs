@@ -198,7 +198,7 @@
                 proxy: {
                     type: "ajax",
                     method: "POST",
-                    url: "/api/getTransltedChapters",
+                    url: "/apiTranslatedChapters/getTransltedChapters",
                     noCache: true,
                     reader: {
                         type: "json",
@@ -248,7 +248,7 @@
             var addTranslatedChapter = function () {
                 Ext.getBody().mask("Saving", "x-msg-loading");
                 Ext.Ajax.request({
-                    url: "/api/addTranslatedChapter",
+                    url: "/apiTranslatedChapters/addTranslatedChapter",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -294,7 +294,7 @@
             var editChapterTranslated = function () {
                 Ext.getBody().mask("Saving", "x-msg-loading");
                 Ext.Ajax.request({
-                    url: "/api/updateTranslatedChapters",
+                    url: "/apiTranslatedChapters/updateTranslatedChapters",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -347,7 +347,7 @@
                     if (btn == 'yes') {
                         Ext.getBody().mask('Deleting', 'x-msg-loading');
                         Ext.Ajax.request({
-                            url: "/api/deleteTranslatedChapter",
+                            url: "/apiTranslatedChapters/deleteTranslatedChapter",
                             method: "POST",
                             cors: true,
                             useDefaultXhrHeader: false,

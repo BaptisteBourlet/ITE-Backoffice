@@ -278,7 +278,7 @@
                 proxy: {
                     type: "ajax",
                     method: "POST",
-                    url: "/api/getLocations",
+                    url: "/apiLocations/getLocations",
                     noCache: true,
                     reader: {
                         type: "json",
@@ -367,7 +367,7 @@
             var addLocations = function () {
                 Ext.getBody().mask("Saving", "x-msg-loading");
                 Ext.Ajax.request({
-                    url: "/api/addLocations",
+                    url: "/apiLocations/addLocations",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -423,7 +423,7 @@
             var editLocations = function () {
                 Ext.getBody().mask("Saving", "x-msg-loading");
                 Ext.Ajax.request({
-                    url: "/api/updateLocations",
+                    url: "/apiLocations/updateLocations",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -486,7 +486,7 @@
                     if (btn == 'yes') {
                         Ext.getBody().mask('Deleting', 'x-msg-loading');
                         Ext.Ajax.request({
-                            url: "/api/deleteLocations",
+                            url: "/apiLocations/deleteLocations",
                             method: "POST",
                             cors: true,
                             useDefaultXhrHeader: false,

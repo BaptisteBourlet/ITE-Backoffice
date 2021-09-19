@@ -134,7 +134,7 @@
                           Ext.getBody().mask('Deleting', 'x-msg-loading');
                           Ext.Ajax.request({
                             // !! Url works for product
-                            url: "/api/deleteSerieRelatedProductFromDetailsView",
+                            url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
                             method: "POST",
                             cors: true,
                             useDefaultXhrHeader: false,
@@ -241,7 +241,7 @@
                           Ext.getBody().mask('Deleting', 'x-msg-loading');
                           Ext.Ajax.request({
                             // !! Url works for product
-                            url: "/api/deleteSerieRelatedProductFromDetailsView",
+                            url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
                             method: "POST",
                             cors: true,
                             useDefaultXhrHeader: false,
@@ -349,7 +349,7 @@
                           Ext.getBody().mask('Deleting', 'x-msg-loading');
                           Ext.Ajax.request({
                             // !! Url works for product
-                            url: "/api/deleteSerieRelatedProductFromDetailsView",
+                            url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
                             method: "POST",
                             cors: true,
                             useDefaultXhrHeader: false,
@@ -435,7 +435,7 @@
 
       const checkIfSerie = (productId) => {
         Ext.Ajax.request({
-          url: "/api/checkIfSerie",
+          url: "/apiProducts/checkIfSerie",
           method: "POST",
           cors: true,
           useDefaultXhrHeader: false,
@@ -461,7 +461,7 @@
 
       const getProductDetails = (productId) => {
         Ext.Ajax.request({
-          url: "/api/getProductDetails",
+          url: "/apiProducts/getProductDetails",
           method: "GET",
           cors: true,
           useDefaultXhrHeader: false,
@@ -498,7 +498,7 @@
 
       const editProduct = () => {
         Ext.Ajax.request({
-          url: "/api/editProduct",
+          url: "/apiProducts/editProduct",
           method: "POST",
           cors: true,
           useDefaultXhrHeader: false,
@@ -565,7 +565,7 @@
 
       const getRelatedCatalog = (ProductId) => {
         Ext.Ajax.request({
-          url: "/api/getRelatedCatalog",
+          url: "/apiProducts/getRelatedCatalog",
           method: "POST",
           cors: true,
           useDefaultXhrHeader: false,
@@ -641,7 +641,7 @@
         Ext.getBody().mask("Saving", "x-msg-loading");
 
         Ext.Ajax.request({
-          url: "/api/addProduct",
+          url: "/apiProducts/addProduct",
           method: "POST",
           cors: true,
           useDefaultXhrHeader: false,
@@ -725,7 +725,7 @@
 
       const getRelatedProductSerie = (serieId) => {
         Ext.Ajax.request({
-          url: "/api/getRelatedProductSerie",
+          url: "/apiProducts/getRelatedProductSerie",
           method: "GET",
           cors: true,
           useDefaultXhrHeader: false,
@@ -787,7 +787,7 @@
 
       const getOtherLanguageDetail = (language, productId) => {
         Ext.Ajax.request({
-          url: "/api/getOtherLanguageDetail",
+          url: "/apiProducts/getOtherLanguageDetail",
           method: "POST",
           cors: true,
           useDefaultXhrHeader: false,
@@ -824,7 +824,7 @@
         let searchQuery = Ext.getCmp(searchField).getValue();
         Ext.getBody().mask("Saving", "x-msg-loading");
         Ext.Ajax.request({
-          url: "/api/searchProduct",
+          url: "/apiProducts/searchProduct",
           method: "POST",
           cors: true,
           useDefaultXhrHeader: false,
@@ -868,7 +868,7 @@
         proxy: {
           type: "ajax",
           method: "POST",
-          url: "/api/getProductDet",
+          url: "/apiProducts/getProductDet",
           noCache: true,
           reader: {
             type: "json",
@@ -1010,7 +1010,7 @@
         proxy: {
           type: "ajax",
           method: "POST",
-          url: "/api/getAllProducts",
+          url: "/apiProducts/getAllProducts",
           noCache: true,
           reader: {
             type: "json",
@@ -1051,7 +1051,7 @@
       //   proxy: {
       //     type: "ajax",
       //     method: "POST",
-      //     url: "/api/getAllProductsTranslations",
+      //     url: "/apiProducts/getAllProductsTranslations",
       //     noCache: true,
       //     reader: {
       //       type: "json",
@@ -1106,7 +1106,7 @@
         proxy: {
           type: "ajax",
           method: "GET",
-          url: "/api/getRelatedProductSerie",
+          url: "/apiProducts/getRelatedProductSerie",
           noCache: true,
           reader: {
             type: "json",
@@ -1584,7 +1584,7 @@
         proxy: {
           type: "ajax",
           method: "POST",
-          url: "/api/getCategories",
+          url: "/apiProducts/getCategories",
           noCache: true,
           reader: {
             type: "json",
@@ -2337,7 +2337,7 @@
       var addRelatedProd = function (globalProductID) {
         Ext.getBody().mask("Saving", "x-msg-loading");
         Ext.Ajax.request({
-          url: "/api/addRelatedProduct",
+          url: "/apiProducts/addRelatedProduct",
           method: "POST",
           cors: true,
           useDefaultXhrHeader: false,
@@ -2385,7 +2385,7 @@
       var addRelatedProdFromView = function (globalProductID) {
         Ext.getBody().mask("Saving", "x-msg-loading");
         Ext.Ajax.request({
-          url: "/api/addRelatedProductFromView",
+          url: "/apiProducts/addRelatedProductFromView",
           method: "POST",
           cors: true,
           useDefaultXhrHeader: false,
@@ -2435,7 +2435,7 @@
           if (btn == 'yes') {
             Ext.getBody().mask('Deleting', 'x-msg-loading');
             Ext.Ajax.request({
-              url: "/api/deleteProduct",
+              url: "/apiProducts/deleteProduct",
               method: "POST",
               cors: true,
               useDefaultXhrHeader: false,
@@ -2513,7 +2513,7 @@
           let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
 
           Ext.Ajax.request({
-            url: "/api/updateSerieSpecs",
+            url: "/apiProducts/updateSerieSpecs",
             method: "POST",
             cors: true,
             useDefaultXhrHeader: false,
@@ -2602,7 +2602,7 @@
               var form = Ext.getCmp('imageForm')
               if (form.isValid()) {
                 form.submit({
-                  url: '/api/uploadProductImage',
+                  url: '/apiProducts/uploadProductImage',
                   headers: { 'Content-Type': 'multipart/form-data' },
                   method: "POST",
                   waitMsg: 'Uploading your photo...',

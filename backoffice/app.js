@@ -1,6 +1,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const apiRoutes = require('./routes/api-routes')
+
+const assetsRoute = require('./routes/assets-route');
+
+const labelsRoute = require('./routes/labels-route');
+
+const locationsRoute = require('./routes/locations-route');
+
+const manageSequenceRoute = require('./routes/manageSequence-route');
+
+const productRoute = require('./routes/products-route');
+
+const seriesRoute = require('./routes/series-route');
+
+const translatedChaptersRoute = require('./routes/translatedChapters-route');
+
 PORT = 12080;
 app = express();
 
@@ -25,7 +39,19 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
 
 
-app.use('/api', apiRoutes);
+app.use('/apiAssets', assetsRoute);
+
+app.use('/apiLabels', labelsRoute);
+
+app.use('/apiLocations', locationsRoute);
+
+app.use('/apiManageSequence', manageSequenceRoute);
+
+app.use('/apiProducts', productRoute);
+
+app.use('/apiSeries', seriesRoute);
+
+app.use('/apiTranslatedChapters', translatedChaptersRoute);
 
 app.get('/', (req, res) => {
    res.render('mainTab.ejs')

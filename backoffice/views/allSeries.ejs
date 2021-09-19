@@ -127,7 +127,7 @@
                                     if (btn == 'yes') {
                                        Ext.getBody().mask('Deleting', 'x-msg-loading');
                                        Ext.Ajax.request({
-                                          url: "/api/deleteSerieRelatedProductFromDetailsView",
+                                          url: "/apiSeries/deleteSerieRelatedProductFromDetailsView",
                                           method: "POST",
                                           cors: true,
                                           useDefaultXhrHeader: false,
@@ -244,7 +244,7 @@
                                     if (btn == 'yes') {
                                        Ext.getBody().mask('Deleting', 'x-msg-loading');
                                        Ext.Ajax.request({
-                                          url: "/api/deleteSerieRelatedProductFromDetailsView",
+                                          url: "/apiSeries/deleteSerieRelatedProductFromDetailsView",
                                           method: "POST",
                                           cors: true,
                                           useDefaultXhrHeader: false,
@@ -354,7 +354,7 @@
                                     if (btn == 'yes') {
                                        Ext.getBody().mask('Deleting', 'x-msg-loading');
                                        Ext.Ajax.request({
-                                          url: "/api/deleteSerieRelatedProductFromDetailsView",
+                                          url: "/apiSeries/deleteSerieRelatedProductFromDetailsView",
                                           method: "POST",
                                           cors: true,
                                           useDefaultXhrHeader: false,
@@ -435,7 +435,7 @@
 
          const getSerieDetails = (serieId) => {
             Ext.Ajax.request({
-               url: "/api/getSerieDetails",
+               url: "/apiSeries/getSerieDetails",
                method: "GET",
                cors: true,
                useDefaultXhrHeader: false,
@@ -464,7 +464,7 @@
 
          const getProductDetails = (productId) => {
             Ext.Ajax.request({
-               url: "/api/getProductDetails",
+               url: "/apiSeries/getProductDetails",
                method: "GET",
                cors: true,
                useDefaultXhrHeader: false,
@@ -527,7 +527,7 @@
          const getOtherLanguageDetail = (language, serieId) => {
 
             Ext.Ajax.request({
-               url: "/api/getOtherLanguageDetailSerie",
+               url: "/apiSeries/getOtherLanguageDetailSerie",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -556,7 +556,7 @@
 
          //    records.forEach(record => {
          //       Ext.Ajax.request({
-         //          url: "/api/updateSerieSpecs",
+         //          url: "/apiSeries/updateSerieSpecs",
          //          method: "POST",
          //          cors: true,
          //          useDefaultXhrHeader: false,
@@ -589,7 +589,7 @@
 
             if (form.isValid()) {
                Ext.Ajax.request({
-                  url: "/api/addSpecValue",
+                  url: "/apiSeries/addSpecValue",
                   method: "POST",
                   cors: true,
                   useDefaultXhrHeader: false,
@@ -631,7 +631,7 @@
             proxy: {
                type: "ajax",
                method: "POST",
-               url: "/api/getAllSeries",
+               url: "/apiSeries/getAllSeries",
                noCache: true,
                reader: {
                   type: "json",
@@ -648,7 +648,7 @@
 
          const addSerieMasterSpecs = (serieId) => {
             Ext.Ajax.request({
-               url: "/api/addSerieMasterSpecs",
+               url: "/apiSeries/addSerieMasterSpecs",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -675,7 +675,7 @@
          const searchSerie = (searchField) => {
             let searchQuery = Ext.getCmp(searchField).getValue();
             Ext.Ajax.request({
-               url: "/api/searchSerie",
+               url: "/apiSeries/searchSerie",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -715,7 +715,7 @@
          var addSerie = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
-               url: "/api/addSeries",
+               url: "/apiSeries/addSeries",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -784,7 +784,7 @@
          var editSerie = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
-               url: "/api/editSeries",
+               url: "/apiSeries/editSeries",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -863,7 +863,7 @@
             proxy: {
                type: "ajax",
                method: "GET",
-               url: "/api/getRelatedProductSerie",
+               url: "/apiSeries/getRelatedProductSerie",
                noCache: true,
                reader: {
                   type: "json",
@@ -883,7 +883,7 @@
 
          const getRelatedProductSerie = (serieId) => {
             Ext.Ajax.request({
-               url: "/api/getRelatedProductSerie",
+               url: "/apiSeries/getRelatedProductSerie",
                method: "GET",
                cors: true,
                useDefaultXhrHeader: false,
@@ -961,7 +961,7 @@
             proxy: {
                type: "ajax",
                method: "GET",
-               url: "/api/getSpecGroup",
+               url: "/apiSeries/getSpecGroup",
                noCache: true,
                reader: {
                   type: "json",
@@ -989,7 +989,7 @@
          //    proxy: {
          //       type: "ajax",
          //       method: "GET",
-         //       url: "/api/getSerieSpecs",
+         //       url: "/apiSeries/getSerieSpecs",
          //       noCache: true,
          //       reader: {
          //          type: "json",
@@ -1049,7 +1049,7 @@
                if (btn == 'yes') {
                   Ext.getBody().mask('Deleting', 'x-msg-loading');
                   Ext.Ajax.request({
-                     url: "/api/deleteSeries",
+                     url: "/apiSeries/deleteSeries",
                      method: "POST",
                      cors: true,
                      useDefaultXhrHeader: false,
@@ -1136,7 +1136,7 @@
                               currentsubfileRecord = selectedrecords[0];
                               Ext.getBody().mask("Saving", "x-msg-loading");
                               Ext.Ajax.request({
-                                 url: "/api/deleteSerieRelatedProduct",
+                                 url: "/apiSeries/deleteSerieRelatedProduct",
                                  method: "POST",
                                  cors: true,
                                  useDefaultXhrHeader: false,
@@ -2132,7 +2132,7 @@
          var addSeriesRelatedProd = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
-               url: "/api/addSeriesRelatedProduct",
+               url: "/apiSeries/addSeriesRelatedProduct",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -2185,7 +2185,7 @@
             proxy: {
                type: "ajax",
                method: "POST",
-               url: "/api/getProductDet",
+               url: "/apiSeries/getProductDet",
                noCache: true,
                reader: {
                   type: "json",
@@ -2198,7 +2198,7 @@
 
          const getRelatedCatalog = (ProductId) => {
             Ext.Ajax.request({
-               url: "/api/getRelatedCatalog",
+               url: "/apiSeries/getRelatedCatalog",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -2371,7 +2371,7 @@
 
 
             Ext.Ajax.request({
-               url: "/api/updateSerieSpecs",
+               url: "/apiSeries/updateSerieSpecs",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -2517,7 +2517,7 @@
             proxy: {
                type: "ajax",
                method: "GET",
-               url: "/api/getSerieMaster",
+               url: "/apiSeries/getSerieMaster",
                noCache: true,
                reader: {
                   type: "json",
@@ -2571,7 +2571,7 @@
                      currentsubfileRecord = selectedrecords[0];
                      Ext.Ajax.request({
 
-                        url: '/api/updateSequenceSMaster',
+                        url: '/apiSeries/updateSequenceSMaster',
                         params: {
                            Id: currentsubfileRecord.data.Id,
                            Sequence: currentsubfileRecord.data.Sequence,
@@ -2866,7 +2866,7 @@
                      var form = Ext.getCmp('imageForm')
                      if (form.isValid()) {
                         form.submit({
-                           url: '/api/uploadSerieImage',
+                           url: '/apiSeries/uploadSerieImage',
                            headers: { 'Content-Type': 'multipart/form-data' },
                            method: "POST",
                            waitMsg: 'Uploading your photo...',
@@ -2896,7 +2896,7 @@
          var addRelatedProdFromView = function (globalProductID) {
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
-               url: "/api/addRelatedProductFromSeriesView",
+               url: "/apiSeries/addRelatedProductFromSeriesView",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,

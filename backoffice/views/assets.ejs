@@ -150,7 +150,7 @@
 
                             Ext.Ajax.request({
 
-                                url: '/api/updateSequence',
+                                url: '/apiAssets/updateSequence',
                                 params: {
                                     Id: currentsubfileRecord.data.Id,
                                     Sequence: currentsubfileRecord.data.Sequence,
@@ -451,7 +451,7 @@
                 proxy: {
                     type: "ajax",
                     method: "GET",
-                    url: "/api/getSeriesAssets",
+                    url: "/apiAssets/getSeriesAssets",
                     noCache: true,
                     reader: {
                         type: "json",
@@ -465,7 +465,7 @@
             const searchAssetsSeries = (searchField) => {
                 let searchQuery = Ext.getCmp(searchField).getValue();
                 Ext.Ajax.request({
-                    url: "/api/searchAssetsSeries",
+                    url: "/apiAssets/searchAssetsSeries",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -506,7 +506,7 @@
                 proxy: {
                     type: "ajax",
                     method: "GET",
-                    url: "/api/getProductDet",
+                    url: "/apiAssets/getProductDet",
                     noCache: true,
                     reader: {
                         type: "json",
@@ -528,7 +528,7 @@
                 proxy: {
                     type: "ajax",
                     method: "GET",
-                    url: "/api/getSeriesDet",
+                    url: "/apiAssets/getSeriesDet",
                     noCache: true,
                     reader: {
                         type: "json",
@@ -674,7 +674,7 @@
                             currentsubfileRecord = selectedrecords[0];
                             Ext.Ajax.request({
 
-                                url: '/api/updateSequence',
+                                url: '/apiAssets/updateSequence',
                                 params: {
                                     Id: currentsubfileRecord.data.Id,
                                     Sequence: currentsubfileRecord.data.Sequence,
@@ -762,7 +762,7 @@
                 proxy: {
                     type: "ajax",
                     method: "GET",
-                    url: "/api/getAssets",
+                    url: "/apiAssets/getAssets",
                     noCache: true,
                     reader: {
                         type: "json",
@@ -776,7 +776,7 @@
             const searchAssetsProduct = (searchField) => {
                 let searchQuery = Ext.getCmp(searchField).getValue();
                 Ext.Ajax.request({
-                    url: "/api/searchAssetsProduct",
+                    url: "/apiAssets/searchAssetsProduct",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -905,7 +905,7 @@
             //     proxy: {
             //         type: "ajax",
             //         method: "GET",
-            //         url: "/api/getAssets",
+            //         url: "/apiAssets/getAssets",
             //         noCache: true,
             //         reader: {
             //             type: "json",
@@ -959,7 +959,7 @@
             var addAssets = function () {
                 Ext.getBody().mask("Saving", "x-msg-loading");
                 Ext.Ajax.request({
-                    url: "/api/addAssets",
+                    url: "/apiAssets/addAssets",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -1034,7 +1034,7 @@
                     if (btn == 'yes') {
                         Ext.getBody().mask('Deleting', 'x-msg-loading');
                         Ext.Ajax.request({
-                            url: "/api/deleteAssets",
+                            url: "/apiAssets/deleteAssets",
                             method: "POST",
                             cors: true,
                             useDefaultXhrHeader: false,
@@ -1143,7 +1143,7 @@
                             if (Ext.getCmp('Type').getValue() == 'product-image') {
                                 if (form.isValid()) {
                                     form.submit({
-                                        url: '/api/uploadProductImage',
+                                        url: '/apiAssets/uploadProductImage',
                                         headers: { 'Content-Type': 'multipart/form-data' },
                                         method: "POST",
                                         waitMsg: 'Uploading your photo...',
@@ -1174,7 +1174,7 @@
                             } else if (Ext.getCmp('Type').getValue() == 'serie-image') {
                                 if (form.isValid()) {
                                     form.submit({
-                                        url: '/api/uploadSerieImage',
+                                        url: '/apiAssets/uploadSerieImage',
                                         headers: { 'Content-Type': 'multipart/form-data' },
                                         method: "POST",
                                         waitMsg: 'Uploading your photo...',
@@ -1220,7 +1220,7 @@
                             if (Ext.getCmp('Type').getValue() == 'product-image') {
                                 if (form.isValid()) {
                                     form.submit({
-                                        url: '/api/updateuploadProductImage',
+                                        url: '/apiAssets/updateuploadProductImage',
                                         headers: { 'Content-Type': 'multipart/form-data' },
                                         method: "POST",
                                         waitMsg: 'Uploading your photo...',
@@ -1253,7 +1253,7 @@
                             } else if (Ext.getCmp('Type').getValue() == 'serie-image') {
                                 if (form.isValid()) {
                                     form.submit({
-                                        url: '/api/updateuploadSerieImage',
+                                        url: '/apiAssets/updateuploadSerieImage',
                                         headers: { 'Content-Type': 'multipart/form-data' },
                                         method: "POST",
                                         waitMsg: 'Uploading your photo...',

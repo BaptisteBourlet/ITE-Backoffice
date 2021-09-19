@@ -231,7 +231,7 @@
             const searchLabels = (searchField, field) => {
                 let searchQuery = Ext.getCmp(searchField).getValue();
                 Ext.Ajax.request({
-                    url: "/api/searchLabels",
+                    url: "/apiLabels/searchLabels",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -264,7 +264,7 @@
                 proxy: {
                     type: "ajax",
                     method: "POST",
-                    url: "/api/getLabels",
+                    url: "/apiLabels/getLabels",
                     noCache: true,
                     reader: {
                         type: "json",
@@ -303,7 +303,7 @@
 
             const getLabelsDetails = (language, Key) => {
                 Ext.Ajax.request({
-                    url: "/api/getLabelsDetails",
+                    url: "/apiLabels/getLabelsDetails",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -325,7 +325,7 @@
             var addLabels = function () {
                 Ext.getBody().mask("Saving", "x-msg-loading");
                 Ext.Ajax.request({
-                    url: "/api/addLabels",
+                    url: "/apiLabels/addLabels",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -382,7 +382,7 @@
             var editLabels = function () {
                 Ext.getBody().mask("Saving", "x-msg-loading");
                 Ext.Ajax.request({
-                    url: "/api/updateLabels",
+                    url: "/apiLabels/updateLabels",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
@@ -447,7 +447,7 @@
                     if (btn == 'yes') {
                         Ext.getBody().mask('Deleting', 'x-msg-loading');
                         Ext.Ajax.request({
-                            url: "/api/DeleteLabels",
+                            url: "/apiLabels/DeleteLabels",
                             method: "POST",
                             cors: true,
                             useDefaultXhrHeader: false,
