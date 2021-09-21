@@ -123,11 +123,12 @@ exports.getAllProducts = async (req, res) => {
 
 exports.getProductDetails = async (req, res) => {
    const { productId } = req.query;
-   const query = "SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, CategoryId, Publish"
+   let finalResults = [];
+   const query = "SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, Parent AS CategoryId, P.Publish"
       + " FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id"
       + " LEFT JOIN Assets A ON A.Id = PI.ProductId"
+      + ` LEFT JOIN InfoTree IT ON IT.LinkId =  ${productId} AND IT.Type = 'P'`
       + ` WHERE PI.ProductId = ${productId} AND Language = 'en'`
-   let finalResults = []
 
    con.query(query, (err, productResults, fields) => {
       if (err) throw err;
@@ -231,9 +232,43 @@ exports.addProduct = async (req, res) => {
 }
 
 exports.editProduct = async (req, res) => {
-   const { ProductId, Pub, Code, As400, Category } = req.body;
+   const { ProductId, Pub, Code, As400, Category, unlinkCategory } = req.body;
    let errorString = '';
-   const ProductQuery = `Update Product SET Code = "${Code}", As400Code = "${As400}", CategoryId = "${Category}", Publish = ${Pub} WHERE Id = ${ProductId};`;
+   const ProductQuery = `Update Product SET Code = "${Code}", As400Code = "${As400}", Publish = ${Pub} WHERE Id = ${ProductId};`;
+   const existLink = `SELECT COUNT(*) AS linkCount FROM InfoTree WHERE LinkId = ${ProductId} AND Type = 'P' AND Publish = 1;`;
+   const categoryLinkEdit = `Update InfoTree SET Parent = ${Category} WHERE LinkId = ${ProductId} AND Type = 'P' AND Publish = 1;`;
+   const categoryLinkInsert = `INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ('P', ${Category}, 0, 1, ${ProductId});`;
+   const categoryLinkDelete = `DELETE FROM InfoTree WHERE Type = 'P' AND LinkId = ${ProductId} AND Publish = 1`;
+
+   if (unlinkCategory === '1') {
+      con.query(categoryLinkDelete, (err, deleteResult) => {
+         if (err) throw err;
+
+         console.log(deleteResult);
+      })
+   } else {
+      con.query(existLink, (err, existResult) => {
+         if (err) throw err;
+
+         if (existResult[0].linkCount > 0) {                 // 2 - if TRUE =>  update NEW Category
+            con.query(categoryLinkEdit, (err, editResult) => {
+               if (err) throw err;
+
+               console.log('edited Info Product Category Link')
+            })
+         }
+         else {                                             // 2 - if FALSE => insert NEW record
+            con.query(categoryLinkInsert, (err, insertResult) => {
+               if (err) {
+                  console.log('INSERT ERRRROR', err);
+               }
+
+               console.log('insert Info Product Category Link')
+            })
+         }
+      })
+   }
+
 
    con.query(ProductQuery, (err, results) => {
       if (err) throw err;
@@ -354,7 +389,6 @@ exports.editProduct = async (req, res) => {
       }
 
       let finalResult = { ...results, errorString };
-      console.log(finalResult)
       res.send(finalResult);
    })
 }
@@ -413,7 +447,7 @@ exports.deleteSerieRelatedProductFromDetailsView = async (req, res) => {
       res.send(results)
    })
 
-   
+
 }
 
 
@@ -545,7 +579,7 @@ exports.changeSequence = async (req, res) => {
 }
 
 
- 
+
 exports.getRelatedProductSerie = async (req, res) => {
    const { serieId } = req.query;
 
@@ -629,19 +663,19 @@ exports.updateSerieSpecs = async (req, res) => {
             if (err) throw err;
             con.query(`INSERT INTO SeriesData (SerieMasterId, SeriesData.Key, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) VALUES ("${SidResult[0].Id}", "${key}", '${value}', "${SPLid}", "${Group}", "${SubGroup}" );`, (err, result) => {
                if (err) throw err;
-               
+
                res.send(result)
             })
          })
-         
+
       }
    })
 }
 
 
- // upload and save image done by upload middleware, check api-routes.
- // after image saved, it will be resized and paths will be saved to Assets database here 
- exports.uploadProductImage = async (req, res) => {
+// upload and save image done by upload middleware, check api-routes.
+// after image saved, it will be resized and paths will be saved to Assets database here 
+exports.uploadProductImage = async (req, res) => {
    let nextSequence, landscape;
    const { originalname } = req.file;
    const { ProductId, Label } = req.body;

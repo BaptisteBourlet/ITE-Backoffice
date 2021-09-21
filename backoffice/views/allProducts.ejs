@@ -178,27 +178,28 @@
                           });
                         }
                       })
-                    
+
 
                     },
-                  },{
-                xtype: "button",
-                text: `${product.Description} [${product.Code}]`,
-                cls: "a",
-                style: "border: none; margin: 2px 0px;",
-                handler: () => {
-                  Ext.getCmp("relatedProducts").removeAll();
-                  Ext.getCmp("relatedAccessories").removeAll();
-                  Ext.getCmp("relatedParts").removeAll();
-                  getProductDetails(product.LinkedProductID);
-                  productIDGlobal = product.LinkedProductID;
-                  Ext.getCmp("productDetails").setTitle(
-                    `PRODUCT DETAILS - ${product.Code}`
-                  );
-                  Ext.getCmp("viewport").setActiveItem("productDetails");
-                },
+                  }, {
+                    xtype: "button",
+                    text: `${product.Description} [${product.Code}]`,
+                    cls: "a",
+                    style: "border: none; margin: 2px 0px;",
+                    handler: () => {
+                      Ext.getCmp("relatedProducts").removeAll();
+                      Ext.getCmp("relatedAccessories").removeAll();
+                      Ext.getCmp("relatedParts").removeAll();
+                      getProductDetails(product.LinkedProductID);
+                      productIDGlobal = product.LinkedProductID;
+                      Ext.getCmp("productDetails").setTitle(
+                        `PRODUCT DETAILS - ${product.Code}`
+                      );
+                      Ext.getCmp("viewport").setActiveItem("productDetails");
+                    },
+                  }
+                ]
               }
-            ]}
             }
           });
         } else {
@@ -285,27 +286,27 @@
                           });
                         }
                       })
-                    
+
 
                     },
                   }, {
-                xtype: "button",
-                text: `${product.Description} [${product.Code}]`,
-                cls: "a",
-                style: "border: none; margin: 2px 0px;",
-                handler: () => {
-                  Ext.getCmp("relatedProducts").removeAll();
-                  Ext.getCmp("relatedAccessories").removeAll();
-                  Ext.getCmp("relatedParts").removeAll();
-                  getProductDetails(product.LinkedProductID);
-                  productIDGlobal = product.LinkedProductID;
-                  Ext.getCmp("productDetails").setTitle(
-                    `PRODUCT DETAILS - ${product.Code}`
-                  );
-                  Ext.getCmp("viewport").setActiveItem("productDetails");
-                },
-              }
-            ]
+                    xtype: "button",
+                    text: `${product.Description} [${product.Code}]`,
+                    cls: "a",
+                    style: "border: none; margin: 2px 0px;",
+                    handler: () => {
+                      Ext.getCmp("relatedProducts").removeAll();
+                      Ext.getCmp("relatedAccessories").removeAll();
+                      Ext.getCmp("relatedParts").removeAll();
+                      getProductDetails(product.LinkedProductID);
+                      productIDGlobal = product.LinkedProductID;
+                      Ext.getCmp("productDetails").setTitle(
+                        `PRODUCT DETAILS - ${product.Code}`
+                      );
+                      Ext.getCmp("viewport").setActiveItem("productDetails");
+                    },
+                  }
+                ]
               }
             }
           });
@@ -471,11 +472,18 @@
 
           success: function (response) {
             const res = JSON.parse(response.responseText);
+            let Category = Ext.getCmp('Category').getValue()
             Ext.getCmp('productIdImage').setValue(productId);
             if (edit === false) {
               displayProductInfo(res[0][0]);
             } else {
               getEditInfo(res[0][0]);
+            }
+
+            if(Category !== '') {
+              Ext.getCmp('unlinkCategory').setValue(false)
+            } else {
+              Ext.getCmp('unlinkCategory').setValue(true)
             }
 
             Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
@@ -508,6 +516,7 @@
             As400: Ext.getCmp('As400').getValue(),
             Category: Ext.getCmp('Category').getValue(),
             Pub: Ext.getCmp('Pub').getValue() === true ? 1 : 0,
+            unlinkCategory: Ext.getCmp('unlinkCategory').getValue() === true ? 1 : 0,
 
             ModifiedOn: formatDate,
             Description: Ext.getCmp("ENdesc").getValue().trim(),
@@ -1556,6 +1565,7 @@
                   Ext.getCmp("viewport").setActiveItem("panelAdd2");
                 },
               },
+              
               "-",
               {
                 xtype: "button",
@@ -2079,10 +2089,35 @@
           fieldLabel: "Category",
           displayField: "Name",
           valueField: "Id",
-          allowBlank: false,
+          allowBlank: true,
           selectOnFocus: false,
           anyMatch: true,
           queryMode: "local",
+          listeners: {
+            change: () => {
+              let categoryValue = Ext.getCmp('Category').getValue();
+              if (categoryValue) {
+                Ext.getCmp('unlinkCategory').setValue(false)
+              }
+            }
+          }
+        },
+        {
+          xtype: "checkbox",
+          id: "unlinkCategory",
+          name: "unlinkCategory",
+          fieldLabel: "Unlink From Any Category",
+          width: 500,
+          allowBlank: true,
+          selectOnFocus: false,
+          listeners: {
+            change: () => {
+              let unlink = Ext.getCmp('unlinkCategory').getValue();
+              if (unlink) {
+                Ext.getCmp('Category').setValue('')
+              }
+            }
+          }
         },
         {
           xtype: "checkbox",
