@@ -8,11 +8,11 @@
    <title>SEQUENCE MANAGING - ITE BACK OFFICE</title>
    <link rel="stylesheet" type="text/css"
       href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
-      <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
-   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+   <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
+   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
 
    <!-- ----------------------------- PRODUCTION ------------------------------ -->
-   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+   <!--<script type="text/javascript" src="/extjs/ext-all-debug.js"></script>-->
    <style>
       .x-grid-cell-inner {
          overflow: hidden;
@@ -60,6 +60,12 @@
       //		           APPLICATION START
       // ========================================================================================================
       Ext.onReady(() => {
+         Ext.define('MyApp.view.Form', {
+            extend: 'Ext.form.Panel',
+            xtype: 'my-form',
+
+         });
+         let edit = false;
 
          const saveSequence = () => {
             const updatedItems = mainStore.getModifiedRecords();
@@ -132,6 +138,36 @@
             },
          });
 
+
+         const getOtherLanguageDetail = (language, categoryId) => {
+            Ext.Ajax.request({
+               url: "/apiManageSequence/getOtherLanguageDetail",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  language: language,
+                  categoryId: categoryId,
+               },
+               success: function (response) {
+                  const res = JSON.parse(response.responseText);
+
+                  if (res != '') {
+                     sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
+                     Ext.getCmp(`${language.toUpperCase()}Name`).setValue(res[0].Name);
+
+                  } else {
+                     sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
+
+                  }
+
+               },
+               failure: function (response) {
+                  console.log("failed", response);
+               },
+            });
+         }
+
          const mainGridColumns = [
             {
                header: "Type",
@@ -175,16 +211,6 @@
             },
          ];
 
-
-         var TypeStore = Ext.create("Ext.data.Store", {
-            fields: ["TypeCode", "TypeName"],
-            data: [
-               { TypeCode: "P", TypeName: "Products" },
-               { TypeCode: "C", TypeName: "Categories" },
-               { TypeCode: "S", TypeName: "Series" },
-            ],
-            storeId: "TypeStore",
-         });
 
          const tbarItems = [
             {
@@ -234,8 +260,8 @@
                         },
                      },
                      listConfig: {
-                        itemTpl: [ '<div class="list-extra-container">{Name} <tpl if="Tree"><span class="list-extra-info">{Tree}<span></tpl></div>' ]
-                     }                     
+                        itemTpl: ['<div class="list-extra-container">{Name} <tpl if="Tree"><span class="list-extra-info">{Tree}<span></tpl></div>']
+                     }
                   },
                   {
                      xtype: "button",
@@ -258,7 +284,41 @@
                      style: "padding: 7px; border: none; background-color: #000",
                      listeners: {
                         click: () => {
-                           
+                           Ext.getCmp('editSave').setHidden(true)
+                           Ext.getCmp('addSave').setHidden(false)
+                           Ext.getCmp("viewport").setActiveItem("panelAdd");
+                        },
+                     },
+                  },
+                  '-',
+                  {
+                     xtype: "button",
+                     id: "EditCategory",
+                     iconCls: "fa fa-edit",
+                     text: "Edit Category",
+                     style: "padding: 7px; border: none; background-color: #000",
+                     listeners: {
+                        click: () => {
+                           Ext.getCmp('editSave').setHidden(false)
+                           const selectedRecord = Ext.getCmp("mainGrid")
+                              .getSelectionModel()
+                              .getSelection()[0];
+
+                           if (selectedRecord === undefined) {
+                              Ext.Msg.alert("INFO", "No record selected");
+                           } else {
+                              categoryIDGlobal = selectedRecord.data.Id;
+                              Ext.getCmp("addSave").setHidden(true);
+                              Ext.getCmp("editSave").setHidden(false);
+                              Ext.getCmp('tabTrans').setActiveTab(0)
+                              getOtherLanguageDetail('en', categoryIDGlobal)
+                              getOtherLanguageDetail('fr', categoryIDGlobal)
+                              getOtherLanguageDetail('de', categoryIDGlobal)
+                              getOtherLanguageDetail('sp', categoryIDGlobal)
+                              getOtherLanguageDetail('ru', categoryIDGlobal)
+
+                              Ext.getCmp("viewport").setActiveItem("panelAdd");
+                           }
                         },
                      },
                   },
@@ -290,6 +350,7 @@
                beforeload: function (store) { },
             },
          });
+
          const mainGrid = Ext.create("Ext.grid.GridPanel", {
             id: "mainGrid",
             flex: 1,
@@ -312,6 +373,610 @@
             dockedItems: [...tbarItems],
          });
 
+
+         //<!-- ---------------------------- CRUD CATEGORY ---------------------------- -->
+
+
+         var addCategory = function () {
+            Ext.getBody().mask("Saving", "x-msg-loading");
+            Ext.Ajax.request({
+               url: "/apiTranslatedChapters/addTranslatedChapter",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  Chapter: Ext.getCmp("Chapter").getValue(),
+                  Language: Ext.getCmp("Language").getValue().toLowerCase(),
+                  Translated: getCheckboxValue(),
+
+               },
+               success: function (response) {
+                  // check for errors and display error message
+                  var check = response.responseText;
+                  if (check) {
+                     var data = JSON.parse(check);
+                     if (data) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "Translated Chapter",
+                           `You have successfully add the translated chapter`,
+                        );
+                        Ext.getCmp("viewport").setActiveItem('chapterTransltedGrid');
+                        chaptersTranslatedStore.reload();
+                     } else {
+                        // display error message
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add the translated chapter. Contact your IT team."
+                        );
+                     }
+                  }
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to add the translated chapter. Contact your IT team."
+                  );
+               }
+            });
+         };
+
+         var editCategory = function () {
+            Ext.getBody().mask("Saving", "x-msg-loading");
+            Ext.Ajax.request({
+               url: "/apiTranslatedChapters/updateTranslatedChapters",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  id: chapterId,
+                  Chapter: Ext.getCmp("Chapter").getValue(),
+                  Language: Ext.getCmp("Language").getValue().toLowerCase(),
+                  Translated: getCheckboxValue(),
+
+               },
+               success: function (response) {
+                  // check for errors and display error message
+                  var check = response.responseText;
+                  if (check) {
+                     var data = JSON.parse(check);
+                     if (data) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "Translated Chapter",
+                           `You have successfully add the translated chapter`,
+                        );
+                        Ext.getCmp("viewport").setActiveItem('chapterTransltedGrid');
+                        chaptersTranslatedStore.reload();
+                     } else {
+                        // display error message
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add the translated chapter. Contact your IT team."
+                        );
+                     }
+                  }
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to add the translated chapter. Contact your IT team."
+                  );
+               }
+            });
+         };
+
+
+         var deleteCategory = function () {
+            const selectedRecord = Ext.getCmp("chapterTransltedGrid")
+               .getSelectionModel()
+               .getSelection()[0];
+            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this translated chapter ?", function (btn, text) {
+               if (btn == 'yes') {
+                  Ext.getBody().mask('Deleting', 'x-msg-loading');
+                  Ext.Ajax.request({
+                     url: "/apiTranslatedChapters/deleteTranslatedChapter",
+                     method: "POST",
+                     cors: true,
+                     useDefaultXhrHeader: false,
+                     params: {
+                        chapterTransltedId: selectedRecord.data.id
+                     },
+                     success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                           var data = eval("(" + response.responseText + ")");
+
+                           if (data.serverStatus == 2) {
+                              chaptersTranslatedStore.reload();
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                 "Success",
+                                 "You have successfully deleted the translated chapter"
+                              );
+                           } else {
+                              // display error message
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                 "ERROR",
+                                 "Failed to delete the translated chapter. Contact your IT team."
+                              );
+                           }
+                        }
+                     },
+                     failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to delete translated chapter. Contact your IT team."
+                        );
+                     },
+
+                  });
+               }
+            })
+         }
+
+         var TabTranslations = Ext.create('Ext.TabPanel', {
+            fullscreen: true,
+            tabBarPosition: 'bottom',
+            id: 'tabTrans',
+            defaults: {
+               styleHtmlContent: true
+            },
+
+            items: [
+               {
+                  title: 'English',
+                  items: [
+                     {
+                        xtype: "fieldset",
+                        title: "English Translations",
+                        anchor: "100%",
+                        hidden: false,
+                        id: "ENFIELD",
+                        layoutConfig: {
+                           // The total column count must be specified here
+                           columns: 9,
+                        },
+                        items: [
+                           {
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    id: 'formEN',
+                                    border: false,
+                                    items: [
+                                       {
+                                          xtype: "textfield",
+                                          id: "ENName",
+                                          name: "ENName",
+                                          fieldLabel: "Name",
+                                          maxLenght: 118,
+                                          width: 500,
+                                          allowBlank: false,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
+                                       
+
+                                    ]
+                                 },
+
+                              ]
+                           },
+                        ],
+                     },
+                  ]
+               },
+
+               {
+                  title: 'French',
+
+                  items: [
+                     {
+                        xtype: "fieldset",
+                        title: "French Translations",
+                        anchor: "100%",
+                        hidden: false,
+                        id: "FRFIELD",
+                        layoutConfig: {
+                           // The total column count must be specified here
+                           columns: 9,
+                        },
+                        items: [
+                           {
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    id: 'formFR',
+                                    border: false,
+                                    items: [
+
+                                       {
+                                          xtype: "textfield",
+                                          id: "FRName",
+                                          name: "FRName",
+                                          fieldLabel: "Name",
+                                          maxLenght: 118,
+                                          width: 500,
+                                          allowBlank: true,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
+                                       
+                                    ]
+                                 },
+
+                              ]
+                           },
+                        ],
+                     },
+                  ]
+               },
+               {
+                  title: 'German',
+
+                  items: [
+                     {
+                        xtype: "fieldset",
+                        title: "German Translations",
+                        anchor: "100%",
+                        hidden: false,
+                        id: "DEFIELD",
+                        layoutConfig: {
+                           // The total column count must be specified here
+                           columns: 9,
+                        },
+                        items: [
+                           {
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    border: false,
+                                    id: 'formDE',
+                                    items: [
+
+                                       {
+                                          xtype: "textfield",
+                                          id: "DEName",
+                                          name: "DEName",
+                                          fieldLabel: "Name",
+                                          maxLenght: 118,
+                                          width: 500,
+                                          allowBlank: true,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
+                                       
+                                    ]
+                                 },
+
+                              ]
+                           },
+                        ],
+                     },
+                  ]
+               },
+               {
+                  title: 'Spanish',
+
+                  items: [
+                     {
+                        xtype: "fieldset",
+                        labelStyle: "font-weight: bold; ",
+                        title: "Spanish Translations",
+                        anchor: "100%",
+                        hidden: false,
+                        id: "SPFIELD",
+                        layoutConfig: {
+                           // The total column count must be specified here
+                           columns: 9,
+                        },
+                        items: [
+                           {
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    id: 'formSP',
+                                    border: false,
+                                    items: [
+
+                                       {
+                                          xtype: "textfield",
+                                          id: "SPName",
+                                          name: "SPName",
+                                          fieldLabel: "Name",
+                                          allowBlank: true,
+                                          maxLenght: 118,
+                                          width: 500,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
+                                      
+
+                                    ]
+                                 },
+
+                              ]
+                           },
+                        ],
+                     },
+                  ]
+               },
+               {
+                  title: 'Russian',
+
+                  items: [
+                     {
+                        xtype: "fieldset",
+                        title: "Russian Translations",
+                        anchor: "100%",
+                        hidden: false,
+                        id: "RUFIELD",
+                        layoutConfig: {
+                           // The total column count must be specified here
+                           columns: 9,
+                        },
+                        items: [
+                           {
+                              layout: {
+                                 type: 'hbox',
+                                 align: 'stretch'
+                              },
+                              border: false,
+                              items: [
+                                 {
+                                    xtype: 'my-form',
+                                    width: '40%',
+                                    frame: false,
+                                    id: 'formRU',
+                                    border: false,
+                                    items: [
+
+                                       {
+                                          xtype: "textfield",
+                                          id: "RUName",
+                                          name: "RUName",
+                                          fieldLabel: "Name",
+                                          maxLenght: 118,
+                                          allowBlank: true,
+                                          width: 500,
+                                          submitvalue: true,
+                                          margin: "25 0 25 0",
+                                       },
+                                       
+
+                                    ]
+                                 },
+
+                              ]
+                           },
+                        ],
+                     },
+                  ]
+               },
+            ]
+         });
+
+
+         var itemsAdd = [
+            {
+               xtype: "textfield",
+               id: "Title",
+               name: "Title",
+               fieldLabel: "Title",
+               maxLenght: 255,
+               width: 500,
+               allowBlank: true,
+               selectOnFocus: false,
+            },
+            
+            // {
+            //   xtype: "button",
+            //   id: 'compare',
+            //   text: "Compare Translations",
+            //   iconCls: "fa fa-list",
+            //   handler: function () {
+
+            //   },
+            //   style: {
+
+            //     margin: '5px 5px 5px 40%'
+            //   }
+            // },
+            TabTranslations,
+         ];
+
+         var screenAdd = new Ext.FormPanel({
+            id: 'screenAdd',
+            frame: false,
+            header: false,
+            border: false,
+            defaults: {
+               labelAlign: "right",
+               labelWidth: 105,
+               listeners: {
+                  specialkey: function (field, e) {
+                     if (e.getKey() == e.ENTER) {
+                        updateRec();
+                     }
+                     if (e.getKey() == e.ESC) {
+                        Ext.getCmp("viewport").setActiveItem("mainGrid");
+                     }
+                  },
+               },
+            },
+            width: 1200,
+            waitMsgTarget: true,
+            autoScroll: true,
+            style: "padding: 3px 3px 3px 3px;",
+            items: [
+               {
+                  layout: "column",
+                  layoutConfig: {
+                     columns: 2,
+                  },
+                  border: false,
+                  items: [
+                     {
+                        xtype: 'my-form',
+                        id: "addForm",
+                        columnWidth: 1,
+                        border: false,
+                        items: itemsAdd,
+                     },
+                  ],
+               },
+            ],
+         });
+
+
+         var addRecord = function () {
+            Ext.getBody().mask("Saving", "x-msg-loading");
+
+            Ext.Ajax.request({
+               url: "/apiManageSequence/addCategory",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  Title: Ext.getCmp('Title').getValue(),
+                  Slug: Ext.getCmp('ENName').getValue().toLowerCase().replaceAll(" ", "-"),
+                  Language: "en",
+                  Name: Ext.getCmp("ENName").getValue().trim(),
+                  //FR
+                  FRLanguage: "fr",
+                  FRName: Ext.getCmp("FRName").getValue().trim(),
+                  FRSlug: Ext.getCmp('FRName').getValue().toLowerCase().replaceAll(" ", "-"),
+                
+                  //DE
+                  DELanguage: "de",
+                  DEName: Ext.getCmp("DEName").getValue().trim(),
+                  DESlug: Ext.getCmp('DEName').getValue().toLowerCase().replaceAll(" ", "-"),
+                  //SP
+                  SPLanguage: "sp",
+                  SPName: Ext.getCmp("SPName").getValue().trim(),
+                  SPSlug: Ext.getCmp('SPName').getValue().toLowerCase().replaceAll(" ", "-"),
+                  //RU
+                  RULanguage: "ru",
+                  RUName: Ext.getCmp("RUName").getValue().trim(),
+                  RUSlug: Ext.getCmp('RUName').getValue().toLowerCase().replaceAll(" ", "-"),
+               },
+               success: function (response) {
+                  // check for errors and display error message
+                  var check = response.responseText;
+                  if (check) {
+                     var data = JSON.parse(check);
+                     if (data) {
+                        Ext.getBody().unmask();
+
+                        Ext.getCmp("viewport").setActiveItem('AllProductGrid');
+                     }
+
+
+                  } else {
+                     // display error message
+                     Ext.getBody().unmask();
+                     Ext.Msg.alert(
+                        "ERROR",
+                        "Failed to add the product. Contact your IT team."
+                     );
+                  }
+
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to add the product. Contact your IT team."
+                  );
+               },
+            });
+         };
+
+
+         // outer panel container to hold tbar and keypress definitions
+         var panelAdd = new Ext.Panel({
+            layout: "fit",
+            id: "panelAdd",
+            title: "Add category",
+            header: true,
+            items: [screenAdd],
+            tbar: [
+               {
+                  text: "Save",
+                  id: "addSave",
+                  iconCls: "fas fa-save",
+                  handler: function () {
+                     if (Ext.getCmp('addForm').isValid()) {
+                        Ext.getCmp('addSave').setHidden(false);
+                        Ext.getCmp('editSave').setHidden(true);
+                        addCategory();
+                        Ext.getCmp("addForm").reset();
+                     }
+                  },
+               },
+               {
+                  text: "Save",
+                  id: "editSave",
+                  iconCls: "fas fa-save",
+                  handler: function () {
+                     if (Ext.getCmp('addForm').isValid()) {
+                        editCatefory()
+                        Ext.getCmp("addForm").reset();
+                     }
+                  },
+               },
+               "-",
+               {
+                  text: "Cancel",
+                  tooltip: "Cancel",
+                  id: 'cancel',
+                  iconCls: "fas fa-undo",
+                  handler: function () {
+                     edit = false;
+                     Ext.getCmp("addForm").reset();
+                     Ext.getCmp("viewport").setActiveItem("mainGrid");
+                  },
+               },
+            ],
+         });
+
+
          //=========================================================================================================
          //		           VIEW PORT
          // ========================================================================================================
@@ -320,7 +985,7 @@
             id: "viewport",
             layout: "card",
             activeItem: 0,
-            items: [mainGrid],
+            items: [mainGrid, panelAdd],
          });
       });
    </script>

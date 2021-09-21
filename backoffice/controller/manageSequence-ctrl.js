@@ -56,3 +56,81 @@ exports.getCategories = async (req, res) => {
        res.send(results)
     })
  }
+
+ 
+exports.getOtherLanguageDetail = async (req, res) => {
+   const { categoryId, language } = req.body;
+   const query = `SELECT Name FROM CategoryInfo WHERE Language = "${language}" AND CategoryId = "${categoryId}";`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) throw err;
+
+      res.status(200).send(results);
+   })
+}
+ 
+exports.addCategory = async (req, res) => {
+   const { ParentId, Title } = req.body;
+
+
+   con.query(`INSERT INTO Category (ParentId, Sequence, WorkingTitle, Publish) VALUES ("${ParentId}", "${Sequence}", "${Title}", "1";`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+
+      let CategoryId = results.insertId;
+
+      const { Language, Slug, Name, 
+         FRLanguage, FRName, FRSlug,
+         DELanguage, DEName, DESlug,
+         SPLanguage, SPName, SPSlug,
+         RULanguage, RUName, RUSlug } = req.body;
+
+
+      if (Name !== "" ) {
+         con.query(`INSERT INTO CategoryInfo (Language, Name, Slug, CategoryId) VALUES ("${Language}", "${Name}", "${Slug}", "${CategoryId}");`, (err, results, fields) => {
+            if (err) throw err;
+
+            res.status(200).send(results);
+         });
+      } else {
+         console.log('english wasnt filled in')
+      }
+
+      if (FRName !== '' ) {
+         con.query(`INSERT INTO CategoryInfo (Language, Name, Slug, CategoryId) VALUES ("${FRLanguage}", "${FRName}", "${FRSlug}", "${CategoryId}");`, (err, results, fields) => {
+            if (err) throw err;
+
+         });
+      } else {
+         console.log('french wasnt filled in')
+      }
+
+      if (DEName !== '') {
+         con.query(`INSERT INTO CategoryInfo (Language, Name, Slug, CategoryId) VALUES ("${DELanguage}", "${DEName}", "${DESlug}", "${CategoryId}");`, (err, results, fields) => {
+            if (err) throw err;
+
+         });
+      } else {
+         console.log('german wasnt filled in')
+      }
+
+      if (RUName !== '') {
+         con.query(`INSERT INTO CategoryInfo (Language, Name, Slug, CategoryId) VALUES ("${RULanguage}", "${RUName}", "${RUSlug}", "${CategoryId}");`, (err, results, fields) => {
+            if (err) throw err;
+
+         });
+      } else {
+         console.log('russian wasnt filled in')
+      }
+
+      if (SPName !== '') {
+         con.query(`INSERT INTO CategoryInfo (Language, Name, Slug, CategoryId) VALUES ("${SPLanguage}", "${SPName}", "${SPSlug}", "${CategoryId}");`, (err, results, fields) => {
+            if (err) throw err;
+
+         });
+      } else {
+         console.log('spanish wasnt filled in')
+      }
+   })
+}
