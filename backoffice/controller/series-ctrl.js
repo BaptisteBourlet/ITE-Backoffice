@@ -38,10 +38,18 @@ exports.getAllSeries = async (req, res) => {
 exports.getSerieDetails = async (req, res) => {
    const { serieId } = req.query;
    let finalResults = [];
-   const serieQuery = `SELECT Series.Key, Title, FullDescription, Specification FROM SeriesInfo LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.SeriesId = "${serieId}" AND SeriesInfo.Language = "en";`;
+   const serieQuery
+      = `SELECT Series.Key, Title, FullDescription, Specification, InfoTree.Parent AS CategoryId `
+      + `FROM SeriesInfo `
+      + `LEFT JOIN Series ON SeriesInfo.SeriesId = Series.Sid `
+      + `LEFT JOIN InfoTree ON InfoTree.Type = 'S' AND InfoTree.LinkId = ${serieId} `
+      + `WHERE SeriesInfo.SeriesId = "${serieId}" AND SeriesInfo.Language = "en";`;
 
-   const relatedQuery = `SELECT SeriesInfo.Title, LinkedSeriesID, LinkedProductID, Type, Code, Description, RelatedProducts.Id FROM RelatedProducts
-       LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = RelatedProducts.LinkedSeriesID WHERE RelatedProducts.SeriesId = "${serieId}";`
+   const relatedQuery
+      = `SELECT SeriesInfo.Title, LinkedSeriesID, LinkedProductID, Type, Code, Description, RelatedProducts.Id `
+      + `FROM RelatedProducts `
+      + `LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = RelatedProducts.LinkedSeriesID `
+      + `WHERE RelatedProducts.SeriesId = "${serieId}";`
 
    con.query(serieQuery, (err, serieResults) => {
       if (err) throw err;
@@ -91,14 +99,22 @@ exports.searchSerie = async (req, res) => {
 
 
 exports.addSeries = async (req, res) => {
-   const { Key, CreatedOn } = req.body;
-
-   con.query(`INSERT INTO Series (Series.Key, CreatedOn, Publish) VALUES ("${Key}", "${CreatedOn}", 1);`, (err, results, fields) => {
+   const { Key, CreatedOn, CategoryId } = req.body;
+   const seriesInsert = `INSERT INTO Series (Series.Key, CreatedOn, Publish) VALUES ("${Key}", "${CreatedOn}", 1);`
+   
+   con.query(seriesInsert, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
-
+      
       let SeriesId = results.insertId;
+      
+      const seriesCategoryLinkInsert = `INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ('S', ${CategoryId}, 0, 1, ${SeriesId})`; 
+      con.query(seriesCategoryLinkInsert, (err, insertResult) => {
+         if (err) throw err;
+         
+      })
+      
       storage.setItem('SeriesId', SeriesId)
 
       const { Language, CreatedOn, Specification, Title, FullDescription,
@@ -163,8 +179,43 @@ exports.addSeries = async (req, res) => {
 
 
 exports.editSeries = async (req, res) => {
-   const { SeriesId, Key, ModifiedOn } = req.body;
+   const { SeriesId, Key, CategoryId, unlinkCategory, ModifiedOn } = req.body;
    let errorString = '';
+
+   const existLink = `SELECT COUNT(*) AS linkCount FROM InfoTree WHERE LinkId = ${SeriesId} AND Type = 'S' and Publish = 1;`;
+   const categoryLinkEdit = `Update InfoTree SET Parent = ${CategoryId} WHERE LinkId = ${SeriesId} AND Type = 'S' AND Publish = 1;`;
+   const categoryLinkInsert = `INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ('S', ${CategoryId}, 0, 1, ${SeriesId});`;
+   const categoryLinkDelete = `DELETE FROM InfoTree WHERE Type = 'S' AND LinkId = ${SeriesId} AND Publish = 1`;
+
+   if (unlinkCategory === '1') {
+      con.query(categoryLinkDelete, (err, deleteResult) => {
+         if (err) throw err;
+
+         console.log(deleteResult);
+      })
+   } else {
+      con.query(existLink, (err, existResult) => {
+         if (err) throw err;
+
+         if (existResult[0].linkCount > 0) {                 // 2 - if TRUE =>  update NEW Category
+            con.query(categoryLinkEdit, (err, editResult) => {
+               if (err) throw err;
+
+               console.log('edited Serie Category Link')
+            })
+         }
+         else {                                             // 2 - if FALSE => insert NEW record
+            con.query(categoryLinkInsert, (err, insertResult) => {
+               if (err) {
+                  console.log('INSERT ERRRROR', err);
+               }
+
+               console.log('insert Serie Category Link')
+            })
+         }
+      })
+   }
+
    const SeriesQuery = `Update Series SET ModifiedOn = "${ModifiedOn}" WHERE Sid = "${SeriesId}";`;
 
    con.query(SeriesQuery, (err, results) => {
@@ -248,10 +299,10 @@ exports.deleteSeries = async (req, res) => {
    const { SeriesId } = req.body;
    let errorString = '';
 
-   con.query(`DELETE FROM SeriesProductLink WHERE SeriesId = ${SeriesId};`, (err, results, fields) => {
+   con.query(`DELETE FROM InfoTree WHERE LinkId = ${SeriesId} AND Type = 'S';`, (err, results, fields) => {
       if (err) {
          console.log(err);
-         errorString += 'SeriesProductLink, '
+         errorString += 'InfoTree, '
       }
 
    })

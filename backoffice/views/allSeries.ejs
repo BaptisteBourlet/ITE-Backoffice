@@ -505,6 +505,7 @@
             Ext.getCmp("fullDescription").setValue(
                serie.FullDescription || "No Full Description"
             );
+            Ext.getCmp('Category').setValue(serie.CategoryId);
             Ext.getCmp("specification").setValue(
                serie.Specification || "No Specification"
             );
@@ -721,6 +722,7 @@
                useDefaultXhrHeader: false,
                params: {
                   Key: Ext.getCmp("Key").getValue().trim(),
+                  CategoryId: Ext.getCmp('Category').getValue(),
                   Language: "en",
                   CreatedOn: formatDate,
                   Title: Ext.getCmp("Title").getValue().trim(),
@@ -790,6 +792,8 @@
                useDefaultXhrHeader: false,
                params: {
                   Key: Ext.getCmp("Key").getValue().trim(),
+                  CategoryId: Ext.getCmp('Category').getValue(),
+                  unlinkCategory: Ext.getCmp('unlinkCategory').getValue() === true ? 1 : 0,
                   SeriesId: serieIDGlobal,
                   Language: "en",
                   ModifiedOn: formatDate,
@@ -973,6 +977,31 @@
             listeners: {
                beforeload: function (store) {
                },
+            },
+         });
+
+
+         const CATEGORY = Ext.define("Categories", {
+            extend: "Ext.data.Model",
+            fields: ["Id", "Name"],
+         });
+
+         const CategoryStore = Ext.create("Ext.data.Store", {
+            id: "CategoryStore",
+            autoLoad: true,
+            model: CATEGORY,
+            proxy: {
+               type: "ajax",
+               method: "POST",
+               url: "/apiProducts/getCategories",
+               noCache: true,
+               reader: {
+                  type: "json",
+                  rootProperty: "allProducts",
+                  totalProperty: "totalCount",
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
             },
          });
 
@@ -1757,6 +1786,46 @@
                allowBlank: true,
                selectOnFocus: false,
                margin: "25 0 25 0",
+            },
+            {
+               xtype: "combo",
+               id: "Category",
+               name: "Category",
+               store: CategoryStore,
+               width: 500,
+               fieldLabel: "Category",
+               displayField: "Name",
+               valueField: "Id",
+               allowBlank: true,
+               selectOnFocus: false,
+               anyMatch: true,
+               queryMode: "local",
+               listeners: {
+                  change: () => {
+                     let categoryValue = Ext.getCmp('Category').getValue();
+                     if (categoryValue) {
+                        Ext.getCmp('unlinkCategory').setValue(false)
+                     }
+                  }
+               }
+            },
+            {
+               xtype: "checkbox",
+               id: "unlinkCategory",
+               name: "unlinkCategory",
+               fieldLabel: "Unlink From Any Category",
+               width: 500,
+               labelWidth: 190,
+               allowBlank: true,
+               selectOnFocus: false,
+               listeners: {
+                  change: () => {
+                     let unlink = Ext.getCmp('unlinkCategory').getValue();
+                     if (unlink) {
+                        Ext.getCmp('Category').setValue('')
+                     }
+                  }
+               }
             },
 
             TabTranslations
@@ -2799,7 +2868,7 @@
                   ],
                },
             ]
-            
+
          })
 
 
@@ -3042,7 +3111,7 @@
             header: true,
             items: [screenAdd2],
             tbar: [
-            {
+               {
                   text: "Cancel",
                   tooltip: "Cancel",
                   iconCls: "fas fa-undo",
@@ -3056,7 +3125,7 @@
                   },
                },
                '-',
-               
+
                {
                   text: "Save",
                   id: "fromViewSave",
@@ -3072,12 +3141,12 @@
                      }
                   },
                },
-               
+
             ],
          });
 
 
-         
+
 
 
          let userRights = JSON.parse(localStorage.getItem('userRights'));
