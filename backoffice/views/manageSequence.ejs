@@ -66,7 +66,7 @@
 
          });
          let edit = false;
-
+         let parentId
          const saveSequence = () => {
             const updatedItems = mainStore.getModifiedRecords();
             let check = {};
@@ -240,12 +240,42 @@
                dock: "top",
                id: "searchBar",
                items: [
+               {
+                     xtype: "button",
+                     id: "EditCombo",
+                     iconCls: "fa fa-edit",
+                     text: "",
+                     listeners:{
+                        click: function (){
+                           console.log(Ext.getCmp('CategoryID').getRawValue())
+                           if (Ext.getCmp('CategoryID').getRawValue() == null || Ext.getCmp('CategoryID').getRawValue() == ''){
+                              Ext.Msg.alert("INFO", "No category selected");
+                           } else {
+                              Ext.getCmp('editSave').setHidden(false)
+
+                              Ext.getCmp('Title').setValue(Ext.getCmp('CategoryID').getRawValue())
+                              
+                              Ext.getCmp("addSave").setHidden(true);
+                              Ext.getCmp("editSave").setHidden(false);
+                              Ext.getCmp('tabTrans').setActiveTab(0)
+                              getOtherLanguageDetail('en', parentId)
+                              getOtherLanguageDetail('fr', parentId)
+                              getOtherLanguageDetail('de', parentId)
+                              getOtherLanguageDetail('sp', parentId)
+                              getOtherLanguageDetail('ru', parentId)
+
+                              Ext.getCmp("viewport").setActiveItem("panelAdd");
+                           }
+                        }
+                     }
+                     
+                  },
                   {
                      xtype: "combo",
                      id: "CategoryID",
                      iconCls: "fa fa-search",
                      store: CategoryStore,
-                     //displayField: 'Name',
+                     displayField: 'Name',
                      valueField: 'Id',
                      width: 400,
                      labelWidth: 20,
@@ -255,6 +285,7 @@
                      emptyText: "Select specific category...",
                      listeners: {
                         change: function () {
+                           parentId = Ext.getCmp('CategoryID').getValue()
                            mainStore.getProxy().setExtraParam('CategoryID', Ext.getCmp('CategoryID').getValue());
                            mainStore.load()
                         },
@@ -307,6 +338,7 @@
                            if (selectedRecord === undefined) {
                               Ext.Msg.alert("INFO", "No record selected");
                            } else {
+                              Ext.getCmp('Title').setValue(selectedRecord.data.Description)
                               categoryIDGlobal = selectedRecord.data.Id;
                               Ext.getCmp("addSave").setHidden(true);
                               Ext.getCmp("editSave").setHidden(false);
@@ -377,56 +409,11 @@
          //<!-- ---------------------------- CRUD CATEGORY ---------------------------- -->
 
 
-         var addCategory = function () {
-            Ext.getBody().mask("Saving", "x-msg-loading");
-            Ext.Ajax.request({
-               url: "/apiTranslatedChapters/addTranslatedChapter",
-               method: "POST",
-               cors: true,
-               useDefaultXhrHeader: false,
-               params: {
-                  Chapter: Ext.getCmp("Chapter").getValue(),
-                  Language: Ext.getCmp("Language").getValue().toLowerCase(),
-                  Translated: getCheckboxValue(),
-
-               },
-               success: function (response) {
-                  // check for errors and display error message
-                  var check = response.responseText;
-                  if (check) {
-                     var data = JSON.parse(check);
-                     if (data) {
-                        Ext.getBody().unmask();
-                        Ext.Msg.alert(
-                           "Translated Chapter",
-                           `You have successfully add the translated chapter`,
-                        );
-                        Ext.getCmp("viewport").setActiveItem('chapterTransltedGrid');
-                        chaptersTranslatedStore.reload();
-                     } else {
-                        // display error message
-                        Ext.getBody().unmask();
-                        Ext.Msg.alert(
-                           "ERROR",
-                           "Failed to add the translated chapter. Contact your IT team."
-                        );
-                     }
-                  }
-               },
-               failure: function (response) {
-                  Ext.getBody().unmask();
-                  Ext.Msg.alert(
-                     "ERROR",
-                     "Failed to add the translated chapter. Contact your IT team."
-                  );
-               }
-            });
-         };
 
          var editCategory = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
-               url: "/apiTranslatedChapters/updateTranslatedChapters",
+               url: "/apiManageSequence/updateCategory",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
@@ -445,17 +432,17 @@
                      if (data) {
                         Ext.getBody().unmask();
                         Ext.Msg.alert(
-                           "Translated Chapter",
-                           `You have successfully add the translated chapter`,
+                           "Category",
+                           `You have successfully add the category`,
                         );
-                        Ext.getCmp("viewport").setActiveItem('chapterTransltedGrid');
-                        chaptersTranslatedStore.reload();
+                        Ext.getCmp("viewport").setActiveItem('mainGrid');
+                        mainStore.reload();
                      } else {
                         // display error message
                         Ext.getBody().unmask();
                         Ext.Msg.alert(
                            "ERROR",
-                           "Failed to add the translated chapter. Contact your IT team."
+                           "Failed to add the category. Contact your IT team."
                         );
                      }
                   }
@@ -464,7 +451,7 @@
                   Ext.getBody().unmask();
                   Ext.Msg.alert(
                      "ERROR",
-                     "Failed to add the translated chapter. Contact your IT team."
+                     "Failed to add the category. Contact your IT team."
                   );
                }
             });
@@ -472,14 +459,14 @@
 
 
          var deleteCategory = function () {
-            const selectedRecord = Ext.getCmp("chapterTransltedGrid")
+            const selectedRecord = Ext.getCmp("mainGrid")
                .getSelectionModel()
                .getSelection()[0];
-            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this translated chapter ?", function (btn, text) {
+            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this category ?", function (btn, text) {
                if (btn == 'yes') {
                   Ext.getBody().mask('Deleting', 'x-msg-loading');
                   Ext.Ajax.request({
-                     url: "/apiTranslatedChapters/deleteTranslatedChapter",
+                     url: "/apiManageSequence/deleteCategory",
                      method: "POST",
                      cors: true,
                      useDefaultXhrHeader: false,
@@ -497,14 +484,14 @@
                               Ext.getBody().unmask();
                               Ext.Msg.alert(
                                  "Success",
-                                 "You have successfully deleted the translated chapter"
+                                 "You have successfully deleted the category"
                               );
                            } else {
                               // display error message
                               Ext.getBody().unmask();
                               Ext.Msg.alert(
                                  "ERROR",
-                                 "Failed to delete the translated chapter. Contact your IT team."
+                                 "Failed to delete the category. Contact your IT team."
                               );
                            }
                         }
@@ -513,7 +500,7 @@
                         Ext.getBody().unmask();
                         Ext.Msg.alert(
                            "ERROR",
-                           "Failed to delete translated chapter. Contact your IT team."
+                           "Failed to delete category. Contact your IT team."
                         );
                      },
 
@@ -570,8 +557,6 @@
                                           submitvalue: true,
                                           margin: "25 0 25 0",
                                        },
-                                       
-
                                     ]
                                  },
 
@@ -623,10 +608,9 @@
                                           submitvalue: true,
                                           margin: "25 0 25 0",
                                        },
-                                       
+
                                     ]
                                  },
-
                               ]
                            },
                         ],
@@ -674,7 +658,7 @@
                                           submitvalue: true,
                                           margin: "25 0 25 0",
                                        },
-                                       
+
                                     ]
                                  },
 
@@ -726,7 +710,7 @@
                                           submitvalue: true,
                                           margin: "25 0 25 0",
                                        },
-                                      
+
 
                                     ]
                                  },
@@ -778,7 +762,7 @@
                                           submitvalue: true,
                                           margin: "25 0 25 0",
                                        },
-                                       
+
 
                                     ]
                                  },
@@ -804,7 +788,7 @@
                allowBlank: true,
                selectOnFocus: false,
             },
-            
+
             // {
             //   xtype: "button",
             //   id: 'compare',
@@ -865,7 +849,7 @@
          });
 
 
-         var addRecord = function () {
+         var addCategory = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
 
             Ext.Ajax.request({
@@ -874,6 +858,7 @@
                cors: true,
                useDefaultXhrHeader: false,
                params: {
+                  ParentId: parentId,
                   Title: Ext.getCmp('Title').getValue(),
                   Slug: Ext.getCmp('ENName').getValue().toLowerCase().replaceAll(" ", "-"),
                   Language: "en",
@@ -882,7 +867,7 @@
                   FRLanguage: "fr",
                   FRName: Ext.getCmp("FRName").getValue().trim(),
                   FRSlug: Ext.getCmp('FRName').getValue().toLowerCase().replaceAll(" ", "-"),
-                
+
                   //DE
                   DELanguage: "de",
                   DEName: Ext.getCmp("DEName").getValue().trim(),
@@ -904,7 +889,7 @@
                      if (data) {
                         Ext.getBody().unmask();
 
-                        Ext.getCmp("viewport").setActiveItem('AllProductGrid');
+                        Ext.getCmp("viewport").setActiveItem('mainGrid');
                      }
 
 
@@ -913,7 +898,7 @@
                      Ext.getBody().unmask();
                      Ext.Msg.alert(
                         "ERROR",
-                        "Failed to add the product. Contact your IT team."
+                        "Failed to add the category. Contact your IT team."
                      );
                   }
 
@@ -922,7 +907,7 @@
                   Ext.getBody().unmask();
                   Ext.Msg.alert(
                      "ERROR",
-                     "Failed to add the product. Contact your IT team."
+                     "Failed to add the category. Contact your IT team."
                   );
                },
             });
