@@ -23,5 +23,8 @@ router.get('/getSequenceResults', apiCtrl.getSequenceResults);
 
 router.post('/changeSequence', apiCtrl.changeSequence);
 
+router.post('/addCategory', apiCtrl.addCategory);
+
+router.post('/getOtherLanguageDetail', apiCtrl.getOtherLanguageDetail);
 
 module.exports = router;
