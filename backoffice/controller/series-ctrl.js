@@ -101,20 +101,20 @@ exports.searchSerie = async (req, res) => {
 exports.addSeries = async (req, res) => {
    const { Key, CreatedOn, CategoryId } = req.body;
    const seriesInsert = `INSERT INTO Series (Series.Key, CreatedOn, Publish) VALUES ("${Key}", "${CreatedOn}", 1);`
-   
+
    con.query(seriesInsert, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
-      
+
       let SeriesId = results.insertId;
-      
-      const seriesCategoryLinkInsert = `INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ('S', ${CategoryId}, 0, 1, ${SeriesId})`; 
+
+      const seriesCategoryLinkInsert = `INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ('S', ${CategoryId}, 0, 1, ${SeriesId})`;
       con.query(seriesCategoryLinkInsert, (err, insertResult) => {
          if (err) throw err;
-         
+
       })
-      
+
       storage.setItem('SeriesId', SeriesId)
 
       const { Language, CreatedOn, Specification, Title, FullDescription,
@@ -500,31 +500,43 @@ exports.getSerieSpecs = async (req, res) => {
 
 exports.updateSerieSpecs = async (req, res) => {
    const { SPLid, key, value, SerieMasterId, Group, SubGroup, Sid } = req.body;
-
+   // console.log('updateSerieSpecs', req.body);
    const selectSerieMasterId = `SELECT Id FROM SeriesMaster WHERE Sid = '${Sid}' AND SeriesMaster.Group = '${Group}' AND SeriesMaster.SubGroup = '${SubGroup}';`;
-   const queryCheckExist = `SELECT COUNT(Id) FROM SeriesData WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
-   const queryUpdate = `UPDATE SeriesData SET Value = '${value}' WHERE SeriesData.Key = '${key}' AND SeriesProductLinkId = '${SPLid}';`
 
-   con.query(queryCheckExist, (err, results) => {
-      if (err) throw err;
+   con.query(selectSerieMasterId, (err, SidResult) => {
 
-      if (results[0]['COUNT(Id)'] == 1) {
-         con.query(queryUpdate, (err, result) => {
+      const queryCheckExist
+         = `SELECT COUNT(Id) FROM SeriesData `
+         + `WHERE SerieMasterId = '${SidResult[0].Id}' AND SeriesProductLinkId = '${SPLid}';`
+      const updateSeriesData
+         = `UPDATE SeriesData SET Value = '${value}' `
+         + `WHERE SerieMasterId = '${SidResult[0].Id}' AND SeriesProductLinkId = '${SPLid}';`
+
+      con.query(queryCheckExist, (err, results) => {
+         if (err) throw err;
+
+         if (results[0]['COUNT(Id)'] == 1) {
+            con.query(updateSeriesData, (err, result) => {
+               if (err) throw err;
+               res.send(result)
+
+            })
+         } else if (results[0]['COUNT(Id)'] == 0) {
             if (err) throw err;
-            res.send(result)
-         })
-      } else if (results[0]['COUNT(Id)'] == 0) {
 
-         con.query(selectSerieMasterId, (err, SidResult) => {
-            if (err) throw err;
-            con.query(`INSERT INTO SeriesData (SerieMasterId, SeriesData.Key, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) VALUES ("${SidResult[0].Id}", "${key}", '${value}', "${SPLid}", "${Group}", "${SubGroup}" );`, (err, result) => {
+            const insertSeriesData
+            = `INSERT INTO SeriesData (SerieMasterId, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) `
+            + `VALUES ("${SidResult[0].Id}", '${value}', "${SPLid}", "${Group}", "${SubGroup}" );`
+
+            con.query(insertSeriesData, (err, result) => {
                if (err) throw err;
 
                res.send(result)
             })
-         })
 
-      }
+         }
+      })
+
    })
 }
 
