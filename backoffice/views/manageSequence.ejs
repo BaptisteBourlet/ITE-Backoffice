@@ -242,19 +242,29 @@
                items: [
                {
                      xtype: "button",
+                     id: "deleteCategoryCombo",
+                     iconCls: "fa fa-trash",
+                     text: "",
+                     style: "padding: 7px; border: none; background-color: #000",
+                     handler: function () { deleteCategory('category') },
+
+
+                  },
+                  {
+                     xtype: "button",
                      id: "EditCombo",
                      iconCls: "fa fa-edit",
                      text: "",
-                     listeners:{
-                        click: function (){
+                     listeners: {
+                        click: function () {
                            console.log(Ext.getCmp('CategoryID').getRawValue())
-                           if (Ext.getCmp('CategoryID').getRawValue() == null || Ext.getCmp('CategoryID').getRawValue() == ''){
+                           if (Ext.getCmp('CategoryID').getRawValue() == null || Ext.getCmp('CategoryID').getRawValue() == '') {
                               Ext.Msg.alert("INFO", "No category selected");
                            } else {
                               Ext.getCmp('editSave').setHidden(false)
 
                               Ext.getCmp('Title').setValue(Ext.getCmp('CategoryID').getRawValue())
-                              
+
                               Ext.getCmp("addSave").setHidden(true);
                               Ext.getCmp("editSave").setHidden(false);
                               Ext.getCmp('tabTrans').setActiveTab(0)
@@ -268,7 +278,7 @@
                            }
                         }
                      }
-                     
+
                   },
                   {
                      xtype: "combo",
@@ -353,6 +363,17 @@
                            }
                         },
                      },
+                  },
+                  '-',
+                  {
+                     xtype: "button",
+                     id: "deleteCategory",
+                     iconCls: "fa fa-trash",
+                     text: "Delete category",
+                     style: "padding: 7px; border: none; background-color: #000",
+                     handler: function () { deleteCategory('IT') },
+
+
                   },
                ],
             },
@@ -458,55 +479,111 @@
          };
 
 
-         var deleteCategory = function () {
-            const selectedRecord = Ext.getCmp("mainGrid")
+         var deleteCategory = function (type) {
+            if (type == 'IT'){
+
+               const selectedRecord = Ext.getCmp("mainGrid")
                .getSelectionModel()
                .getSelection()[0];
-            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this category ?", function (btn, text) {
-               if (btn == 'yes') {
-                  Ext.getBody().mask('Deleting', 'x-msg-loading');
-                  Ext.Ajax.request({
-                     url: "/apiManageSequence/deleteCategory",
-                     method: "POST",
-                     cors: true,
-                     useDefaultXhrHeader: false,
-                     params: {
-                        chapterTransltedId: selectedRecord.data.id
-                     },
-                     success: function (response) {
-                        // check for errors and display error message
-                        var check = response.responseText;
-                        if (check) {
-                           var data = eval("(" + response.responseText + ")");
+               console.log(selectedRecord.data)
+               Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this category ?", function (btn, text) {
+                  if (btn == 'yes') {
+                     Ext.getBody().mask('Deleting', 'x-msg-loading');
+                     Ext.Ajax.request({
+                        url: "/apiManageSequence/deleteCategory",
+                        method: "POST",
+                        cors: true,
+                        useDefaultXhrHeader: false,
+                        params: {
+                           type: type,
+                           id: selectedRecord.data.Id,
+                        },
+                        success: function (response) {
+                           // check for errors and display error message
+                           var check = response.responseText;
+                           if (check) {
+                              var data = eval("(" + response.responseText + ")");
 
-                           if (data.serverStatus == 2) {
-                              chaptersTranslatedStore.reload();
-                              Ext.getBody().unmask();
-                              Ext.Msg.alert(
-                                 "Success",
-                                 "You have successfully deleted the category"
-                              );
-                           } else {
-                              // display error message
-                              Ext.getBody().unmask();
-                              Ext.Msg.alert(
-                                 "ERROR",
-                                 "Failed to delete the category. Contact your IT team."
-                              );
+                              if (data.serverStatus == 2) {
+                                 mainStore.reload();
+                                 Ext.getBody().unmask();
+                                 Ext.Msg.alert(
+                                    "Success",
+                                    "You have successfully deleted the category"
+                                 );
+                              } else {
+                                 // display error message
+                                 Ext.getBody().unmask();
+                                 Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to delete the category. Contact your IT team."
+                                 );
+                              }
                            }
-                        }
-                     },
-                     failure: function (response) {
-                        Ext.getBody().unmask();
-                        Ext.Msg.alert(
-                           "ERROR",
-                           "Failed to delete category. Contact your IT team."
-                        );
-                     },
+                        },
+                        failure: function (response) {
+                           Ext.getBody().unmask();
+                           Ext.Msg.alert(
+                              "ERROR",
+                              "Failed to delete category. Contact your IT team."
+                           );
+                        },
 
-                  });
-               }
-            })
+                     });
+                  }
+               })
+            } else if( type == 'category'){
+               
+           
+               Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this category ?", function (btn, text) {
+                  if (btn == 'yes') {
+                     Ext.getBody().mask('Deleting', 'x-msg-loading');
+                     Ext.Ajax.request({
+                        url: "/apiManageSequence/deleteCategory",
+                        method: "POST",
+                        cors: true,
+                        useDefaultXhrHeader: false,
+                        params: {
+                           type: type,
+                           id: Ext.getCmp('CategoryID').getValue()
+                        },
+                        success: function (response) {
+                           // check for errors and display error message
+                           var check = response.responseText;
+                           if (check) {
+                              var data = eval("(" + response.responseText + ")");
+
+                              if (data.serverStatus == 2) {
+                                 mainStore.reload();
+                                 Ext.getBody().unmask();
+                                 Ext.Msg.alert(
+                                    "Success",
+                                    "You have successfully deleted the category"
+                                 );
+                              } else {
+                                 // display error message
+                                 Ext.getBody().unmask();
+                                 Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to delete the category. Contact your IT team."
+                                 );
+                              }
+                           }
+                        },
+                        failure: function (response) {
+                           Ext.getBody().unmask();
+                           Ext.Msg.alert(
+                              "ERROR",
+                              "Failed to delete category. Contact your IT team."
+                           );
+                        },
+
+                     });
+                  }
+               })
+            }
+            
+
          }
 
          var TabTranslations = Ext.create('Ext.TabPanel', {

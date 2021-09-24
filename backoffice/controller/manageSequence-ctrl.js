@@ -145,3 +145,154 @@ exports.addCategory = async (req, res) => {
       })
    })
 }
+
+exports.deleteCategory = async (req, res) => {
+   const { id, type } = req.body;
+   let errorString = '';
+   
+   if(type == 'category'){
+      con.query(`UPDATE Category SET Publish = 0 WHERE Id = "${id}";`, (err, results, fields) => {
+         if (err) {
+            errorString += 'Category, '
+         }
+         res.send(results)
+      })
+   } else if(type == 'IT'){
+      con.query(`UPDATE InfoTree SET Publish = 0 WHERE Id = "${id}";`, (err, result, fields) => {
+         if (err) {
+            errorString += 'InfoTree, '
+         }
+         res.send(result)
+   })
+   }
+   
+      
+
+}
+
+
+
+exports.editCategory = async (req, res) => {
+   const { ProductId, Pub, Code, As400, Category, unlinkCategory } = req.body;
+   
+
+   con.query(ProductQuery, (err, results) => {
+      if (err) throw err;
+
+      const { Language, Slug, Name,
+         FRLanguage, FRName, FRSlug, FRDetails,
+         DELanguage, DEName, DESlug, DEDetails,
+         SPLanguage, SPName, SPSlug, SPDetails,
+         RULanguage, RUName, RUSlug, RUDetails } = req.body;
+
+      const ENQuery = `UPDATE CategoryInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
+      const FRQuery = `UPDATE CategoryInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
+      const DEQuery = `UPDATE CategoryInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
+      const SPQuery = `UPDATE CategoryInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp" OR Language = "es"`;
+      const RUQuery = `UPDATE CategoryInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "ru"`;
+
+      const FrQueryInsert = `INSERT INTO CategoryInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${FRLanguage}", "${ModifiedOn}", "${ProductId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}");`
+      const DeQueryInsert = `INSERT INTO CategoryInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${DELanguage}", "${ModifiedOn}", "${ProductId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}");`
+      const EsQueryInsert = `INSERT INTO CategoryInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${SPLanguage}", "${ModifiedOn}", "${ProductId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}");`
+      const RuQueryInsert = `INSERT INTO CategoryInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${RULanguage}", "${ModifiedOn}", "${ProductId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`
+
+      if (Name !== "") {
+         con.query(ENQuery, (err, results) => {
+            if (err) {
+               errorString += "English, ";
+               console.log(err);
+            }
+
+         })
+      } else {
+         console.log('English wasnt filled in');
+      }
+      if (FrDetails == 'false' && FRName !== "") {
+         console.log('Fr Insert sql')
+         con.query(FrQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "French, ";
+               console.log(err);
+            }
+
+         })
+      } else {
+
+         if (FRName !== "") {
+            con.query(FRQuery, (err, results) => {
+               if (err) {
+                  errorString += "French, ";
+                  console.log(err);
+               }
+
+            })
+         } else {
+            console.log('French wasnt filled in');
+         }
+      }
+
+      if (DeDetails == 'false' && DEName !== "") {
+         con.query(DeQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "German, ";
+               console.log(err);
+            }
+
+         })
+      } else {
+
+         if (DEName !== "") {
+            con.query(DEQuery, (err, results) => {
+               errorString += "German, ";
+               console.log(err);
+
+            })
+         } else {
+            console.log('German wasnt filled in');
+         }
+      }
+
+      if (EsDetails == 'false' && SPName !== "") {
+         con.query(EsQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "Spanish, ";
+               console.log(err);
+            }
+
+         })
+      } else {
+         if (SPName !== "") {
+            con.query(SPQuery, (err, results) => {
+               errorString += "Spanish, ";
+               console.log(err);
+
+            })
+         } else {
+            console.log('Spanish wasnt filled in');
+         }
+      }
+
+      if (RuDetails == 'false' && RUName !== "") {
+         con.query(RuQueryInsert, (err, results) => {
+            if (err) {
+               errorString += "Russian, ";
+               console.log(err);
+            }
+
+         })
+      } else {
+         if (RUName !== "") {
+            con.query(RUQuery, (err, results) => {
+               errorString += "Russian";
+               console.log(err);
+               console.log(results)
+            })
+         } else {
+            console.log('Russian wasnt filled in');
+         }
+      }
+
+      let finalResult = { ...results, errorString };
+      res.send(finalResult);
+   })
+}
