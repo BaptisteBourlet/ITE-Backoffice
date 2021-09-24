@@ -877,8 +877,6 @@
                useDefaultXhrHeader: false,
             },
             listeners: {
-               beforeload: function (store) {
-               },
             },
          });
 
@@ -907,7 +905,6 @@
                      }
 
                      if (key !== "Name" && key !== "id" && key !== "Code" && key !== "SPLid" && key !== "SerieMasterId") {
-
                         return {
                            header: key,
                            sortable: true,
@@ -920,7 +917,6 @@
                                  allowBlank: false,
 
                               },
-
                            }
                         }
                      } else if (key == "SPLid" || key == "SerieMasterId") {
@@ -2429,42 +2425,44 @@
          });
 
          linkedProducts.on("edit", (editor, event) => { //cellediting
-            let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
-            let value = linkedProductStore.getModifiedRecords()[0].data[key]
-            let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
-            let GroupArray = key[0].split('-')
+            let modifiedRecords = linkedProductStore.getModifiedRecords();
 
-            let Group = GroupArray[0]
-            let SubGroup = GroupArray[1]
-            let SerieMasterId = linkedProductStore.getModifiedRecords()[0].data['SerieMasterId'];
+            if (modifiedRecords.length !== 0) {
+               let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
+               let value = linkedProductStore.getModifiedRecords()[0].data[key]
+               let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
+               let GroupArray = key[0].split('-')
 
+               let Group = GroupArray[0]
+               let SubGroup = GroupArray[1]
 
-            Ext.Ajax.request({
-               url: "/apiSeries/updateSerieSpecs",
-               method: "POST",
-               cors: true,
-               useDefaultXhrHeader: false,
-               params: {
-                  Sid: serieIDGlobal,
-                  key: key[0],
-                  value: value,
-                  SPLid: SPLid,
-                  SerieMasterId: SerieMasterId,
-                  Group: Group,
-                  SubGroup: SubGroup
-               },
-               success: function (response) {
+               Ext.Ajax.request({
+                  url: "/apiSeries/updateSerieSpecs",
+                  method: "POST",
+                  cors: true,
+                  useDefaultXhrHeader: false,
+                  params: {
+                     Sid: serieIDGlobal,
+                     key: Group,
+                     value: value,
+                     SPLid: SPLid,
+                     Group: Group,
+                     SubGroup: SubGroup
+                  },
+                  success: function (response) {
 
-                  linkedProductStore.reload();
-               },
-               failure: function (response) {
-                  Ext.getBody().unmask();
-                  Ext.Msg.alert(
-                     "ERROR",
-                     "Failed to update Specification. Contact your IT team."
-                  );
-               },
-            });
+                     linkedProductStore.reload();
+                  },
+                  failure: function (response) {
+                     Ext.getBody().unmask();
+                     Ext.Msg.alert(
+                        "ERROR",
+                        "Failed to update Specification. Contact your IT team."
+                     );
+                  },
+               });
+            }
+
          })
 
          // const SerieSpecs = Ext.create("Ext.grid.GridPanel", {
