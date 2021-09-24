@@ -244,7 +244,6 @@ exports.editProduct = async (req, res) => {
       con.query(categoryLinkDelete, (err, deleteResult) => {
          if (err) throw err;
 
-         console.log(deleteResult);
       })
    } else {
       con.query(existLink, (err, existResult) => {
