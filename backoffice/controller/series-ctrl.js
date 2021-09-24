@@ -336,7 +336,7 @@ exports.getOtherLanguageDetailSerie = async (req, res) => {
 exports.getRelatedProductSerie = async (req, res) => {
    const { serieId } = req.query;
 
-   const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Group AS groupSD, SeriesData.Name AS nameSD, SeriesMaster.Group as groupSM, SeriesMaster.Id AS idSM, SeriesMaster.SubGroup AS subGroupSM, SeriesData.Value AS valueSD FROM Product"
+   const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Group AS groupSD, SeriesData.Name AS nameSD, SeriesMaster.Group as groupSM, SeriesMaster.Id AS idSM, SeriesMaster.SubGroup AS subGroupSM, SeriesData.Value AS valueSD, SeriesMaster.Sequence AS Sequence FROM Product"
       + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
       + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
       + " LEFT JOIN SeriesMaster ON SeriesProductLink.SeriesId = SeriesMaster.Sid "
@@ -355,7 +355,7 @@ exports.getRelatedProductSerie = async (req, res) => {
 
       for (let i = 0; i < idArray.length; i++) {
          let obj = {};
-         for (const { Id, valueSD, CODE, Catalog, SPLid, groupSM, subGroupSM, idSM, groupSD, nameSD } of results) {
+         for (const { Id, valueSD, CODE, Catalog, SPLid, groupSM, subGroupSM, idSM, groupSD, nameSD, Sequence } of results) {
             if (Id === idArray[i]) {
                obj.id = Id;
                obj.Code = CODE;
@@ -386,11 +386,11 @@ exports.getRelatedProductSerie = async (req, res) => {
                // }
 
                if ((subGroupSM === null || subGroupSM === '') && nameSD !== groupSM) {
-                  obj[groupSM + '-' + nameSD] = valueSD;
+                  obj[groupSM + '-' + nameSD + Sequence] = valueSD;
                } else if ((subGroupSM === null || subGroupSM === '') && nameSD === groupSM) {
-                  obj[groupSM] = valueSD;
+                  obj[groupSM + Sequence] = valueSD;
                } else {
-                  obj[groupSM + '-' + subGroupSM] = valueSD;
+                  obj[groupSM + '-' + subGroupSM + Sequence] = valueSD;
                }
             }
          }
