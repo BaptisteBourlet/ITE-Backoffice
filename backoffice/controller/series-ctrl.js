@@ -386,11 +386,11 @@ exports.getRelatedProductSerie = async (req, res) => {
                // }
 
                if ((subGroupSM === null || subGroupSM === '') && nameSD !== groupSM) {
-                  obj[groupSM + '-' + nameSD + Sequence] = valueSD;
+                  obj[groupSM + '--' + nameSD + Sequence] = valueSD;
                } else if ((subGroupSM === null || subGroupSM === '') && nameSD === groupSM) {
                   obj[groupSM + Sequence] = valueSD;
                } else {
-                  obj[groupSM + '-' + subGroupSM + Sequence] = valueSD;
+                  obj[groupSM + '--' + subGroupSM + Sequence] = valueSD;
                }
             }
          }
@@ -499,15 +499,16 @@ exports.getSerieSpecs = async (req, res) => {
 
 
 exports.updateSerieSpecs = async (req, res) => {
-   const { SPLid, key, value, SerieMasterId, Group, SubGroup, Sid } = req.body;
-   // console.log('updateSerieSpecs', req.body);
-   const selectSerieMasterId = `SELECT Id FROM SeriesMaster WHERE Sid = '${Sid}' AND SeriesMaster.Group = '${Group}' AND SeriesMaster.SubGroup = '${SubGroup}';`;
+   const { SPLid, key, value, SerieMasterId, Group, SubGroup, Sid, masterSequence } = req.body;
+
+   const selectSerieMasterId = `SELECT Id FROM SeriesMaster WHERE Sid = '${Sid}' AND SeriesMaster.Group = '${Group}' AND SeriesMaster.Sequence = '${masterSequence}';`;
 
    con.query(selectSerieMasterId, (err, SidResult) => {
 
       const queryCheckExist
          = `SELECT COUNT(Id) FROM SeriesData `
          + `WHERE SerieMasterId = '${SidResult[0].Id}' AND SeriesProductLinkId = '${SPLid}';`
+
       const updateSeriesData
          = `UPDATE SeriesData SET Value = '${value}' `
          + `WHERE SerieMasterId = '${SidResult[0].Id}' AND SeriesProductLinkId = '${SPLid}';`
@@ -526,17 +527,15 @@ exports.updateSerieSpecs = async (req, res) => {
 
             const insertSeriesData
             = `INSERT INTO SeriesData (SerieMasterId, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) `
-            + `VALUES ("${SidResult[0].Id}", '${value}', "${SPLid}", "${Group}", "${SubGroup}" );`
+            + `VALUES ("${SidResult[0].Id}", '${value}', "${SPLid}", "${Group}", "${subGroup}" );`
 
             con.query(insertSeriesData, (err, result) => {
                if (err) throw err;
 
                res.send(result)
             })
-
          }
       })
-
    })
 }
 

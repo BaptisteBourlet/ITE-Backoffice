@@ -906,7 +906,7 @@
 
                      if (key !== "Name" && key !== "id" && key !== "Code" && key !== "SPLid" && key !== "SerieMasterId") {
                         return {
-                           header: key.slice(0,-1),
+                           header: key.slice(0, -1),
                            sortable: true,
                            width: width,
                            dataIndex: key,
@@ -939,8 +939,6 @@
                      }
                   })
 
-                  console.log('before SORT', allColumns)
-
                   const compare = (a, b) => {
                      if (a.sort < b.sort) {
                         return -1;
@@ -952,8 +950,6 @@
                   }
 
                   allColumns.sort(compare);
-
-                  console.log('after SORT', allColumns)
 
                   linkedProducts.reconfigure(undefined, allColumns);
                   res
@@ -2449,38 +2445,46 @@
                let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
                let value = linkedProductStore.getModifiedRecords()[0].data[key]
                let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
-               let GroupArray = key[0].split('-')
+               let sequence = key[0].slice(-1);
+               key = key[0].slice(0, -1);
+               let GroupArray = key.split('--');
+               let Group = GroupArray[0];
+               let SubGroup = GroupArray[1];
+               let regEx = new RegExp("\\\\", "g");
+               let hasBlacklash = regEx.test(value);
 
-               let Group = GroupArray[0]
-               let SubGroup = GroupArray[1]
+               
+               if (value.includes("'") || hasBlacklash) {
+                  Ext.Msg.alert('INFO', `Input value cannot contain <b> single quote (') </b> or <b>backlash (\\)</b> `)
+               } else {
+                  Ext.Ajax.request({
+                     url: "/apiSeries/updateSerieSpecs",
+                     method: "POST",
+                     cors: true,
+                     useDefaultXhrHeader: false,
+                     params: {
+                        Sid: serieIDGlobal,
+                        key: Group,
+                        value: value,
+                        SPLid: SPLid,
+                        Group: Group,
+                        SubGroup: SubGroup,
+                        masterSequence: sequence
+                     },
+                     success: function (response) {
 
-               Ext.Ajax.request({
-                  url: "/apiSeries/updateSerieSpecs",
-                  method: "POST",
-                  cors: true,
-                  useDefaultXhrHeader: false,
-                  params: {
-                     Sid: serieIDGlobal,
-                     key: Group,
-                     value: value,
-                     SPLid: SPLid,
-                     Group: Group,
-                     SubGroup: SubGroup
-                  },
-                  success: function (response) {
-
-                     linkedProductStore.reload();
-                  },
-                  failure: function (response) {
-                     Ext.getBody().unmask();
-                     Ext.Msg.alert(
-                        "ERROR",
-                        "Failed to update Specification. Contact your IT team."
-                     );
-                  },
-               });
+                        linkedProductStore.reload();
+                     },
+                     failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to update Specification. Contact your IT team."
+                        );
+                     },
+                  });
+               }
             }
-
          })
 
          // const SerieSpecs = Ext.create("Ext.grid.GridPanel", {
