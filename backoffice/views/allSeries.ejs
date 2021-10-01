@@ -898,6 +898,8 @@
                   console.log('response', res)
                   let keys = Object.keys(res[0]);
 
+                  console.log('keys', keys)
+
                   let allColumns = keys.map(key => {
                      let width = 150;
                      if (key === 'Name') {
@@ -2236,7 +2238,6 @@
                params: {
                   SeriesId: serieIDGlobal,
                   ProductId: Ext.getCmp("ProductDesc").getValue(),
-
                },
                success: function (response) {
                   // check for errors and display error message
@@ -2340,7 +2341,6 @@
                xtype: 'displayfield',
                id: 'Productcatalog',
                fieldLabel: "Product description",
-
             }
          ]
 
@@ -2411,7 +2411,8 @@
                   id: "addRelatedSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-                     addSeriesRelatedProd()
+                     addSeriesRelatedProd();
+
                      Ext.getCmp('addForm2').reset();
                      Ext.getCmp("viewport").setActiveItem("SerieDetails");
                   },
