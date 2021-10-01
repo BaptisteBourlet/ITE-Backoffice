@@ -345,12 +345,12 @@ exports.getRelatedProductSerie = async (req, res) => {
       if (err) throw err;
       let idArray = [];
       let result = [];
+
       results.forEach(res => {
          if (!idArray.includes(res.Id)) {
             idArray.push(res.Id);
          }
       })
-
       for (let i = 0; i < idArray.length; i++) {
          let obj = {};
          for (const { Id, valueSD, CODE, Catalog, SPLid, groupSM, subGroupSM, idSM, groupSD, nameSD, Sequence } of results) {
@@ -383,7 +383,9 @@ exports.getRelatedProductSerie = async (req, res) => {
                //    obj[groupSM] = valueSD;
                // }
 
-               if ((subGroupSM === null || subGroupSM === '') && nameSD !== groupSM) {
+               if ((subGroupSM === null || subGroupSM === '') && nameSD === '') {
+                  obj[groupSM + Sequence] = valueSD;
+               } else if ((subGroupSM === null || subGroupSM === '') && nameSD !== groupSM) {
                   obj[groupSM + '--' + nameSD + Sequence] = valueSD;
                } else if ((subGroupSM === null || subGroupSM === '') && nameSD === groupSM) {
                   obj[groupSM + Sequence] = valueSD;
@@ -440,6 +442,9 @@ exports.getRelatedProductSerie = async (req, res) => {
 
 exports.addSeriesRelatedProduct = async (req, res) => {
    const { ProductId, SeriesId } = req.body;
+
+   console.log(req.body);
+
    const querySeriesProductLink = `INSERT INTO SeriesProductLink (ProductId, SeriesId) VALUES ("${ProductId}", "${SeriesId}");`
 
    con.query(querySeriesProductLink, (err, results, fields) => {
@@ -459,17 +464,16 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
       if (err) {
          errorString += 'Product, '
       }
-      console.log(result)
+      console.log('delete from serie data')
+      con.query(`DELETE FROM SeriesProductLink WHERE ProductId = '${ProductId}' AND SeriesId = '${SeriesId}';`, (err, results, fields) => {
+         if (err) {
+            errorString += 'Product, '
+         }
+         console.log(results);
+         console.log('delete from serie product link')
+         res.send(results)
+      })
    })
-   con.query(`DELETE FROM SeriesProductLink WHERE ProductId = '${ProductId}' AND SeriesId = '${SeriesId}';`, (err, results, fields) => {
-      if (err) {
-         errorString += 'Product, '
-      }
-      console.log(results)
-      res.send(results)
-
-   })
-
 }
 
 exports.addRelatedProductFromSeriesView = async (req, res) => {
@@ -500,7 +504,7 @@ exports.updateSerieSpecs = async (req, res) => {
    const { SPLid, key, value, SerieMasterId, Group, SubGroup, Sid, masterSequence } = req.body;
 
    const selectSerieMasterId = `SELECT Id FROM SeriesMaster WHERE Sid = '${Sid}' AND SeriesMaster.Group = '${Group}' AND SeriesMaster.Sequence = '${masterSequence}';`;
-
+   
    con.query(selectSerieMasterId, (err, SidResult) => {
 
       const queryCheckExist
@@ -525,7 +529,7 @@ exports.updateSerieSpecs = async (req, res) => {
 
             const insertSeriesData
                = `INSERT INTO SeriesData (SerieMasterId, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) `
-               + `VALUES ("${SidResult[0].Id}", '${value}', "${SPLid}", "${Group}", "${SubGroup}" );`
+               + `VALUES ("${SidResult[0].Id}", '${value}', "${SPLid}", "${Group}", "${SubGroup}");`
 
             con.query(insertSeriesData, (err, result) => {
                if (err) throw err;
