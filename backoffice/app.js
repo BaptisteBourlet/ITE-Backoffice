@@ -24,7 +24,6 @@ app = express();
 // check if translated for all
 // chapter transform lowercase done
 // check delete assets
-
 // edit cell te-head series
 
 app.use(express.json());

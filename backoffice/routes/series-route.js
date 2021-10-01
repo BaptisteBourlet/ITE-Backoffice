@@ -15,7 +15,7 @@ var storage = multer.diskStorage({
    }
 })
 
-const imgUpload = multer({ storage: storage});
+const imgUpload = multer({ storage: storage });
 
 
 
@@ -64,6 +64,8 @@ router.get('/getProductDetails', apiCtrl.getProductDetails);
 router.get('/getProductDet', apiCtrl.getProductDet);
 
 router.post('/getRelatedCatalog', apiCtrl.getRelatedCatalog);
+
+router.get('/getLinkedImage', apiCtrl.getLinkedImage);
 
 router.post('/uploadSerieImage', imgUpload.single('image'), apiCtrl.uploadSerieImage);
 

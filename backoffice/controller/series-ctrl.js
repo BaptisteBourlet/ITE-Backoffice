@@ -17,8 +17,6 @@ const con = mysql.createConnection({
    multipleStatements: true
 })
 
-
-
 exports.getAllSeries = async (req, res) => {
    const query = "SELECT SeriesInfo.SeriesId as Sid, Title, Series.Key, Tree"
       + " FROM SeriesInfo"
@@ -526,8 +524,8 @@ exports.updateSerieSpecs = async (req, res) => {
             if (err) throw err;
 
             const insertSeriesData
-            = `INSERT INTO SeriesData (SerieMasterId, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) `
-            + `VALUES ("${SidResult[0].Id}", '${value}', "${SPLid}", "${Group}", "${subGroup}" );`
+               = `INSERT INTO SeriesData (SerieMasterId, SeriesData.Value, SeriesProductLinkId, SeriesData.Group, SeriesData.Name) `
+               + `VALUES ("${SidResult[0].Id}", '${value}', "${SPLid}", "${Group}", "${SubGroup}" );`
 
             con.query(insertSeriesData, (err, result) => {
                if (err) throw err;
@@ -666,7 +664,7 @@ exports.getProductDet = async (req, res) => {
 }
 
 exports.getRelatedCatalog = async (req, res) => {
-   let { ProductId } = req.body;
+   const { ProductId } = req.body;
 
    con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
       if (err) {
@@ -676,6 +674,22 @@ exports.getRelatedCatalog = async (req, res) => {
    })
 }
 
+
+exports.getLinkedImage = async (req, res) => {
+   const { Id } = req.query;
+
+   if (Id) {
+      const query = `SELECT * FROM Assets WHERE SerieId = ${Id}`;
+
+      con.query(query, (err, results) => {
+         if (err) throw err;
+
+         res.send(results);
+      })
+   } else {
+      res.send('no Id');
+   }
+}
 
 // upload and save image done by upload middleware, check api-routes.
 // after image saved, it will be resized and paths will be saved to Assets database here 

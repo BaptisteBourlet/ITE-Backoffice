@@ -36,7 +36,7 @@ const applyUserRights = (userRights) => {
         field.setReadOnly(true);
       })
     }
-    // ******** END LANGUAGES EDITTING ************
+    // ******** END LANGUAGES EDITTING **********
   }
 
 
