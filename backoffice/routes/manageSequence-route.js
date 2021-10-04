@@ -29,5 +29,10 @@ router.post('/getOtherLanguageDetail', apiCtrl.getOtherLanguageDetail);
 
 router.post('/deleteCategory', apiCtrl.deleteCategory);
 
+router.post('/editCategory', apiCtrl.editCategory);
+
+router.get('/getItemDetail', apiCtrl.getItemDetail);
+
+
 
 module.exports = router;
