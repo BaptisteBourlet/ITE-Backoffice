@@ -679,22 +679,6 @@ exports.getRelatedCatalog = async (req, res) => {
 }
 
 
-exports.getLinkedImage = async (req, res) => {
-   const { Id } = req.query;
-
-   if (Id) {
-      const query = `SELECT * FROM Assets WHERE SerieId = ${Id}`;
-
-      con.query(query, (err, results) => {
-         if (err) throw err;
-
-         res.send(results);
-      })
-   } else {
-      res.send('no Id');
-   }
-}
-
 // upload and save image done by upload middleware, check api-routes.
 // after image saved, it will be resized and paths will be saved to Assets database here 
 exports.uploadSerieImage = async (req, res) => {
@@ -777,5 +761,34 @@ exports.uploadSerieImage = async (req, res) => {
             })
          })
 
+   })
+}
+
+
+
+exports.getLinkedImage = async (req, res) => {
+   const { Id } = req.query;
+
+   if (Id) {
+      const query = `SELECT * FROM Assets WHERE SerieId = ${Id} ORDER BY Sequence`;
+      con.query(query, (err, results) => {
+         if (err) throw err;
+
+         res.send(results);
+      })
+   } else {
+      res.send({a: 'a'});
+   }
+}
+
+exports.updateImageSequence = async (req, res) => {
+   const { Id, Sequence } = req.body;
+
+   const query = `UPDATE Assets SET Sequence = ${Sequence} WHERE Id = ${Id};`
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
    })
 }

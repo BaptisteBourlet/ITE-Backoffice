@@ -34,7 +34,6 @@ router.post('/searchAssetsProduct', apiCtrl.searchAssetsProduct);
 
 router.post('/searchAssetsSeries', apiCtrl.searchAssetsSeries);
 
-
 router.post('/uploadProductImage', imgUpload.single('image'), apiCtrl.uploadProductImage);
 
 router.post('/uploadSerieImage', imgUpload.single('image'), apiCtrl.uploadSerieImage);

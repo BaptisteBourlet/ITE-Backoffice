@@ -747,3 +747,31 @@ exports.uploadProductImage = async (req, res) => {
          });
    })
 }
+
+exports.getLinkedImage = async (req, res) => {
+   const { Id } = req.query;
+
+   if (Id) {
+      const query = `SELECT * FROM Assets WHERE ProductId = ${Id} ORDER BY Sequence`;
+      con.query(query, (err, results) => {
+         if (err) throw err;
+
+         res.send(results);
+      })
+   } else {
+      res.send({a: 'a'});
+   }
+}
+
+
+exports.updateImageSequence = async (req, res) => {
+   const { Id, Sequence } = req.body;
+
+   const query = `UPDATE Assets SET Sequence = ${Sequence} WHERE Id = ${Id};`
+
+   con.query(query, (err, result) => {
+      if (err) throw err;
+
+      res.send(result);
+   })
+}

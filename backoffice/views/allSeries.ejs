@@ -620,6 +620,9 @@
          }
 
 
+
+
+
          const Model = Ext.define("Categories", {
             extend: "Ext.data.Model",
             fields: ["Sid", "Key", "Title", "CreatedOn", "ModifiedOn", "Publish"],
@@ -628,7 +631,6 @@
             id: "mainStore",
             autoLoad: true,
             model: Model,
-
             proxy: {
                type: "ajax",
                method: "POST",
@@ -871,7 +873,6 @@
                noCache: true,
                reader: {
                   type: "json",
-
                },
                cors: true,
                useDefaultXhrHeader: false,
@@ -1330,11 +1331,15 @@
                         const selectedRecord = Ext.getCmp("SeriesGrid")
                            .getSelectionModel()
                            .getSelection()[0];
-                        const SeriesId = selectedRecord.data['Sid'];
 
-                        linkedImageStore.getProxy().setExtraParam('Id', SeriesId);
-                        linkedImageStore.reload();
-                        Ext.getCmp('viewport').setActiveItem('linkedImageGrid');
+                        if (selectedRecord) {
+                           const SeriesId = selectedRecord.data['Sid'];
+                           linkedImageStore.getProxy().setExtraParam('Id', SeriesId);
+                           linkedImageStore.reload();
+                           Ext.getCmp('viewport').setActiveItem('linkedImageGrid');
+                        } else {
+                           Ext.Msg.alert('INFO', 'No Series selected')
+                        }
                      },
                   },
                ],
@@ -2411,7 +2416,7 @@
                   id: "addRelatedSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-                     let linkedProductID = Ext.getCmp('ProductIdRelated').getValue() //ongoing
+                     let linkedProductID = Ext.getCmp('ProductIdRelated').getValue()
                      let exist = false;
 
                      Array.from(linkedProductStore.data.items).forEach(product => {
@@ -2446,7 +2451,7 @@
             enableColumnMove: false,
             sortable: true,
             frame: false,
-            renderTo: Ext.getBody(),
+            // renderTo: Ext.getBody(),
             height: 690,
             dockedItems: [...linkedProductTbar],
             selModel: 'cellmodel',
@@ -2454,28 +2459,10 @@
                ptype: 'cellediting',
                clicksToEdit: 1
             },
-            // listeners: {
-            //    dblclick: {
-            //       element: "body",
-            //       fn: () => {
-            //          const selectedRecord = Ext.getCmp("linkedProducts")
-            //             .getSelectionModel()
-            //             .getSelection()[0];
-            //          console.log(selectedRecord);
-            //          serieSpecStore.getProxy().setExtraParam('serieLink', selectedRecord.data.SPLid)
-            //          serieSpecStore.reload();
-            //          Ext.getCmp("viewport").setActiveItem("SerieSpecs");
-            //       },
-            //    },
-            // },
          });
 
-         linkedProducts.on("edit", (editor, event) => { //cellediting
+         linkedProducts.on("edit", (editor, event) => {
             let modifiedRecords = linkedProductStore.getModifiedRecords();
-
-
-
-
 
             if (modifiedRecords.length !== 0) {
                let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
@@ -3197,133 +3184,141 @@
 
 
 
-         // const linkedImageModel = Ext.define("Images", {
-         //    extend: "Ext.data.Model",
-         //    fields: ["Id", "Type", "Size", "Path", "Sequence"],
-         // });
+         const linkedImageModel = Ext.define("Images", {
+            extend: "Ext.data.Model",
+            fields: ["Id", "Type", "Size", "Path", "Sequence"],
+         });
 
-         // const linkedImageStore = Ext.create("Ext.data.Store", {
-         //    id: "linkedImageStore",
-         //    autoLoad: true,
-         //    model: linkedImageModel,
+         const linkedImageStore = Ext.create("Ext.data.Store", {
+            id: "linkedImageStore",
+            autoLoad: true,
+            model: linkedImageModel,
+            proxy: {
+               type: "ajax",
+               method: "GET",
+               url: "/apiSeries/getLinkedImage",
+               noCache: true,
+               reader: {
+                  type: "json",
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+            listeners: {
+               beforeload: function (store) {
+               },
+            },
+         });
 
-         //    proxy: {
-         //       type: "ajax",
-         //       method: "GET",
-         //       url: "/apiSeries/getLinkedImage",
-         //       noCache: true,
-         //       reader: {
-         //          type: "json",
-         //       },
-         //       params: {
-         //          Id: '5',
-         //       },
-         //       cors: true,
-         //       useDefaultXhrHeader: false,
-         //    },
-         //    listeners: {
-         //       beforeload: function (store) {
+         const linkedImageColumns = [
+            {
+               header: "ID",
+               sortable: true,
+               width: 50,
+               dataIndex: "Id",
+               align: 'center'
+            },
+            {
+               header: "Type",
+               sortable: true,
+               width: 100,
+               dataIndex: "Type",
+               align: 'left'
+            },
+            {
+               header: "Image",
+               sortable: true,
+               width: 170,
+               dataIndex: "Path",
+               align: 'left',
+               renderer: (value) => {
+                  return `<img src="/pictures/${value}" width="150" height="150">`;
+               }
+            },
+            {
+               header: "Sequence",
+               sortable: true,
+               width: 120,
+               dataIndex: "Sequence",
+               align: 'left',
+               editor: {
+                  completeOnEnter: true,
+                  field: {
+                     xtype: "numberfield",
+                     allowBlank: false,
 
-         //       },
-         //    },
-         // });
+                  },
+               },
+            },
+         ]
 
-         // const linkedImageColumns = [
-         //    {
-         //       header: "ID",
-         //       sortable: true,
-         //       width: 50,
-         //       dataIndex: "Id",
-         //       align: 'center'
-         //    },
-         //    {
-         //       header: "Type",
-         //       sortable: true,
-         //       width: 100,
-         //       dataIndex: "Type",
-         //       align: 'left'
-         //    },
-         //    {
-         //       header: "Path",
-         //       sortable: true,
-         //       width: 140,
-         //       dataIndex: "Path",
-         //       align: 'left',
-         //       renderer: (value) => {
-         //          return `<img src="/pictures/${value}" width="130" height="130">`;
-         //       }
-         //    },
-         //    // {
-         //    //    header: "Size",
-         //    //    sortable: true,
-         //    //    width: 50,
-         //    //    dataIndex: "Size",
-         //    //    align: 'left',
-         //    //    renderer: (value) => {
-         //    //       switch(value) {
-         //    //          case "O":
-         //    //             return "Original"
-         //    //       }
-         //    //    }
-         //    // },
-         //    {
-         //       header: "Sequence",
-         //       sortable: true,
-         //       width: 80,
-         //       dataIndex: "Sequence",
-         //       align: 'left'
-         //    },
-         // ]
+         const linkedImageGrid = Ext.create("Ext.grid.GridPanel", {
+            id: "linkedImageGrid",
+            flex: 1,
+            scrollable: true,
+            title: "Linked Images",
+            trackOver: true,
+            loadMask: true,
+            store: linkedImageStore,
+            columns: linkedImageColumns,
+            enableColumnMove: false,
+            sortable: true,
+            frame: false,
+            renderTo: Ext.getBody(),
+            height: 690,
+            dockedItems: [
+               {
+                  xtype: "toolbar",
+                  dock: "top",
+                  id: "linkedImageToolBar",
+                  items: [
+                     {
+                        xtype: "button",
+                        id: "linkedImageBack",
+                        iconCls: "fa fa-undo-alt",
+                        text: "Back",
+                        scale: "small",
+                        handler: function () {
+                           Ext.getCmp('viewport').setActiveItem('SeriesGrid')
+                        },
+                     },
+                  ],
+               },
+            ],
+            plugins: {
+               ptype: 'cellediting',
+               clicksToEdit: 1
+            },
+         });
 
-         // const linkedImageGrid = Ext.create("Ext.grid.GridPanel", {
-         //    id: "linkedImageGrid",
-         //    flex: 1,
-         //    scrollable: true,
-         //    title: "Linked Images",
-         //    trackOver: true,
-         //    loadMask: true,
-         //    store: linkedImageStore,
-         //    columns: linkedImageColumns,
-         //    enableColumnMove: false,
-         //    sortable: true,
-         //    frame: false,
-         //    renderTo: Ext.getBody(),
-         //    height: 690,
-         //    dockedItems: [
-         //       {
-         //          xtype: "button",
-         //          id: "add",
-         //          iconCls: "fa fa-plus-circle",
-         //          text: "New",
-         //          scale: "small",
-         //          handler: function () {
-         //             Ext.getCmp('tabTrans').setActiveTab(0)
-         //             Ext.getCmp("addSave").setHidden(false);
-         //             Ext.getCmp("editSave").setHidden(true);
-         //             Ext.getCmp("panelAdd").setTitle("Add series");
-         //             Ext.getCmp("viewport").setActiveItem("panelAdd");
-         //          },
-         //       },
-         //       "-",
-         //       {
-         //          xtype: "button",
-         //          id: "add",
-         //          iconCls: "fa fa-plus-circle",
-         //          text: "New",
-         //          scale: "small",
-         //          handler: function () {
-         //             Ext.getCmp('tabTrans').setActiveTab(0)
-         //             Ext.getCmp("addSave").setHidden(false);
-         //             Ext.getCmp("editSave").setHidden(true);
-         //             Ext.getCmp("panelAdd").setTitle("Add series");
-         //             Ext.getCmp("viewport").setActiveItem("panelAdd");
-         //          },
-         //       },
-         //    ],
-         //    listeners: {
+         linkedImageGrid.on('edit', (editor, event) => {  //ongoing
 
-         //    },
-         // });
+            Ext.getBody().mask('Updating', 'x-msg-loading');
+            Ext.Ajax.request({
+               url: "/apiSeries/updateImageSequence",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  Id: event.record.data.Id,
+                  Sequence: event.record.data.Sequence,
+               },
+               success: function (response) {
+                  let result = JSON.parse(response.responseText);
+                  Ext.getBody().unmask();
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to delete related product. Contact your IT team."
+                  );
+               },
+
+            });
+
+
+         })
 
 
          let userRights = JSON.parse(localStorage.getItem('userRights'));
@@ -3340,7 +3335,7 @@
             id: "viewport",
             layout: "card",
             activeItem: 'SeriesGrid',
-            items: [SeriesGrid, SerieDetails, panelAdd, panelAdd2, panelAddRelated, linkedProducts, addSerieSpecs, SeriesMasterSpecs, specValueAddPanel, imagePanel],
+            items: [SeriesGrid, SerieDetails, panelAdd, panelAdd2, panelAddRelated, linkedProducts, addSerieSpecs, SeriesMasterSpecs, specValueAddPanel, imagePanel, linkedImageGrid],
          });
       });
    </script>

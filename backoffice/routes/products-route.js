@@ -59,4 +59,9 @@ router.get('/getRelatedProductSerie', apiCtrl.getRelatedProductSerie);
 router.post('/updateSerieSpecs', apiCtrl.updateSerieSpecs);
 
 router.post('/uploadProductImage', imgUpload.single('image'), apiCtrl.uploadProductImage);
+
+router.get('/getLinkedImage', apiCtrl.getLinkedImage);
+
+router.post('/updateImageSequence',  apiCtrl.updateImageSequence);
+
 module.exports = router;

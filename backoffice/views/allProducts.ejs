@@ -480,7 +480,7 @@
               getEditInfo(res[0][0]);
             }
 
-            if(Category !== '') {
+            if (Category !== '') {
               Ext.getCmp('unlinkCategory').setValue(false)
             } else {
               Ext.getCmp('unlinkCategory').setValue(true)
@@ -1229,6 +1229,29 @@
               scale: "small",
               handler: function () { deleteProduct() },
             },
+            "-",
+            {
+              xtype: "button",
+              id: "viewLinkedImage",
+              text: "View Linked Images",
+              iconCls: "fas fa-images",
+              scale: "small",
+              handler: function () { //ongoing
+                const selectedRecord = Ext.getCmp("AllProductGrid")
+                  .getSelectionModel()
+                  .getSelection()[0];
+
+                if (selectedRecord) {
+                  const ProductId = selectedRecord.data['Id'];
+                  linkedImageStore.getProxy().setExtraParam('Id', ProductId);
+                  linkedImageStore.reload();
+
+                  Ext.getCmp('viewport').setActiveItem('linkedImageGrid');
+                } else {
+                  Ext.Msg.alert('INFO', 'No Product selected')
+                }
+              },
+            },
 
           ],
         },
@@ -1564,7 +1587,6 @@
                   Ext.getCmp("viewport").setActiveItem("panelAdd2");
                 },
               },
-              
               "-",
               {
                 xtype: "button",
@@ -2530,7 +2552,7 @@
         enableColumnMove: false,
         sortable: true,
         frame: false,
-        renderTo: Ext.getBody(),
+        // renderTo: Ext.getBody(),
         height: 690,
         dockedItems: [...linkedProductTbar],
         selModel: 'cellmodel',
@@ -2660,6 +2682,143 @@
         ]
       })
 
+
+
+      const linkedImageModel = Ext.define("Images", {
+        extend: "Ext.data.Model",
+        fields: ["Id", "Type", "Size", "Path", "Sequence"],
+      });
+
+      const linkedImageStore = Ext.create("Ext.data.Store", {
+        id: "linkedImageStore",
+        autoLoad: true,
+        model: linkedImageModel,
+        proxy: {
+          type: "ajax",
+          method: "GET",
+          url: "/apiProducts/getLinkedImage",
+          noCache: true,
+          reader: {
+            type: "json",
+          },
+          cors: true,
+          useDefaultXhrHeader: false,
+        },
+        listeners: {
+          beforeload: function (store) {
+          },
+        },
+      });
+
+      const linkedImageColumns = [
+        {
+          header: "ID",
+          sortable: true,
+          width: 50,
+          dataIndex: "Id",
+          align: 'center'
+        },
+        {
+          header: "Type",
+          sortable: true,
+          width: 100,
+          dataIndex: "Type",
+          align: 'left'
+        },
+        {
+          header: "Image",
+          sortable: true,
+          width: 170,
+          dataIndex: "Path",
+          align: 'left',
+          renderer: (value) => {
+            return `<img src="/pictures/${value}" width="150" height="150">`;
+          }
+        },
+        {
+          header: "Sequence",
+          sortable: true,
+          width: 120,
+          dataIndex: "Sequence",
+          align: 'left',
+          editor: {
+            completeOnEnter: true,
+            field: {
+              xtype: "numberfield",
+              allowBlank: false,
+
+            },
+          },
+        },
+      ]
+
+      const linkedImageGrid = Ext.create("Ext.grid.GridPanel", {
+        id: "linkedImageGrid",
+        flex: 1,
+        scrollable: true,
+        title: "Linked Images",
+        trackOver: true,
+        loadMask: true,
+        store: linkedImageStore,
+        columns: linkedImageColumns,
+        enableColumnMove: false,
+        sortable: true,
+        frame: false,
+        renderTo: Ext.getBody(),
+        height: 690,
+        dockedItems: [
+          {
+            xtype: "toolbar",
+            dock: "top",
+            id: "linkedImageToolBar",
+            items: [
+              {
+                xtype: "button",
+                id: "linkedImageBack",
+                iconCls: "fa fa-undo-alt",
+                text: "Back",
+                scale: "small",
+                handler: function () {
+                  Ext.getCmp('viewport').setActiveItem('AllProductGrid')
+                },
+              },
+            ],
+          },
+        ],
+        plugins: {
+          ptype: 'cellediting',
+          clicksToEdit: 1
+        },
+      });
+
+      linkedImageGrid.on('edit', (editor, event) => {  //ongoing
+
+        Ext.getBody().mask('Updating', 'x-msg-loading');
+        Ext.Ajax.request({
+          url: "/apiProducts/updateImageSequence",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            Id: event.record.data.Id,
+            Sequence: event.record.data.Sequence,
+          },
+          success: function (response) {
+            let result = JSON.parse(response.responseText);
+            Ext.getBody().unmask();
+          },
+          failure: function (response) {
+            Ext.getBody().unmask();
+            Ext.Msg.alert(
+              "ERROR",
+              "Failed to delete related product. Contact your IT team."
+            );
+          },
+
+        });
+      })
+
+
       let userRights = JSON.parse(localStorage.getItem('userRights'));
       if (userRights !== null) {
         applyUserRights(userRights);
@@ -2673,7 +2832,7 @@
         id: "viewport",
         layout: "card",
         activeItem: 0,
-        items: [AllProductGrid, productDetails, panelAdd, panelAdd2, linkedProducts, imagePanel],
+        items: [AllProductGrid, productDetails, panelAdd, panelAdd2, linkedProducts, imagePanel, linkedImageGrid],
       });
     });
 
