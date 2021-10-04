@@ -14,7 +14,8 @@ const con = mysql.createConnection({
    user: DB.user,
    password: DB.password,
    database: DB.database,
-   multipleStatements: true
+   multipleStatements: true,
+   port: '33006'
 })
 
 

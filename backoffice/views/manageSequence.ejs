@@ -240,7 +240,7 @@
                dock: "top",
                id: "searchBar",
                items: [
-               {
+                  {
                      xtype: "button",
                      id: "deleteCategoryCombo",
                      iconCls: "fa fa-trash",
@@ -308,7 +308,7 @@
                      xtype: "button",
                      id: "resetSearch",
                      iconCls: "fas fa-undo-alt",
-                     text: "Reset Edit",
+                     text: "Reset",
                      style: "padding: 7px; border: none; background-color: #000",
                      listeners: {
                         click: () => {
@@ -317,6 +317,7 @@
                         },
                      },
                   },
+                  "-",
                   {
                      xtype: "button",
                      id: "AddCategory",
@@ -348,6 +349,7 @@
                            if (selectedRecord === undefined) {
                               Ext.Msg.alert("INFO", "No record selected");
                            } else {
+                              
                               Ext.getCmp('Title').setValue(selectedRecord.data.Description)
                               categoryIDGlobal = selectedRecord.data.Id;
                               Ext.getCmp("addSave").setHidden(true);
@@ -373,7 +375,17 @@
                      style: "padding: 7px; border: none; background-color: #000",
                      handler: function () { deleteCategory('IT') },
 
-
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: "addLinkedItem",
+                     iconCls: "fa fa-plus",
+                     text: "Add linked item",
+                     style: "padding: 7px; border: none; background-color: #000",
+                     handler:function(){
+                        Ext.getCmp("viewport").setActiveItem("panelAddRelated");
+                     }
                   },
                ],
             },
@@ -434,16 +446,37 @@
          var editCategory = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
-               url: "/apiManageSequence/updateCategory",
+               url: "/apiManageSequence/editCategory",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
                params: {
-                  id: chapterId,
-                  Chapter: Ext.getCmp("Chapter").getValue(),
-                  Language: Ext.getCmp("Language").getValue().toLowerCase(),
-                  Translated: getCheckboxValue(),
+                  id: Ext.getCmp('CategoryID').getValue(),
+                  Title: Ext.getCmp('Title').getValue(),
+                  Slug: Ext.getCmp('ENName').getValue().toLowerCase().replaceAll(" ", "-"),
+                  Language: "en",
+                  Name: Ext.getCmp("ENName").getValue().trim(),
+                  //FR
+                  FrDetails: sessionStorage.getItem('FREdit'),
+                  FRLanguage: "fr",
+                  FRName: Ext.getCmp("FRName").getValue().trim(),
+                  FRSlug: Ext.getCmp('FRName').getValue().toLowerCase().replaceAll(" ", "-"),
 
+                  //DE
+                  DeDetails: sessionStorage.getItem('DEEdit'),
+                  DELanguage: "de",
+                  DEName: Ext.getCmp("DEName").getValue().trim(),
+                  DESlug: Ext.getCmp('DEName').getValue().toLowerCase().replaceAll(" ", "-"),
+                  //SP
+                  EsDetails: sessionStorage.getItem('SPEdit'),
+                  SPLanguage: "sp",
+                  SPName: Ext.getCmp("SPName").getValue().trim(),
+                  SPSlug: Ext.getCmp('SPName').getValue().toLowerCase().replaceAll(" ", "-"),
+                  //RU
+                  RuDetails: sessionStorage.getItem('RUEdit'),
+                  RULanguage: "ru",
+                  RUName: Ext.getCmp("RUName").getValue().trim(),
+                  RUSlug: Ext.getCmp('RUName').getValue().toLowerCase().replaceAll(" ", "-"),
                },
                success: function (response) {
                   // check for errors and display error message
@@ -480,11 +513,11 @@
 
 
          var deleteCategory = function (type) {
-            if (type == 'IT'){
+            if (type == 'IT') {
 
                const selectedRecord = Ext.getCmp("mainGrid")
-               .getSelectionModel()
-               .getSelection()[0];
+                  .getSelectionModel()
+                  .getSelection()[0];
                console.log(selectedRecord.data)
                Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this category ?", function (btn, text) {
                   if (btn == 'yes') {
@@ -532,9 +565,9 @@
                      });
                   }
                })
-            } else if( type == 'category'){
-               
-           
+            } else if (type == 'category') {
+
+
                Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this category ?", function (btn, text) {
                   if (btn == 'yes') {
                      Ext.getBody().mask('Deleting', 'x-msg-loading');
@@ -582,7 +615,7 @@
                   }
                })
             }
-            
+
 
          }
 
@@ -965,7 +998,7 @@
                      var data = JSON.parse(check);
                      if (data) {
                         Ext.getBody().unmask();
-
+                        mainStore.reload()
                         Ext.getCmp("viewport").setActiveItem('mainGrid');
                      }
 
@@ -1018,7 +1051,7 @@
                   iconCls: "fas fa-save",
                   handler: function () {
                      if (Ext.getCmp('addForm').isValid()) {
-                        editCatefory()
+                        editCategory()
                         Ext.getCmp("addForm").reset();
                      }
                   },
@@ -1039,6 +1072,238 @@
          });
 
 
+ //<!-- ----------------------------------------------------------------------- -->
+         //<!--                           Add related product                           -->
+         //<!-- ----------------------------------------------------------------------- -->
+         var addRelatedProd = function () {
+            Ext.getBody().mask("Saving", "x-msg-loading");
+            Ext.Ajax.request({
+               url: "/apiManageSequence/addRelatedProduct",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  CategoryId: categoryIDGlobal,
+                  ItemId: Ext.getCmp("ProductDesc").getValue(),
+
+               },
+               success: function (response) {
+                  // check for errors and display error message
+                  var check = response.responseText;
+                  if (check) {
+                     var data = eval("(" + response.responseText + ")");
+                     if (data.serverStatus == 2) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "Success",
+                           "You have successfully add the related product"
+                        );
+                     } else {
+                        // display error message
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add the related product. Contact your IT team."
+                        );
+                     }
+                  }
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to add the related product. Contact your IT team."
+                  );
+               },
+            });
+         };
+
+
+         const ProductDet = Ext.define("ProductDet", {
+            extend: "Ext.data.Model",
+            fields: ["CODE", "Id"],
+         });
+
+         const ProductDetStore = Ext.create("Ext.data.Store", {
+            id: "ProductDetStore",
+            autoLoad: false,
+            model: ProductDet,
+            proxy: {
+               type: "ajax",
+               method: "POST",
+               url: "/apiManageSequence/getItemDetail",
+               noCache: true,
+               reader: {
+                  type: "json",
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  Type: Ext.getCmp('Types').getValue(),
+                  ItemId: Ext.getCmp("ProductDesc").getValue(),
+
+               },
+            },
+         });
+
+
+         const getRelatedItems = (ItemId) => {
+            Ext.Ajax.request({
+               url: "/apiManageSequence/getRelatedItems",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  ItemId: ItemId,
+               },
+               success: function (response) {
+                  const res = JSON.parse(response.responseText);
+
+                  Ext.getCmp("RPCatalog").setValue(res[0].Catalog);
+
+               },
+               failure: function (response) {
+                  console.log("failed", response);
+               },
+            });
+         };
+
+         var TypeStore = Ext.create("Ext.data.Store", {
+            fields: ["TypeCode", "TypeName"],
+            data: [
+               { TypeCode: "C", TypeName: "Category" },
+               { TypeCode: "P", TypeName: "Product" },
+               { TypeCode: "S", TypeName: "Serie" },
+            ],
+            storeId: "TypeStore",
+         });
+
+         var itemsAddRelated = [
+         {
+               xtype: "combo",
+               id: "Types",
+               name: "Types",
+               store: TypeStore,
+               width: 300,
+               fieldLabel: "Type",
+               displayField: "TypeName",
+               valueField: "TypeCode",
+               // anchor: "100%",
+               allowBlank: false,
+               selectOnFocus: false,
+               editable: false,
+               change: function (){
+                  Ext.getCmp('ProductDesc').setValue('')
+                  ProductDetStore.reload()
+               }
+            },
+            {
+               xtype: "combo",
+               id: "ProductDesc",
+               name: "ProductDesc",
+               store: ProductDetStore,
+               width: 300,
+               fieldLabel: "Product",
+               displayField: "CODE",
+               valueField: "Id",
+               anchor: "50%",
+               allowBlank: false,
+               selectOnFocus: false,
+               anyMatch: true,
+               queryMode: "local",
+               listeners: {
+                  select: function () {
+                     let ItemId = this.getValue();
+                     getRelatedItems(ItemId);
+                  }
+               }
+            },
+            {
+               xtype: 'displayfield',
+               id: 'Productcatalog',
+               fieldLabel: "Product description",
+
+            }
+         ]
+
+         var screenAddRelated = new Ext.FormPanel({
+            frame: false,
+            header: false,
+            border: false,
+            defaults: {
+               labelAlign: "right",
+               labelWidth: 105,
+               listeners: {
+                  specialkey: function (field, e) {
+                     if (e.getKey() == e.ENTER) {
+                        updateRec();
+                     }
+                     if (e.getKey() == e.ESC) {
+                        Ext.getCmp("viewport").setActiveItem("SeriesGrid");
+                     }
+                  },
+               },
+            },
+            width: 500,
+            waitMsgTarget: true,
+            autoScroll: true,
+            style: "padding: 3px 3px 3px 3px;",
+            items: [
+               {
+                  layout: "column",
+                  layoutConfig: {
+                     columns: 2,
+                  },
+                  border: false,
+                  items: [
+                     {
+                        xtype: 'my-form',
+                        id: "addForm2",
+                        columnWidth: 0.9,
+                        border: false,
+                        items: itemsAddRelated,
+                     },
+                  ],
+               },
+            ],
+         });
+
+         var panelAddRelated = new Ext.Panel({
+            layout: "fit",
+            id: "panelAddRelated",
+            title: "Add related product",
+            header: true,
+            items: [screenAddRelated],
+            tbar: [
+               {
+                  text: "Back",
+                  tooltip: "Back",
+                  id: 'cancel3',
+                  iconCls: "fas fa-undo",
+                  handler: function () {
+                     edit = false;
+                     Ext.getCmp('addForm2').reset();
+
+                     Ext.getCmp("viewport").setActiveItem("mainGrid");
+                  },
+               },
+               "-",
+               {
+                  text: "Save",
+                  id: "addRelatedSave",
+                  iconCls: "fas fa-save",
+                  handler: function () {
+                     addRelatedProd()
+                     Ext.getCmp('addForm2').reset();
+                     Ext.getCmp("viewport").setActiveItem("mainGrid");
+                  },
+               },
+
+            ],
+         });
+        
+
+
          //=========================================================================================================
          //		           VIEW PORT
          // ========================================================================================================
@@ -1047,7 +1312,7 @@
             id: "viewport",
             layout: "card",
             activeItem: 0,
-            items: [mainGrid, panelAdd],
+            items: [mainGrid, panelAdd, panelAddRelated],
          });
       });
    </script>
