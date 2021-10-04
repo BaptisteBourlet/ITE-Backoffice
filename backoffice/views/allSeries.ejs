@@ -1158,8 +1158,8 @@
                      text: "Add Linked Product",
                      iconCls: "fa fa-plus",
                      handler: function () {
-                        //Ext.getCmp('fromViewSave').setHidden(false);
-                        //Ext.getCmp('fromAddSave').setHidden(true);
+
+
                         Ext.getCmp("viewport").setActiveItem("panelAddRelated");
                      },
                   },
@@ -2208,8 +2208,6 @@
                         text: "View Serie Master specs",
                         iconCls: "fa fa-tasks",
                         handler: function () {
-
-
                            serieMasterStore.load();
 
                            Ext.getCmp("viewport").setActiveItem("SeriesMasterSpecs");
@@ -2237,7 +2235,7 @@
                useDefaultXhrHeader: false,
                params: {
                   SeriesId: serieIDGlobal,
-                  ProductId: Ext.getCmp("ProductDesc").getValue(),
+                  ProductId: Ext.getCmp("ProductIdRelated").getValue(),
                },
                success: function (response) {
                   // check for errors and display error message
@@ -2294,7 +2292,7 @@
          });
 
 
-         const getRelatedCatalog = (ProductId) => {
+         const getRelatedCatalog = (ProductId, from) => {
             Ext.Ajax.request({
                url: "/apiSeries/getRelatedCatalog",
                method: "POST",
@@ -2305,9 +2303,11 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-
-                  Ext.getCmp("RPCatalog").setValue(res[0].Catalog);
-
+                  if (from === 'itemsAdd2') {
+                     Ext.getCmp("RPCatalog").setValue(res[0].Catalog);
+                  } else {
+                     Ext.getCmp("ProductCatalog").setValue(res[0].Catalog);
+                  }
                },
                failure: function (response) {
                   console.log("failed", response);
@@ -2318,14 +2318,14 @@
          var itemsAddRelated = [
             {
                xtype: "combo",
-               id: "ProductDesc",
-               name: "ProductDesc",
+               id: "ProductIdRelated",
+               name: "ProductIdRelated",
                store: ProductDetStore,
-               width: 300,
+               width: 200,
                fieldLabel: "Product",
                displayField: "CODE",
                valueField: "Id",
-               anchor: "50%",
+               anchor: "30%",
                allowBlank: false,
                selectOnFocus: false,
                anyMatch: true,
@@ -2333,13 +2333,13 @@
                listeners: {
                   select: function () {
                      let ProductId = this.getValue();
-                     getRelatedCatalog(ProductId);
+                     getRelatedCatalog(ProductId, 'itemAddRelated');
                   }
                }
             },
             {
                xtype: 'displayfield',
-               id: 'Productcatalog',
+               id: 'ProductCatalog',
                fieldLabel: "Product description",
             }
          ]
@@ -2376,7 +2376,7 @@
                   items: [
                      {
                         xtype: 'my-form',
-                        id: "addForm2",
+                        id: "itemsAddRelatedForm",
                         columnWidth: 0.9,
                         border: false,
                         items: itemsAddRelated,
@@ -2400,7 +2400,7 @@
                   iconCls: "fas fa-undo",
                   handler: function () {
                      edit = false;
-                     Ext.getCmp('addForm2').reset();
+                     Ext.getCmp('itemsAddRelatedForm').reset();
 
                      Ext.getCmp("viewport").setActiveItem("SerieDetails");
                   },
@@ -2411,10 +2411,23 @@
                   id: "addRelatedSave",
                   iconCls: "fas fa-save",
                   handler: function () {
-                     addSeriesRelatedProd();
+                     let linkedProductID = Ext.getCmp('ProductIdRelated').getValue() //ongoing
+                     let exist = false;
 
-                     Ext.getCmp('addForm2').reset();
-                     Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                     Array.from(linkedProductStore.data.items).forEach(product => {
+                        if (product.data.id === linkedProductID) {
+                           exist = true;
+                        }
+                     });
+
+                     if (exist) {
+                        Ext.Msg.alert('INFO', 'This product is already linked');
+                     } else {
+                        addSeriesRelatedProd();
+
+                        Ext.getCmp('addForm2').reset();
+                        Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                     }
                   },
                },
 
@@ -2460,6 +2473,10 @@
          linkedProducts.on("edit", (editor, event) => { //cellediting
             let modifiedRecords = linkedProductStore.getModifiedRecords();
 
+
+
+
+
             if (modifiedRecords.length !== 0) {
                let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
                let value = linkedProductStore.getModifiedRecords()[0].data[key]
@@ -2471,7 +2488,6 @@
                let SubGroup = GroupArray[1];
                let regEx = new RegExp("\\\\", "g");
                let hasBlacklash = regEx.test(value);
-
 
                if (value.includes("'") || hasBlacklash) {
                   Ext.Msg.alert('INFO', `Input value cannot contain <b> single quote (') </b> or <b>backlash (\\)</b> `)
@@ -3063,7 +3079,6 @@
                fieldLabel: "Type",
                displayField: "TypeName",
                valueField: "TypeCode",
-               // anchor: "100%",
                allowBlank: false,
                selectOnFocus: false,
                editable: false,
@@ -3077,7 +3092,6 @@
                fieldLabel: "Product",
                displayField: "CODE",
                valueField: "Id",
-               // anchor: "100%",
                allowBlank: false,
                selectOnFocus: false,
                anyMatch: true,
@@ -3085,7 +3099,7 @@
                listeners: {
                   change: function () {
                      let ProductId = this.getValue();
-                     getRelatedCatalog(ProductId);
+                     getRelatedCatalog(ProductId, 'itemsAdd2');
                   },
                },
             },
@@ -3095,7 +3109,6 @@
                name: "RPCatalog",
                width: 600,
                fieldLabel: "Product description",
-               // anchor: "100%",
                editable: false,
                hideTrigger: true,
                allowBlank: true,
@@ -3139,6 +3152,7 @@
             Ext.getCmp('ProductDesc').setValue('');
             Ext.getCmp('RPCatalog').setValue('');
          }
+
          // outer panel container to hold tbar and keypress definitions
          var panelAdd2 = new Ext.Panel({
             layout: "fit",
