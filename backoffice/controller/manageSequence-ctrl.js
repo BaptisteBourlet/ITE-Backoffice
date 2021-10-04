@@ -10,11 +10,8 @@ const imagemagickCli = require('imagemagick-cli');
 
 // imageMagick.convert.path = '/usr/bin/convert';
 const con = mysql.createConnection({
-   host: DB.host,
-   user: DB.user,
-   password: DB.password,
-   database: DB.database,
-   multipleStatements: true
+   ...DB,
+   multipleStatements: true,
 })
 
 exports.getSequenceResults = async (req, res) => {
