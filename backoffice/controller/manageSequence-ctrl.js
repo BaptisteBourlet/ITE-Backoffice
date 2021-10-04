@@ -14,7 +14,8 @@ const con = mysql.createConnection({
    user: DB.user,
    password: DB.password,
    database: DB.database,
-   multipleStatements: true
+   multipleStatements: true,
+   port: '33006'
 })
 
 exports.getSequenceResults = async (req, res) => {
@@ -78,17 +79,16 @@ exports.addCategory = async (req, res) => {
          console.log(err)
       }
       let Sequence = result[0].maxSequence
-      console.log(Sequence+1)
-         con.query(`INSERT INTO Category (Sequence, WorkingTitle, Publish) VALUES ( "${Sequence+1}", "${Title}", "1");`, (err, results, fields) => {
+      con.query(`INSERT INTO Category (Sequence, WorkingTitle, Publish) VALUES ( "${Sequence + 1}", "${Title}", "1");`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         let CategoryId = results.insertId;
+
+         con.query(`INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ("C", "${ParentId}", "${Sequence}", "1", "${CategoryId}");`, (err, resultsTree, fields) => {
             if (err) {
                console.log(err)
             }
-            let CategoryId = results.insertId;
-
-            con.query(`INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ("C", "${ParentId}", "${Sequence}", "1", "${CategoryId}");`, (err, resultsTree, fields) => {
-               if (err) {
-                  console.log(err)
-               }
             const { Language, Slug, Name,
                FRLanguage, FRName, FRSlug,
                DELanguage, DEName, DESlug,
@@ -146,56 +146,32 @@ exports.addCategory = async (req, res) => {
    })
 }
 
-exports.deleteCategory = async (req, res) => {
-   const { id, type } = req.body;
-   let errorString = '';
-   
-   if(type == 'category'){
-      con.query(`UPDATE Category SET Publish = 0 WHERE Id = "${id}";`, (err, results, fields) => {
-         if (err) {
-            errorString += 'Category, '
-         }
-         res.send(results)
-      })
-   } else if(type == 'IT'){
-      con.query(`UPDATE InfoTree SET Publish = 0 WHERE Id = "${id}";`, (err, result, fields) => {
-         if (err) {
-            errorString += 'InfoTree, '
-         }
-         res.send(result)
-   })
-   }
-   
-      
-
-}
-
 
 
 exports.editCategory = async (req, res) => {
-   const { ProductId, Pub, Code, As400, Category, unlinkCategory } = req.body;
-   
+   let errorString = '';
+   const { Language, Slug, Name, id, Title,
+      FRLanguage, FRName, FRSlug, FrDetails,
+      DELanguage, DEName, DESlug, DeDetails,
+      SPLanguage, SPName, SPSlug, EsDetails,
+      RULanguage, RUName, RUSlug, RuDetails } = req.body;
 
-   con.query(ProductQuery, (err, results) => {
+   const CategoryQuery = `Update Category SET WorkingTitle = "${Title}" WHERE Id = ${id};`;
+
+   const ENQuery = `UPDATE CategoryInfo SET Name = '${Name}', Slug = '${Slug}' WHERE CategoryId = "${id}" AND Language = "en"`;
+   const FRQuery = `UPDATE CategoryInfo SET Name = '${FRName}', Slug = '${FRSlug}' WHERE CategoryId = "${id}" AND Language = "fr"`;
+   const DEQuery = `UPDATE CategoryInfo SET Name = '${DEName}', Slug = '${DESlug}' WHERE CategoryId = "${id}" AND Language = "de"`;
+   const SPQuery = `UPDATE CategoryInfo SET Name = '${SPName}', Slug = '${SPSlug}' WHERE CategoryId = "${id}" AND Language = "sp" OR Language = "es"`;
+   const RUQuery = `UPDATE CategoryInfo SET Name = '${RUName}', Slug = '${RUSlug}' WHERE CategoryId = "${id}" AND Language = "ru"`;
+
+   const FrQueryInsert = `INSERT INTO CategoryInfo (Language, Name, Slug, CategoryId) VALUES ("${FRLanguage}", "${FRName}", "${FRSlug}", "${id}");`
+   const DeQueryInsert = `INSERT INTO CategoryInfo (Language, Name, Slug, CategoryId) VALUES ("${DELanguage}", "${DEName}", "${DESlug}", "${id}");`
+   const EsQueryInsert = `INSERT INTO CategoryInfo (Language, Name, Slug, CategoryId) VALUES ("${SPLanguage}", "${SPName}", "${SPSlug}", "${id}");`
+   const RuQueryInsert = `INSERT INTO CategoryInfo (Language, Name, Slug, CategoryId) VALUES ("${RULanguage}", "${RUName}", "${RUSlug}", "${id}");`
+
+   con.query(CategoryQuery, (err, results) => {
       if (err) throw err;
-
-      const { Language, Slug, Name,
-         FRLanguage, FRName, FRSlug, FRDetails,
-         DELanguage, DEName, DESlug, DEDetails,
-         SPLanguage, SPName, SPSlug, SPDetails,
-         RULanguage, RUName, RUSlug, RUDetails } = req.body;
-
-      const ENQuery = `UPDATE CategoryInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
-      const FRQuery = `UPDATE CategoryInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
-      const DEQuery = `UPDATE CategoryInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
-      const SPQuery = `UPDATE CategoryInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp" OR Language = "es"`;
-      const RUQuery = `UPDATE CategoryInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "ru"`;
-
-      const FrQueryInsert = `INSERT INTO CategoryInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${FRLanguage}", "${ModifiedOn}", "${ProductId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}");`
-      const DeQueryInsert = `INSERT INTO CategoryInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${DELanguage}", "${ModifiedOn}", "${ProductId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}");`
-      const EsQueryInsert = `INSERT INTO CategoryInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${SPLanguage}", "${ModifiedOn}", "${ProductId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}");`
-      const RuQueryInsert = `INSERT INTO CategoryInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${RULanguage}", "${ModifiedOn}", "${ProductId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`
-
+      
       if (Name !== "") {
          con.query(ENQuery, (err, results) => {
             if (err) {
@@ -291,8 +267,59 @@ exports.editCategory = async (req, res) => {
             console.log('Russian wasnt filled in');
          }
       }
-
       let finalResult = { ...results, errorString };
       res.send(finalResult);
    })
+}
+
+
+exports.deleteCategory = async (req, res) => {
+   const { id, type } = req.body;
+   let errorString = '';
+
+   if (type == 'category') {
+      con.query(`UPDATE Category SET Publish = 0 WHERE Id = "${id}";`, (err, results, fields) => {
+         if (err) {
+            errorString += 'Category, '
+         }
+         res.send(results)
+      })
+   } else if (type == 'IT') {
+      con.query(`UPDATE InfoTree SET Publish = 0 WHERE Id = "${id}";`, (err, result, fields) => {
+         if (err) {
+            errorString += 'InfoTree, '
+         }
+         res.send(result)
+      })
+   }
+}
+
+
+exports.getItemDetail = async (req, res) => {
+   let { Type, ItemId } = req.body;
+
+   if(Type == 'C') {
+      con.query(`SELECT Name AS CODE FROM CategoryInfo WHERE CategoryId = "${ItemId}" AND Language = 'en';`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         console.log(results)
+         res.send(results)
+      })
+   } else if(Type == 'S') {
+      con.query(`SELECT Specification AS CODE FROM SeriesInfo WHERE SeriesId = "${ItemId}" AND Language = 'en';`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   } else if(Type == 'P'){
+      con.query(`SELECT Catalog AS CODE FROM ProductInfo WHERE ProductId = "${ItemId}" AND Language = 'en';`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   }
+   
 }
