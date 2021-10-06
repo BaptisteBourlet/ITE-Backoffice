@@ -897,9 +897,8 @@
                   const res = JSON.parse(response.responseText);
 
                   console.log('response', res)
+                  
                   let keys = Object.keys(res[0]);
-
-                  console.log('keys', keys)
 
                   let allColumns = keys.map(key => {
                      let width = 150;
@@ -2605,7 +2604,41 @@
                      iconCls: "fa fa-plus",
                      handler: function () {
                         Ext.getCmp('viewport').setActiveItem('addSerieSpecs')
+                     }
+                  },
+                  '-',
+                  {
+                     xtype: "button",
+                     id: "deleteMasterSpecs",
+                     text: "Delete Serie Master Specs",
+                     iconCls: "fa fa-trash-alt",
+                     handler: function () { //ongoing
+                        const selectedRecord = SeriesMasterSpecs.getSelectionModel().getSelection()[0];
+                        console.log(selectedRecord);
+                        if (selectedRecord) {
+                           Ext.Ajax.request({
+                              url: "/apiSeries/deleteSeriesMasterSpecs",
+                              method: "POST",
+                              cors: true,
+                              useDefaultXhrHeader: false,
+                              params: {
+                                 Id: selectedRecord.data['Id']
+                              },
+                              success: function (response) {
 
+
+                              },
+                              failure: function (response) {
+                                 Ext.getBody().unmask();
+                                 Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to update Specification. Contact your IT team."
+                                 );
+                              },
+                           });
+                        } else {
+                           Ext.Msg.alert('INFO', 'No Master Specs selected');
+                        }
                      }
                   }
                ]
@@ -2621,7 +2654,6 @@
             id: "serieMasterStore",
             autoLoad: false,
             model: ModelSerieMaster,
-
             proxy: {
                type: "ajax",
                method: "GET",
@@ -2670,23 +2702,18 @@
                   allowBlank: true,
                   decimalPrecision: 0,
                   minValue: 0,
-
                   onFocusLeave: function (e) {
                      var me = this
-
                      var selectedrecords = SeriesMasterSpecs.getSelectionModel().getSelection();
                      var teller = selectedrecords.length;
                      currentsubfileRecord = selectedrecords[0];
                      Ext.Ajax.request({
-
                         url: '/apiSeries/updateSequenceSMaster',
                         params: {
                            Id: currentsubfileRecord.data.Id,
                            Sequence: currentsubfileRecord.data.Sequence,
-
                         },
                         success: function (response) {
-
                            // check for errors and display error message
                            var check = response.responseText;
                            if (check) {
@@ -3155,7 +3182,7 @@
                   handler: function () {
                      resetForm2();
                      Ext.getCmp("addForm").reset();
-                     Ext.getCmp("viewport").setActiveItem("SeriesGrid");
+                     Ext.getCmp("viewport").setActiveItem("SerieDetails");
                      Ext.getCmp("relatedProducts").removeAll();
                      Ext.getCmp("relatedAccessories").removeAll();
                      Ext.getCmp("relatedParts").removeAll();
@@ -3174,7 +3201,7 @@
                         Ext.getCmp("relatedProducts").removeAll();
                         Ext.getCmp("relatedAccessories").removeAll();
                         Ext.getCmp("relatedParts").removeAll();
-                        Ext.getCmp("viewport").setActiveItem("SeriesGrid");
+                        Ext.getCmp("viewport").setActiveItem("SerieDetails");
                      }
                   },
                },
@@ -3291,7 +3318,7 @@
             },
          });
 
-         linkedImageGrid.on('edit', (editor, event) => {  //ongoing
+         linkedImageGrid.on('edit', (editor, event) => {
 
             Ext.getBody().mask('Updating', 'x-msg-loading');
             Ext.Ajax.request({

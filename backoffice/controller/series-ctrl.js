@@ -501,7 +501,7 @@ exports.updateSerieSpecs = async (req, res) => {
    const { SPLid, key, value, SerieMasterId, Group, SubGroup, Sid, masterSequence } = req.body;
 
    const selectSerieMasterId = `SELECT Id FROM SeriesMaster WHERE Sid = '${Sid}' AND SeriesMaster.Group = '${Group}' AND SeriesMaster.Sequence = '${masterSequence}';`;
-   
+
    con.query(selectSerieMasterId, (err, SidResult) => {
 
       const queryCheckExist
@@ -562,7 +562,6 @@ exports.getProductDetails = async (req, res) => {
 
 exports.updateSequenceSMaster = async (req, res) => {
    const { Id, Sequence } = req.body;
-
    const query = `UPDATE SeriesMaster SET Sequence = ${Sequence} WHERE Id = ${Id};`
 
    con.query(query, (err, result) => {
@@ -574,36 +573,53 @@ exports.updateSequenceSMaster = async (req, res) => {
 
 exports.addSerieMasterSpecs = async (req, res) => {
    const { serieId, Key, Group, SubGroup } = req.body;
-   let nextSequence;
-   let nextSerieCount;
    const maxSequence = `SELECT MAX(Sequence) as maxSequence, COUNT(*) AS count FROM SeriesMaster WHERE Sid = "${serieId}";`;
-   const masterInsert = `INSERT INTO SeriesMaster (SeriesMaster.Sid, SeriesMaster.Key, SeriesMaster.Group, SubGroup, Sequence) VALUES ('${serieId}', '${Key}', '${Group}', '${SubGroup}', '${nextSequence}');`;
    const getSPLid = `SELECT SPLid FROM SeriesProductLink WHERE SeriesId = "${serieId}"`;
 
-
-   con.query(maxSequence, (err, sequenceResult) => { // get maxSequence from SeriesMaster
+   con.query(maxSequence, (err, sequenceResult) => { // 1 - get maxSequence from SeriesMaster
       if (err) throw err;
-      nextSequence = sequenceResult[0].maxSequence + 1;
-      nextSerieCount = sequenceResult[0].count + 1;
-      con.query(masterInsert, (err, result) => { // insert into SeriesMaster
+
+      let nextSequence = sequenceResult[0].maxSequence + 1;
+      let nextSerieCount = sequenceResult[0].count + 1;
+
+      const masterInsert
+         = `INSERT INTO SeriesMaster (SeriesMaster.Sid, SeriesMaster.Key, SeriesMaster.Group, SubGroup, Sequence) `
+         + `VALUES ('${serieId}', '${Key}', '${Group}', '${SubGroup}', '${nextSequence}');`;
+
+      con.query(masterInsert, (err, result) => { // 2 - insert into SeriesMaster
          if (err) throw err;
          let newSerieMasterId = result.insertId;
 
-         con.query(getSPLid, (err, SPLresults) => { // get all SeriesProductLinkIds
+         con.query(getSPLid, (err, SPLresults) => { // 3 - get all SeriesProductLinkIds
             if (err) throw err;
 
-            SPLresults.forEach((serieProductLink) => { //insert evert SerieProductLink to SeriesData
-               const insertToData = `INSERT INTO SeriesData (SerieMasterId, Value, SeriesProductLinkId, SeriesData.Key, SeriesData.Group, Sequence, Name) VALUES ("${newSerieMasterId}", " ", "${serieProductLink.SPLid}", "${Key}", "${Group}", "${nextSerieCount}", "${Key}");`
+            SPLresults.forEach((serieProductLink) => { // 4 - insert every SerieProductLink to SeriesData
+               const insertToData
+                  = `INSERT INTO SeriesData (SerieMasterId, Value, SeriesProductLinkId, SeriesData.Key, SeriesData.Group, Sequence, Name) `
+                  + `VALUES ("${newSerieMasterId}", "", "${serieProductLink.SPLid}", "${Key}", "${Group}", "${nextSerieCount}", "${Key}");`
 
                con.query(insertToData, (err, result) => {
                   if (err) throw err;
                })
-            })
+            }) // - 4
 
             res.send(SPLresults);
-         })
-      })
-   })
+         }) // - 3
+      }) // - 2
+   }) // 1
+}
+
+
+exports.deleteSeriesMasterSpecs = async (req, res) => {
+   const { Id } = req.body;
+
+   console.log(req.body);
+
+
+   const deleteSeriesDataQuery
+            = ``;
+
+
 }
 
 exports.getSpecGroup = async (req, res) => {
@@ -719,8 +735,6 @@ exports.uploadSerieImage = async (req, res) => {
          if (err) throw err;
       })
 
-
-
       // Check if image is landscape;
 
       imagemagickCli
@@ -774,7 +788,7 @@ exports.getLinkedImage = async (req, res) => {
          res.send(results);
       })
    } else {
-      res.send({a: 'a'});
+      res.send({ a: 'a' });
    }
 }
 
