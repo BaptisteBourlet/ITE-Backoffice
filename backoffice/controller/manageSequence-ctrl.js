@@ -68,7 +68,7 @@ exports.getOtherLanguageDetail = async (req, res) => {
 
 exports.addCategory = async (req, res) => {
    const { ParentId, Title } = req.body;
-   const maxSequence = `SELECT MAX(Sequence) as maxSequence, COUNT(*) AS count FROM InfoTree WHERE Parent = "${ParentId}";`;
+   
 
    con.query(maxSequence, (err, result, fields) => {
       if (err) {
@@ -81,10 +81,10 @@ exports.addCategory = async (req, res) => {
          }
          let CategoryId = results.insertId;
 
-         con.query(`INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ("C", "${ParentId}", "${Sequence}", "1", "${CategoryId}");`, (err, resultsTree, fields) => {
-            if (err) {
-               console.log(err)
-            }
+         // con.query(`INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ("C", "${ParentId}", "${Sequence}", "1", "${CategoryId}");`, (err, resultsTree, fields) => {
+         //    if (err) {
+         //       console.log(err)
+         //    }
             const { Language, Slug, Name,
                FRLanguage, FRName, FRSlug,
                DELanguage, DEName, DESlug,
@@ -138,7 +138,7 @@ exports.addCategory = async (req, res) => {
                console.log('spanish wasnt filled in')
             }
          })
-      })
+      // })
    })
 }
 
@@ -167,7 +167,7 @@ exports.editCategory = async (req, res) => {
 
    con.query(CategoryQuery, (err, results) => {
       if (err) throw err;
-      
+
       if (Name !== "") {
          con.query(ENQuery, (err, results) => {
             if (err) {
@@ -257,7 +257,6 @@ exports.editCategory = async (req, res) => {
             con.query(RUQuery, (err, results) => {
                errorString += "Russian";
                console.log(err);
-               console.log(results)
             })
          } else {
             console.log('Russian wasnt filled in');
@@ -281,7 +280,7 @@ exports.deleteCategory = async (req, res) => {
          res.send(results)
       })
    } else if (type == 'IT') {
-      con.query(`UPDATE InfoTree SET Publish = 0 WHERE Id = "${id}";`, (err, result, fields) => {
+      con.query(`DELETE FROM InfoTree WHERE id = ${id};`, (err, result, fields) => {
          if (err) {
             errorString += 'InfoTree, '
          }
@@ -292,30 +291,79 @@ exports.deleteCategory = async (req, res) => {
 
 
 exports.getItemDetail = async (req, res) => {
-   let { Type, ItemId } = req.body;
 
-   if(Type == 'C') {
-      con.query(`SELECT Name AS CODE FROM CategoryInfo WHERE CategoryId = "${ItemId}" AND Language = 'en';`, (err, results, fields) => {
-         if (err) {
-            console.log(err)
-         }
-         console.log(results)
-         res.send(results)
-      })
-   } else if(Type == 'S') {
-      con.query(`SELECT Specification AS CODE FROM SeriesInfo WHERE SeriesId = "${ItemId}" AND Language = 'en';`, (err, results, fields) => {
+   const { Type } = req.query;
+   if (Type == 'C') {
+      con.query(`SELECT Category.Id, WorkingTitle AS CODE FROM Category WHERE Publish = 1;`, (err, results, fields) => {
          if (err) {
             console.log(err)
          }
          res.send(results)
       })
-   } else if(Type == 'P'){
-      con.query(`SELECT Catalog AS CODE FROM ProductInfo WHERE ProductId = "${ItemId}" AND Language = 'en';`, (err, results, fields) => {
+   } else if (Type == 'S') {
+      con.query(`SELECT Sid AS Id, Series.Key AS CODE FROM Series WHERE Publish = '1';`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   } else if (Type == 'P') {
+      con.query(`SELECT Id, CODE FROM Product WHERE  Publish = '1';`, (err, results, fields) => {
          if (err) {
             console.log(err)
          }
          res.send(results)
       })
    }
-   
 }
+
+
+exports.getRelatedItems = async (req, res) => {
+
+   const { Type, ItemId } = req.query;
+   if (Type == 'C') {
+      con.query(`SELECT Name AS Description FROM CategoryInfo WHERE Language = 'en' AND CategoryId = ${ItemId};`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   } else if (Type == 'S') {
+      con.query(`SELECT Title AS Description FROM SeriesInfo WHERE Language = 'en' AND SeriesId = ${ItemId};`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   } else if (Type == 'P') {
+      con.query(`SELECT Catalog AS Description FROM ProductInfo WHERE Language = 'en' AND ProductId = ${ItemId};`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   }
+
+}
+
+
+
+exports.addRelatedItem = async (req, res) => {
+   const { Type, CategoryId, LinkId } = req.body;
+   const maxSequence = `SELECT MAX(Sequence) as maxSequence, COUNT(*) AS count FROM InfoTree WHERE Parent = "${CategoryId}" AND Publish = 1;`;
+
+   con.query(maxSequence, (err, result, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      let Sequence = result[0].maxSequence
+      con.query(`INSERT INTO InfoTree (Type, Parent, LinkId, Sequence, Publish) VALUES ("${Type}", "${CategoryId}", "${LinkId}", "${Sequence+1}", 1);`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   })
+}
+
+

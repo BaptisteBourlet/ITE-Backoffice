@@ -538,9 +538,13 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-                  Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
+                  if(res.length != 0){
+                     Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
                   Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
                   Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+                  }
+                  
+                  
                },
                failure: function (response) {
                   console.log("failed", response);
@@ -2431,7 +2435,8 @@
                         addSeriesRelatedProd();
 
                         Ext.getCmp('addForm2').reset();
-                        Ext.getCmp("viewport").setActiveItem("SerieDetails");
+                        linkedProductStore.reload()
+                        Ext.getCmp("viewport").setActiveItem("linkedProducts");
                      }
                   },
                },
