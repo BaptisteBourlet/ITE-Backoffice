@@ -614,12 +614,24 @@ exports.deleteSeriesMasterSpecs = async (req, res) => {
    const { Id } = req.body;
 
    console.log(req.body);
+   const deleteSeriesData
+      = `DELETE FROM SeriesData `
+      + `WHERE SerieMasterId = ${Id};`
+
+   const deleteSeriesMaster
+      = `DELETE FROM SeriesMaster `
+      + `WHERE Id = ${Id}`;
 
 
-   const deleteSeriesDataQuery
-            = ``;
+   con.query(deleteSeriesData, (err, results) => {
+      if (err) throw err;
 
+      con.query(deleteSeriesMaster, (err, results) => {
+         if (err) throw err;
 
+         res.send(results);
+      })
+   })
 }
 
 exports.getSpecGroup = async (req, res) => {
