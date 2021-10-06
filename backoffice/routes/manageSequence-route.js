@@ -33,6 +33,9 @@ router.post('/editCategory', apiCtrl.editCategory);
 
 router.get('/getItemDetail', apiCtrl.getItemDetail);
 
+router.get('/getRelatedItems', apiCtrl.getRelatedItems);
+
+router.post('/addRelatedItem', apiCtrl.addRelatedItem);
 
 
 module.exports = router;

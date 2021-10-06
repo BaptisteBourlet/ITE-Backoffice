@@ -348,8 +348,10 @@
 
                            if (selectedRecord === undefined) {
                               Ext.Msg.alert("INFO", "No record selected");
+                           } else if(selectedRecord.data.Type != 'C'){
+                              Ext.Msg.alert("INFO", "This is not a category");
                            } else {
-                              
+
                               Ext.getCmp('Title').setValue(selectedRecord.data.Description)
                               categoryIDGlobal = selectedRecord.data.Id;
                               Ext.getCmp("addSave").setHidden(true);
@@ -371,7 +373,7 @@
                      xtype: "button",
                      id: "deleteCategory",
                      iconCls: "fa fa-trash",
-                     text: "Delete category",
+                     text: "Delete linked item",
                      style: "padding: 7px; border: none; background-color: #000",
                      handler: function () { deleteCategory('IT') },
 
@@ -383,9 +385,19 @@
                      iconCls: "fa fa-plus",
                      text: "Add linked item",
                      style: "padding: 7px; border: none; background-color: #000",
-                     handler:function(){
+                     handler: function () {
+                        if(Ext.getCmp('CategoryID').getValue() == '' || Ext.getCmp('CategoryID').getValue() == null){
+                           Ext.Msg.alert(
+                           "INFO",
+                           `You must choose a category`,
+                        );
+                        
+                     } else {
+                        console.log(Ext.getCmp('CategoryID').getValue())
+                        sessionStorage.setItem('CategoryId',Ext.getCmp('CategoryID').getValue())
                         Ext.getCmp("viewport").setActiveItem("panelAddRelated");
                      }
+                  }
                   },
                ],
             },
@@ -1072,20 +1084,21 @@
          });
 
 
- //<!-- ----------------------------------------------------------------------- -->
+         //<!-- ----------------------------------------------------------------------- -->
          //<!--                           Add related product                           -->
          //<!-- ----------------------------------------------------------------------- -->
          var addRelatedProd = function () {
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
-               url: "/apiManageSequence/addRelatedProduct",
+               url: "/apiManageSequence/addRelatedItem",
                method: "POST",
                cors: true,
                useDefaultXhrHeader: false,
                params: {
-                  CategoryId: categoryIDGlobal,
-                  ItemId: Ext.getCmp("ProductDesc").getValue(),
-
+                  CategoryId: sessionStorage.getItem('CategoryId'),
+                  LinkId: Ext.getCmp("ProductDesc").getValue(),
+                  Type: Ext.getCmp('Types').getValue(),
+                  
                },
                success: function (response) {
                   // check for errors and display error message
@@ -1094,10 +1107,7 @@
                      var data = eval("(" + response.responseText + ")");
                      if (data.serverStatus == 2) {
                         Ext.getBody().unmask();
-                        Ext.Msg.alert(
-                           "Success",
-                           "You have successfully add the related product"
-                        );
+                        mainStore.reload()
                      } else {
                         // display error message
                         Ext.getBody().unmask();
@@ -1124,13 +1134,17 @@
             fields: ["CODE", "Id"],
          });
 
+
+        
+
          const ProductDetStore = Ext.create("Ext.data.Store", {
             id: "ProductDetStore",
             autoLoad: false,
             model: ProductDet,
+
             proxy: {
                type: "ajax",
-               method: "POST",
+               method: "GET",
                url: "/apiManageSequence/getItemDetail",
                noCache: true,
                reader: {
@@ -1138,29 +1152,25 @@
                },
                cors: true,
                useDefaultXhrHeader: false,
-               params: {
-                  Type: Ext.getCmp('Types').getValue(),
-                  ItemId: Ext.getCmp("ProductDesc").getValue(),
-
-               },
+            },
+            listeners: {
+               beforeload: function (store) { },
             },
          });
-
 
          const getRelatedItems = (ItemId) => {
             Ext.Ajax.request({
                url: "/apiManageSequence/getRelatedItems",
-               method: "POST",
+               method: "GET",
                cors: true,
                useDefaultXhrHeader: false,
-               params: {
-                  ItemId: ItemId,
+               params:{
+                  Type: Ext.getCmp('Types').getValue(),
+                  ItemId: ItemId
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-
-                  Ext.getCmp("RPCatalog").setValue(res[0].Catalog);
-
+                  Ext.getCmp("ItemDesc").setValue(res[0].Description);
                },
                failure: function (response) {
                   console.log("failed", response);
@@ -1179,7 +1189,7 @@
          });
 
          var itemsAddRelated = [
-         {
+            {
                xtype: "combo",
                id: "Types",
                name: "Types",
@@ -1192,9 +1202,14 @@
                allowBlank: false,
                selectOnFocus: false,
                editable: false,
-               change: function (){
-                  Ext.getCmp('ProductDesc').setValue('')
-                  ProductDetStore.reload()
+               listeners: {
+                  select: () => {
+                     let type = Ext.getCmp('Types').getValue()
+                     console.log(type)
+                     Ext.getCmp('ProductDesc').setValue('')
+                     ProductDetStore.getProxy().setExtraParam('Type', type);
+                     ProductDetStore.reload()
+                  }
                }
             },
             {
@@ -1213,14 +1228,16 @@
                queryMode: "local",
                listeners: {
                   select: function () {
+                     console.log('works')
                      let ItemId = this.getValue();
+                     console.log(ItemId)
                      getRelatedItems(ItemId);
                   }
                }
             },
             {
                xtype: 'displayfield',
-               id: 'Productcatalog',
+               id: 'ItemDesc',
                fieldLabel: "Product description",
 
             }
@@ -1301,7 +1318,7 @@
 
             ],
          });
-        
+
 
 
          //=========================================================================================================
