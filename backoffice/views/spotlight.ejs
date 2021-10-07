@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ITE BACK OFFICE MANAGEMENT</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+    <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
+   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+
+   <!-- ----------------------------- PRODUCTION ------------------------------ -->
+   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+    <style>
+        #small-view {
+            display: none;
+        }
+
+        @media (max-width: 481px) {
+            #SpotlightGrid {
+                display: none !important;
+            }
+
+            #small-view {
+                margin-top: 4rem;
+                font-size: 40px;
+                height: 100vh;
+                width: 100vw;
+                line-height: 50px;
+                display: block !important;
+            }
+        }
+    </style>
+    <script type="text/javascript">
+        //=========================================================================================================
+        //		           APPLICATION START
+        // ========================================================================================================
+        Ext.onReady(() => {
+
+            let edit = false;
+            let spotlightId
+
+            Ext.define('MyApp.view.Form', {
+                extend: 'Ext.form.Panel',
+                xtype: 'my-form',
+
+            });
+
+
+
+            const mainGridColumns = [
+                {
+                    header: "ID",
+                    sortable: true,
+                    width: 80,
+                    dataIndex: "Id",
+                },
+                {
+                    header: "Working Title",
+                    sortable: true,
+                    width: 250,
+                    dataIndex: "WorkingTitle",
+
+                },
+                {
+                    header: "Date",
+                    sortable: true,
+                    width: 200,
+                    dataIndex: "Date",
+                },
+                {
+                    header: "Visual",
+                    sortable: true,
+                    width: 200,
+                    dataIndex: "Visual",
+                },
+
+            ];
+
+
+
+            const tbarItems = [
+
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "bottomToolBar",
+                    items: [
+                        {
+                            xtype: "button",
+                            id: "add",
+                            iconCls: "fa fa-plus-circle",
+                            text: "New",
+                            scale: "small",
+                            handler: function () {
+
+                                Ext.getCmp("addSave").setHidden(false);
+                                Ext.getCmp("editSave").setHidden(true);
+                                Ext.getCmp("panelAdd").setTitle("Add spotlight");
+                                Ext.getCmp("viewport").setActiveItem("panelAdd");
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "edit",
+                            text: "Edit",
+                            iconCls: "fa fa-edit",
+                            scale: "small",
+                            handler: function () {
+                                edit = true;
+
+                                const selectedRecord = Ext.getCmp("SpotlightGrid")
+                                    .getSelectionModel()
+                                    .getSelection()[0];
+
+                                if (selectedRecord === undefined) {
+                                    Ext.Msg.alert("INFO", "No record selected");
+                                } else {
+                                    spotlightId = selectedRecord.data.id;
+                                    Ext.getCmp("WorkingTitle").setValue(selectedRecord.data.WorkingTitle)
+                                    Ext.getCmp("Visual").setValue(selectedRecord.data.Visual)
+                                    Ext.getCmp("Date").setValue(selectedRecord.data.Date)
+                                    Ext.getCmp("addSave").setHidden(true);
+                                    Ext.getCmp("editSave").setHidden(false);
+                                    Ext.getCmp("panelAdd").setTitle("Edit spotlight");
+
+                                    Ext.getCmp("viewport").setActiveItem("panelAdd");
+                                }
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "delete",
+                            text: "Delete",
+                            iconCls: "fa fa-trash-alt",
+                            scale: "small",
+                            handler: function () {
+                                deleteSpotlight()
+                            },
+                        },
+
+                    ],
+                },
+               
+            ];
+
+            const SpotlightModel = Ext.define("SpotlightModel", {
+                extend: "Ext.data.Model",
+                fields: ["id", "WorkingTitle", "Visual", "Date"],
+            });
+
+            const SpotlightStore = Ext.create("Ext.data.Store", {
+                id: "SpotlightStore",
+                autoLoad: true,
+                model: SpotlightModel,
+                proxy: {
+                    type: "ajax",
+                    method: "POST",
+                    url: "/apiSpotlight/getSpotlight",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+                    },
+
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+            });
+
+            const SpotlightGrid = Ext.create("Ext.grid.GridPanel", {
+                id: "SpotlightGrid",
+                flex: 1,
+                scrollable: true,
+                title: "Spotlights",
+                trackOver: true,
+                loadMask: true,
+                store: SpotlightStore, // store
+                columns: mainGridColumns, //columns
+                enableColumnMove: false,
+                sortable: true,
+                frame: false,
+                renderTo: Ext.getBody(),
+                height: 690,
+                dockedItems: [...tbarItems],
+                listeners: {
+                    dblclick: {
+                        element: "body",
+                        fn: () => {
+
+                        },
+                    },
+                },
+            });
+
+            var getCheckboxValue = function () {
+
+                if (Ext.getCmp('Visual').getValue() == true) {
+
+                    return 1
+                } else {
+                    return 0
+                }
+            }
+
+
+            var addSpotlight = function () {
+                Ext.getBody().mask("Saving", "x-msg-loading");
+                Ext.Ajax.request({
+                    url: "/apiSpotlight/addSpotlight",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        WorkingTitle: Ext.getCmp("WorkingTitle").getValue(),
+                        Date: Ext.getCmp("Date").getValue().toLowerCase(),
+                        Visual: getCheckboxValue(),
+
+                    },
+                    success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                            var data = JSON.parse(check);
+                            if (data) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "Info",
+                                    `You have successfully add the spotlight`,
+                                );
+                                Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
+                                SpotlightStore.reload();
+                            } else {
+                                // display error message
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to add the spotlight. Contact your IT team."
+                                );
+                            }
+                        }
+                    },
+                    failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                            "ERROR",
+                            "Failed to add the spotlight. Contact your IT team."
+                        );
+                    }
+                });
+            };
+
+            var editSpotlight = function () {
+                Ext.getBody().mask("Saving", "x-msg-loading");
+                Ext.Ajax.request({
+                    url: "/apiSpotlight/updateSpotlight",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        Id: Id,
+                        WorkingTitle: Ext.getCmp("WorkingTitle").getValue(),
+                        Date: Ext.getCmp("Date").getValue().toLowerCase(),
+                        Visual: getCheckboxValue(),
+
+                    },
+                    success: function (response) {
+                        // check for errors and display error message
+                        var check = response.responseText;
+                        if (check) {
+                            var data = JSON.parse(check);
+                            if (data) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "Info",
+                                    `You have successfully add the spotlight`,
+                                );
+                                Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
+                                SpotlightStore.reload();
+                            } else {
+                                // display error message
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to add the spotlight. Contact your IT team."
+                                );
+                            }
+                        }
+                    },
+                    failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                            "ERROR",
+                            "Failed to add the spotlight. Contact your IT team."
+                        );
+                    }
+                });
+            };
+
+
+            var deleteSpotlight = function () {
+                const selectedRecord = Ext.getCmp("SpotlightGrid")
+                    .getSelectionModel()
+                    .getSelection()[0];
+                Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this spotlight ?", function (btn, text) {
+                    if (btn == 'yes') {
+                        Ext.getBody().mask('Deleting', 'x-msg-loading');
+                        Ext.Ajax.request({
+                            url: "/apiSpotlight/deleteSpotlight",
+                            method: "POST",
+                            cors: true,
+                            useDefaultXhrHeader: false,
+                            params: {
+                                spotlightId: selectedRecord.data.Id
+                            },
+                            success: function (response) {
+                                // check for errors and display error message
+                                var check = response.responseText;
+                                if (check) {
+                                    var data = eval("(" + response.responseText + ")");
+
+                                    if (data.serverStatus == 2) {
+                                        SpotlightStore.reload();
+                                        Ext.getBody().unmask();
+                                        Ext.Msg.alert(
+                                            "Success",
+                                            "You have successfully deleted the spotlight"
+                                        );
+                                    } else {
+                                        // display error message
+                                        Ext.getBody().unmask();
+                                        Ext.Msg.alert(
+                                            "ERROR",
+                                            "Failed to delete the spotlight. Contact your IT team."
+                                        );
+                                    }
+                                }
+                            },
+                            failure: function (response) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to delete spotlight. Contact your IT team."
+                                );
+                            },
+
+                        });
+                    }
+                })
+            }
+
+            var itemsAdd = [
+
+                {
+                    xtype: "textfield",
+                    id: "WorkingTitle",
+                    name: "WorkingTitle",
+                    fieldLabel: "Working Title",
+                    maxValue: 99,
+                    minValue: 0,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "datefield",
+                    id: "Date",
+                    name: "Date",
+                    fieldLabel: "Date",
+                    maxLenght: 2,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "checkbox",
+                    id: "Visual",
+                    name: "Visual",
+                    fieldLabel: "Visual",
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+            ];
+
+            var screenAdd = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                    listeners: {
+                        specialkey: function (field, e) {
+                            if (e.getKey() == e.ENTER) {
+                                updateRec();
+                            }
+                            if (e.getKey() == e.ESC) {
+                                Ext.getCmp("viewport").setActiveItem("SpotlightGrid");
+                            }
+                        },
+                    },
+                },
+                width: '100%',
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: {
+                            columns: 2,
+                        },
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "addForm",
+                                columnWidth: 1,
+                                border: false,
+                                items: itemsAdd,
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            // outer panel container to hold tbar and keypress definitions
+            var panelAdd = new Ext.Panel({
+                layout: "fit",
+                id: "panelAdd",
+                title: "Add product",
+                header: true,
+                items: [screenAdd],
+                tbar: [
+                    {
+                        text: "Save",
+                        id: "addSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            if (Ext.getCmp('addForm').isValid()) {
+                                addSpotlight();
+                                Ext.getCmp('addForm').reset()
+                            }
+                        },
+                    },
+                    {
+                        text: "Save",
+                        id: "editSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            if (Ext.getCmp('addForm').isValid()) {
+                                edit = false;
+                                editSpotlight();
+                                Ext.getCmp("addForm").reset();
+                            }
+                        },
+                    },
+                    "-",
+                    {
+                        text: "Cancel",
+                        tooltip: "Cancel",
+                        id: 'cancel',
+                        iconCls: "fas fa-undo",
+                        handler: function () {
+                            edit = false;
+                            Ext.getCmp('addForm').reset();
+                            Ext.getCmp("viewport").setActiveItem("SpotlightGrid");
+                        },
+                    },
+                ],
+            });
+
+
+            Ext.create("Ext.container.Viewport", {
+                id: "viewport",
+                layout: "card",
+                activeItem: 0,
+                items: [SpotlightGrid, panelAdd],
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div id="small-view">
+        This Appplication is not meant for small devices.
+    </div>
+</body>
+
+</html>

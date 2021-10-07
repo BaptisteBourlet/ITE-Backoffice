@@ -15,6 +15,8 @@ const seriesRoute = require('./routes/series-route');
 
 const translatedChaptersRoute = require('./routes/translatedChapters-route');
 
+const spotlightRoute = require('./routes/spotlight-route');
+
 PORT = 12080;
 app = express();
 
@@ -51,6 +53,8 @@ app.use('/apiProducts', productRoute);
 app.use('/apiSeries', seriesRoute);
 
 app.use('/apiTranslatedChapters', translatedChaptersRoute);
+
+app.use('/apiSpotlight', spotlightRoute);
 
 app.get('/', (req, res) => {
    res.render('mainTab.ejs')
@@ -90,6 +94,10 @@ app.get('/labels', function (req, res) {
 
 app.get('/locations', function (req, res) {
    res.render('locations');
+});
+
+app.get('/spotlight', function (req, res) {
+   res.render('spotlight');
 });
 
 //  app.get('/image-upload', (req, res) => {

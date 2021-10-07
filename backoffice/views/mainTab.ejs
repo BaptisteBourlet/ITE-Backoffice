@@ -142,6 +142,23 @@
             }]
          });
 
+         var tab08 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Spotlight',
+            border: false,
+            id: 'b08',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab08',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/spotlight'
+               }
+            }]
+         });
+
          var scrntab = Ext.create('Ext.TabPanel', {
             fullscreen: true,
             tabBarPosition: 'bottom',
@@ -150,7 +167,7 @@
             defaults: {
                styleHtmlContent: true
             },
-            items: [tab01, tab02, tab03, tab04, tab05, tab06, tab07],
+            items: [tab01, tab02, tab03, tab04, tab05, tab06, tab07, tab08],
             listeners: {
                tabChange: function (tabPanel, newTab, currentTab) {
                   try {
