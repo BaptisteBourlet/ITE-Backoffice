@@ -59,7 +59,7 @@ router.get('/getSerieMaster', apiCtrl.getSerieMaster);
 
 router.post('/checkIfSerie', apiCtrl.checkIfSerie);
 
-router.post('/updateSequenceSMaster', apiCtrl.updateSequenceSMaster);
+router.post('/updateSequenceSeriesMaster', apiCtrl.updateSequenceSeriesMaster);
 
 router.get('/getProductDetails', apiCtrl.getProductDetails);
 

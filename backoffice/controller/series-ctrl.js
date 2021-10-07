@@ -560,7 +560,7 @@ exports.getProductDetails = async (req, res) => {
    });
 }
 
-exports.updateSequenceSMaster = async (req, res) => {
+exports.updateSequenceSeriesMaster = async (req, res) => {
    const { Id, Sequence } = req.body;
    const query = `UPDATE SeriesMaster SET Sequence = ${Sequence} WHERE Id = ${Id};`
 
