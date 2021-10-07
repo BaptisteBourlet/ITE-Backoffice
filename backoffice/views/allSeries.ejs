@@ -133,7 +133,6 @@
                                           useDefaultXhrHeader: false,
                                           params: {
                                              Id: product.Id,
-
                                           },
                                           success: function (response) {
                                              // check for errors and display error message
@@ -552,43 +551,6 @@
             });
          }
 
-
-         // const saveSpecEdit = (records) => {
-         //    let check = {};
-         //    records.forEach(rec => {
-         //       check[rec.data.SerieMasterId] = true;
-         //    })
-
-         //    records.forEach(record => {
-         //       Ext.Ajax.request({
-         //          url: "/apiSeries/updateSerieSpecs",
-         //          method: "POST",
-         //          cors: true,
-         //          useDefaultXhrHeader: false,
-         //          params: {
-         //             SerieMasterId: record.data.SerieMasterId,
-         //             SeriesProductLinkId: record.data.SeriesProductLinkId,
-         //             Value: record.data.Value,
-         //          },
-         //          success: function (response) {
-         //             delete check[record.data.SerieMasterId];
-
-         //             if (Object.keys(check).length === 0) {
-         //                Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
-         //                serieSpecStore.reload();
-         //             }
-         //          },
-         //          failure: function (response) {
-         //             Ext.getBody().unmask();
-         //             Ext.Msg.alert(
-         //                "ERROR",
-         //                "Failed to update Specification. Contact your IT team."
-         //             );
-         //          },
-         //       });
-         //    })
-         // }
-
          const addSpecValue = () => {
             const form = Ext.getCmp('addSpecValueForm').getForm();
 
@@ -622,10 +584,6 @@
                Ext.Msg.alert('INFO', "Form is not valid.")
             }
          }
-
-
-
-
 
          const Model = Ext.define("Categories", {
             extend: "Ext.data.Model",
@@ -899,9 +857,7 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-
-                  console.log('response', res)
-                  
+                  console.log(res);
                   let keys = Object.keys(res[0]);
 
                   let allColumns = keys.map(key => {
@@ -921,7 +877,6 @@
                               field: {
                                  xtype: "textfield",
                                  allowBlank: false,
-
                               },
                            },
                            sort: parseInt(key.slice(-1))
@@ -985,7 +940,6 @@
                noCache: true,
                reader: {
                   type: "json",
-
                },
                cors: true,
                useDefaultXhrHeader: false,
@@ -1162,8 +1116,6 @@
                      text: "Add Linked Product",
                      iconCls: "fa fa-plus",
                      handler: function () {
-
-
                         Ext.getCmp("viewport").setActiveItem("panelAddRelated");
                      },
                   },
@@ -1330,11 +1282,10 @@
                      text: "View Linked Images",
                      iconCls: "fas fa-images",
                      scale: "small",
-                     handler: function () { //ongoing
+                     handler: function () {
                         const selectedRecord = Ext.getCmp("SeriesGrid")
                            .getSelectionModel()
                            .getSelection()[0];
-
                         if (selectedRecord) {
                            const SeriesId = selectedRecord.data['Sid'];
                            linkedImageStore.getProxy().setExtraParam('Id', SeriesId);
@@ -2617,30 +2568,35 @@
                      id: "deleteMasterSpecs",
                      text: "Delete Serie Master Specs",
                      iconCls: "fa fa-trash-alt",
-                     handler: function () { //ongoing
+                     handler: function () {
                         const selectedRecord = SeriesMasterSpecs.getSelectionModel().getSelection()[0];
-                        console.log(selectedRecord);
                         if (selectedRecord) {
-                           Ext.Ajax.request({
-                              url: "/apiSeries/deleteSeriesMasterSpecs",
-                              method: "POST",
-                              cors: true,
-                              useDefaultXhrHeader: false,
-                              params: {
-                                 Id: selectedRecord.data['Id']
-                              },
-                              success: function (response) {
-
-
-                              },
-                              failure: function (response) {
-                                 Ext.getBody().unmask();
-                                 Ext.Msg.alert(
-                                    "ERROR",
-                                    "Failed to update Specification. Contact your IT team."
-                                 );
-                              },
-                           });
+                           Ext.Msg.confirm("Confirm", `Do you want to delete this Series Master?`, (btn) => {
+                              if (btn == 'yes') {
+                                 Ext.getBody().mask('Deleting', 'x-msg-loading');
+                                 Ext.Ajax.request({
+                                    url: "/apiSeries/deleteSeriesMasterSpecs",
+                                    method: "POST",
+                                    cors: true,
+                                    useDefaultXhrHeader: false,
+                                    params: {
+                                       Id: selectedRecord.data['Id']
+                                    },
+                                    success: function (response) {
+                                       let res = JSON.parse(response.responseText);
+                                       serieMasterStore.reload();
+                                       Ext.getBody().unmask();
+                                    },
+                                    failure: function (response) {
+                                       Ext.getBody().unmask();
+                                       Ext.Msg.alert(
+                                          "ERROR",
+                                          "Failed to update Specification. Contact your IT team."
+                                       );
+                                    },
+                                 });
+                              }
+                           })
                         } else {
                            Ext.Msg.alert('INFO', 'No Master Specs selected');
                         }
@@ -2702,64 +2658,12 @@
                sortable: true,
                width: 100,
                dataIndex: "Sequence",
-               field: {
-                  xtype: 'numberfield',
-                  allowBlank: true,
-                  decimalPrecision: 0,
-                  minValue: 0,
-                  onFocusLeave: function (e) {
-                     var me = this
-                     var selectedrecords = SeriesMasterSpecs.getSelectionModel().getSelection();
-                     var teller = selectedrecords.length;
-                     currentsubfileRecord = selectedrecords[0];
-                     Ext.Ajax.request({
-                        url: '/apiSeries/updateSequenceSMaster',
-                        params: {
-                           Id: currentsubfileRecord.data.Id,
-                           Sequence: currentsubfileRecord.data.Sequence,
-                        },
-                        success: function (response) {
-                           // check for errors and display error message
-                           var check = response.responseText;
-                           if (check) {
-                              var data = eval("(" + response.responseText + ")");
-                              if (data) {
-                                 // Remember record id's to reselect records after update of the row
-                                 var selectedrecords = SeriesMasterSpecs.getSelectionModel().getSelection();
-                                 recordIds = [];
-                                 selectedIdx = [];
-                                 for (var i = 0, len = selectedrecords.length; i < len; i++) {
-                                    recordIds[i] = selectedrecords[i].id;
-                                    selectedIdx[i] = SeriesMasterSpecs.getStore().indexOfId(recordIds[i]);
-                                 }
-                                 // reload subfile			
-                                 serieMasterStore.reload(
-                                    // reselect records after update	
-                                    {
-                                       callback: function () {
-                                          for (var i = 0, len = selectedIdx.length; i < len; i++) {
-                                             SeriesMasterSpecs.getSelectionModel().select(selectedIdx[i]);
-                                          }
-                                       },
-                                       scope: this
-                                    }
-                                 );
-                                 // display subfile
-                                 Ext.getCmp('viewport').layout.setActiveItem('SeriesMasterSpecs');
-                              } else {
-                                 // display error message
-                                 f = Ext.getCmp(data.FLD);
-                                 f.markInvalid(data.MSG);
-                                 f.focus();
-                              };
-                              Ext.getBody().unmask();
-                           };
-                        },
-                        failure: function (response) {
-                           Ext.getBody().unmask();
-                        }
-                     });
-                  }
+               editor: {
+                  completeOnEnter: true,
+                  field: {
+                     xtype: "numberfield",
+                     allowBlank: false,
+                  },
                },
             },
          ]
@@ -2793,6 +2697,32 @@
                },
             },
          });
+
+
+         SeriesMasterSpecs.on('edit', (editor, event) => {
+            Ext.getBody().mask('Updating', 'x-msg-loading');
+            Ext.Ajax.request({
+               url: "/apiSeries/updateSequenceSeriesMaster",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  Id: event.record.data.Id,
+                  Sequence: event.record.data.Sequence,
+               },
+               success: function (response) {
+                  let result = JSON.parse(response.responseText);
+                  Ext.getBody().unmask();
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to delete related product. Contact your IT team."
+                  );
+               },
+            })
+         })
 
 
          const addSerieSpecs = Ext.create('Ext.panel.Panel', {
@@ -3324,7 +3254,6 @@
          });
 
          linkedImageGrid.on('edit', (editor, event) => {
-
             Ext.getBody().mask('Updating', 'x-msg-loading');
             Ext.Ajax.request({
                url: "/apiSeries/updateImageSequence",
