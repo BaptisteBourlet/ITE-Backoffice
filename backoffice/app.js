@@ -16,6 +16,7 @@ const seriesRoute = require('./routes/series-route');
 const translatedChaptersRoute = require('./routes/translatedChapters-route');
 
 const spotlightRoute = require('./routes/spotlight-route');
+const eventRoute = require('./routes/events-route');
 
 PORT = 12080;
 app = express();
@@ -35,10 +36,8 @@ app.use('/pictures', express.static(__dirname + '/assets'))
 app.use('/data', express.static(__dirname + '/data'))
 app.use('/extjs', express.static(__dirname + '/extjs'))
 app.use('/controller', express.static(__dirname + '/controller'));
-
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
-
 
 app.use('/apiAssets', assetsRoute);
 
@@ -55,6 +54,7 @@ app.use('/apiSeries', seriesRoute);
 app.use('/apiTranslatedChapters', translatedChaptersRoute);
 
 app.use('/apiSpotlight', spotlightRoute);
+app.use('/apiEvents', eventRoute);
 
 app.get('/', (req, res) => {
    res.render('mainTab.ejs')
@@ -99,6 +99,9 @@ app.get('/locations', function (req, res) {
 app.get('/spotlight', function (req, res) {
    res.render('spotlight');
 });
+app.get('/events', function (req, res) {
+   res.render('events');
+})
 
 //  app.get('/image-upload', (req, res) => {
 //     res.render('imageUpload');

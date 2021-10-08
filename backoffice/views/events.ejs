@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8" />
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+   <title>ITE BACK OFFICE MANAGEMENT</title>
+   <link rel="stylesheet" type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+   <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+   <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
+   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+
+   <!-- ----------------------------- PRODUCTION ------------------------------ -->
+   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+
+   <style>
+      .x-grid-cell-inner {
+         overflow: hidden;
+         padding: 10px 6px;
+         white-space: nowrap;
+      }
+
+      #small-view {
+         display: none;
+      }
+
+      @media (max-width: 481px) {
+         #locationsGrid {
+            display: none !important;
+         }
+
+         #small-view {
+            margin-top: 4rem;
+            font-size: 40px;
+            height: 100vh;
+            width: 100vw;
+            line-height: 50px;
+            display: block !important;
+         }
+      }
+   </style>
+   <script type="text/javascript">
+      //=========================================================================================================
+      //		           APPLICATION START
+      // ========================================================================================================
+      Ext.onReady(() => {
+
+         Ext.define('MyApp.view.Form', {
+            extend: 'Ext.form.Panel',
+            xtype: 'my-form',
+
+         });
+
+         const addEvent = () => {
+            let form = Ext.getCmp('addEventForm')
+            Ext.getBody().mask('Adding', 'x-msg-loading');
+            console.log('inside');
+            if (form.isValid()) {
+               form.submit({
+                  url: "/apiEvents/addEvent",
+                  method: "POST",
+                  headers: { 'Content-Type': 'multipart/form-data' },
+                  waitMsg: 'Uploading your photo...',
+                  cors: true,
+                  params: {
+                     Name: Ext.getCmp('eventName').getValue(),
+                     Location: Ext.getCmp('eventLocation').getValue(),
+                     Start: Ext.getCmp('startDate').getValue().toLocaleDateString(),
+                     End: Ext.getCmp('endDate').getValue().toLocaleDateString(),
+                     URL: Ext.getCmp('eventURL').getValue(),
+                  },
+                  success: function (fp, object) {
+                     Ext.getBody().unmask();
+                  },
+                  failure: function (obj, res) {
+                     Ext.getBody().unmask();
+                     if (res.response.status) {
+                        Ext.Msg.alert(
+                           "INFO",
+                           "Event added successfully."
+                        );
+                        eventStore.reload();
+                        let form = Ext.getCmp('addEventForm');
+                        form.reset();
+                        Ext.getCmp('viewport').setActiveItem('eventGrid');
+                     } else {
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add new event. Contact your IT team."
+                        );
+                     }
+                  },
+               });
+            } else {
+               Ext.getBody().unmask();
+               Ext.Msg.alert("INFO", "Form is not valid!")
+            }
+         }
+
+
+
+         const editEvent = () => {
+            let form = Ext.getCmp('addEventForm');
+
+            Ext.getBody().mask('Updating', 'x-msg-loading');
+            if (form.isValid()) {
+               form.submit({
+                  url: "/apiEvents/editEvent",
+                  method: "POST",
+                  headers: { 'Content-Type': 'multipart/form-data' },
+                  waitMsg: 'Uploading your photo...',
+                  cors: true,
+                  params: {
+                     Id: Ext.getCmp('eventId').getValue(),
+                     Name: Ext.getCmp('eventName').getValue(),
+                     Location: Ext.getCmp('eventLocation').getValue(),
+                     URL: Ext.getCmp('eventURL').getValue(),
+                     Start: Ext.getCmp('startDate').getValue().toLocaleDateString(),
+                     End: Ext.getCmp('endDate').getValue().toLocaleDateString(),
+                  },
+                  success: function (fp, object) {
+                     Ext.getBody().unmask();
+                  },
+                  failure: function (obj, res) {
+                     Ext.getBody().unmask();
+                     if (res.response.status) {
+                        Ext.Msg.alert(
+                           "INFO",
+                           "Event edited successfully."
+                        );
+                        eventStore.reload();
+                        let form = Ext.getCmp('addEventForm');
+                        form.reset();
+                        Ext.getCmp('viewport').setActiveItem('eventGrid');
+                     } else {
+                        Ext.Msg.alert(
+                           "ERROR",
+                           "Failed to add new event. Contact your IT team."
+                        );
+                     }
+                  },
+               });
+            } else {
+               Ext.getBody().unmask();
+               Ext.Msg.alert("INFO", "Form is not valid!")
+            }
+         }
+
+         const editEventView = (record) => {
+            Ext.getCmp('eventId').setValue(record.data['Id'])
+            Ext.getCmp('eventName').setValue(record.data['Name'])
+            Ext.getCmp('eventLocation').setValue(record.data['Location'])
+            Ext.getCmp('eventURL').setValue(record.data['Url'])
+            Ext.getCmp('startDate').setValue(record.data['Start'].slice(0, 10))
+            Ext.getCmp('endDate').setValue(record.data['End'].slice(0, 10))
+
+            Ext.getCmp('eventVisual').allowBlank = true;
+            Ext.getCmp('eventVisualBanner').allowBlank = true;
+            // Ext.getCmp('visual').setSrc(record.data['Visual']);
+            // Ext.getCmp('bannerVisual').setSrc(record.data['BannerVisual']);
+            Ext.getCmp('editEventSave').setHidden(false);
+            Ext.getCmp('addEventSave').setHidden(true);
+            Ext.getCmp('addEditEventPanel').setTitle('Edit Event');
+            Ext.getCmp('viewport').setActiveItem('addEditEventPanel');
+         }
+
+         const deleteEvent = (record) => {
+            Ext.Ajax.request({
+               url: "/apiEvents/deleteEvent",
+               method: "POST",
+               cors: true,
+               useDefaultXhrHeader: false,
+               params: {
+                  Id: record.data.Id,
+               },
+               success: function (response) {
+                  Ext.Msg.alert('INFO', "Event deleted successfully");
+                  eventStore.reload();
+               },
+               failure: function (response) {
+                  Ext.getBody().unmask();
+                  Ext.Msg.alert(
+                     "ERROR",
+                     "Failed to delete Event. Contact your IT team."
+                  );
+               },
+            });
+         }
+
+         const eventModel = Ext.define("ALLEVENTS", {
+            extend: "Ext.data.Model",
+            fields: ["Name", "Location", "Start", "End"],
+         });
+         const eventStore = Ext.create("Ext.data.Store", {
+            id: "mainStore",
+            autoLoad: true,
+            model: eventModel,
+            proxy: {
+               type: "ajax",
+               method: "POST",
+               url: "/apiEvents/getAllEvents",
+               noCache: true,
+               reader: {
+                  type: "json",
+                  rootProperty: "allEvents",
+                  totalProperty: "totalCount",
+               },
+               cors: true,
+               useDefaultXhrHeader: false,
+            },
+            listeners: {
+               beforeload: function (store) { },
+
+            },
+         });
+
+         const eventGridColumns = [
+            {
+               header: "Event Name",
+               sortable: true,
+               width: 250,
+               dataIndex: "Name",
+            },
+            {
+               header: "Location",
+               sortable: true,
+               width: 200,
+               dataIndex: "Location",
+            },
+            {
+               header: "Start Date",
+               sortable: true,
+               width: 150,
+               dataIndex: "Start",
+               renderer: (value) => {
+                  return value.slice(0, 10).split('-').reverse().join('-');
+               }
+            },
+            {
+               header: "End Date",
+               sortable: true,
+               width: 150,
+               dataIndex: "End",
+               renderer: (value) => {
+                  return value.slice(0, 10).split('-').reverse().join('-');
+               }
+            },
+         ]
+
+         const eventTBar = [
+            {
+               xtype: "toolbar",
+               dock: "top",
+               id: "eventTBar",
+               items: [
+                  {
+                     xtype: "button",
+                     id: "eventAdd",
+                     iconCls: "fa fa-plus-circle",
+                     text: "New",
+                     scale: "small",
+                     handler: function () {
+                        Ext.getCmp('addEditEventPanel').setTitle('Add new Event');
+                        Ext.getCmp('editEventSave').setHidden(true);
+                        Ext.getCmp('addEventSave').setHidden(false);
+                        Ext.getCmp('viewport').setActiveItem('addEditEventPanel');
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: 'eventEdit',
+                     text: "Edit",
+                     iconCls: "fa fa-edit",
+                     scale: "small",
+                     handler: function () {
+                        const selectedRecord = Ext.getCmp("eventGrid")
+                           .getSelectionModel()
+                           .getSelection()[0];
+
+                        if (selectedRecord) {
+                           editEventView(selectedRecord);
+                        } else {
+                           Ext.Msg.alert('INFO', 'No Event selected');
+                        }
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: "eventDelete",
+                     text: "Delete",
+                     iconCls: "fa fa-trash-alt",
+                     scale: "small",
+                     handler: function () {
+                        const selectedRecord = Ext.getCmp("eventGrid")
+                           .getSelectionModel()
+                           .getSelection()[0];
+                        if (selectedRecord) {
+                           Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                              if (btn == 'yes') {
+                                 deleteEvent(selectedRecord)
+                              }
+                           })
+                        } else {
+                           Ext.Msg.alert('INFO', 'No Event selected');
+                        }
+                     },
+                  },
+               ]
+            }
+         ]
+
+         const eventGrid = Ext.create("Ext.grid.GridPanel", {
+            id: "eventGrid",
+            flex: 1,
+            scrollable: true,
+            title: "Events",
+            trackOver: true,
+            loadMask: true,
+            store: eventStore,
+            columns: eventGridColumns,
+            enableColumnMove: false,
+            sortable: true,
+            frame: false,
+            renderTo: Ext.getBody(),
+            height: 690,
+            dockedItems: [...eventTBar],
+            listeners: {
+               dblclick: {
+                  element: "body",
+                  fn: () => {
+                     const selectedRecord = Ext.getCmp("eventGrid")
+                        .getSelectionModel()
+                        .getSelection()[0];
+                     editEventView(selectedRecord);
+                  },
+               },
+            },
+         });
+
+         const addEventTBar = [
+            {
+               xtype: "toolbar",
+               dock: "top",
+               id: "addEventTBar",
+               items: [
+                  {
+                     xtype: "button",
+                     id: "addEditEventBack",
+                     iconCls: "fas fa-undo",
+                     text: "Back",
+                     scale: "small",
+                     handler: function () {
+                        let form = Ext.getCmp('addEventForm');
+                        form.reset();
+                        Ext.getCmp('viewport').setActiveItem('eventGrid');
+                     },
+                  },
+                  "-",
+                  {
+                     xtype: "button",
+                     id: 'addEventSave',
+                     text: "AddSave",
+                     iconCls: "fas fa-save",
+                     scale: "small",
+                     handler: function () { //ongoing
+
+                        console.log('aha');
+
+                        addEvent();
+                     },
+                  },
+                  {
+                     xtype: "button",
+                     id: 'editEventSave',
+                     text: "EditSave",
+                     iconCls: "fas fa-save",
+                     scale: "small",
+                     handler: function () { //ongoing
+                        editEvent();
+                     },
+                  },
+               ]
+            }
+         ]
+         const addEditEventPanel = Ext.create("Ext.panel.Panel", {
+            id: "addEditEventPanel",
+            title: "Add New Event",
+            flex: 1,
+            trackOver: true,
+            loadMask: true,
+            header: true,
+            layout: {
+               type: "hbox",
+               align: "stretch",
+            },
+            width: 1000,
+            dockedItems: [...addEventTBar],
+            items: [
+               {
+                  xtype: "form",
+                  id: "addEventForm",
+                  border: false,
+                  layout: "container",
+                  style: 'padding: 10px 10px;',
+                  items: [
+                     {
+                        xtype: 'textfield',
+                        id: "eventId",
+                        fieldLabel: "Event Name",
+                        labelWidth: 100,
+                        width: 400,
+                        hidden: true,
+                        fieldCls: "fieldClass",
+                        allowBlank: true,
+                        style: 'margin: 5px 5px;',
+                     },
+                     {
+                        xtype: 'textfield',
+                        id: "eventName",
+                        fieldLabel: "Event Name",
+                        labelWidth: 100,
+                        width: 400,
+                        fieldCls: "fieldClass",
+                        allowBlank: false,
+                        style: 'margin: 5px 5px;',
+                     },
+                     {
+                        xtype: 'textfield',
+                        id: "eventLocation",
+                        fieldLabel: "Location",
+                        labelWidth: 100,
+                        width: 400,
+                        fieldCls: "fieldClass",
+                        allowBlank: false,
+                        style: 'margin: 5px 5px;',
+                     },
+                     {
+                        xtype: 'textfield',
+                        id: "eventURL",
+                        fieldLabel: "URL",
+                        labelWidth: 100,
+                        width: 400,
+                        fieldCls: "fieldClass",
+                        allowBlank: true,
+                        style: 'margin: 5px 5px;',
+                     },
+                     {
+                        xtype: 'filefield',
+                        accept: 'image/*',
+                        id: 'eventVisual',
+                        name: 'image',
+                        fieldLabel: 'Select an Image',
+                        style: "margin: 5px 5px;",
+                        allowBlank: false,
+                        width: 500,
+                        labelWidth: 100,
+                     },
+                     {
+                        xtype: 'filefield',
+                        accept: 'image/*',
+                        id: 'eventVisualBanner',
+                        labelWidth: 100,
+                        name: 'image',
+                        fieldLabel: 'Select Image Banner',
+                        style: "margin: 5px 5px;",
+                        allowBlank: false,
+                        width: 500,
+                     },
+                     {
+                        xtype: "datefield",
+                        id: "startDate",
+                        fieldLabel: "Start Date",
+                        labelWidth: 100,
+                        fieldCls: "fieldClass",
+                        width: 250,
+                        format: "d/m/Y",
+                        minValue: new Date(),
+                        allowBlank: false,
+                        style: 'margin: 5px 5px;',
+                     },
+                     {
+                        xtype: "datefield",
+                        id: "endDate",
+                        fieldLabel: "End Date",
+                        labelWidth: 100,
+                        width: 250,
+                        fieldCls: "fieldClass",
+                        format: "d/m/Y",
+                        minValue: new Date(),
+                        allowBlank: false,
+                        style: 'margin: 5px 5px;',
+                     },
+                  ]
+               },
+               // {
+               //    xtype: "container",
+               //    id: "imageContainer",
+               //    border: false,
+               //    scrollable: true,
+               //    layout: {
+               //       type: 'container',
+               //    },
+               //    width: 600,
+               //    style: 'padding: 10px 10px;',
+               //    items: [
+               //       {
+               //          xtype: "displayfield",
+               //          fieldLabel: 'Visual',
+               //          width: 300,
+               //       },
+               //       {
+               //          xtype: 'image',
+               //          id: 'visual',
+               //          width: 300,
+               //          flex: 1,
+               //          style: 'padding: 10px;',
+               //       },
+               //       {
+               //          xtype: "displayfield",
+               //          fieldLabel: 'Banner Visual',
+               //          width: 300,
+               //       },
+               //       {
+               //          xtype: 'image',
+               //          id: 'bannerVisual',
+               //          width: 300,
+               //          flex: 1,
+               //          style: 'padding: 10px;',
+               //       },
+               //    ]
+               // }
+            ]
+         })
+
+         Ext.create("Ext.container.Viewport", {
+            id: "viewport",
+            layout: "card",
+            activeItem: 'eventGrid',
+            items: [eventGrid, addEditEventPanel],
+         });
+      });
+   </script>
+</head>
+
+<body>
+   <div id="small-view">
+      This Appplication is not meant for small devices.
+   </div>
+</body>
+
+</html>

@@ -141,6 +141,22 @@
                }
             }]
          });
+         var tab08 = Ext.widget('panel', {
+            activeTab: 0,
+            layout: 'fit',
+            title: 'Events',
+            border: false,
+            id: 'b08',
+            items: [{
+               xtype: "component",
+               border: false,
+               id: 'tab08',
+               autoEl: {
+                  tag: "iframe",
+                  src: '/events'
+               }
+            }]
+         });
 
          var tab08 = Ext.widget('panel', {
             activeTab: 0,
@@ -188,7 +204,6 @@
          });
          // Send screen
          Ext.getCmp('viewport').layout.setActiveItem(0);
-
       });
 
 
