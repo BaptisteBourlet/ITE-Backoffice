@@ -1,14 +1,9 @@
 
 const { DB } = require('../database')
 const mysql = require('mysql');
-const storage = require('node-sessionstorage');
-const multer = require('multer');
-const appRoot = require('app-root-path');
-const imageMagick = require('imagemagick');
 
 const imagemagickCli = require('imagemagick-cli');
 
-// imageMagick.convert.path = '/usr/bin/convert';
 const con = mysql.createConnection({
    ...DB,
    multipleStatements: true,
