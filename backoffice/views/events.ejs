@@ -119,6 +119,8 @@
                      URL: Ext.getCmp('eventURL').getValue(),
                      Start: Ext.getCmp('startDate').getValue().toLocaleDateString(),
                      End: Ext.getCmp('endDate').getValue().toLocaleDateString(),
+                     visualCheck: Ext.getCmp('visualCheck').getValue(),
+                     visualBannerCheck: Ext.getCmp('visualBannerCheck').getValue(),
                   },
                   success: function (fp, object) {
                      Ext.getBody().unmask();
@@ -155,6 +157,10 @@
             Ext.getCmp('eventURL').setValue(record.data['Url'])
             Ext.getCmp('startDate').setValue(record.data['Start'].slice(0, 10))
             Ext.getCmp('endDate').setValue(record.data['End'].slice(0, 10))
+
+            // Ext.getCmp('startDate').setValue(new Date(new Date(record.data['Start']).getTime() + (1 * 3600 * 1000)))
+            // Ext.getCmp('startDate').setValue(new Date(new Date(record.data['Start']).getTime()))
+            // Ext.getCmp('endDate').setValue(new Date(new Date(record.data['End']).getTime()))
 
             Ext.getCmp('eventVisual').allowBlank = true;
             Ext.getCmp('eventVisualBanner').allowBlank = true;
@@ -235,6 +241,9 @@
                width: 150,
                dataIndex: "Start",
                renderer: (value) => {
+
+                  console.log(new Date(value).getTime());
+                  console.log(value);
                   return value.slice(0, 10).split('-').reverse().join('-');
                }
             },
@@ -458,6 +467,11 @@
                         allowBlank: false,
                         width: 500,
                         labelWidth: 100,
+                        listeners: {
+                           change: () => {
+                              Ext.getCmp('visualCheck').setValue(true);
+                           }
+                        }
                      },
                      {
                         xtype: 'filefield',
@@ -469,6 +483,21 @@
                         style: "margin: 5px 5px;",
                         allowBlank: false,
                         width: 500,
+                        listeners: {
+                           change: () => {
+                              Ext.getCmp('visualBannerCheck').setValue(true);
+                           }
+                        }
+                     },
+                     {
+                        xtype: 'checkbox',
+                        id: 'visualCheck',
+                        hidden: true,
+                     },
+                     {
+                        xtype: 'checkbox',
+                        id: 'visualBannerCheck',
+                        hidden: true,
                      },
                      {
                         xtype: "datefield",

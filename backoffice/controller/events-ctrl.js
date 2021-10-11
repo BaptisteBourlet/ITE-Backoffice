@@ -14,7 +14,7 @@ exports.getAllEvents = async (req, res) => {
 
    const getAllEvents
       = `SELECT Id, Name, Location, Visual, BannerVisual, Start, End, Url `
-      + `FROM Event`;
+      + `FROM Event WHERE Online = "1";`;
 
    con.query(getAllEvents, (err, results) => {
       if (err) throw err;
@@ -63,7 +63,7 @@ exports.addEvent = async (req, res) => {
 
 
 exports.editEvent = async (req, res) => {
-   const { Id, Name, Location, URL } = req.body;
+   const { Id, Name, Location, URL, visualCheck, visualBannerCheck } = req.body;
    const Start = req.body['startDate-inputEl'].split('/').reverse().join('-');
    const End = req.body['endDate-inputEl'].split('/').reverse().join('-');
    const visualPath = '/images/events/';
@@ -71,12 +71,13 @@ exports.editEvent = async (req, res) => {
    const updateInfo
       = `UPDATE Event SET Name = "${Name}", Location = "${Location}", Url = "${URL}", `
       + `Start = "${Start}", End = "${End}", ModifiedOn = CURRENT_TIMESTAMP() `
-      + `WHERE Id = "${Id}"`
+      + `WHERE Id = "${Id}";`
 
    con.query(updateInfo, (err, result) => {
       if (err) throw err;
 
-      if (req.files.length > 0) {
+      if (req.files.length === 2) {
+
          const insertVisual = `UPDATE Event SET Visual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${result.insertId}"`;
          const insertBannerVisual = `UPDATE Event SET BannerVisual = "${visualPath}${req.files[1].originalname}" WHERE Id = "${result.insertId}"`;
 
@@ -88,6 +89,23 @@ exports.editEvent = async (req, res) => {
                res.status(200).send(result);
             })
          })
+      } else if (req.files.length === 1) {
+
+         if (visualCheck === 'true') {
+
+            const insertVisual = `UPDATE Event SET Visual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${result.insertId}"`;
+            con.query(insertVisual, (err, visualResult) => {
+               if (err) throw err;
+
+               res.send(visualResult);
+            })
+         } else {
+            const insertBannerVisual = `UPDATE Event SET BannerVisual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${result.insertId}"`;
+            con.query(insertBannerVisual, (err, result) => {
+               if (err) throw err;
+               res.status(200).send(result);
+            })
+         }
       } else {
          res.send(result);
       }
