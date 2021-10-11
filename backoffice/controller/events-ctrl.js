@@ -3,7 +3,6 @@ const { DB } = require('../database')
 const mysql = require('mysql');
 
 const imagemagickCli = require('imagemagick-cli');
-const e = require('express');
 
 const con = mysql.createConnection({
    ...DB,
