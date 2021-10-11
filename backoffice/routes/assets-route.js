@@ -44,7 +44,8 @@ router.post('/updateuploadSerieImage', imgUpload.single('image'), apiCtrl.update
 
 router.get('/image', apiCtrl.imageMagick);
 
-
 router.get('/getProductDet', apiCtrl.getProductDet);
+
+router.post('/convertImages', apiCtrl.convertImages)
 
 module.exports = router;

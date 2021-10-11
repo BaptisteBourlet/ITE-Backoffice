@@ -1,13 +1,29 @@
 
 const { DB } = require('../database')
 const mysql = require('mysql');
-
 const imagemagickCli = require('imagemagick-cli');
 
 const con = mysql.createConnection({
    ...DB,
    multipleStatements: true,
 })
+
+
+const fs = require('fs');
+const appRoot = require('app-root-path');
+
+let queryPromise = (query) => {
+   return new Promise((resolve, reject) => {
+      con.query(query, (err, result) => {
+         if (err) {
+            reject(err)
+         }
+
+         resolve(result);
+      })
+   })
+};
+
 
 
 exports.getAllEvents = async (req, res) => {

@@ -747,7 +747,6 @@ exports.uploadSerieImage = async (req, res) => {
          if (err) throw err;
       })
 
-      // Check if image is landscape;
 
       imagemagickCli
          .exec(`identify assets/${originalname}`)
@@ -757,22 +756,19 @@ exports.uploadSerieImage = async (req, res) => {
             let dimensions = stdout.split(' ')[2].split('x');
             const width = dimensions[0];
             const height = dimensions[1];
+            // Check if image is landscape;
             landscape = parseInt(width) > parseInt(height) ? true : false;
 
             // insert other sizes
             imageSizes.forEach(size => {
-               let newName = originalname.split('.');
-
-               newName[0] = `${newName[0]}-${size.size}`;
-               newName = newName.join('.');
-
                // set maxWidth or maxHeight depending on image type
                let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+               let sizeChar = size.size.charAt(0).toUpperCase();
                imagemagickCli
-                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${size.size}/${originalname}`)
                   .then(({ stdout, stderr }) => {
 
-                     const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
+                     const insertAssets = `INSERT INTO Assets (SerieId, Type, Size, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${sizeChar}","${originalname}", "${Label}", "${nextSequence}");`
 
                      con.query(insertAssets, (err, result) => {
                         if (err) throw err;
@@ -783,7 +779,6 @@ exports.uploadSerieImage = async (req, res) => {
                   })
             })
          })
-
    })
 }
 

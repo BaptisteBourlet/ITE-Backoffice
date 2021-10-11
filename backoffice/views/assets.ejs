@@ -279,7 +279,43 @@
                                 Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid')
                             },
                         },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "convertImages",
+                            text: "Convert Images",
+                            scale: "small",
+                            handler: function () {
 
+                                Ext.Msg.confirm('INFO', 'Start to convert all images in assets?', (btn) => {
+                                    if (btn === 'yes') {
+                                        Ext.getBody().mask("Converting Images", "x-msg-loading");
+
+                                        Ext.Ajax.request({
+                                            url: "/apiAssets/convertImages",
+                                            method: "POST",
+                                            cors: true,
+                                            useDefaultXhrHeader: false,
+                                            params: {
+                                                test: 'test'
+                                            },
+                                            success: function (response) {
+                                                const res = JSON.parse(response.responseText);
+                                                if (res) {
+                                                    Ext.getBody().unmask();
+                                                    Ext.Msg.alert("INFO", "Images converted successfully")
+                                                }
+                                            },
+                                            failure: function (response) {
+                                                Ext.getBody().unmask();
+                                                Ext.Msg.alert("INFO", "Converting failed.")
+                                            },
+                                        });
+                                    }
+                                })
+
+                            },
+                        },
                     ],
                 },
                 {
@@ -396,6 +432,7 @@
                                 Ext.getCmp("viewport").setActiveItem('AssetsGrid')
                             },
                         },
+
 
                     ],
                 },

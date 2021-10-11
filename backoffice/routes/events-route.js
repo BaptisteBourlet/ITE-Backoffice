@@ -27,4 +27,5 @@ router.post('/editEvent', imgUpload.array('image', 10), apiCtrl.editEvent);
 router.post('/deleteEvent', apiCtrl.deleteEvent);
 
 
+
 module.exports = router;
