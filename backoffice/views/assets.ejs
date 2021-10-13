@@ -11,10 +11,10 @@
     <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
     <script type="text/javascript" src="/controller/userAuthServices.js"></script>
     <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
 
     <!-- ----------------------------- PRODUCTION ------------------------------ -->
-    <!-- <script type="text/javascript" src="/extjs/ext-all-debug.js"></script> -->
+    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
     <style>
         #small-view {
             display: none;
@@ -749,7 +749,7 @@
             });
 
 
-            const AssetsModel = Ext.define("AssetsModel", {
+            const AssetsModel = Ext.define("AssetsModel2", {
                 extend: "Ext.data.Model",
                 fields: ["Id", "ProductId", "SerieId", "Type", "Path", "Label", "Sequence", "CODE", "Catalog"],
             });

@@ -10,10 +10,10 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
     <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
     <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
-   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
 
-   <!-- ----------------------------- PRODUCTION ------------------------------ -->
-   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+    <!-- ----------------------------- PRODUCTION ------------------------------ -->
+    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
     <style>
         #small-view {
             display: none;
@@ -49,7 +49,38 @@
 
             });
 
+            const getOtherLanguageDetail = (language, spotlightId) => {
+                Ext.Ajax.request({
+                    url: "/apiSpotlight/getOtherLanguageDetail",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        language: language,
+                        spotlightId: spotlightId,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
 
+                        if (res != '') {
+                            sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
+                            Ext.getCmp(`${language.toUpperCase()}Name`).setValue(res[0].Title);
+
+                        } else {
+                            sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
+
+                        }
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+
+            var renderImage = function (val) {
+                return '<img src="/spotlightPictures/' + val + '" width="100" height="100">'
+            }
 
             const mainGridColumns = [
                 {
@@ -63,19 +94,26 @@
                     sortable: true,
                     width: 250,
                     dataIndex: "WorkingTitle",
-
+                },
+                {
+                    header: "Title",
+                    sortable: true,
+                    width: 250,
+                    dataIndex: "Title",
                 },
                 {
                     header: "Date",
                     sortable: true,
                     width: 200,
                     dataIndex: "Date",
+                    renderer: Ext.util.Format.dateRenderer('Y-m-d')
                 },
                 {
                     header: "Visual",
                     sortable: true,
-                    width: 200,
+                    width: 130,
                     dataIndex: "Visual",
+                    renderer: renderImage
                 },
 
             ];
@@ -120,12 +158,24 @@
                                 if (selectedRecord === undefined) {
                                     Ext.Msg.alert("INFO", "No record selected");
                                 } else {
-                                    spotlightId = selectedRecord.data.id;
+                                    spotlightIdGlobal = selectedRecord.data.Id;
                                     Ext.getCmp("WorkingTitle").setValue(selectedRecord.data.WorkingTitle)
                                     Ext.getCmp("Visual").setValue(selectedRecord.data.Visual)
-                                    Ext.getCmp("Date").setValue(selectedRecord.data.Date)
+
+                                    const unformatDate = new Date(selectedRecord.data.Date)
+                                    console.log(unformatDate)
+                                    var formatDate = unformatDate.getDate() + "-" + (unformatDate.getMonth() + 1) + "-" + unformatDate.getFullYear()
+                                    console.log(formatDate)
+                                    Ext.getCmp("Dates").setValue(unformatDate)
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
+                                    Ext.getCmp('tabTrans').setActiveTab(0)
+                                    getOtherLanguageDetail('en', spotlightIdGlobal)
+                                    getOtherLanguageDetail('fr', spotlightIdGlobal)
+                                    getOtherLanguageDetail('de', spotlightIdGlobal)
+                                    getOtherLanguageDetail('sp', spotlightIdGlobal)
+                                    getOtherLanguageDetail('ru', spotlightIdGlobal)
+
                                     Ext.getCmp("panelAdd").setTitle("Edit spotlight");
 
                                     Ext.getCmp("viewport").setActiveItem("panelAdd");
@@ -146,7 +196,7 @@
 
                     ],
                 },
-               
+
             ];
 
             const SpotlightModel = Ext.define("SpotlightModel", {
@@ -197,15 +247,7 @@
                 },
             });
 
-            var getCheckboxValue = function () {
 
-                if (Ext.getCmp('Visual').getValue() == true) {
-
-                    return 1
-                } else {
-                    return 0
-                }
-            }
 
 
             var addSpotlight = function () {
@@ -217,8 +259,8 @@
                     useDefaultXhrHeader: false,
                     params: {
                         WorkingTitle: Ext.getCmp("WorkingTitle").getValue(),
-                        Date: Ext.getCmp("Date").getValue().toLowerCase(),
-                        Visual: getCheckboxValue(),
+                        Date: Ext.getCmp("Dates").getValue(),
+                        Visual: t,
 
                     },
                     success: function (response) {
@@ -264,8 +306,8 @@
                     params: {
                         Id: Id,
                         WorkingTitle: Ext.getCmp("WorkingTitle").getValue(),
-                        Date: Ext.getCmp("Date").getValue().toLowerCase(),
-                        Visual: getCheckboxValue(),
+                        Date: Ext.getCmp("Dates").getValue(),
+                        Visual: t,
 
                     },
                     success: function (response) {
@@ -353,6 +395,325 @@
                 })
             }
 
+            var TabTranslations = Ext.create('Ext.TabPanel', {
+                fullscreen: true,
+                tabBarPosition: 'bottom',
+                id: 'tabTrans',
+                defaults: {
+                    styleHtmlContent: true
+                },
+
+                items: [
+                    {
+                        title: 'English',
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "English Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "ENFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '40%',
+                                                frame: false,
+                                                id: 'formEN',
+                                                border: false,
+                                                items: [
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "ENName",
+                                                        name: "ENName",
+                                                        fieldLabel: "Title",
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        allowBlank: false,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: 'filefield',
+                                                        id: 'ENpdf',
+                                                        name: 'ENpdf',
+                                                        fieldLabel: 'PDF',
+                                                        labelWidth: 50,
+                                                        msgTarget: 'side',
+                                                        allowBlank: false,
+                                                        anchor: '100%',
+                                                        buttonText: 'Select PDF...'
+                                                    }
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+
+                    {
+                        title: 'French',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "French Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "FRFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '40%',
+                                                frame: false,
+                                                id: 'formFR',
+                                                border: false,
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "FRName",
+                                                        name: "FRName",
+                                                        fieldLabel: "Title",
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: 'filefield',
+                                                        id: 'FRpdf',
+                                                        name: 'FRpdf',
+                                                        fieldLabel: 'PDF',
+                                                        labelWidth: 50,
+                                                        msgTarget: 'side',
+                                                        allowBlank: false,
+                                                        anchor: '100%',
+                                                        buttonText: 'Select PDF...'
+                                                    }
+
+                                                ]
+                                            },
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'German',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "German Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "DEFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '40%',
+                                                frame: false,
+                                                border: false,
+                                                id: 'formDE',
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "DEName",
+                                                        name: "DEName",
+                                                        fieldLabel: "Title",
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: 'filefield',
+                                                        id: 'DEpdf',
+                                                        name: 'DEpdf',
+                                                        fieldLabel: 'PDF',
+                                                        labelWidth: 50,
+                                                        msgTarget: 'side',
+                                                        allowBlank: false,
+                                                        anchor: '100%',
+                                                        buttonText: 'Select PDF...'
+                                                    }
+
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Spanish',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                labelStyle: "font-weight: bold; ",
+                                title: "Spanish Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "SPFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '40%',
+                                                frame: false,
+                                                id: 'formSP',
+                                                border: false,
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "SPName",
+                                                        name: "SPName",
+                                                        fieldLabel: "Title",
+                                                        allowBlank: true,
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: 'filefield',
+                                                        id: 'SPpdf',
+                                                        name: 'SPpdf',
+                                                        fieldLabel: 'PDF',
+                                                        labelWidth: 50,
+                                                        msgTarget: 'side',
+                                                        allowBlank: false,
+                                                        anchor: '100%',
+                                                        buttonText: 'Select PDF...'
+                                                    }
+
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Russian',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "Russian Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "RUFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '40%',
+                                                frame: false,
+                                                id: 'formRU',
+                                                border: false,
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "RUName",
+                                                        name: "RUName",
+                                                        fieldLabel: "Title",
+                                                        maxLenght: 118,
+                                                        allowBlank: true,
+                                                        width: 500,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: 'filefield',
+                                                        name: 'RUpdf',
+                                                        id: 'RUpdf',
+                                                        fieldLabel: 'PDF',
+                                                        width: 500,
+                                                        msgTarget: 'side',
+                                                        allowBlank: false,
+                                                        buttonText: 'Select PDF...'
+                                                    }
+
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                ]
+            });
+
             var itemsAdd = [
 
                 {
@@ -360,8 +721,7 @@
                     id: "WorkingTitle",
                     name: "WorkingTitle",
                     fieldLabel: "Working Title",
-                    maxValue: 99,
-                    minValue: 0,
+                    
                     width: 500,
                     allowBlank: true,
                     selectOnFocus: false,
@@ -369,24 +729,27 @@
                 },
                 {
                     xtype: "datefield",
-                    id: "Date",
-                    name: "Date",
+                    id: "Dates",
+                    name: "Dates",
                     fieldLabel: "Date",
-                    maxLenght: 2,
+                    format: 'd-m-Y',
                     width: 500,
                     allowBlank: true,
                     selectOnFocus: false,
                     margin: "25 0 25 0",
                 },
                 {
-                    xtype: "checkbox",
-                    id: "Visual",
-                    name: "Visual",
-                    fieldLabel: "Visual",
-                    allowBlank: true,
-                    selectOnFocus: false,
-                    margin: "25 0 25 0",
+                    xtype: 'filefield',
+                    id: 'Visual',
+                    name: 'Visual',
+                    fieldLabel: 'Visual',
+                    accept: '.pdf',
+                    width: 500,
+                    msgTarget: 'side',
+                    allowBlank: false,
+                    buttonText: 'Select photo...'
                 },
+                TabTranslations
             ];
 
             var screenAdd = new Ext.FormPanel({
