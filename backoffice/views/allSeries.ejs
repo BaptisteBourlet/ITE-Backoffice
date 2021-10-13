@@ -12,10 +12,10 @@
    <script type="text/javascript" src="/controller/userAuthServices.js"></script>
 
    <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
-   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script>
+   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
 
    <!-- ----------------------------- PRODUCTION ------------------------------ -->
-   <!-- <script type="text/javascript" src="/extjs/ext-all-debug.js"></script> -->
+   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
    <style>
       .x-grid-cell-inner {
          overflow: hidden;
@@ -819,7 +819,7 @@
          };
 
 
-         const linkedProductModel = Ext.define("Categories", {
+         const linkedProductModel = Ext.define("Categories3", {
             extend: "Ext.data.Model",
             fields: ["Id", "CODE", "Catalog", "Group", "SubGroup"],
          });
@@ -924,7 +924,7 @@
          }
 
 
-         const specGroupModel = Ext.define("Categories", {
+         const specGroupModel = Ext.define("Categories2", {
             extend: "Ext.data.Model",
             fields: ["Group"],
          });
@@ -951,7 +951,7 @@
          });
 
 
-         const CATEGORY = Ext.define("Categories", {
+         const CATEGORY = Ext.define("Categories4", {
             extend: "Ext.data.Model",
             fields: ["Id", "Name"],
          });
@@ -2607,7 +2607,7 @@
          ]
 
 
-         const ModelSerieMaster = Ext.define("Categories", {
+         const ModelSerieMaster = Ext.define("Categories5", {
             extend: "Ext.data.Model",
             fields: ["Id", "Key", "Group", "Sequence"],
          });

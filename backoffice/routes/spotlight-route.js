@@ -27,5 +27,6 @@ router.post('/deleteSpotlight', apiCtrl.deleteSpotlight);
 
 router.post('/updateSpotlight', apiCtrl.updateSpotlight);
 
+router.post('/getOtherLanguageDetail', apiCtrl.getOtherLanguageDetail);
 
 module.exports = router;

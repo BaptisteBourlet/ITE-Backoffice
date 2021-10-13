@@ -15,17 +15,21 @@ const con = mysql.createConnection({
 })
 
 
+
+
 exports.getSpotlight = async (req, res) => {
     let query = ''
-    query = 'SELECT * FROM Spotlight;'
+    query = 'SELECT Spotlight.Id, WorkingTitle, Date, Visual, Pdf, Title FROM Spotlight LEFT JOIN SpotlightTranslation ON Spotlight.Id = SpotlightTranslation.SpotlightID WHERE Language = "en";'
  
  
     con.query(query, (err, result) => {
        if (err) throw err;
- 
+      console.log(result)
        res.send(result);
     })
  }
+
+
  
  exports.addSpotlight = async (req, res) => {
     const { WorkingTitle, Date, Visual, CreatedOn } = req.body;
@@ -62,4 +66,15 @@ exports.getSpotlight = async (req, res) => {
     })
  }
  
- 
+ exports.getOtherLanguageDetail = async (req, res) => {
+   const { spotlightId, language } = req.body;
+   console.log(spotlightId)
+   const query = `SELECT Title FROM SpotlightTranslation WHERE Language = "${language}" AND SpotlightID = "${spotlightId}";`;
+
+   con.query(query, (err, results, fields) => {
+      if (err) throw err;
+
+      console.log(results)
+      res.status(200).send(results);
+   })
+}
