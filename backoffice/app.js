@@ -108,6 +108,6 @@ app.get('/events', function (req, res) {
 //     res.render('imageUpload');
 //  })
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
    console.log('listening on port ' + PORT);
 })

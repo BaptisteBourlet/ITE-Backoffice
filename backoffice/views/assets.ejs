@@ -287,7 +287,7 @@
                             scale: "small",
                             handler: function () {
 
-                                Ext.Msg.confirm('INFO', 'Start to convert all images in assets?', (btn) => {
+                                Ext.Msg.confirm('INFO', 'Start to convert all images in assets? It will take about 3mins.', (btn) => {
                                     if (btn === 'yes') {
                                         Ext.getBody().mask("Converting Images", "x-msg-loading");
 
@@ -297,19 +297,20 @@
                                             cors: true,
                                             useDefaultXhrHeader: false,
                                             params: {
-                                                test: 'test'
+                                                test: 'convertImages'
                                             },
                                             success: function (response) {
                                                 const res = JSON.parse(response.responseText);
-                                                if (res) {
+                                                setTimeout(() => {
                                                     Ext.getBody().unmask();
                                                     Ext.Msg.alert("INFO", "Images converted successfully")
-                                                }
+                                                }, 200000)
                                             },
-                                            failure: function (response) {
-                                                Ext.getBody().unmask();
-                                                Ext.Msg.alert("INFO", "Converting failed.")
-                                            },
+                                            // failure: function (response) {
+                                            //     Ext.getBody().unmask();
+                                            //     console.log(response);
+                                            //     Ext.Msg.alert("INFO", "Converting failed.")
+                                            // },
                                         });
                                     }
                                 })

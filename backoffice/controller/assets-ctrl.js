@@ -502,6 +502,7 @@ exports.getProductDet = async (req, res) => {
 
 
 exports.convertImages = async (req, res) => {
+   req.setTimeout(5 * 60 * 1000);  // 5mins
    const imageSizes = [
       {
          size: 'large',
@@ -533,87 +534,82 @@ exports.convertImages = async (req, res) => {
          fs.mkdirSync(folder)
       }
    })
-
-
    // loop throuhg all files in ASSETS folder
    // get file name from database, check if it exists on ASSETS
    // if EXISTS, resize
    // if NOT, write to error.txt
 
-   fs.readdir(appRoot + '/assets', (err, files) => {
-      if (err) throw err;
-      let i = 0;
-      let limit = files.length - 4; //4 is the 4 folders
+   // get all path from database;
 
+   const allAssets = `SELECT * FROM Assets;`
+
+   con.query(allAssets, (err, results) => {
+      if (err) throw err;
+      let i = 880;
+      let limit = results.length;
+      // res.send(results);
       let interval = setInterval(() => {
          if (i === limit) {
+            res.status(200).send({ success: true });
             clearInterval(interval);
+            return;
          }
+         // check if file exist in folder
+         const { MasterId, Path, ProductId, SerieId, Type, Label, Sequence } = results[i];
 
-         let checkQuery = `SELECT * FROM Assets WHERE Path = '${files[i]}'`;
-
-         con.query(checkQuery, (err, exist) => {
-            // check for ERROR
+         fs.stat(`${appRoot}/assets/${Path}`, (err, data) => {
             if (err) {
-               let content = `\r errored ${files[i]}`;
+               // add log to fileErrors.txt
+               let content = `\r "${Path}",`;
                fs.appendFile(appRoot + '/assets/' + 'fileErrors.txt', content, function (err) {
                   i++;
-                  if (err) throw err;
-               });
-            }
-
-            // check if EXIST
-            if (exist.length === 0) {
-               let content = `\r '${files[i]}',`;
-               fs.appendFile(appRoot + '/non-exist-files.txt', content, function (err) {
-                  i++;
-                  if (err) {
-                     console.log('error writing to fileErrors.txt');
-                  };
                });
             } else {
-               // RESIZE AND ADD TO DATABASE
-               let fileName = exist[0].Path;
-               let insertAssets = '';
-               const { ProductId, SerieId, Type, Label, Sequence, Id } = exist[0];
+               // this checks if file has been genereted to other sizes or not
+               // if not, generate other sizes
+               fs.stat(`${appRoot}/assets/small/${Path}`, (err, data) => {
+                  if (err) {
+                     // RESIZE AND ADD TO DATABASE
+                     let insertAssets = '';
+                     let fileName = Path;
+                     imagemagickCli
+                        // .exec(`identify assets/${exist[0].Path}`)
+                        .exec(`identify assets/${fileName}`)
+                        .then(({ stdout, stderr }) => {
+                           let dimensions = stdout.split(' ')[2].split('x');
+                           const width = dimensions[0];
+                           const height = dimensions[1];
+                           let landscape = parseInt(width) > parseInt(height) ? true : false;
 
-               imagemagickCli
-                  // .exec(`identify assets/${exist[0].Path}`)
-                  .exec(`identify assets/${fileName}`)
-                  .then(({ stdout, stderr }) => {
-                     let dimensions = stdout.split(' ')[2].split('x');
-                     const width = dimensions[0];
-                     const height = dimensions[1];
-                     let landscape = parseInt(width) > parseInt(height) ? true : false;
+                           // insert other sizes
+                           imageSizes.forEach(size => {
+                              // set maxWidth or maxHeight depending on image type
+                              let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+                              let sizeChar = size.size.charAt(0).toUpperCase();
 
-                     // insert other sizes
-                     imageSizes.forEach(size => {
-                        // set maxWidth or maxHeight depending on image type
-                        let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
-                        let sizeChar = size.size.charAt(0).toUpperCase();
+                              imagemagickCli
+                                 .exec(`convert assets/${fileName} -resize "${resizeOption}" assets/${size.size}/${fileName}`)
+                                 .then(({ stdout, stderr }) => {
 
-                        imagemagickCli
-                           .exec(`convert assets/${fileName} -resize "${resizeOption}" assets/${size.size}/${fileName}`)
-                           .then(({ stdout, stderr }) => {
+                                    if (Type === 'serie-image') {
+                                       insertAssets = `INSERT INTO Assets (MasterId, SerieId, Type, Size, Path, Label, Sequence) VALUES ("${MasterId}", "${SerieId}", "${Type}", "${sizeChar}" ,"${size.size}/${fileName}", "${Label}", "${Sequence}");`
+                                    } else {
+                                       insertAssets = `INSERT INTO Assets (MasterId, ProductId, Type, Size, Path, Label, Sequence) VALUES ("${MasterId}", "${ProductId}", "${Type}", "${sizeChar}" ,"${size.size}/${fileName}", "${Label}", "${Sequence}");`
+                                    }
 
-                              if (Type === 'serie-image') {
-                                 insertAssets = `INSERT INTO Assets (SerieId, Type, Size, Path, Label, Sequence) VALUES ("${SerieId}", "${Type}", "${sizeChar}" ,"${fileName}", "${Label}", "${Sequence}");`
-                              } else {
-                                 insertAssets = `INSERT INTO Assets (ProductId, Type, Size, Path, Label, Sequence) VALUES ("${ProductId}", "${Type}", "${sizeChar}" ,"${fileName}", "${Label}", "${Sequence}");`
-                              }
-
-                              con.query(insertAssets, (err, result) => {
-                                 if (err) throw err;
-                              })
-                           });
-                     })
-                  });
-               i++;
+                                    con.query(insertAssets, (err, result) => {
+                                       if (err) throw err;
+                                    })
+                                 });
+                           })
+                        });
+                     i++;
+                  } else {
+                     i++;
+                  }
+               })
             }
          })
-         if (i === (limit - 1)) {
-            res.status(200).send({ success: true });
-         }
-      }, 1000)
-   })
+      }, 200)
+   }) //end of querying all Assets
 }
