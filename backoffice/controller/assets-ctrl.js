@@ -545,7 +545,7 @@ exports.convertImages = async (req, res) => {
 
    con.query(allAssets, (err, results) => {
       if (err) throw err;
-      let i = 880;
+      let i = 0;
       let limit = results.length;
       // res.send(results);
       let interval = setInterval(() => {
