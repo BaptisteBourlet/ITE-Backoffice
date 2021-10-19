@@ -554,12 +554,11 @@ exports.convertImages = async (req, res) => {
             clearInterval(interval);
             return;
          }
-         // check if file exist in folder
+       
          const { MasterId, Path, ProductId, SerieId, Type, Label, Sequence } = results[i];
 
-         fs.stat(`${appRoot}/assets/${Path}`, (err, data) => {
-            if (err) {
-               // add log to fileErrors.txt
+         fs.stat(`${appRoot}/assets/${Path}`, (err, data) => {  // check if file exist in folder
+            if (err) {  // if not, add log to fileErrors.txt
                let content = `\r "${Path}",`;
                fs.appendFile(appRoot + '/assets/' + 'fileErrors.txt', content, function (err) {
                   i++;

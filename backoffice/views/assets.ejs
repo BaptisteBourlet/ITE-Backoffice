@@ -290,7 +290,10 @@
                                 Ext.Msg.confirm('INFO', 'Start to convert all images in assets? It will take about 3mins.', (btn) => {
                                     if (btn === 'yes') {
                                         Ext.getBody().mask("Converting Images", "x-msg-loading");
-
+                                        setTimeout(() => {
+                                            Ext.getBody().unmask();
+                                            Ext.Msg.alert("INFO", "Images converted successfully")
+                                        }, 200000)
                                         Ext.Ajax.request({
                                             url: "/apiAssets/convertImages",
                                             method: "POST",
@@ -301,10 +304,6 @@
                                             },
                                             success: function (response) {
                                                 const res = JSON.parse(response.responseText);
-                                                setTimeout(() => {
-                                                    Ext.getBody().unmask();
-                                                    Ext.Msg.alert("INFO", "Images converted successfully")
-                                                }, 200000)
                                             },
                                             // failure: function (response) {
                                             //     Ext.getBody().unmask();
