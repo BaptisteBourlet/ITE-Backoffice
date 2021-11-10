@@ -17,6 +17,10 @@
    <!-- ----------------------------- PRODUCTION ------------------------------ -->
    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
    <style>
+      .x-grid-view {
+	overflow-y: auto !important;
+	position: relative;
+	}
       .x-grid-cell-inner {
          overflow: hidden;
          padding: 10px 6px;
@@ -1921,6 +1925,7 @@
 
          const SeriesGrid = Ext.create("Ext.grid.GridPanel", {
             id: "SeriesGrid",
+            bufferedRenderer: false,
             flex: 1,
             scrollable: true,
             title: "All Series",
@@ -2396,6 +2401,7 @@
 
          const linkedProducts = Ext.create("Ext.grid.GridPanel", {
             id: "linkedProducts",
+            bufferedRenderer: false,
             flex: 1,
             scrollable: true,
             title: "Linked Products",
@@ -2671,6 +2677,7 @@
 
          const SeriesMasterSpecs = Ext.create("Ext.grid.GridPanel", {
             id: "SeriesMasterSpecs",
+            bufferedRenderer: false,
             flex: 1,
             scrollable: true,
             title: "Serie master specs",
@@ -3216,6 +3223,7 @@
 
          const linkedImageGrid = Ext.create("Ext.grid.GridPanel", {
             id: "linkedImageGrid",
+            bufferedRenderer: false,
             flex: 1,
             scrollable: true,
             title: "Linked Images",

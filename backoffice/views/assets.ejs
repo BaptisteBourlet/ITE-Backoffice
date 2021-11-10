@@ -16,6 +16,12 @@
     <!-- ----------------------------- PRODUCTION ------------------------------ -->
     <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
     <style>
+        .x-grid-view {
+	overflow-y: auto !important;
+	position: relative;
+	}
+        
+
         #small-view {
             display: none;
         }
@@ -634,8 +640,7 @@
                     allowBlank: true,
                     maxLenght: 255,
                     width: 500,
-                },
-
+                }
 
             ];
 
@@ -766,6 +771,7 @@
 
             const AssetsSerieGrid = Ext.create("Ext.grid.GridPanel", {
                 id: "AssetsSerieGrid",
+                bufferedRenderer: false,
                 flex: 1,
                 scrollable: true,
                 title: "Assets - Series",
@@ -954,6 +960,7 @@
 
             const AssetsGrid = Ext.create("Ext.grid.GridPanel", {
                 id: "AssetsGrid",
+                bufferedRenderer: false,
                 flex: 1,
                 scrollable: true,
                 title: "Assets - Products",

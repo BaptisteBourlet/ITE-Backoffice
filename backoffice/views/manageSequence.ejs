@@ -14,6 +14,10 @@
    <!-- ----------------------------- PRODUCTION ------------------------------ -->
    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
    <style>
+      .x-grid-view {
+	overflow-y: auto !important;
+	position: relative;
+	}
       .x-grid-cell-inner {
          overflow: hidden;
          padding: 10px 6px;
@@ -430,6 +434,7 @@
 
          const mainGrid = Ext.create("Ext.grid.GridPanel", {
             id: "mainGrid",
+            bufferedRenderer: false,
             flex: 1,
             scrollable: true,
             title: "Managing Products, Series and Categories Sequence",
@@ -1205,7 +1210,7 @@
                listeners: {
                   select: () => {
                      let type = Ext.getCmp('Types').getValue()
-                     console.log(type)
+                     
                      Ext.getCmp('ProductDesc').setValue('')
                      ProductDetStore.getProxy().setExtraParam('Type', type);
                      ProductDetStore.reload()
@@ -1230,7 +1235,7 @@
                   select: function () {
                      console.log('works')
                      let ItemId = this.getValue();
-                     console.log(ItemId)
+                     
                      getRelatedItems(ItemId);
                   }
                }

@@ -15,6 +15,10 @@
     <!-- ----------------------------- PRODUCTION ------------------------------ -->
     <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
     <style>
+        .x-grid-view {
+	overflow-y: auto !important;
+	position: relative;
+	}
         #small-view {
             display: none;
         }
@@ -224,6 +228,7 @@
 
             const SpotlightGrid = Ext.create("Ext.grid.GridPanel", {
                 id: "SpotlightGrid",
+                bufferedRenderer: false,
                 flex: 1,
                 scrollable: true,
                 title: "Spotlights",
@@ -247,6 +252,34 @@
                 },
             });
 
+            let current_datetime = new Date();
+            var time = function () {
+                if (current_datetime.getMonth() + 1 < 10) {
+                    return "0" + Number(current_datetime.getMonth() + 1);
+                } else {
+                    current_datetime.getMonth() + 1;
+                }
+            };
+
+            let formatted_date =
+                current_datetime.getFullYear() +
+                "-" +
+                time() +
+                "-" +
+                current_datetime.getDate() +
+                " " +
+                current_datetime.getHours() +
+                ":" +
+                current_datetime.getMinutes() +
+                ":" +
+                current_datetime.getSeconds();
+
+            let formatDate =
+                current_datetime.getFullYear() +
+                "-" +
+                time() +
+                "-" +
+                current_datetime.getDate();
 
 
 
@@ -254,13 +287,38 @@
                 Ext.getBody().mask("Saving", "x-msg-loading");
                 Ext.Ajax.request({
                     url: "/apiSpotlight/addSpotlight",
+                    headers: { 'Content-Type': 'multipart/form-data' },
                     method: "POST",
-                    cors: true,
-                    useDefaultXhrHeader: false,
                     params: {
                         WorkingTitle: Ext.getCmp("WorkingTitle").getValue(),
                         Date: Ext.getCmp("Dates").getValue(),
-                        Visual: t,
+                        Visual: Ext.getCmp("Visual").getValue(),
+                        CreatedOn: formatDate,
+                        originalname:'test',
+                        VisualFilename: Ext.getCmp("Visual").getValue(),
+                        
+                        Title: Ext.getCmp("ENName").getValue(),
+                        Pdf: Ext.getCmp("ENpdf").getValue(),
+                        Language: 'en',
+                        // FR
+                        FRLanguage: 'fr',
+                        FRTitle: Ext.getCmp("FRName").getValue(),
+                        FRPdf: Ext.getCmp("FRpdf").getValue(),
+
+                        // DE
+                        DELanguge: 'de',
+                        DETitle: Ext.getCmp("DEName").getValue(),
+                        DEPdf: Ext.getCmp("DEpdf").getValue(),
+
+                        // SP
+                        SPLanguage: 'es',
+                        SPTitle: Ext.getCmp("SPName").getValue(),
+                        SPPdf: Ext.getCmp("SPpdf").getValue(),
+
+                        // RU
+                        RULanguage: 'ru',
+                        RUTitle: Ext.getCmp("RUName").getValue(),
+                        RUPdf: Ext.getCmp("RUpdf").getValue(),
 
                     },
                     success: function (response) {
@@ -304,10 +362,36 @@
                     cors: true,
                     useDefaultXhrHeader: false,
                     params: {
-                        Id: Id,
+                        Id: id,
                         WorkingTitle: Ext.getCmp("WorkingTitle").getValue(),
                         Date: Ext.getCmp("Dates").getValue(),
-                        Visual: t,
+                        Visual: Ext.getCmp("Visual").getValue(),
+                        CreatedOn: formatDate,
+                        
+                        Language: 'en',
+                        Title: Ext.getCmp("ENName").getValue(),
+                        Pdf: Ext.getCmp("ENpdf").getValue(),
+                        
+                        // FR
+                        FRLanguage: 'fr',
+                        FRTitle: Ext.getCmp("FRName").getValue(),
+                        FRPdf: Ext.getCmp("FRpdf").getValue(),
+
+                        // DE
+                        DELanguge: 'de',
+                        DETitle: Ext.getCmp("DEName").getValue(),
+                        DEPdf: Ext.getCmp("DEpdf").getValue(),
+
+                        // SP
+                        SPLanguage: 'es',
+                        SPTitle: Ext.getCmp("SPName").getValue(),
+                        SPPdf: Ext.getCmp("SPpdf").getValue(),
+
+                        // RU
+                        RULanguage: 'ru',
+                        RUTitle: Ext.getCmp("RUName").getValue(),
+                        RUPdf: Ext.getCmp("RUpdf").getValue(),
+
 
                     },
                     success: function (response) {
@@ -512,7 +596,7 @@
                                                         fieldLabel: 'PDF',
                                                         labelWidth: 50,
                                                         msgTarget: 'side',
-                                                        allowBlank: false,
+                                                        allowBlank: true,
                                                         anchor: '100%',
                                                         buttonText: 'Select PDF...'
                                                     }
@@ -573,7 +657,7 @@
                                                         fieldLabel: 'PDF',
                                                         labelWidth: 50,
                                                         msgTarget: 'side',
-                                                        allowBlank: false,
+                                                        allowBlank: true,
                                                         anchor: '100%',
                                                         buttonText: 'Select PDF...'
                                                     }
@@ -636,7 +720,7 @@
                                                         fieldLabel: 'PDF',
                                                         labelWidth: 50,
                                                         msgTarget: 'side',
-                                                        allowBlank: false,
+                                                        allowBlank: true,
                                                         anchor: '100%',
                                                         buttonText: 'Select PDF...'
                                                     }
@@ -698,7 +782,7 @@
                                                         fieldLabel: 'PDF',
                                                         width: 500,
                                                         msgTarget: 'side',
-                                                        allowBlank: false,
+                                                        allowBlank: true,
                                                         buttonText: 'Select PDF...'
                                                     }
 
@@ -721,7 +805,7 @@
                     id: "WorkingTitle",
                     name: "WorkingTitle",
                     fieldLabel: "Working Title",
-                    
+
                     width: 500,
                     allowBlank: true,
                     selectOnFocus: false,
