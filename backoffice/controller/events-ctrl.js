@@ -30,7 +30,7 @@ exports.getAllEvents = async (req, res) => {
 
    const getAllEvents
       = `SELECT Id, Name, Location, Visual, BannerVisual, Start, End, Url `
-      + `FROM Event WHERE Online = "1";`;
+      + `FROM Event;`;
 
    con.query(getAllEvents, (err, results) => {
       if (err) throw err;
