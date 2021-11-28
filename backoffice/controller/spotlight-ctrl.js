@@ -7,8 +7,11 @@ const appRoot = require('app-root-path');
 const imageMagick = require('imagemagick');
 const fs = require('fs');
 const imagemagickCli = require('imagemagick-cli');
+const { writeFile: writeFileCallback } = require('fs');
+const { promisify} = require('util');
 
-// imageMagick.convert.path = '/usr/bin/convert';
+const writeFileP = promisify(writeFileCallback);
+
 const con = mysql.createConnection({
    ...DB,
    multipleStatements: true,
@@ -32,14 +35,41 @@ exports.getSpotlight = async (req, res) => {
 
 
 exports.addSpotlight = async (req, res) => {
-   const { WorkingTitle, Date, Visual, CreatedOn } = req.body;
-   console.log(req)
-   const { originalname } = req.file;
-
-   const VisualFilename = Visual
-
    
-   con.query(`INSERT INTO Spotlight (WorkingTitle, Date, Visual, CreatedOn) VALUES ("${WorkingTitle}", "${Date}", "${Visual}", "${CreatedOn}");`, (err, results, fields) => {
+
+   const { WorkingTitle, Date, VisualName, CreatedOn, VisualFile } = req.body;
+   
+//    let promise = new Promise( resolve => {
+//       resolve(VisualFile)
+//   })
+
+//   promise.then(value => console.log(value))
+
+//   function readStream(stream, encoding = "utf8") {
+    
+//    stream.setEncoding(encoding);
+
+//    return new Promise((resolve, reject) => {
+//        let data = "";
+       
+//        stream.on("data", chunk => data += chunk);
+//        stream.on("end", () => resolve(data));
+//        stream.on("error", error => reject(error));
+//    });
+// }
+
+// const text = await readStream(process.stdin);
+// console.log(text)
+
+// // console.log('VisualFile ', VisualFile)
+   // const buffer = Buffer.from(VisualFile, "base64");
+   // fs.writeFileSync(appRoot+`/assets/image/spotlight/${VisualName}`, buffer);
+   // let base64Image = VisualFile.split(';base64,').pop();
+   
+   fs.writeFile(appRoot+`/assets/image/spotlight/${VisualName}`, VisualFile, {encoding: 'base64'}, function(err) {
+      console.log('File created');
+  });
+   con.query(`INSERT INTO Spotlight (WorkingTitle, Date, Visual, CreatedOn) VALUES ("${WorkingTitle}", "${Date}", "/assets/image/spotlight/${VisualName}", "${CreatedOn}");`, (err, results, fields) => {
       if (err) {
          console.log(err)
 
@@ -47,79 +77,94 @@ exports.addSpotlight = async (req, res) => {
          const dir = './assets/image/spotlight';
 
          // check if directory exists
-         if (fs.existsSync(dir)) {
-            fs.appendFile(VisualFilename, originalname, function (err) {
-               if (err) throw err;
-               console.log('Saved!');
-            });
+         // if (fs.existsSync(dir)) {
+         //    fs.appendFile(VisualFilename, originalname, function (err) {
+         //       if (err) throw err;
+         //       console.log('Saved!');
+         //    });
 
-            console.log('Directory exists!');
+         //    console.log('Directory exists!');
+         // } else {
+
+         //    fs.mkdir(dir);
+         //    fs.appendFile(VisualFilename, originalname, function (err) {
+         //       if (err) throw err;
+         //       console.log('Saved!');
+         //    });
+         //    console.log('Directory not found.');
+         // }
+       }
+
+
+         let SpotlightID = results.insertId;
+
+         const { Language, Title, CreatedOn, ENPdfFile, PdfName,
+            FRLanguage, FRTitle, FRPdf, FRPdfFile, FRPdfName,
+            DELanguage, DETitle, DEPdfFile, DEPdfName,
+            SPLanguage, SPTitle, SPPdfFile, SPPdfName,
+            RULanguage, RUTitle, RUPdfFile, RUPdfName, } = req.body;
+
+         if (Title !== "" && PdfName !== "") {
+            fs.writeFile(appRoot+`/assets/image/spotlight/${PdfName}`, ENPdfFile, {encoding: 'base64'}, function(err) {
+               console.log('File created');
+           });
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${Language}", "${Title}", "/assets/image/spotlight/${PdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+               if (err) throw err;
+
+            });
          } else {
-
-            fs.mkdir(dir);
-            fs.appendFile(VisualFilename, originalname, function (err) {
-               if (err) throw err;
-               console.log('Saved!');
-            });
-            console.log('Directory not found.');
+            console.log('english wasnt filled in')
          }
-      }
 
+         if (FRTitle !== '' && FRPdf !== '') {
+            fs.writeFile(appRoot+`/assets/image/spotlight/${FRPdfName}`, FRPdfFile, {encoding: 'base64'}, function(err) {
+               console.log('File created');
+           });
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${FRLanguage}", "${FRTitle}", "/assets/image/spotlight/${FRPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+               if (err) throw err;
 
-      let SpotlightID = results.insertId;
+            });
+         } else {
+            console.log('french wasnt filled in')
+         }
 
-      const { Language, Title, CreatedOn, Pdf,
-         FRLanguage, FRTitle, FRPdf,
-         DELanguage, DETitle, DEPdf,
-         SPLanguage, SPTitle, SPPdf,
-         RULanguage, RUTitle, RUPdf } = req.body;
+         if (DETitle !== '' && DEPdfName !== '') {
+            fs.writeFile(appRoot+`/assets/image/spotlight/${DEPdfName}`, DEPdfFile, {encoding: 'base64'}, function(err) {
+               console.log('File created');
+           });
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${DELanguage}", "${DETitle}", "/assets/image/spotlight/${DEPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+               if (err) throw err;
 
-      if (Title !== "" && Pdf !== "") {
-         con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${Language}", "${Title}", "${Pdf}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
-            if (err) throw err;
+            });
+         } else {
+            console.log('german wasnt filled in')
+         }
 
+         if (RUTitle !== '' && RUPdfName !== '') {
+            fs.writeFile(appRoot+`/assets/image/spotlight/${RUPdfName}`, RUPdfFile, {encoding: 'base64'}, function(err) {
+               console.log('File created');
+           });
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${RULanguage}", "${RUTitle}", "/assets/image/spotlight/${RUPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+               if (err) throw err;
 
-            res.status(200).send(results);
-         });
-      } else {
-         console.log('english wasnt filled in')
-      }
+            });
+         } else {
+            console.log('russian wasnt filled in')
+         }
 
-      if (FRTitle !== '' && FRPdf !== '') {
-         con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${FRLanguage}", "${FRTitle}", "${FRPdf}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
-            if (err) throw err;
+         if (SPTitle !== '' && SPPdfName !== '') {
+            fs.writeFile(appRoot+`/assets/image/spotlight/${SPPdfName}`, SPPdfFile, {encoding: 'base64'}, function(err) {
+               console.log('File created');
+           });
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${SPLanguage}", "${SPTitle}", "/assets/image/spotlight/${SPPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+               if (err) throw err;
 
-         });
-      } else {
-         console.log('french wasnt filled in')
-      }
+            });
+         } else {
+            console.log('spanish wasnt filled in')
+         }
+      res.send(results);
 
-      if (DETitle !== '' && DEPdf !== '') {
-         con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${DELanguage}", "${DETitle}", "${DEPdf}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
-            if (err) throw err;
-
-         });
-      } else {
-         console.log('german wasnt filled in')
-      }
-
-      if (RUTitle !== '' && RUPdf !== '') {
-         con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${RULanguage}", "${RUTitle}", "${RUPdf}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
-            if (err) throw err;
-
-         });
-      } else {
-         console.log('russian wasnt filled in')
-      }
-
-      if (SPTitle !== '' && SPPdf !== '') {
-         con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${SPLanguage}", "${SPTitle}", "${SPPdf}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
-            if (err) throw err;
-
-         });
-      } else {
-         console.log('spanish wasnt filled in')
-      }
    })
 
 }
@@ -127,19 +172,25 @@ exports.addSpotlight = async (req, res) => {
 
 exports.deleteSpotlight = async (req, res) => {
    const { Id } = req.body;
-
+   console.log(Id)
    con.query(`DELETE FROM Spotlight WHERE id = ${Id};`, (err, results, fields) => {
+      
       if (err) {
          console.log(err);
       }
+      con.query(`DELETE FROM SpotlightTranslation WHERE SpotlightID = ${Id};`, (err, results, fields) => {
+         if (err) {
+            console.log(err);
+         }
+      })
       res.send(results)
    })
 }
 
 exports.updateSpotlight = async (req, res) => {
-   const { id, WorkingTitle, Date, Visual, ModifiedOn } = req.body;
+   const { id, WorkingTitle, Date, VisualName, ModifiedOn } = req.body;
 
-   const query = `UPDATE Spotlight SET WorkingTitle = '${WorkingTitle}', Date = '${Date}', Visual = '${Visual}', ModifiedOn = '${ModifiedOn}' WHERE id = ${id};`
+   const query = `UPDATE Spotlight SET WorkingTitle = '${WorkingTitle}', Date = '${Date}', Visual = '${VisualName}', ModifiedOn = '${ModifiedOn}' WHERE id = ${id};`
 
    con.query(query, (err, results) => {
       if (err) throw err;
