@@ -16,6 +16,10 @@
    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
 
    <style>
+      .x-grid-view {
+	overflow-y: auto !important;
+	position: relative;
+	}
       .x-grid-cell-inner {
          overflow: hidden;
          padding: 10px 6px;
@@ -324,6 +328,7 @@
 
          const eventGrid = Ext.create("Ext.grid.GridPanel", {
             id: "eventGrid",
+            bufferedRenderer: false,
             flex: 1,
             scrollable: true,
             title: "Events",

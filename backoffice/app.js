@@ -29,8 +29,10 @@ app = express();
 // check delete assets
 // edit cell te-head series
 
-app.use(express.json());
 
+
+app.use(bodyParser.json({ limit: "50mb" }))
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 }))
 app.use('/', express.static(__dirname + '/views'));
 app.use('/pictures', express.static(__dirname + '/assets'))
 app.use('/spotlightPictures', express.static(__dirname + '/assets/image/spotlight'))
@@ -38,7 +40,9 @@ app.use('/data', express.static(__dirname + '/data'))
 app.use('/extjs', express.static(__dirname + '/extjs'))
 app.use('/controller', express.static(__dirname + '/controller'));
 app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(express.json());
+
 
 app.use('/apiAssets', assetsRoute);
 

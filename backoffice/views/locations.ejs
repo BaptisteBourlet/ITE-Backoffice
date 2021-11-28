@@ -16,6 +16,10 @@
    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
 
     <style>
+        .x-grid-view {
+	overflow-y: auto !important;
+	position: relative;
+	}
         #small-view {
             display: none;
         }
@@ -340,6 +344,7 @@
 
             const locationsGrid = Ext.create("Ext.grid.GridPanel", {
                 id: "locationsGrid",
+                bufferedRenderer: false,
                 flex: 1,
                 scrollable: true,
                 title: "Locations",

@@ -16,6 +16,10 @@
   <!-- ----------------------------- PRODUCTION ------------------------------ -->
   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
   <style>
+    .x-grid-view {
+	overflow-y: auto !important;
+	position: relative;
+	}
     .grid-image {
       width: auto;
       height: 70px;
@@ -1393,6 +1397,7 @@
 
       const AllProductGrid = Ext.create("Ext.grid.GridPanel", {
         id: "AllProductGrid",
+        bufferedRenderer: false,
         flex: 1,
         scrollable: true,
         title: "All ITE Products",
@@ -2541,6 +2546,7 @@
 
       const linkedProducts = Ext.create("Ext.grid.GridPanel", {
         id: "linkedProducts",
+        bufferedRenderer: false,
         flex: 1,
         scrollable: true,
         title: "Linked Products",
@@ -2753,6 +2759,7 @@
 
       const linkedImageGrid = Ext.create("Ext.grid.GridPanel", {
         id: "linkedImageGrid",
+        bufferedRenderer: false,
         flex: 1,
         scrollable: true,
         title: "Linked Images",
