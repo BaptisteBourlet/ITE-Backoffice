@@ -420,6 +420,8 @@
                     },
                     success: function (fp, object) {
                         Ext.getBody().unmask();
+                        SpotlightStore.reload();
+                            Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
                     },
                     failure: function (obj, res) {
                         Ext.getBody().unmask();
@@ -428,9 +430,8 @@
                                 "INFO",
                                 "Spotlight added successfully."
                             );
-                            SpotlightStore.reload();
                             form.reset();
-                            
+                            SpotlightStore.reload();
                             Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
                         } else {
                             Ext.Msg.alert(

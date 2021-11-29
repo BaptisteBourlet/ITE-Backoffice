@@ -69,7 +69,7 @@ exports.addSpotlight = async (req, res) => {
    fs.writeFile(appRoot+`/assets/image/spotlight/${VisualName}`, VisualFile, {encoding: 'base64'}, function(err) {
       console.log('File created');
   });
-   con.query(`INSERT INTO Spotlight (WorkingTitle, Date, Visual, CreatedOn) VALUES ("${WorkingTitle}", "${Date}", "/assets/image/spotlight/${VisualName}", "${CreatedOn}");`, (err, results, fields) => {
+   con.query(`INSERT INTO Spotlight (WorkingTitle, Date, Visual, CreatedOn) VALUES ("${WorkingTitle}", "${Date}", "${VisualName}", "${CreatedOn}");`, (err, results, fields) => {
       if (err) {
          console.log(err)
 
@@ -108,7 +108,7 @@ exports.addSpotlight = async (req, res) => {
             fs.writeFile(appRoot+`/assets/image/spotlight/${PdfName}`, ENPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
-            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${Language}", "${Title}", "/assets/image/spotlight/${PdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${Language}", "${Title}", "${PdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
                if (err) throw err;
 
             });
@@ -120,7 +120,7 @@ exports.addSpotlight = async (req, res) => {
             fs.writeFile(appRoot+`/assets/image/spotlight/${FRPdfName}`, FRPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
-            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${FRLanguage}", "${FRTitle}", "/assets/image/spotlight/${FRPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${FRLanguage}", "${FRTitle}", "${FRPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
                if (err) throw err;
 
             });
@@ -132,7 +132,7 @@ exports.addSpotlight = async (req, res) => {
             fs.writeFile(appRoot+`/assets/image/spotlight/${DEPdfName}`, DEPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
-            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${DELanguage}", "${DETitle}", "/assets/image/spotlight/${DEPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${DELanguage}", "${DETitle}", "${DEPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
                if (err) throw err;
 
             });
@@ -144,7 +144,7 @@ exports.addSpotlight = async (req, res) => {
             fs.writeFile(appRoot+`/assets/image/spotlight/${RUPdfName}`, RUPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
-            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${RULanguage}", "${RUTitle}", "/assets/image/spotlight/${RUPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${RULanguage}", "${RUTitle}", "${RUPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
                if (err) throw err;
 
             });
@@ -156,7 +156,7 @@ exports.addSpotlight = async (req, res) => {
             fs.writeFile(appRoot+`/assets/image/spotlight/${SPPdfName}`, SPPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
-            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${SPLanguage}", "${SPTitle}", "/assets/image/spotlight/${SPPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
+            con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${SPLanguage}", "${SPTitle}", "${SPPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
                if (err) throw err;
 
             });
