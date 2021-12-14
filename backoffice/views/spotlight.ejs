@@ -168,9 +168,9 @@
                                     Ext.getCmp("Visual").setValue(selectedRecord.data.Visual)
 
                                     const unformatDate = new Date(selectedRecord.data.Date)
-                                    console.log(unformatDate)
+                                   
                                     var formatDate = unformatDate.getDate() + "-" + (unformatDate.getMonth() + 1) + "-" + unformatDate.getFullYear()
-                                    console.log(formatDate)
+                                    
                                     Ext.getCmp("Dates").setValue(unformatDate)
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
@@ -456,7 +456,7 @@
                         WorkingTitle: Ext.getCmp("WorkingTitle").getValue(),
                         Date: Ext.getCmp("Dates").getValue(),
                         Visual: Ext.getCmp("Visual").getValue(),
-                        CreatedOn: formatDate,
+                        ModifiedOn: formatDate,
 
                         Language: 'en',
                         Title: Ext.getCmp("ENName").getValue(),

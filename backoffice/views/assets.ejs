@@ -282,6 +282,7 @@
                             scale: "small",
                             handler: function () {
                                 wichGrid = false;
+                                Ext.getCmp('AssetsGrid').getSelectionModel().deselectAll()
                                 Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid')
                             },
                         },
@@ -435,6 +436,7 @@
                             scale: "small",
                             handler: function () {
                                 wichGrid = true;
+                                Ext.getCmp('AssetsSerieGrid').getSelectionModel().deselectAll()
                                 Ext.getCmp("viewport").setActiveItem('AssetsGrid')
                             },
                         },
@@ -1061,20 +1063,27 @@
                     .getSelectionModel()
                     .getSelection()[0];
 
+                    console.log(selectedRecordProd)
                 const selectedRecordProdSer = Ext.getCmp("AssetsSerieGrid")
                     .getSelectionModel()
                     .getSelection()[0];
-                if (selectedRecordProd == 'product-image') {
+                    if(selectedRecordProd != undefined) {
+                        if (selectedRecordProd.data.Type == 'product-image') {
                     var selectedRecord = Ext.getCmp("AssetsGrid")
                         .getSelectionModel()
                         .getSelection()[0];
+                        console.log(selectedRecord)
+                    }
+                
                 } else {
                     var selectedRecord = Ext.getCmp("AssetsSerieGrid")
                         .getSelectionModel()
                         .getSelection()[0];
+                        console.log(selectedRecord)
                 }
                 Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this assets ?", function (btn, text) {
                     if (btn == 'yes') {
+                        console.log(selectedRecord)
                         Ext.getBody().mask('Deleting', 'x-msg-loading');
                         Ext.Ajax.request({
                             url: "/apiAssets/deleteAssets",
@@ -1091,11 +1100,8 @@
                                     var data = eval("(" + response.responseText + ")");
 
                                     if (data.serverStatus == 2) {
-                                        if (selectedRecord.data.Type) {
                                             SeriesAssetsStore.reload();
-                                        } else {
-                                            SeriesAssetsStore.reload();
-                                        }
+                                            AssetsStore.reload()
                                         Ext.getBody().unmask();
                                         Ext.Msg.alert(
                                             "Success",

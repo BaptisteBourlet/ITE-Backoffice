@@ -105,7 +105,7 @@ exports.updateSequence = async (req, res) => {
 exports.deleteAssets = async (req, res) => {
    const { itemId } = req.body;
 
-   con.query(`DELETE FROM Assets WHERE id = ${itemId};`, (err, results, fields) => {
+   con.query(`DELETE FROM Assets WHERE Id = ${itemId};`, (err, results, fields) => {
       if (err) {
          console.log(err);
       }
