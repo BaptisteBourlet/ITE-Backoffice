@@ -1104,7 +1104,7 @@
                                             AssetsStore.reload()
                                         Ext.getBody().unmask();
                                         Ext.Msg.alert(
-                                            "Success",
+                                            "Success", 
                                             "You have successfully deleted the assets"
                                         );
                                     } else {
@@ -1138,7 +1138,7 @@
                 defaults: {
                     labelAlign: "right",
                     labelWidth: 105,
-                    listeners: {
+            listeners: {
                         specialkey: function (field, e) {
                             if (e.getKey() == e.ENTER) {
                                 updateRec();

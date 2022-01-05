@@ -445,75 +445,162 @@
             };
 
             var editSpotlight = function () {
+                var form = Ext.getCmp('addForm')
                 Ext.getBody().mask("Saving", "x-msg-loading");
+
+                WorlkingTitle = Ext.getCmp("WorkingTitle").getValue()
+                const VisualArray = (Ext.getCmp("Visual").getValue()).split('\\')
+                var VisualName = VisualArray.pop();
+                var Date = Ext.getCmp("Dates").getValue();
+                var Title = Ext.getCmp("ENName").getValue();
+                var Pdf = (Ext.getCmp("ENpdf").getValue()).split('\\');
+                var PdfName = Pdf.pop();
+                // FR
+                var FRTitle = Ext.getCmp("FRName").getValue();
+                var FRPdfArray = (Ext.getCmp("FRpdf").getValue()).split('\\');
+                var FRPdfName = FRPdfArray.pop();
+                // DE
+                var DETitle = Ext.getCmp("DEName").getValue();
+                var DEPdfArray = (Ext.getCmp("DEpdf").getValue()).split('\\');
+                var DEPdfName = DEPdfArray.pop();
+                // SP
+                var SPTitle = Ext.getCmp("SPName").getValue();
+                var SPPdfArray = (Ext.getCmp("SPpdf").getValue()).split('\\');
+                var SPPdfName = SPPdfArray.pop();
+                // RU
+                var RUTitle = Ext.getCmp("RUName").getValue();
+                var RUPdfArray = (Ext.getCmp("RUpdf").getValue()).split('\\');
+                var RUPdfName = RUPdfArray.pop();
+
+                // All Files
+                const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
+                
+                if(Ext.getCmp("FRpdf").getValue() != ''){
+                    
+                    var FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
+                } else {
+                    var FRfile = ''
+                }
+                
+                if(Ext.getCmp("DEpdf").getValue() != ''){
+                    var DEfile = Ext.getCmp("DEpdf").fileInputEl.dom.files[0];
+                }else {
+                    var DEfile = ''
+                }
+
+                if(Ext.getCmp("SPpdf").getValue() != ''){
+                    console.log( 'ok ' )
+                    var SPfile = Ext.getCmp("SPpdf").fileInputEl.dom.files[0];
+                }else {
+                    var SPfile = ''
+                }
+
+                if(Ext.getCmp("RUpdf").getValue() != ''){
+                    var RUfile = Ext.getCmp("RUpdf").fileInputEl.dom.files[0];
+                }else {
+                    var RUfile = ''
+                }
+
+                const toBase64 = file => new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result.replace("data:", "").replace(/^.+,/, ""));
+                    reader.onerror = error => reject(error);
+                });
+
+                // VISUAL BASE 64
+                const file = Ext.getCmp("Visual").fileInputEl.dom.files[0];
+                let VisualFile = await toBase64(file)
+
+                // EN PDF BASE 64
+                // const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
+                
+                let ENPdfFile = await toBase64(ENfile)
+
+                // FR PDF BASE 64
+                // const FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
+                if(FRfile != ''){
+                    var FRPdfFile = await toBase64(FRfile)
+                }
+                
+                if(DEfile != ''){
+                    var DEPdfFile = await toBase64(DEfile)
+                }
+
+                if(SPfile != ''){
+                    var SPPdfFile = await toBase64(SPfile)
+                }
+
+
+                if(RUfile != ''){
+                    var RUPdfFile = await toBase64(RUfile)
+                }
+                
+
                 Ext.Ajax.request({
                     url: "/apiSpotlight/updateSpotlight",
                     method: "POST",
                     cors: true,
                     useDefaultXhrHeader: false,
                     params: {
-                        Id: id,
-                        WorkingTitle: Ext.getCmp("WorkingTitle").getValue(),
-                        Date: Ext.getCmp("Dates").getValue(),
-                        Visual: Ext.getCmp("Visual").getValue(),
-                        ModifiedOn: formatDate,
+                        ENPdfFile: ENPdfFile,
+                        FRPdfFile: FRPdfFile,
+                        DEPdfFile: DEPdfFile,
+                        SPPdfFile: SPPdfFile,
+                        RUPdfFile: RUPdfFile,
+                        VisualFile: VisualFile,
 
+                        CreatedOn: formatDate,
+                        WorkingTitle: WorlkingTitle,
+                        Date: Date,
+                        VisualName: VisualName,
+                        Title: Title,
+                        PdfName: PdfName,
                         Language: 'en',
-                        Title: Ext.getCmp("ENName").getValue(),
-                        Pdf: Ext.getCmp("ENpdf").getValue(),
-
                         // FR
                         FRLanguage: 'fr',
-                        FRTitle: Ext.getCmp("FRName").getValue(),
-                        FRPdf: Ext.getCmp("FRpdf").getValue(),
+                        FRTitle: FRTitle,
+                        FRPdfName: FRPdfName,
 
                         // DE
                         DELanguge: 'de',
-                        DETitle: Ext.getCmp("DEName").getValue(),
-                        DEPdf: Ext.getCmp("DEpdf").getValue(),
+                        DETitle: DETitle,
+                        DEPdfName: DEPdfName,
 
                         // SP
                         SPLanguage: 'es',
-                        SPTitle: Ext.getCmp("SPName").getValue(),
-                        SPPdf: Ext.getCmp("SPpdf").getValue(),
+                        SPTitle: SPTitle,
+                        SPPdfName: SPPdfName,
 
                         // RU
                         RULanguage: 'ru',
-                        RUTitle: Ext.getCmp("RUName").getValue(),
-                        RUPdf: Ext.getCmp("RUpdf").getValue(),
-
+                        RUTitle: RUTitle,
+                        RUPdfName: RUPdfName,
 
                     },
-                    success: function (response) {
-                        // check for errors and display error message
-                        var check = response.responseText;
-                        if (check) {
-                            var data = JSON.parse(check);
-                            if (data) {
-                                Ext.getBody().unmask();
-                                Ext.Msg.alert(
-                                    "Info",
-                                    `You have successfully add the spotlight`,
-                                );
-                                Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
-                                SpotlightStore.reload();
-                            } else {
-                                // display error message
-                                Ext.getBody().unmask();
-                                Ext.Msg.alert(
-                                    "ERROR",
-                                    "Failed to add the spotlight. Contact your IT team."
-                                );
-                            }
+                    success: function (fp, object) {
+                        Ext.getBody().unmask();
+                        SpotlightStore.reload();
+                            Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
+                    },
+                    failure: function (obj, res) {
+                        Ext.getBody().unmask();
+                        if (res) {
+                            Ext.Msg.alert(
+                                "INFO",
+                                "Spotlight updated successfully."
+                            );
+                            form.reset();
+                            SpotlightStore.reload();
+                            Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
+                        } else {
+                            Ext.Msg.alert(
+                                "ERROR",
+                                "Failed to update new spotlight. Contact your IT team."
+                            );
                         }
                     },
-                    failure: function (response) {
-                        Ext.getBody().unmask();
-                        Ext.Msg.alert(
-                            "ERROR",
-                            "Failed to add the spotlight. Contact your IT team."
-                        );
-                    }
                 });
             };
 
@@ -1001,7 +1088,6 @@
                         id: "editSave",
                         iconCls: "fas fa-save",
                         handler: function () {
-                            console.log('wrong button')
                             if (Ext.getCmp('addForm').isValid()) {
                                 edit = false;
                                 editSpotlight();

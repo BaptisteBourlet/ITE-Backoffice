@@ -40,7 +40,7 @@ exports.addSpotlight = async (req, res) => {
    const { WorkingTitle, Date, VisualName, CreatedOn, VisualFile } = req.body;
    
    
-   fs.writeFile(appRoot+`/assets/image/spotlight/${VisualName}`, VisualFile, {encoding: 'base64'}, function(err) {
+   fs.writeFile(appRoot+`/assets/images/spotlight/${VisualName}`, VisualFile, {encoding: 'base64'}, function(err) {
       console.log('File created');
   });
    con.query(`INSERT INTO Spotlight (WorkingTitle, Date, Visual, CreatedOn) VALUES ("${WorkingTitle}", "${Date}", "${VisualName}", "${CreatedOn}");`, (err, results, fields) => {
@@ -50,25 +50,7 @@ exports.addSpotlight = async (req, res) => {
          // directory to check if exists
          const dir = './assets/image/spotlight';
 
-         // check if directory exists
-         // if (fs.existsSync(dir)) {
-         //    fs.appendFile(VisualFilename, originalname, function (err) {
-         //       if (err) throw err;
-         //       console.log('Saved!');
-         //    });
-
-         //    console.log('Directory exists!');
-         // } else {
-
-         //    fs.mkdir(dir);
-         //    fs.appendFile(VisualFilename, originalname, function (err) {
-         //       if (err) throw err;
-         //       console.log('Saved!');
-         //    });
-         //    console.log('Directory not found.');
-         // }
        }
-
 
          let SpotlightID = results.insertId;
 
@@ -79,7 +61,7 @@ exports.addSpotlight = async (req, res) => {
             RULanguage, RUTitle, RUPdfFile, RUPdfName, } = req.body;
 
          if (Title !== "" && PdfName !== "") {
-            fs.writeFile(appRoot+`/assets/image/spotlight/${PdfName}`, ENPdfFile, {encoding: 'base64'}, function(err) {
+            fs.writeFile(appRoot+`/assets/images/spotlight/${PdfName}`, ENPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
             con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${Language}", "${Title}", "${PdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
@@ -91,7 +73,7 @@ exports.addSpotlight = async (req, res) => {
          }
 
          if (FRTitle !== '' && FRPdf !== '') {
-            fs.writeFile(appRoot+`/assets/image/spotlight/${FRPdfName}`, FRPdfFile, {encoding: 'base64'}, function(err) {
+            fs.writeFile(appRoot+`/assets/images/spotlight/${FRPdfName}`, FRPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
             con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${FRLanguage}", "${FRTitle}", "${FRPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
@@ -103,7 +85,7 @@ exports.addSpotlight = async (req, res) => {
          }
 
          if (DETitle !== '' && DEPdfName !== '') {
-            fs.writeFile(appRoot+`/assets/image/spotlight/${DEPdfName}`, DEPdfFile, {encoding: 'base64'}, function(err) {
+            fs.writeFile(appRoot+`/assets/images/spotlight/${DEPdfName}`, DEPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
             con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${DELanguage}", "${DETitle}", "${DEPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
@@ -115,7 +97,7 @@ exports.addSpotlight = async (req, res) => {
          }
 
          if (RUTitle !== '' && RUPdfName !== '') {
-            fs.writeFile(appRoot+`/assets/image/spotlight/${RUPdfName}`, RUPdfFile, {encoding: 'base64'}, function(err) {
+            fs.writeFile(appRoot+`/assets/images/spotlight/${RUPdfName}`, RUPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
             con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${RULanguage}", "${RUTitle}", "${RUPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
@@ -127,7 +109,7 @@ exports.addSpotlight = async (req, res) => {
          }
 
          if (SPTitle !== '' && SPPdfName !== '') {
-            fs.writeFile(appRoot+`/assets/image/spotlight/${SPPdfName}`, SPPdfFile, {encoding: 'base64'}, function(err) {
+            fs.writeFile(appRoot+`/assets/images/spotlight/${SPPdfName}`, SPPdfFile, {encoding: 'base64'}, function(err) {
                console.log('File created');
            });
             con.query(`INSERT INTO SpotlightTranslation (Language, Title, Pdf, CreatedOn, SpotlightID) VALUES ("${SPLanguage}", "${SPTitle}", "${SPPdfName}", "${CreatedOn}", "${SpotlightID}");`, (err, results, fields) => {
@@ -163,7 +145,7 @@ exports.deleteSpotlight = async (req, res) => {
 
 exports.updateSpotlight = async (req, res) => {
    const { id, WorkingTitle, Date, VisualName, ModifiedOn,VisualFile } = req.body;
-   fs.writeFile(appRoot+`/assets/image/spotlight/${VisualName}`, VisualFile, {encoding: 'base64'}, function(err) {
+   fs.writeFile(appRoot+`/assets/images/spotlight/${VisualName}`, VisualFile, {encoding: 'base64'}, function(err) {
       console.log('File created');
   });
    const query = `UPDATE Spotlight SET WorkingTitle = '${WorkingTitle}', Date = '${Date}', Visual = '${VisualName}', ModifiedOn = '${ModifiedOn}' WHERE id = ${id};`
@@ -178,7 +160,7 @@ exports.updateSpotlight = async (req, res) => {
          RULanguage, RUTitle, RUPdfFile, RUPdfName, } = req.body;
 
       if (Title !== "" && PdfName !== "") {
-         fs.writeFile(appRoot+`/assets/image/spotlight/${PdfName}`, ENPdfFile, {encoding: 'base64'}, function(err) {
+         fs.writeFile(appRoot+`/assets/images/spotlight/${PdfName}`, ENPdfFile, {encoding: 'base64'}, function(err) {
             console.log('File created');
         });
          con.query(`UPDATE SpotlightTranslation SET Language = ${Language}, Title = "${Title}", Pdf = "${PdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'en';`, (err, results, fields) => {
@@ -190,7 +172,7 @@ exports.updateSpotlight = async (req, res) => {
       }
 
       if (FRTitle !== '' && FRPdf !== '') {
-         fs.writeFile(appRoot+`/assets/image/spotlight/${FRPdfName}`, FRPdfFile, {encoding: 'base64'}, function(err) {
+         fs.writeFile(appRoot+`/assets/images/spotlight/${FRPdfName}`, FRPdfFile, {encoding: 'base64'}, function(err) {
             console.log('File created');
         });
          con.query(`UPDATE SpotlightTranslation SET Language = ${FRLanguage}, Title = "${FRTitle}", Pdf = "${FRPdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'fr';`, (err, results, fields) => {
