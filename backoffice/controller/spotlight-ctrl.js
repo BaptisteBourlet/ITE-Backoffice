@@ -48,7 +48,7 @@ exports.addSpotlight = async (req, res) => {
          console.log(err)
 
          // directory to check if exists
-         const dir = './assets/image/spotlight';
+         const dir = './assets/images/spotlight';
 
        }
 
@@ -117,6 +117,7 @@ exports.addSpotlight = async (req, res) => {
 
             });
          } else {
+            
             console.log('spanish wasnt filled in')
          }
       res.send(results);
@@ -163,7 +164,7 @@ exports.updateSpotlight = async (req, res) => {
          fs.writeFile(appRoot+`/assets/images/spotlight/${PdfName}`, ENPdfFile, {encoding: 'base64'}, function(err) {
             console.log('File created');
         });
-         con.query(`UPDATE SpotlightTranslation SET Language = ${Language}, Title = "${Title}", Pdf = "${PdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'en';`, (err, results, fields) => {
+         con.query(`UPDATE SpotlightTranslation SET Title = "${Title}", Pdf = "${PdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'en';`, (err, results, fields) => {
             if (err) throw err;
 
          });
@@ -175,7 +176,7 @@ exports.updateSpotlight = async (req, res) => {
          fs.writeFile(appRoot+`/assets/images/spotlight/${FRPdfName}`, FRPdfFile, {encoding: 'base64'}, function(err) {
             console.log('File created');
         });
-         con.query(`UPDATE SpotlightTranslation SET Language = ${FRLanguage}, Title = "${FRTitle}", Pdf = "${FRPdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'fr';`, (err, results, fields) => {
+         con.query(`UPDATE SpotlightTranslation SET Title = "${FRTitle}", Pdf = "${FRPdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'fr';`, (err, results, fields) => {
             if (err) throw err;
 
          });
@@ -184,10 +185,10 @@ exports.updateSpotlight = async (req, res) => {
       }
 
       if (DETitle !== '' && DEPdfName !== '') {
-         fs.writeFile(appRoot+`/assets/image/spotlight/${DEPdfName}`, DEPdfFile, {encoding: 'base64'}, function(err) {
+         fs.writeFile(appRoot+`/assets/images/spotlight/${DEPdfName}`, DEPdfFile, {encoding: 'base64'}, function(err) {
             console.log('File created');
         });
-         con.query(`UPDATE SpotlightTranslation SET Language = ${DELanguage}, Title = "${DETitle}", Pdf = "${DEPdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'de';`, (err, results, fields) => {
+         con.query(`UPDATE SpotlightTranslation SET Title = "${DETitle}", Pdf = "${DEPdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'de';`, (err, results, fields) => {
             if (err) throw err;
 
          });
@@ -196,10 +197,10 @@ exports.updateSpotlight = async (req, res) => {
       }
 
       if (RUTitle !== '' && RUPdfName !== '') {
-         fs.writeFile(appRoot+`/assets/image/spotlight/${RUPdfName}`, RUPdfFile, {encoding: 'base64'}, function(err) {
+         fs.writeFile(appRoot+`/assets/images/spotlight/${RUPdfName}`, RUPdfFile, {encoding: 'base64'}, function(err) {
             console.log('File created');
         });
-         con.query(`UPDATE SpotlightTranslation SET Language = ${RULanguage}, Title = "${RUTitle}", Pdf = "${RUPdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'ru';`, (err, results, fields) => {
+         con.query(`UPDATE SpotlightTranslation SET Title = "${RUTitle}", Pdf = "${RUPdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'ru';`, (err, results, fields) => {
             if (err) throw err;
 
          });
@@ -208,10 +209,10 @@ exports.updateSpotlight = async (req, res) => {
       }
 
       if (SPTitle !== '' && SPPdfName !== '') {
-         fs.writeFile(appRoot+`/assets/image/spotlight/${SPPdfName}`, SPPdfFile, {encoding: 'base64'}, function(err) {
+         fs.writeFile(appRoot+`/assets/images/spotlight/${SPPdfName}`, SPPdfFile, {encoding: 'base64'}, function(err) {
             console.log('File created');
         });
-         con.query(`UPDATE SpotlightTranslation SET Language = ${SPLanguage}, Title = "${SPTitle}", Pdf = "${SPPdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'SP' OR Language = 'es';`, (err, results, fields) => {
+         con.query(`UPDATE SpotlightTranslation SET Title = "${SPTitle}", Pdf = "${SPPdfName}", ModifiedOn = ${ModifiedOn} WHERE SpotlightID = ${id} AND Language = 'SP' OR Language = 'es';`, (err, results, fields) => {
             if (err) throw err;
 
          });

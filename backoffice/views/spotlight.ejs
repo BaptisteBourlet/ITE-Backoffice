@@ -159,7 +159,6 @@
                                 const selectedRecord = Ext.getCmp("SpotlightGrid")
                                     .getSelectionModel()
                                     .getSelection()[0];
-
                                 if (selectedRecord === undefined) {
                                     Ext.Msg.alert("INFO", "No record selected");
                                 } else {
@@ -444,10 +443,10 @@
 
             };
 
-            var editSpotlight = function () {
+            var editSpotlight = async function () {
                 var form = Ext.getCmp('addForm')
                 Ext.getBody().mask("Saving", "x-msg-loading");
-
+                console.log(spotlightIdGlobal)
                 WorlkingTitle = Ext.getCmp("WorkingTitle").getValue()
                 const VisualArray = (Ext.getCmp("Visual").getValue()).split('\\')
                 var VisualName = VisualArray.pop();
@@ -544,6 +543,7 @@
                     cors: true,
                     useDefaultXhrHeader: false,
                     params: {
+                        id: spotlightIdGlobal,
                         ENPdfFile: ENPdfFile,
                         FRPdfFile: FRPdfFile,
                         DEPdfFile: DEPdfFile,
@@ -551,7 +551,7 @@
                         RUPdfFile: RUPdfFile,
                         VisualFile: VisualFile,
 
-                        CreatedOn: formatDate,
+                        ModifiedOn: formatDate,
                         WorkingTitle: WorlkingTitle,
                         Date: Date,
                         VisualName: VisualName,
@@ -1096,6 +1096,7 @@
                         },
                     },
                     "-",
+                    
                     {
                         text: "Cancel",
                         tooltip: "Cancel",
