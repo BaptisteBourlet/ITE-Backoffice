@@ -16,19 +16,19 @@
   <!-- ----------------------------- PRODUCTION ------------------------------ -->
 
   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
-  
+
   <!-- <script type="text/javascript" src="/extTinyMce/TinyMceEditor.js"></script> -->
   <script type="text/javascript" src="/tinymce/tinymce.min.js"></script>
   <!-- <script type="text/javascript" src="/tinymce/jquery.tinymce.min.js"></script> -->
- 
-    <!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
-    
- 
-    
-      
-    
-  
-  
+
+  <!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
+
+
+
+
+
+
+
   <style>
     .x-grid-view {
       overflow-y: auto !important;
@@ -92,12 +92,12 @@
 
 
   <script type="text/javascript">
-    
+
     //=========================================================================================================
     //		           APPLICATION START
     // ========================================================================================================
     Ext.onReady(() => {
-      
+
       // // FOR TESTING 
 
       // let userRightObject = {
@@ -1204,8 +1204,27 @@
                 Ext.getCmp("editSave").setHidden(true);
                 Ext.getCmp("panelAdd").setTitle("Add product");
                 Ext.getCmp("viewport").setActiveItem("panelAdd");
-                tinymce.init({ selector:'textarea' });
-                
+                tinymce.init({ selector: 'textarea', 
+                plugins: [
+
+'advlist autolink lists link image charmap print preview anchor',
+
+'searchreplace visualblocks code fullscreen',
+
+'insertdatetime media table paste code help wordcount'
+
+],
+
+toolbar: 'undo redo |  ' +
+
+'bold italic forecolor | alignleft aligncenter ' +
+
+' | bullist numlist outdent indent | ' +
+
+' table | link image | removeformat  code | help',
+
+content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }' });
+
 
               },
             },
@@ -1238,7 +1257,26 @@
                   getOtherLanguageDetail('ru', productIDGlobal)
 
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
-                  tinymce.init({ selector:'textarea' });
+                  tinymce.init({ selector: 'textarea',
+                  plugins: [
+
+'advlist autolink lists link image charmap print preview anchor',
+
+'searchreplace visualblocks code fullscreen',
+
+'insertdatetime media table paste code help wordcount'
+
+],
+
+toolbar: 'undo redo |  ' +
+
+'bold italic forecolor | alignleft aligncenter ' +
+
+' | bullist numlist outdent indent | ' +
+
+' table | link image | removeformat  code | help',
+
+content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }' });
                   getProductDetails(selectedRecord.data.Id);
                 }
               },
@@ -1581,7 +1619,26 @@
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp('panelAdd').setTitle('Edit product');
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
-                  tinymce.init({ selector:'textarea' });
+                  tinymce.init({ selector: 'textarea', 
+                  plugins: [
+
+'advlist autolink lists link image charmap print preview anchor',
+
+'searchreplace visualblocks code fullscreen',
+
+'insertdatetime media table paste code help wordcount'
+
+],
+
+toolbar: 'undo redo |  ' +
+
+'bold italic forecolor | alignleft aligncenter ' +
+
+' | bullist numlist outdent indent | ' +
+
+' table | link image | removeformat  code | help',
+
+content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }' });
                   getProductDetails(productIDGlobal);
                   getOtherLanguageDetail('en', productIDGlobal)
                   getOtherLanguageDetail('fr', productIDGlobal)
@@ -1599,7 +1656,26 @@
                 iconCls: "fa fa-edit",
                 handler: function () {
                   Ext.getCmp('viewport').setActiveItem('linkedProducts');
-                  tinymce.init({ selector:'textarea' });
+                  tinymce.init({ selector: 'textarea',
+                  plugins: [
+
+'advlist autolink lists link image charmap print preview anchor',
+
+'searchreplace visualblocks code fullscreen',
+
+'insertdatetime media table paste code help wordcount'
+
+],
+
+toolbar: 'undo redo |  ' +
+
+'bold italic forecolor | alignleft aligncenter ' +
+
+' | bullist numlist outdent indent | ' +
+
+' table | link image | removeformat  code | help',
+
+content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }' });
                   getRelatedProductSerie(serieIDGlobal);
                 },
               },
@@ -1638,6 +1714,7 @@
 
       const CategoryStore = Ext.create("Ext.data.Store", {
         id: "CategoryStore",
+
         autoLoad: true,
         model: CATEGORY,
         proxy: {
@@ -1663,15 +1740,36 @@
           styleHtmlContent: true
         },
         listeners: {
-        render: function() {
-            this.items.each(function(i){
-                i.tab.on('click', function(){
-                  Ext.getCmp('tabTrans').setActiveTab(i)
-                  tinymce.init({ selector:'textarea' });
+          render: function () {
+            this.items.each(function (i) {
+              i.tab.on('click', function () {
+                Ext.getCmp('tabTrans').setActiveTab(i)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
+
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                 });
+              });
             });
-        }
-    },
+          }
+        },
         items: [
           {
             title: 'English',
@@ -1726,18 +1824,18 @@
                           },
                           {
 
-                            
-    // xtype: 'tinymceeditor',
-    
-                            html: '<textarea>Full description...</textarea><br>',
+
+                            // xtype: 'tinymceeditor',
+
+                            html: '<textarea id="test">Full description...</textarea><br>',
                             // xtype: "htmleditor",
-                            id: "ENFDesc",
-                            name: "ENFDesc",
-                            fieldLabel: "Full description",
+                            // id: "ENFDesc",
+                            // name: "ENFDesc",
+                            // fieldLabel: "Full description",
                             // enableColors: true,
                             // enableAlignments: false,
                             // submitvalue: true,
-                            allowBlank: false,
+                            // allowBlank: false,
                             // enableFont: false,
                             height: 200,
                             // width: 560,
@@ -1769,7 +1867,7 @@
 
           {
             title: 'French',
-            
+
             // listeners: {
             //     onClick: () => {
             //       console.log('test')
@@ -2165,9 +2263,9 @@
                           {
                             html: '<textarea>Full description...</textarea><br>',
                             // xtype: "htmleditor",
-                            id: "RUFDesc",
-                            name: "RUFDesc",
-                            fieldLabel: "Full description",
+                            // id: "RUFDesc",
+                            // name: "RUFDesc",
+                            // fieldLabel: "Full description",
                             // enableColors: true,
                             // enableAlignments: false,
                             allowBlank: false,
@@ -2368,7 +2466,11 @@
             id: "addSave",
             iconCls: "fas fa-save",
             handler: function () {
+              // var elements = document.querySelectorAll('[data-id="mce_0"]')
+              // var d = elements.innerHTML;
+              // console.log(d)
               if (Ext.getCmp('addForm').isValid()) {
+
                 setProductSessionStorage();
                 addRecord();
                 Ext.getCmp("addForm").reset();
