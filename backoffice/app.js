@@ -1,4 +1,5 @@
 const express = require('express');
+var path = require('path');
 const bodyParser = require('body-parser');
 
 const assetsRoute = require('./routes/assets-route');
@@ -29,11 +30,13 @@ app = express();
 // check delete assets
 // edit cell te-head series
 
-
-
 app.use(bodyParser.json({ limit: "50mb" }))
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 }))
 app.use('/', express.static(__dirname + '/views'));
+
+app.use('/tinymce', express.static(path.join(__dirname, 'node_modules', '/@spmeesseman/extjs-pkg-tinymce/resources')));
+app.use('/extTinyMce', express.static(path.join(__dirname, 'node_modules', '/@spmeesseman/extjs-pkg-tinymce/src')));
+app.use('/extTinyMce2', express.static(path.join(__dirname, 'node_modules', '/@spmeesseman/extjs-pkg-tinymce')));
 app.use('/pictures', express.static(__dirname + '/assets'))
 app.use('/spotlightPictures', express.static(__dirname + '/assets/images/spotlight'))
 app.use('/data', express.static(__dirname + '/data'))

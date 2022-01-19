@@ -14,12 +14,27 @@
   <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
   <!-- ----------------------------- PRODUCTION ------------------------------ -->
+
   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+  
+  <!-- <script type="text/javascript" src="/extTinyMce/TinyMceEditor.js"></script> -->
+  <script type="text/javascript" src="/tinymce/tinymce.min.js"></script>
+  <!-- <script type="text/javascript" src="/tinymce/jquery.tinymce.min.js"></script> -->
+ 
+    <!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
+    
+ 
+    
+      
+    
+  
+  
   <style>
     .x-grid-view {
-	overflow-y: auto !important;
-	position: relative;
-	}
+      overflow-y: auto !important;
+      position: relative;
+    }
+
     .grid-image {
       width: auto;
       height: 70px;
@@ -77,10 +92,12 @@
 
 
   <script type="text/javascript">
+    
     //=========================================================================================================
     //		           APPLICATION START
     // ========================================================================================================
     Ext.onReady(() => {
+      
       // // FOR TESTING 
 
       // let userRightObject = {
@@ -1187,6 +1204,9 @@
                 Ext.getCmp("editSave").setHidden(true);
                 Ext.getCmp("panelAdd").setTitle("Add product");
                 Ext.getCmp("viewport").setActiveItem("panelAdd");
+                tinymce.init({ selector:'textarea' });
+                
+
               },
             },
             "-",
@@ -1218,7 +1238,7 @@
                   getOtherLanguageDetail('ru', productIDGlobal)
 
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
-
+                  tinymce.init({ selector:'textarea' });
                   getProductDetails(selectedRecord.data.Id);
                 }
               },
@@ -1410,6 +1430,7 @@
         frame: false,
         renderTo: Ext.getBody(),
         height: 690,
+
         dockedItems: [...tbarItems],
         listeners: {
           dblclick: {
@@ -1560,12 +1581,14 @@
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp('panelAdd').setTitle('Edit product');
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
+                  tinymce.init({ selector:'textarea' });
                   getProductDetails(productIDGlobal);
                   getOtherLanguageDetail('en', productIDGlobal)
                   getOtherLanguageDetail('fr', productIDGlobal)
                   getOtherLanguageDetail('de', productIDGlobal)
                   getOtherLanguageDetail('sp', productIDGlobal)
                   getOtherLanguageDetail('ru', productIDGlobal)
+
                 },
               },
               "-",
@@ -1576,6 +1599,7 @@
                 iconCls: "fa fa-edit",
                 handler: function () {
                   Ext.getCmp('viewport').setActiveItem('linkedProducts');
+                  tinymce.init({ selector:'textarea' });
                   getRelatedProductSerie(serieIDGlobal);
                 },
               },
@@ -1638,7 +1662,16 @@
         defaults: {
           styleHtmlContent: true
         },
-
+        listeners: {
+        render: function() {
+            this.items.each(function(i){
+                i.tab.on('click', function(){
+                  Ext.getCmp('tabTrans').setActiveTab(i)
+                  tinymce.init({ selector:'textarea' });
+                });
+            });
+        }
+    },
         items: [
           {
             title: 'English',
@@ -1660,6 +1693,7 @@
                       align: 'stretch'
                     },
                     border: false,
+
                     items: [
                       {
                         xtype: 'my-form',
@@ -1691,31 +1725,37 @@
                             margin: "25 0 25 0",
                           },
                           {
-                            xtype: "htmleditor",
+
+                            
+    // xtype: 'tinymceeditor',
+    
+                            html: '<textarea>Full description...</textarea><br>',
+                            // xtype: "htmleditor",
                             id: "ENFDesc",
                             name: "ENFDesc",
                             fieldLabel: "Full description",
-                            enableColors: true,
-                            enableAlignments: false,
-                            submitvalue: true,
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            // submitvalue: true,
                             allowBlank: false,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
+                            // enableFont: false,
+                            height: 200,
+                            // width: 560,
                           },
                           {
-                            xtype: "htmleditor",
+                            html: '<textarea>Specification...</textarea>',
+                            // xtype: "htmleditor",
                             id: "ENspec",
                             name: "ENspec",
                             fieldLabel: "Specification",
-                            enableColors: true,
-                            enableAlignments: false,
+                            // enableColors: true,
+                            // enableAlignments: false,
                             allowBlank: false,
-                            selectOnFocus: false,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
-                            margin: "25 0 25 0",
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            height: 200,
+                            // width: 560,
+                            // margin: "25 0 25 0",
                           },
                         ]
                       },
@@ -1729,7 +1769,13 @@
 
           {
             title: 'French',
-
+            
+            // listeners: {
+            //     onClick: () => {
+            //       console.log('test')
+            //       tinymce.init({ selector:'textarea' });
+            //     },
+            //   },
             items: [
               {
                 xtype: "fieldset",
@@ -1780,31 +1826,55 @@
                             margin: "25 0 25 0",
                           },
                           {
-                            xtype: "htmleditor",
-                            id: "FRFDesc",
-                            name: "FRFDesc",
-                            fieldLabel: "Full description",
-                            allowBlank: true,
-                            enableColors: true,
-                            enableAlignments: false,
-                            submitvalue: true,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
+                            html: '<textarea id="FRFDesc">Full description...</textarea><br>',
+                            // xtype: "htmleditor",
+                            // id: "FRFDesc",
+                            // name: "FRFDesc",
+                            fieldLabel: "Specification",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            allowBlank: false,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            height: 200,
+                            // width: 560,
+                            // margin: "25 0 25 0",
+                            // xtype: "htmleditor",
+                            // id: "FRFDesc",
+                            // name: "FRFDesc",
+                            // fieldLabel: "Full description",
+                            // allowBlank: true,
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            // submitvalue: true,
+                            // enableFont: false,
+                            // height: 400,
+                            // width: 560,
                           },
                           {
-                            xtype: "htmleditor",
+                            html: '<textarea>Specification...</textarea>',
+                            // xtype: "htmleditor",
                             id: "FRspec",
                             name: "FRspec",
                             fieldLabel: "Specification",
-                            enableColors: true,
-                            enableAlignments: false,
-                            allowBlank: true,
-                            selectOnFocus: false,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
-                            margin: "25 0 25 0",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            allowBlank: false,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            height: 200,
+                            // xtype: "htmleditor",
+                            // id: "FRspec",
+                            // name: "FRspec",
+                            // fieldLabel: "Specification",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            // allowBlank: true,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            // height: 400,
+                            // width: 560,
+                            // margin: "25 0 25 0",
                           },
                         ]
                       },
@@ -1868,31 +1938,55 @@
                             margin: "25 0 25 0",
                           },
                           {
-                            xtype: "htmleditor",
+                            html: '<textarea>Full description...</textarea><br>',
+                            // xtype: "htmleditor",
                             id: "DEFDesc",
                             name: "DEFDesc",
                             fieldLabel: "Full description",
-                            enableColors: true,
-                            enableAlignments: false,
-                            submitvalue: true,
-                            allowBlank: true,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            allowBlank: false,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            height: 200,
+
+                            // xtype: "htmleditor",
+                            // id: "DEFDesc",
+                            // name: "DEFDesc",
+                            // fieldLabel: "Full description",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            // submitvalue: true,
+                            // allowBlank: true,
+                            // enableFont: false,
+                            // height: 400,
+                            // width: 560,
                           },
                           {
-                            xtype: "htmleditor",
+                            html: '<textarea>Specification...</textarea>',
+                            // xtype: "htmleditor",
                             id: "DEspec",
                             name: "DEspec",
                             fieldLabel: "Specification",
-                            enableColors: true,
-                            enableAlignments: false,
-                            allowBlank: true,
-                            selectOnFocus: false,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
-                            margin: "25 0 25 0",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            allowBlank: false,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            height: 200,
+
+                            // xtype: "htmleditor",
+                            // id: "DEspec",
+                            // name: "DEspec",
+                            // fieldLabel: "Specification",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            // allowBlank: true,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            // height: 400,
+                            // width: 560,
+                            // margin: "25 0 25 0",
                           },
                         ]
                       },
@@ -1957,31 +2051,55 @@
                             margin: "25 0 25 0",
                           },
                           {
-                            xtype: "htmleditor",
+                            html: '<textarea>Full description...</textarea><br>',
+                            // xtype: "htmleditor",
                             id: "SPFDesc",
                             name: "SPFDesc",
                             fieldLabel: "Full description",
-                            enableColors: true,
-                            enableAlignments: false,
-                            submitvalue: true,
-                            allowBlank: true,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            allowBlank: false,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            height: 200,
+
+                            // xtype: "htmleditor",
+                            // id: "SPFDesc",
+                            // name: "SPFDesc",
+                            // fieldLabel: "Full description",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            // submitvalue: true,
+                            // allowBlank: true,
+                            // enableFont: false,
+                            // height: 400,
+                            // width: 560,
                           },
                           {
-                            xtype: "htmleditor",
+                            html: '<textarea>Specification...</textarea>',
+                            // xtype: "htmleditor",
                             id: "SPspec",
                             name: "SPspec",
                             fieldLabel: "Specification",
-                            enableColors: true,
-                            enableAlignments: false,
-                            allowBlank: true,
-                            selectOnFocus: false,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
-                            margin: "25 0 25 0",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            allowBlank: false,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            height: 200,
+
+                            // xtype: "htmleditor",
+                            // id: "SPspec",
+                            // name: "SPspec",
+                            // fieldLabel: "Specification",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            // allowBlank: true,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            // height: 400,
+                            // width: 560,
+                            // margin: "25 0 25 0",
                           },
                         ]
                       },
@@ -2045,31 +2163,56 @@
                             margin: "25 0 25 0",
                           },
                           {
-                            xtype: "htmleditor",
+                            html: '<textarea>Full description...</textarea><br>',
+                            // xtype: "htmleditor",
                             id: "RUFDesc",
                             name: "RUFDesc",
                             fieldLabel: "Full description",
-                            enableColors: true,
-                            enableAlignments: false,
-                            submitvalue: true,
-                            allowBlank: true,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            allowBlank: false,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            height: 200,
+
+                            // xtype: "htmleditor",
+                            // id: "RUFDesc",
+                            // name: "RUFDesc",
+                            // fieldLabel: "Full description",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            // submitvalue: true,
+                            // allowBlank: true,
+                            // enableFont: false,
+                            // height: 400,
+                            // width: 560,
                           },
                           {
-                            xtype: "htmleditor",
+
+                            html: '<textarea>Specification...</textarea>',
+                            // xtype: "htmleditor",
                             id: "RUspec",
                             name: "RUspec",
                             fieldLabel: "Specification",
-                            enableColors: true,
-                            enableAlignments: false,
-                            allowBlank: true,
-                            selectOnFocus: false,
-                            enableFont: false,
-                            height: 400,
-                            width: 560,
-                            margin: "25 0 25 0",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            allowBlank: false,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            height: 200,
+
+                            // xtype: "htmleditor",
+                            // id: "RUspec",
+                            // name: "RUspec",
+                            // fieldLabel: "Specification",
+                            // enableColors: true,
+                            // enableAlignments: false,
+                            // allowBlank: true,
+                            // selectOnFocus: false,
+                            // enableFont: false,
+                            // height: 400,
+                            // width: 560,
+                            // margin: "25 0 25 0",
                           },
                         ]
                       },
@@ -2173,6 +2316,7 @@
         frame: false,
         header: false,
         border: false,
+
         defaults: {
           labelAlign: "right",
           labelWidth: 105,
