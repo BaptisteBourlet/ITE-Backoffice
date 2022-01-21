@@ -16,11 +16,13 @@
 
    <!-- ----------------------------- PRODUCTION ------------------------------ -->
    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+   <script type="text/javascript" src="/tinymce/tinymce.min.js"></script>
    <style>
       .x-grid-view {
-	overflow-y: auto !important;
-	position: relative;
-	}
+         overflow-y: auto !important;
+         position: relative;
+      }
+
       .x-grid-cell-inner {
          overflow: hidden;
          padding: 10px 6px;
@@ -497,8 +499,9 @@
          const getEditInfo = (serie) => {
             Ext.getCmp("Title").setValue(serie.Title);
             Ext.getCmp("Key").setValue(serie.Key);
-            Ext.getCmp("FDesc").setValue(serie.FullDescription);
-            Ext.getCmp("spec").setValue(serie.Specification);
+
+            tinyMCE.get('FDesc').setContent(serie.FullDescription);
+            tinyMCE.get('spec').setContent(serie.Specification);
          };
 
 
@@ -541,13 +544,18 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-                  if(res.length != 0){
+                  if (res.length != 0) {
                      Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
-                  Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
-                  Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+                     // Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
+                     // Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+                     if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
+                     tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
+
+                     tinyMCE.get(`${language.toUpperCase()}spec`).setContent(res[0].Specification);
+                  }
                   }
                   
-                  
+
                },
                failure: function (response) {
                   console.log("failed", response);
@@ -694,28 +702,28 @@
                   Language: "en",
                   CreatedOn: formatDate,
                   Title: Ext.getCmp("Title").getValue().trim(),
-                  Specification: Ext.getCmp("spec").getValue(),
-                  FullDescription: Ext.getCmp("FDesc").getValue(),
+                  Specification: tinyMCE.get('spec').getContent(),
+                  FullDescription: tinyMCE.get('FDesc').getContent(),
                   //FR
                   FRLanguage: "fr",
                   FRTitle: Ext.getCmp("FRTitle").getValue().trim(),
-                  FRSpecification: Ext.getCmp("FRspec").getValue(),
-                  FRFullDescription: Ext.getCmp("FRFDesc").getValue(),
+                  FRSpecification: tinyMCE.get('FRspec').getContent(),
+                  FRFullDescription: tinyMCE.get('FRFDesc').getContent(),
                   //DE
                   DELanguage: "de",
                   DETitle: Ext.getCmp("DETitle").getValue().trim(),
-                  DESpecification: Ext.getCmp("DEspec").getValue(),
-                  DEFullDescription: Ext.getCmp("DEFDesc").getValue(),
+                  DESpecification: tinyMCE.get('DEspec').getContent(),
+                  DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
                   //SP
                   SPLanguage: "sp",
                   SPTitle: Ext.getCmp("SPTitle").getValue().trim(),
-                  SPSpecification: Ext.getCmp("SPspec").getValue(),
-                  SPFullDescription: Ext.getCmp("SPFDesc").getValue(),
+                  SPSpecification: tinyMCE.get('SPspec').getContent(),
+                  SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
                   //RU
                   RULanguage: "ru",
                   RUTitle: Ext.getCmp("RUTitle").getValue().trim(),
-                  RUSpecification: Ext.getCmp("RUspec").getValue(),
-                  RUFullDescription: Ext.getCmp("RUFDesc").getValue(),
+                  RUSpecification: tinyMCE.get('RUspec').getContent(),
+                  RUFullDescription: tinyMCE.get('RUFDesc').getContent(),
                },
                success: function (response) {
                   // check for errors and display error message
@@ -766,28 +774,28 @@
                   Language: "en",
                   ModifiedOn: formatDate,
                   Title: Ext.getCmp("Title").getValue().trim(),
-                  Specification: Ext.getCmp("spec").getValue(),
-                  FullDescription: Ext.getCmp("FDesc").getValue(),
+                  Specification: tinyMCE.get('spec').getContent(),
+                  FullDescription: tinyMCE.get('FDesc').getContent(),
                   //FR
                   FRLanguage: "fr",
                   FRTitle: Ext.getCmp("FRTitle").getValue().trim(),
-                  FRSpecification: Ext.getCmp("FRspec").getValue(),
-                  FRFullDescription: Ext.getCmp("FRFDesc").getValue(),
+                  FRSpecification: tinyMCE.get('FRspec').getContent(),
+                  FRFullDescription: tinyMCE.get('FRFDesc').getContent(),
                   //DE
                   DELanguage: "de",
                   DETitle: Ext.getCmp("DETitle").getValue().trim(),
-                  DESpecification: Ext.getCmp("DEspec").getValue(),
-                  DEFullDescription: Ext.getCmp("DEFDesc").getValue(),
+                  DESpecification: tinyMCE.get('DEspec').getContent(),
+                  DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
                   //SP
                   SPLanguage: "sp",
                   SPTitle: Ext.getCmp("SPTitle").getValue().trim(),
-                  SPSpecification: Ext.getCmp("SPspec").getValue(),
-                  SPFullDescription: Ext.getCmp("SPFDesc").getValue(),
+                  SPSpecification: tinyMCE.get('SPspec').getContent(),
+                  SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
                   //RU
                   RULanguage: "ru",
                   RUTitle: Ext.getCmp("RUTitle").getValue().trim(),
-                  RUSpecification: Ext.getCmp("RUspec").getValue(),
-                  RUFullDescription: Ext.getCmp("RUFDesc").getValue(),
+                  RUSpecification: tinyMCE.get('RUspec').getContent(),
+                  RUFullDescription: tinyMCE.get('RUFDesc').getContent(),
                },
                success: function (response) {
                   // check for errors and display error message
@@ -1238,6 +1246,29 @@
                         Ext.getCmp("editSave").setHidden(true);
                         Ext.getCmp("panelAdd").setTitle("Add series");
                         Ext.getCmp("viewport").setActiveItem("panelAdd");
+                        Ext.getCmp('addForm').reset();
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
+
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
                      },
                   },
                   "-",
@@ -1261,12 +1292,35 @@
                            Ext.getCmp("editSave").setHidden(false);
                            Ext.getCmp("panelAdd").setTitle("Edit Serie");
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
+
                            getSerieDetails(selectedRecord.data.Sid);
                            serieIDGlobal = selectedRecord.data.Sid;
                            getOtherLanguageDetail('fr', serieIDGlobal)
                            getOtherLanguageDetail('de', serieIDGlobal)
                            getOtherLanguageDetail('sp', serieIDGlobal)
                            getOtherLanguageDetail('ru', serieIDGlobal)
+                           tinymce.init({
+                              selector: 'textarea',
+                              plugins: [
+
+                                 'advlist autolink lists link image charmap print preview anchor',
+
+                                 'searchreplace visualblocks code fullscreen',
+
+                                 'insertdatetime media table paste code help wordcount'
+
+                              ],
+
+                              toolbar: 'undo redo |  ' +
+
+                                 'bold italic forecolor | alignleft aligncenter ' +
+
+                                 ' | bullist numlist outdent indent | ' +
+
+                                 ' table | link image | removeformat  code | help',
+
+                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                           });
                         }
                      },
                   },
@@ -1347,7 +1401,42 @@
             defaults: {
                styleHtmlContent: true
             },
+            listeners: {
+               render: function () {
+                  this.items.each(function (i) {
+                     i.tab.on('click', function () {
+                        Ext.getCmp('tabTrans').setActiveTab(i)
 
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
+
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                        getOtherLanguageDetail('fr', serieIDGlobal)
+                        getOtherLanguageDetail('de', serieIDGlobal)
+                        getOtherLanguageDetail('sp', serieIDGlobal)
+                        getOtherLanguageDetail('ru', serieIDGlobal)
+                     });
+                  })
+               },
+            },
             items: [
                {
                   title: 'English',
@@ -1389,39 +1478,15 @@
                                        },
 
                                        {
-                                          xtype: "htmleditor",
-                                          id: "FDesc",
-                                          name: "FDesc",
-                                          fieldLabel: "Full description",
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          submitvalue: true,
-                                          allowBlank: false,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
+
+                                          html: '<h4>Full description :</h4><textarea id="FDesc"></textarea>',
+                                          height: 250,
                                        },
-                                    ]
-                                 },
-                                 {
-                                    xtype: 'my-form',
-                                    border: false,
-                                    width: '55%',
-                                    frame: false,
-                                    items: [
+
                                        {
-                                          xtype: "htmleditor",
-                                          id: "spec",
-                                          name: "spec",
-                                          fieldLabel: "Specification",
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          allowBlank: false,
-                                          selectOnFocus: false,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
-                                          margin: "25 0 25 0",
+                                          html: '<h4>Specification :</h4><textarea id="spec"></textarea>',
+                                          height: 250,
+
                                        },
                                     ]
                                  }
@@ -1472,39 +1537,15 @@
                                        },
 
                                        {
-                                          xtype: "htmleditor",
-                                          id: "FRFDesc",
-                                          name: "FRFDesc",
-                                          fieldLabel: "Full description",
-                                          allowBlank: true,
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          submitvalue: true,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
+                                          html: '<h4>Full description :</h4><textarea id="FRFDesc"></textarea>',
+                                          height: 250,
+
                                        },
-                                    ]
-                                 },
-                                 {
-                                    xtype: 'my-form',
-                                    width: '40%',
-                                    frame: false,
-                                    border: false,
-                                    items: [
+
                                        {
-                                          xtype: "htmleditor",
-                                          id: "FRspec",
-                                          name: "FRspec",
-                                          fieldLabel: "Specification",
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          allowBlank: true,
-                                          selectOnFocus: false,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
-                                          margin: "25 0 25 0",
+                                          html: '<h4>Specification :</h4><textarea id="FRspec"></textarea>',
+                                          height: 250,
+
                                        },
                                     ]
                                  }
@@ -1555,39 +1596,16 @@
                                        },
 
                                        {
-                                          xtype: "htmleditor",
-                                          id: "DEFDesc",
-                                          name: "DEFDesc",
-                                          fieldLabel: "Full description",
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          submitvalue: true,
-                                          allowBlank: true,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
+                                          html: '<h4>Full description :</h4><textarea id="DEFDesc"></textarea>',
+                                          height: 250,
+
                                        },
-                                    ]
-                                 },
-                                 {
-                                    xtype: 'my-form',
-                                    width: '40%',
-                                    frame: false,
-                                    border: false,
-                                    items: [
+
                                        {
-                                          xtype: "htmleditor",
-                                          id: "DEspec",
-                                          name: "DEspec",
-                                          fieldLabel: "Specification",
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          allowBlank: true,
-                                          selectOnFocus: false,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
-                                          margin: "25 0 25 0",
+
+                                          html: '<h4>Specification :</h4><textarea id="DEspec"></textarea>',
+                                          height: 250,
+
                                        },
                                     ]
                                  }
@@ -1639,39 +1657,15 @@
                                        },
 
                                        {
-                                          xtype: "htmleditor",
-                                          id: "SPFDesc",
-                                          name: "SPFDesc",
-                                          fieldLabel: "Full description",
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          submitvalue: true,
-                                          allowBlank: true,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
+                                          html: '<h4>Full description :</h4><textarea id="SPFDesc"></textarea>',
+                                          height: 250,
+
                                        },
-                                    ]
-                                 },
-                                 {
-                                    xtype: 'my-form',
-                                    width: '40%',
-                                    frame: false,
-                                    border: false,
-                                    items: [
+
                                        {
-                                          xtype: "htmleditor",
-                                          id: "SPspec",
-                                          name: "SPspec",
-                                          fieldLabel: "Specification",
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          allowBlank: true,
-                                          selectOnFocus: false,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
-                                          margin: "25 0 25 0",
+                                          html: '<h4>Specification :</h4><textarea id="SPspec"></textarea>',
+                                          height: 250,
+
                                        },
                                     ]
                                  }
@@ -1722,38 +1716,15 @@
                                        },
 
                                        {
-                                          xtype: "htmleditor",
-                                          id: "RUFDesc",
-                                          name: "RUFDesc",
-                                          fieldLabel: "Full description",
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          submitvalue: true,
-                                          allowBlank: true,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
+                                          html: '<h4>Full description :</h4><textarea id="RUFDesc"></textarea>',
+                                          height: 250,
+
                                        },
-                                    ]
-                                 },
-                                 {
-                                    xtype: 'my-form',
-                                    width: '40%',
-                                    frame: false,
-                                    border: false,
-                                    items: [
+
                                        {
-                                          xtype: "htmleditor",
-                                          id: "RUspec",
-                                          name: "RUspec",
-                                          fieldLabel: "Specification",
-                                          enableColors: true,
-                                          enableAlignments: false,
-                                          allowBlank: true,
-                                          selectOnFocus: false,
-                                          enableFont: false,
-                                          height: 400,
-                                          width: 560,
+                                          html: '<h4>Specification :</h4><textarea id="RUspec"></textarea>',
+                                          height: 250,
+
                                        },
                                     ]
                                  }
@@ -1882,6 +1853,98 @@
                   iconCls: "fas fa-save",
                   handler: function () {
                      if (Ext.getCmp('addForm').isValid()) {
+                        Ext.getCmp('tabTrans').setActiveTab(1)
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
+
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                        Ext.getCmp('tabTrans').setActiveTab(2)
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
+
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                        Ext.getCmp('tabTrans').setActiveTab(3)
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
+
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                        Ext.getCmp('tabTrans').setActiveTab(4)
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
+
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
                         addSerie();
                         Ext.getCmp("relatedProducts").removeAll();
                         Ext.getCmp("relatedAccessories").removeAll();
@@ -2126,6 +2189,28 @@
                            Ext.getCmp("editSave").setHidden(false);
                            Ext.getCmp('panelAdd').setTitle('Edit Serie');
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
+                           tinymce.init({
+                              selector: 'textarea',
+                              plugins: [
+
+                                 'advlist autolink lists link image charmap print preview anchor',
+
+                                 'searchreplace visualblocks code fullscreen',
+
+                                 'insertdatetime media table paste code help wordcount'
+
+                              ],
+
+                              toolbar: 'undo redo |  ' +
+
+                                 'bold italic forecolor | alignleft aligncenter ' +
+
+                                 ' | bullist numlist outdent indent | ' +
+
+                                 ' table | link image | removeformat  code | help',
+
+                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                           });
                            getSerieDetails(serieIDGlobal);
                            Ext.getCmp("relatedProducts").removeAll();
                            Ext.getCmp("relatedAccessories").removeAll();
