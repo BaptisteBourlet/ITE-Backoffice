@@ -32,6 +32,7 @@ exports.getAllSeries = async (req, res) => {
 
 exports.getSerieDetails = async (req, res) => {
    const { serieId } = req.query;
+   
    let finalResults = [];
    const serieQuery
       = `SELECT Series.Key, Title, FullDescription, Specification, InfoTree.Parent AS CategoryId `
@@ -46,16 +47,30 @@ exports.getSerieDetails = async (req, res) => {
       + `LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = RelatedProducts.LinkedSeriesID `
       + `WHERE RelatedProducts.SeriesId = "${serieId}";`
 
-   con.query(serieQuery, (err, serieResults) => {
-      if (err) throw err;
-      finalResults.push(serieResults);
-      con.query(relatedQuery, (error, relatedResults) => {
-         if (error) throw error;
-         finalResults.push(relatedResults);
-
-         res.send(finalResults);
-      })
-   })
+      if (serieId == undefined || serieId == '' || serieId == null){
+         serieId = 0
+         con.query(serieQuery, (err, serieResults) => {
+            if (err) throw err;
+            finalResults.push(serieResults);
+            con.query(relatedQuery, (error, relatedResults) => {
+               if (error) throw error;
+               finalResults.push(relatedResults);
+      
+               res.send(finalResults);
+            })
+         })
+      } else {
+         con.query(serieQuery, (err, serieResults) => {
+            if (err) throw err;
+            finalResults.push(serieResults);
+            con.query(relatedQuery, (error, relatedResults) => {
+               if (error) throw error;
+               finalResults.push(relatedResults);
+      
+               res.send(finalResults);
+            })
+         })
+      }
 }
 
 
