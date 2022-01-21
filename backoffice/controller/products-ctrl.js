@@ -234,7 +234,7 @@ exports.editProduct = async (req, res) => {
    const ProductQuery = `Update Product SET Code = "${Code}", As400Code = "${As400}", Publish = ${Pub} WHERE Id = ${ProductId};`;
    const existLink = `SELECT COUNT(*) AS linkCount FROM InfoTree WHERE LinkId = ${ProductId} AND Type = 'P' AND Publish = 1;`;
    const categoryLinkEdit = `Update InfoTree SET Parent = ${Category} WHERE LinkId = ${ProductId} AND Type = 'P' AND Publish = 1;`;
-   const categoryLinkInsert = `INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ('P', ${Category}, 0, 1, ${ProductId});`;
+   const categoryLinkInsert = `INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ('P', '${Category}', 0, 1, ${ProductId});`;
    const categoryLinkDelete = `DELETE FROM InfoTree WHERE Type = 'P' AND LinkId = ${ProductId} AND Publish = 1`;
 
    if (unlinkCategory === '1') {
@@ -252,11 +252,10 @@ exports.editProduct = async (req, res) => {
 
                console.log('edited Info Product Category Link')
             })
-         }
-         else {                                             // 2 - if FALSE => insert NEW record
+         } else {                                             // 2 - if FALSE => insert NEW record
             con.query(categoryLinkInsert, (err, insertResult) => {
                if (err) {
-                  console.log('INSERT ERRRROR', err);
+                  console.log('INSERT ERROR', err);
                }
 
                console.log('insert Info Product Category Link')

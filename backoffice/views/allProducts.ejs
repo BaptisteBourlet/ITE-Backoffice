@@ -542,37 +542,37 @@
 
             ModifiedOn: formatDate,
             Description: Ext.getCmp("ENdesc").getValue().trim(),
-            Specification: Ext.getCmp("ENspec").getValue(),
+            Specification: tinyMCE.get('ENspec').getContent(),
             Catalog: Ext.getCmp("ENCat").getValue().trim(),
-            FullDescription: Ext.getCmp("ENFDesc").getValue(),
+            FullDescription: tinyMCE.get('ENFDesc').getContent(),
             //FR
             FrDetails: sessionStorage.getItem('FREdit'),
             FRLanguage: "fr",
             FRDescription: Ext.getCmp("FRdesc").getValue().trim(),
-            FRSpecification: Ext.getCmp("FRspec").getValue(),
+            FRSpecification: tinyMCE.get('FRspec').getContent(),
             FRCatalog: Ext.getCmp("FRCat").getValue().trim(),
-            FRFullDescription: Ext.getCmp("FRFDesc").getValue(),
+            FRFullDescription: tinyMCE.get('FRFDesc').getContent(),
             //DE
             DeDetails: sessionStorage.getItem('DEEdit'),
             DELanguage: "de",
             DEDescription: Ext.getCmp("DEdesc").getValue().trim(),
-            DESpecification: Ext.getCmp("DEspec").getValue(),
+            DESpecification: tinyMCE.get('DEspec').getContent(),
             DECatalog: Ext.getCmp("DECat").getValue().trim(),
-            DEFullDescription: Ext.getCmp("DEFDesc").getValue(),
+            DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
             //SP
             EsDetails: sessionStorage.getItem('SPEdit'),
             SPLanguage: "sp",
             SPDescription: Ext.getCmp("SPdesc").getValue().trim(),
-            SPSpecification: Ext.getCmp("SPspec").getValue(),
+            SPSpecification: tinyMCE.get('SPspec').getContent(),
             SPCatalog: Ext.getCmp("SPCat").getValue().trim(),
-            SPFullDescription: Ext.getCmp("SPFDesc").getValue(),
+            SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
             //RU
             RuDetails: sessionStorage.getItem('RUEdit'),
             RULanguage: "ru",
             RUDescription: Ext.getCmp("RUdesc").getValue().trim(),
-            RUSpecification: Ext.getCmp("RUspec").getValue(),
+            RUSpecification: tinyMCE.get('RUspec').getContent(),
             RUCatalog: Ext.getCmp("RUCat").getValue().trim(),
-            RUFullDescription: Ext.getCmp("RUFDesc").getValue(),
+            RUFullDescription: tinyMCE.get('RUFDesc').getContent(),
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
@@ -635,8 +635,9 @@
 
         Ext.getCmp("ENdesc").setValue(product.Description);
         Ext.getCmp("ENCat").setValue(product.Catalog);
-        Ext.getCmp("ENFDesc").setValue(product.FullDescription);
-        Ext.getCmp("ENspec").setValue(product.Specification);
+        tinyMCE.get('ENFDesc').setContent(product.FullDescription);
+        tinyMCE.get('ENspec').setContent(product.Specification);
+
 
       };
 
@@ -686,33 +687,33 @@
             Language: "en",
             CreatedOn: formatDate,
             Description: Ext.getCmp("ENdesc").getValue().trim(),
-            Specification: Ext.getCmp("ENspec").getValue(),
+            Specification: tinyMCE.get('ENspec').getContent(),
             Catalog: Ext.getCmp("ENCat").getValue().trim(),
-            FullDescription: Ext.getCmp("ENFDesc").getValue(),
+            FullDescription: tinyMCE.get('ENFDesc').getContent(),
             //FR
             FRLanguage: "fr",
             FRDescription: Ext.getCmp("FRdesc").getValue().trim(),
-            FRSpecification: Ext.getCmp("FRspec").getValue(),
+            FRSpecification: tinyMCE.get('FRspec').getContent(),
             FRCatalog: Ext.getCmp("FRCat").getValue().trim(),
-            FRFullDescription: Ext.getCmp("FRFDesc").getValue(),
+            FRFullDescription: tinyMCE.get('FRFDesc').getContent(),
             //DE
             DELanguage: "de",
             DEDescription: Ext.getCmp("DEdesc").getValue().trim(),
-            DESpecification: Ext.getCmp("DEspec").getValue(),
+            DESpecification: tinyMCE.get('DEspec').getContent(),
             DECatalog: Ext.getCmp("DECat").getValue().trim(),
-            DEFullDescription: Ext.getCmp("DEFDesc").getValue(),
+            DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
             //SP
             SPLanguage: "sp",
             SPDescription: Ext.getCmp("SPdesc").getValue().trim(),
-            SPSpecification: Ext.getCmp("SPspec").getValue(),
+            SPSpecification: tinyMCE.get('SPspec').getContent(),
             SPCatalog: Ext.getCmp("SPCat").getValue().trim(),
-            SPFullDescription: Ext.getCmp("SPFDesc").getValue(),
+            SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
             //RU
             RULanguage: "ru",
             RUDescription: Ext.getCmp("RUdesc").getValue().trim(),
-            RUSpecification: Ext.getCmp("RUspec").getValue(),
+            RUSpecification: tinyMCE.get('RUspec').getContent(),
             RUCatalog: Ext.getCmp("RUCat").getValue().trim(),
-            RUFullDescription: Ext.getCmp("RUFDesc").getValue(),
+            RUFullDescription: tinyMCE.get('RUFDesc').getContent(),
           },
           success: function (response) {
             // check for errors and display error message
@@ -835,9 +836,13 @@
 
               Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
 
-              Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
+              
+              if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
+                tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
 
-              Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+                tinyMCE.get(`${language.toUpperCase()}spec`).setContent(res[0].Specification);
+              }
+
 
             } else {
               sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
@@ -1204,26 +1209,28 @@
                 Ext.getCmp("editSave").setHidden(true);
                 Ext.getCmp("panelAdd").setTitle("Add product");
                 Ext.getCmp("viewport").setActiveItem("panelAdd");
-                tinymce.init({ selector: 'textarea', 
-                plugins: [
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
 
-'advlist autolink lists link image charmap print preview anchor',
+                    'advlist autolink lists link image charmap print preview anchor',
 
-'searchreplace visualblocks code fullscreen',
+                    'searchreplace visualblocks code fullscreen',
 
-'insertdatetime media table paste code help wordcount'
+                    'insertdatetime media table paste code help wordcount'
 
-],
+                  ],
 
-toolbar: 'undo redo |  ' +
+                  toolbar: 'undo redo |  ' +
 
-'bold italic forecolor | alignleft aligncenter ' +
+                    'bold italic forecolor | alignleft aligncenter ' +
 
-' | bullist numlist outdent indent | ' +
+                    ' | bullist numlist outdent indent | ' +
 
-' table | link image | removeformat  code | help',
+                    ' table | link image | removeformat  code | help',
 
-content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }' });
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
 
 
               },
@@ -1257,26 +1264,28 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                   getOtherLanguageDetail('ru', productIDGlobal)
 
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
-                  tinymce.init({ selector: 'textarea',
-                  plugins: [
+                  tinymce.init({
+                    selector: 'textarea',
+                    plugins: [
 
-'advlist autolink lists link image charmap print preview anchor',
+                      'advlist autolink lists link image charmap print preview anchor',
 
-'searchreplace visualblocks code fullscreen',
+                      'searchreplace visualblocks code fullscreen',
 
-'insertdatetime media table paste code help wordcount'
+                      'insertdatetime media table paste code help wordcount'
 
-],
+                    ],
 
-toolbar: 'undo redo |  ' +
+                    toolbar: 'undo redo |  ' +
 
-'bold italic forecolor | alignleft aligncenter ' +
+                      'bold italic forecolor | alignleft aligncenter ' +
 
-' | bullist numlist outdent indent | ' +
+                      ' | bullist numlist outdent indent | ' +
 
-' table | link image | removeformat  code | help',
+                      ' table | link image | removeformat  code | help',
 
-content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }' });
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  });
                   getProductDetails(selectedRecord.data.Id);
                 }
               },
@@ -1619,32 +1628,31 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp('panelAdd').setTitle('Edit product');
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
-                  tinymce.init({ selector: 'textarea', 
-                  plugins: [
+                  tinymce.init({
+                    selector: 'textarea',
+                    plugins: [
 
-'advlist autolink lists link image charmap print preview anchor',
+                      'advlist autolink lists link image charmap print preview anchor',
 
-'searchreplace visualblocks code fullscreen',
+                      'searchreplace visualblocks code fullscreen',
 
-'insertdatetime media table paste code help wordcount'
+                      'insertdatetime media table paste code help wordcount'
 
-],
+                    ],
 
-toolbar: 'undo redo |  ' +
+                    toolbar: 'undo redo |  ' +
 
-'bold italic forecolor | alignleft aligncenter ' +
+                      'bold italic forecolor | alignleft aligncenter ' +
 
-' | bullist numlist outdent indent | ' +
+                      ' | bullist numlist outdent indent | ' +
 
-' table | link image | removeformat  code | help',
+                      ' table | link image | removeformat  code | help',
 
-content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }' });
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  });
                   getProductDetails(productIDGlobal);
                   getOtherLanguageDetail('en', productIDGlobal)
-                  getOtherLanguageDetail('fr', productIDGlobal)
-                  getOtherLanguageDetail('de', productIDGlobal)
-                  getOtherLanguageDetail('sp', productIDGlobal)
-                  getOtherLanguageDetail('ru', productIDGlobal)
+                  
 
                 },
               },
@@ -1656,26 +1664,28 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                 iconCls: "fa fa-edit",
                 handler: function () {
                   Ext.getCmp('viewport').setActiveItem('linkedProducts');
-                  tinymce.init({ selector: 'textarea',
-                  plugins: [
+                  tinymce.init({
+                    selector: 'textarea',
+                    plugins: [
 
-'advlist autolink lists link image charmap print preview anchor',
+                      'advlist autolink lists link image charmap print preview anchor',
 
-'searchreplace visualblocks code fullscreen',
+                      'searchreplace visualblocks code fullscreen',
 
-'insertdatetime media table paste code help wordcount'
+                      'insertdatetime media table paste code help wordcount'
 
-],
+                    ],
 
-toolbar: 'undo redo |  ' +
+                    toolbar: 'undo redo |  ' +
 
-'bold italic forecolor | alignleft aligncenter ' +
+                      'bold italic forecolor | alignleft aligncenter ' +
 
-' | bullist numlist outdent indent | ' +
+                      ' | bullist numlist outdent indent | ' +
 
-' table | link image | removeformat  code | help',
+                      ' table | link image | removeformat  code | help',
 
-content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }' });
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  });
                   getRelatedProductSerie(serieIDGlobal);
                 },
               },
@@ -1744,6 +1754,7 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
             this.items.each(function (i) {
               i.tab.on('click', function () {
                 Ext.getCmp('tabTrans').setActiveTab(i)
+
                 tinymce.init({
                   selector: 'textarea',
                   plugins: [
@@ -1766,6 +1777,10 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
 
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                 });
+                getOtherLanguageDetail('fr', productIDGlobal)
+                getOtherLanguageDetail('de', productIDGlobal)
+                getOtherLanguageDetail('sp', productIDGlobal)
+                getOtherLanguageDetail('ru', productIDGlobal)
               });
             });
           }
@@ -1825,35 +1840,13 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                           {
 
 
-                            // xtype: 'tinymceeditor',
-
-                            html: '<textarea id="test">Full description...</textarea><br>',
-                            // xtype: "htmleditor",
-                            // id: "ENFDesc",
-                            // name: "ENFDesc",
-                            // fieldLabel: "Full description",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            // submitvalue: true,
-                            // allowBlank: false,
-                            // enableFont: false,
-                            height: 200,
-                            // width: 560,
+                            html: '<h4>Full description :</h4><textarea id="ENFDesc"></textarea>',
+                            height: 250,
                           },
                           {
-                            html: '<textarea>Specification...</textarea>',
-                            // xtype: "htmleditor",
-                            id: "ENspec",
-                            name: "ENspec",
-                            fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            allowBlank: false,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            height: 200,
-                            // width: 560,
-                            // margin: "25 0 25 0",
+                            html: '<h4>Specification :</h4><textarea id="ENspec"></textarea>',
+
+                            height: 250,
                           },
                         ]
                       },
@@ -1924,55 +1917,16 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                             margin: "25 0 25 0",
                           },
                           {
-                            html: '<textarea id="FRFDesc">Full description...</textarea><br>',
-                            // xtype: "htmleditor",
-                            // id: "FRFDesc",
-                            // name: "FRFDesc",
-                            fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            allowBlank: false,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            height: 200,
-                            // width: 560,
-                            // margin: "25 0 25 0",
-                            // xtype: "htmleditor",
-                            // id: "FRFDesc",
-                            // name: "FRFDesc",
-                            // fieldLabel: "Full description",
-                            // allowBlank: true,
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            // submitvalue: true,
-                            // enableFont: false,
-                            // height: 400,
-                            // width: 560,
+                            html: '<h4>Full description :</h4><textarea id="FRFDesc"></textarea><br>',
+
+                            height: 250,
+
                           },
                           {
-                            html: '<textarea>Specification...</textarea>',
-                            // xtype: "htmleditor",
-                            id: "FRspec",
-                            name: "FRspec",
-                            fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            allowBlank: false,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            height: 200,
-                            // xtype: "htmleditor",
-                            // id: "FRspec",
-                            // name: "FRspec",
-                            // fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            // allowBlank: true,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            // height: 400,
-                            // width: 560,
-                            // margin: "25 0 25 0",
+                            html: '<h4>Specification :</h4><textarea id="FRspec"></textarea>',
+
+                            height: 250,
+
                           },
                         ]
                       },
@@ -2036,55 +1990,17 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                             margin: "25 0 25 0",
                           },
                           {
-                            html: '<textarea>Full description...</textarea><br>',
-                            // xtype: "htmleditor",
-                            id: "DEFDesc",
-                            name: "DEFDesc",
-                            fieldLabel: "Full description",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            allowBlank: false,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            height: 200,
+                            html: '<h4>Full description :</h4><textarea id="DEFDesc"></textarea><br>',
 
-                            // xtype: "htmleditor",
-                            // id: "DEFDesc",
-                            // name: "DEFDesc",
-                            // fieldLabel: "Full description",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            // submitvalue: true,
-                            // allowBlank: true,
-                            // enableFont: false,
-                            // height: 400,
-                            // width: 560,
+                            height: 250,
+
+
                           },
                           {
-                            html: '<textarea>Specification...</textarea>',
-                            // xtype: "htmleditor",
-                            id: "DEspec",
-                            name: "DEspec",
-                            fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            allowBlank: false,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            height: 200,
+                            html: '<h4>Specification :</h4><textarea id="DEspec"></textarea>',
 
-                            // xtype: "htmleditor",
-                            // id: "DEspec",
-                            // name: "DEspec",
-                            // fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            // allowBlank: true,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            // height: 400,
-                            // width: 560,
-                            // margin: "25 0 25 0",
+                            height: 250,
+
                           },
                         ]
                       },
@@ -2149,55 +2065,16 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                             margin: "25 0 25 0",
                           },
                           {
-                            html: '<textarea>Full description...</textarea><br>',
-                            // xtype: "htmleditor",
-                            id: "SPFDesc",
-                            name: "SPFDesc",
-                            fieldLabel: "Full description",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            allowBlank: false,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            height: 200,
+                            html: '<h4>Full description :</h4><textarea id="SPFDesc"></textarea><br>',
 
-                            // xtype: "htmleditor",
-                            // id: "SPFDesc",
-                            // name: "SPFDesc",
-                            // fieldLabel: "Full description",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            // submitvalue: true,
-                            // allowBlank: true,
-                            // enableFont: false,
-                            // height: 400,
-                            // width: 560,
+                            height: 250,
+
                           },
                           {
-                            html: '<textarea>Specification...</textarea>',
-                            // xtype: "htmleditor",
-                            id: "SPspec",
-                            name: "SPspec",
-                            fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            allowBlank: false,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            height: 200,
+                            html: '<h4>Specification :</h4><textarea id="SPspec"></textarea>',
 
-                            // xtype: "htmleditor",
-                            // id: "SPspec",
-                            // name: "SPspec",
-                            // fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            // allowBlank: true,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            // height: 400,
-                            // width: 560,
-                            // margin: "25 0 25 0",
+                            height: 250,
+
                           },
                         ]
                       },
@@ -2261,56 +2138,18 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                             margin: "25 0 25 0",
                           },
                           {
-                            html: '<textarea>Full description...</textarea><br>',
-                            // xtype: "htmleditor",
-                            // id: "RUFDesc",
-                            // name: "RUFDesc",
-                            // fieldLabel: "Full description",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            allowBlank: false,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            height: 200,
+                            html: '<h4>Full description :</h4><textarea id="RUFDesc"></textarea><br>',
 
-                            // xtype: "htmleditor",
-                            // id: "RUFDesc",
-                            // name: "RUFDesc",
-                            // fieldLabel: "Full description",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            // submitvalue: true,
-                            // allowBlank: true,
-                            // enableFont: false,
-                            // height: 400,
-                            // width: 560,
+                            height: 250,
+
+
                           },
                           {
 
-                            html: '<textarea>Specification...</textarea>',
-                            // xtype: "htmleditor",
-                            id: "RUspec",
-                            name: "RUspec",
-                            fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            allowBlank: false,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            height: 200,
+                            html: '<h4>Specification :</h4><textarea id="RUspec"></textarea>',
 
-                            // xtype: "htmleditor",
-                            // id: "RUspec",
-                            // name: "RUspec",
-                            // fieldLabel: "Specification",
-                            // enableColors: true,
-                            // enableAlignments: false,
-                            // allowBlank: true,
-                            // selectOnFocus: false,
-                            // enableFont: false,
-                            // height: 400,
-                            // width: 560,
-                            // margin: "25 0 25 0",
+                            height: 250,
+
                           },
                         ]
                       },
@@ -2466,11 +2305,102 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
             id: "addSave",
             iconCls: "fas fa-save",
             handler: function () {
-              // var elements = document.querySelectorAll('[data-id="mce_0"]')
-              // var d = elements.innerHTML;
-              // console.log(d)
-              if (Ext.getCmp('addForm').isValid()) {
 
+
+              if (Ext.getCmp('addForm').isValid()) {
+                Ext.getCmp('tabTrans').setActiveTab(0)
+                Ext.getCmp('tabTrans').setActiveTab(1)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
+
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                Ext.getCmp('tabTrans').setActiveTab(2)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
+
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                Ext.getCmp('tabTrans').setActiveTab(3)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
+
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                Ext.getCmp('tabTrans').setActiveTab(4)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
+
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
                 setProductSessionStorage();
                 addRecord();
                 Ext.getCmp("addForm").reset();
@@ -2483,6 +2413,99 @@ content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
             iconCls: "fas fa-save",
             handler: function () {
               if (Ext.getCmp('addForm').isValid()) {
+                Ext.getCmp('tabTrans').setActiveTab(0)
+                Ext.getCmp('tabTrans').setActiveTab(1)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
+
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                Ext.getCmp('tabTrans').setActiveTab(2)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
+
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                Ext.getCmp('tabTrans').setActiveTab(3)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
+
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                Ext.getCmp('tabTrans').setActiveTab(4)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
+
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
                 setProductSessionStorage();
                 editProduct();
                 Ext.getCmp("addForm").reset();
