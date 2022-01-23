@@ -71,13 +71,22 @@ exports.searchAssetsSeries = async (req, res) => {
 exports.addAssets = async (req, res) => {
    const { ProductId, SerieId, Type, Path, Label, Sequence } = req.body;
 
-
+   if (SerieId == undefined || SerieId == '' || SerieId == null){
+      SerieId = 0
    con.query(`INSERT INTO Assets (ProductId, SerieId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "${SerieId}", "${Type}", "${Path}", "${Label}", "${Sequence}");`, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
       res.send(results)
    })
+} else {
+   con.query(`INSERT INTO Assets (ProductId, SerieId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "${SerieId}", "${Type}", "${Path}", "${Label}", "${Sequence}");`, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
 }
 
 exports.getSeriesDet = async (req, res) => {
