@@ -712,7 +712,9 @@ exports.uploadProductImage = async (req, res) => {
 
       imagemagickCli
          .exec(`identify assets/${originalname}`)
+        
          .then(({ stdout, stderr }) => {
+            if (stderr) throw stderr;
             let dimensions = stdout.split(' ')[2].split('x');
             const width = dimensions[0];
             const height = dimensions[1];
@@ -720,14 +722,18 @@ exports.uploadProductImage = async (req, res) => {
 
             // insert other sizes
             imageSizes.forEach(size => {
+               let newName = originalname.split('.');
+
+               newName[0] = `${newName[0]}-${size.size}`;
+               newName = newName.join('.');
                // set maxWidth or maxHeight depending on image type
                let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
 
                imagemagickCli
-                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${size.size}/${originalname}`)
+                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
                   .then(({ stdout, stderr }) => {
                      let sizeChar = size.size.charAt(0).toUpperCase();
-                     const insertAssets = `INSERT INTO Assets (ProductId, Type, Size, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${sizeChar}", "${originalname}", "${Label}", "${nextSequence}");`
+                     const insertAssets = `INSERT INTO Assets (ProductId, Type, Size, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${sizeChar}", "${newName}", "${Label}", "${nextSequence}");`
 
                      con.query(insertAssets, (err, result) => {
                         if (err) throw err;
