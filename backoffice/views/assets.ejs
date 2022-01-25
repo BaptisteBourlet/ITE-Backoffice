@@ -17,10 +17,10 @@
     <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
     <style>
         .x-grid-view {
-	overflow-y: auto !important;
-	position: relative;
-	}
-        
+            overflow-y: auto !important;
+            position: relative;
+        }
+
 
         #small-view {
             display: none;
@@ -1063,23 +1063,23 @@
                     .getSelectionModel()
                     .getSelection()[0];
 
-                    console.log(selectedRecordProd)
+                console.log(selectedRecordProd)
                 const selectedRecordProdSer = Ext.getCmp("AssetsSerieGrid")
                     .getSelectionModel()
                     .getSelection()[0];
-                    if(selectedRecordProd != undefined) {
-                        if (selectedRecordProd.data.Type == 'product-image') {
-                    var selectedRecord = Ext.getCmp("AssetsGrid")
-                        .getSelectionModel()
-                        .getSelection()[0];
+                if (selectedRecordProd != undefined) {
+                    if (selectedRecordProd.data.Type == 'product-image') {
+                        var selectedRecord = Ext.getCmp("AssetsGrid")
+                            .getSelectionModel()
+                            .getSelection()[0];
                         console.log(selectedRecord)
                     }
-                
+
                 } else {
                     var selectedRecord = Ext.getCmp("AssetsSerieGrid")
                         .getSelectionModel()
                         .getSelection()[0];
-                        console.log(selectedRecord)
+                    console.log(selectedRecord)
                 }
                 Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this assets ?", function (btn, text) {
                     if (btn == 'yes') {
@@ -1100,11 +1100,11 @@
                                     var data = eval("(" + response.responseText + ")");
 
                                     if (data.serverStatus == 2) {
-                                            SeriesAssetsStore.reload();
-                                            AssetsStore.reload()
+                                        SeriesAssetsStore.reload();
+                                        AssetsStore.reload()
                                         Ext.getBody().unmask();
                                         Ext.Msg.alert(
-                                            "Success", 
+                                            "Success",
                                             "You have successfully deleted the assets"
                                         );
                                     } else {
@@ -1128,7 +1128,7 @@
                         });
                     }
                 })
-                
+
             }
 
 
@@ -1139,7 +1139,7 @@
                 defaults: {
                     labelAlign: "right",
                     labelWidth: 105,
-            listeners: {
+                    listeners: {
                         specialkey: function (field, e) {
                             if (e.getKey() == e.ENTER) {
                                 updateRec();
@@ -1328,8 +1328,12 @@
                                             }
 
                                         },
-                                        failure: () => {
-                                            Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                        failure: (fp, object) => {
+                                            // if (object.result.isExist == "yes") {
+                                            //     Ext.Msg.alert('Failed', "This file already exist, please change the name");
+                                            // } else {
+                                                Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                            // }
                                         }
                                     });
                                 } else {

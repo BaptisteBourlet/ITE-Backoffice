@@ -1223,7 +1223,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -1278,7 +1278,7 @@
                       'insertdatetime media table paste code help wordcount'
 
                     ],
-
+                    menubar: 'false',
                     toolbar: 'undo redo |  ' +
 
                       'bold italic forecolor | alignleft aligncenter ' +
@@ -1642,7 +1642,7 @@
                       'insertdatetime media table paste code help wordcount'
 
                     ],
-
+                    menubar: 'false',
                     toolbar: 'undo redo |  ' +
 
                       'bold italic forecolor | alignleft aligncenter ' +
@@ -1678,7 +1678,7 @@
                       'insertdatetime media table paste code help wordcount'
 
                     ],
-
+                    menubar: 'false',
                     toolbar: 'undo redo |  ' +
 
                       'bold italic forecolor | alignleft aligncenter ' +
@@ -1769,7 +1769,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -2322,7 +2322,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -2345,7 +2345,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -2368,7 +2368,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -2391,7 +2391,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -2427,7 +2427,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -2450,7 +2450,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -2473,7 +2473,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -2496,7 +2496,7 @@
                     'insertdatetime media table paste code help wordcount'
 
                   ],
-
+                  menubar: 'false',
                   toolbar: 'undo redo |  ' +
 
                     'bold italic forecolor | alignleft aligncenter ' +
@@ -2942,11 +2942,17 @@
                     Label: Ext.getCmp('imageLabel').getValue(),
                   },
                   success: function (fp, object) {
+                    
                     form.reset();
                     Ext.Msg.alert('Success', 'Your photo "' + object.result.file + '" has been uploaded.');
                   },
-                  failure: () => {
+                  failure: (fp, object) => {
+                    
+                   if(object.result.isExist == "yes"){
+                    Ext.Msg.alert('Failed', "This file already exist, please change the name");
+                   } else {
                     Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                   }
                   }
                 });
               } else {

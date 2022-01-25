@@ -378,6 +378,9 @@ exports.updateuploadSerieImage = async (req, res) => {
    const test = oldPath.split('-')
    test.splice(-1, 1)
    const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE SerieId = "${SeriesId}"`;
+   // if (fs.existsSync(path)) {
+   //    res.send({ isExist: "yes" })
+   //  }else{
    const imageSizes = [
       {
          size: 'large',
@@ -451,6 +454,7 @@ exports.updateuploadSerieImage = async (req, res) => {
          })
 
    })
+// }
 }
 
 // this route is for testing purposes only

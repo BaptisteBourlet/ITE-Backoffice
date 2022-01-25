@@ -549,12 +549,12 @@
                      // Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
                      // Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
                      if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
-                     tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
+                        tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
 
-                     tinyMCE.get(`${language.toUpperCase()}spec`).setContent(res[0].Specification);
+                        tinyMCE.get(`${language.toUpperCase()}spec`).setContent(res[0].Specification);
+                     }
                   }
-                  }
-                  
+
 
                },
                failure: function (response) {
@@ -1258,7 +1258,7 @@
                               'insertdatetime media table paste code help wordcount'
 
                            ],
-
+                           menubar: 'false',
                            toolbar: 'undo redo |  ' +
 
                               'bold italic forecolor | alignleft aligncenter ' +
@@ -1310,7 +1310,7 @@
                                  'insertdatetime media table paste code help wordcount'
 
                               ],
-
+                              menubar: 'false',
                               toolbar: 'undo redo |  ' +
 
                                  'bold italic forecolor | alignleft aligncenter ' +
@@ -1418,7 +1418,7 @@
                               'insertdatetime media table paste code help wordcount'
 
                            ],
-
+                           menubar: 'false',
                            toolbar: 'undo redo |  ' +
 
                               'bold italic forecolor | alignleft aligncenter ' +
@@ -1865,7 +1865,7 @@
                               'insertdatetime media table paste code help wordcount'
 
                            ],
-
+                           menubar: 'false',
                            toolbar: 'undo redo |  ' +
 
                               'bold italic forecolor | alignleft aligncenter ' +
@@ -1888,7 +1888,7 @@
                               'insertdatetime media table paste code help wordcount'
 
                            ],
-
+                           menubar: 'false',
                            toolbar: 'undo redo |  ' +
 
                               'bold italic forecolor | alignleft aligncenter ' +
@@ -1911,7 +1911,7 @@
                               'insertdatetime media table paste code help wordcount'
 
                            ],
-
+                           menubar: 'false',
                            toolbar: 'undo redo |  ' +
 
                               'bold italic forecolor | alignleft aligncenter ' +
@@ -1934,7 +1934,7 @@
                               'insertdatetime media table paste code help wordcount'
 
                            ],
-
+                           menubar: 'false',
                            toolbar: 'undo redo |  ' +
 
                               'bold italic forecolor | alignleft aligncenter ' +
@@ -2200,7 +2200,7 @@
                                  'insertdatetime media table paste code help wordcount'
 
                               ],
-
+                              menubar: 'false',
                               toolbar: 'undo redo |  ' +
 
                                  'bold italic forecolor | alignleft aligncenter ' +
@@ -3040,8 +3040,12 @@
                               form.reset();
                               Ext.Msg.alert('Success', 'Your photo "' + object.result.file + '" has been uploaded.');
                            },
-                           failure: () => {
-                              Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                           failure: (fp, object) => {
+                              if (object.result.isExist == "yes") {
+                                 Ext.Msg.alert('Failed', "This file already exist, please change the name");
+                              } else {
+                                 Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                              }
                            }
                         });
                      } else {

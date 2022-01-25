@@ -5,7 +5,7 @@ const storage = require('node-sessionstorage');
 const multer = require('multer');
 const appRoot = require('app-root-path');
 const imageMagick = require('imagemagick');
-
+const fs = require('fs')
 const imagemagickCli = require('imagemagick-cli');
 
 // imageMagick.convert.path = '/usr/bin/convert';
@@ -671,10 +671,16 @@ exports.updateSerieSpecs = async (req, res) => {
 // upload and save image done by upload middleware, check api-routes.
 // after image saved, it will be resized and paths will be saved to Assets database here 
 exports.uploadProductImage = async (req, res) => {
+
    let nextSequence, landscape;
    const { originalname } = req.file;
    const { ProductId, Label } = req.body;
    const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE ProductId = "${ProductId}"`;
+   const path = `assets/${originalname}`
+      
+   if (fs.existsSync(path)) {
+     res.send({ isExist: "yes" })
+   }else{
    const imageSizes = [
       {
          size: 'large',
@@ -705,14 +711,15 @@ exports.uploadProductImage = async (req, res) => {
       const insertAssets = `INSERT INTO Assets (ProductId, Type, Size, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "O","${originalname}", "${Label}", "${nextSequence}");`
 
       // insert original size
-      con.query(insertAssets, (err, result) => {
-         if (err) throw err;
-
-      })
-
-      imagemagickCli
+     
+         
+            con.query(insertAssets, (err, result) => {
+               if (err) throw err;
+      
+            })
+            imagemagickCli
          .exec(`identify assets/${originalname}`)
-        
+
          .then(({ stdout, stderr }) => {
             if (stderr) throw stderr;
             let dimensions = stdout.split(' ')[2].split('x');
@@ -745,7 +752,10 @@ exports.uploadProductImage = async (req, res) => {
                   });
             })
          });
+         
+   
    })
+}
 }
 
 exports.getLinkedImage = async (req, res) => {

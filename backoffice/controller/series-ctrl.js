@@ -5,7 +5,7 @@ const storage = require('node-sessionstorage');
 const multer = require('multer');
 const appRoot = require('app-root-path');
 const imageMagick = require('imagemagick');
-
+const fs = require('fs')
 const imagemagickCli = require('imagemagick-cli');
 
 // imageMagick.convert.path = '/usr/bin/convert';
@@ -727,6 +727,11 @@ exports.uploadSerieImage = async (req, res) => {
    const { originalname } = req.file;
    const { SeriesId, Label } = req.body;
    const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE SerieId = "${SeriesId}"`;
+
+   const path = `assets/${originalname}`
+   if (fs.existsSync(path)) {
+      res.send({ isExist: "yes" })
+    }else{
    const imageSizes = [
       {
          size: 'large',
@@ -795,6 +800,7 @@ exports.uploadSerieImage = async (req, res) => {
             })
          })
    })
+}
 }
 
 
