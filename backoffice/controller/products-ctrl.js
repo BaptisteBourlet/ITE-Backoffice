@@ -674,88 +674,91 @@ exports.uploadProductImage = async (req, res) => {
 
    let nextSequence, landscape;
    const { originalname } = req.file;
+   const check = originalname.split('.')
+   const pathpng = `assets/${check[0]}-large.PNG`
+   const pathjpg = `assets/${check[0]}-large.JPG`
+   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
+      res.send({ isExist: "yes" })
+   } else {
+
    const { ProductId, Label } = req.body;
    const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE ProductId = "${ProductId}"`;
-   const path = `assets/${originalname}`
-      
-   if (fs.existsSync(path)) {
-     res.send({ isExist: "yes" })
-   }else{
-   const imageSizes = [
-      {
-         size: 'large',
-         width: 1280,
-         height: 1280
-      },
-      {
-         size: 'medium',
-         width: 800,
-         height: 800
-      },
-      {
-         size: 'small',
-         width: 400,
-         height: 400,
-      },
-      {
-         size: 'thumb',
-         width: 200,
-         height: 200,
-      },
-   ]
-
-   con.query(maxSequence, (err, result) => {
-      if (err) throw err;
-      nextSequence = result[0].maxSequence + 1;
-
-      const insertAssets = `INSERT INTO Assets (ProductId, Type, Size, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "O","${originalname}", "${Label}", "${nextSequence}");`
-
-      // insert original size
-     
-         
-            con.query(insertAssets, (err, result) => {
-               if (err) throw err;
-      
-            })
-            imagemagickCli
-         .exec(`identify assets/${originalname}`)
-
-         .then(({ stdout, stderr }) => {
-            if (stderr) throw stderr;
-            let dimensions = stdout.split(' ')[2].split('x');
-            const width = dimensions[0];
-            const height = dimensions[1];
-            landscape = parseInt(width) > parseInt(height) ? true : false;
-
-            // insert other sizes
-            imageSizes.forEach(size => {
-               let newName = originalname.split('.');
-
-               newName[0] = `${newName[0]}-${size.size}`;
-               newName = newName.join('.');
-               // set maxWidth or maxHeight depending on image type
-               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
-
-               imagemagickCli
-                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
-                  .then(({ stdout, stderr }) => {
-                     let sizeChar = size.size.charAt(0).toUpperCase();
-                     const insertAssets = `INSERT INTO Assets (ProductId, Type, Size, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${sizeChar}", "${newName}", "${Label}", "${nextSequence}");`
-
-                     con.query(insertAssets, (err, result) => {
-                        if (err) throw err;
-
-                        if (size.size === "large") {
-                           res.status(200).send({ ...result, success: true, file: originalname });
-                        }
-                     })
-                  });
-            })
-         });
-         
    
-   })
-}
+      const imageSizes = [
+         {
+            size: 'large',
+            width: 1280,
+            height: 1280
+         },
+         {
+            size: 'medium',
+            width: 800,
+            height: 800
+         },
+         {
+            size: 'small',
+            width: 400,
+            height: 400,
+         },
+         {
+            size: 'thumb',
+            width: 200,
+            height: 200,
+         },
+      ]
+
+      con.query(maxSequence, (err, result) => {
+         if (err) throw err;
+         nextSequence = result[0].maxSequence + 1;
+
+         const insertAssets = `INSERT INTO Assets (ProductId, Type, Size, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "O","${originalname}", "${Label}", "${nextSequence}");`
+
+         // insert original size
+
+
+         con.query(insertAssets, (err, result) => {
+            if (err) throw err;
+
+         })
+         imagemagickCli
+            .exec(`identify assets/${originalname}`)
+
+            .then(({ stdout, stderr }) => {
+               if (stderr) throw stderr;
+               let dimensions = stdout.split(' ')[2].split('x');
+               const width = dimensions[0];
+               const height = dimensions[1];
+               landscape = parseInt(width) > parseInt(height) ? true : false;
+
+               // insert other sizes
+               imageSizes.forEach(size => {
+                  let newName = originalname.split('.');
+
+                  newName[0] = `${newName[0]}-${size.size}`;
+                  newName = newName.join('.');
+                  // set maxWidth or maxHeight depending on image type
+                  let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+
+                  imagemagickCli
+                     .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                     .then(({ stdout, stderr }) => {
+                        let sizeChar = size.size.charAt(0).toUpperCase();
+                        const insertAssets = `INSERT INTO Assets (ProductId, Type, Size, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${sizeChar}", "${newName}", "${Label}", "${nextSequence}");`
+
+                        con.query(insertAssets, (err, result) => {
+                           if (err) throw err;
+
+                           if (size.size === "large") {
+                              res.status(200).send({ ...result, success: true, file: originalname });
+                           }
+                        })
+                     });
+               })
+            });
+
+
+      })
+   }
 }
 
 exports.getLinkedImage = async (req, res) => {

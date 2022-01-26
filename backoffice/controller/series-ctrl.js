@@ -728,8 +728,10 @@ exports.uploadSerieImage = async (req, res) => {
    const { SeriesId, Label } = req.body;
    const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE SerieId = "${SeriesId}"`;
 
-   const path = `assets/${originalname}`
-   if (fs.existsSync(path)) {
+   const check = originalname.split('.')
+   const pathpng = `assets/${check[0]}-large.PNG`
+   const pathjpg = `assets/${check[0]}-large.JPG`
+   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
       res.send({ isExist: "yes" })
     }else{
    const imageSizes = [

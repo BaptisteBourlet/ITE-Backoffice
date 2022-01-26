@@ -1213,8 +1213,13 @@
                                                 SeriesAssetsStore.reload()
                                             }
                                         },
-                                        failure: () => {
-                                            Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                        failure: (fp, object) => {
+
+                                            if (object.result.isExist == "yes") {
+                                                Ext.Msg.alert('Failed', "This file already exist, please change the name");
+                                            } else {
+                                                Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                            }
                                         }
                                     });
                                 } else {
@@ -1246,8 +1251,13 @@
                                                 Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid');
                                             }
                                         },
-                                        failure: () => {
-                                            Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                        failure: (fp, object) => {
+
+                                            if (object.result.isExist == "yes") {
+                                                Ext.Msg.alert('Failed', "This file already exist, please change the name");
+                                            } else {
+                                                Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                            }
                                         }
                                     });
                                 } else {
@@ -1292,8 +1302,12 @@
                                                 SeriesAssetsStore.reload()
                                             }
                                         },
-                                        failure: () => {
-                                            Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                        failure: (fp, object) => {
+                                            if (object.result.isExist == "yes") {
+                                                Ext.Msg.alert('Failed', "This file already exist, please change the name");
+                                            } else {
+                                                Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                                            }
                                         }
                                     });
                                 } else {
@@ -1329,11 +1343,11 @@
 
                                         },
                                         failure: (fp, object) => {
-                                            // if (object.result.isExist == "yes") {
-                                            //     Ext.Msg.alert('Failed', "This file already exist, please change the name");
-                                            // } else {
+                                            if (object.result.isExist == "yes") {
+                                                Ext.Msg.alert('Failed', "This file already exist, please change the name");
+                                            } else {
                                                 Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
-                                            // }
+                                            }
                                         }
                                     });
                                 } else {
