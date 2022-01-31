@@ -2700,7 +2700,7 @@
 
          const ModelSerieMaster = Ext.define("Categories5", {
             extend: "Ext.data.Model",
-            fields: ["Id", "Key", "Group", "Sequence"],
+            fields: ["Id", "Key", "Group", "SubGroup","Sequence"],
          });
          const serieMasterStore = Ext.create("Ext.data.Store", {
             id: "serieMasterStore",
@@ -2743,6 +2743,12 @@
                sortable: true,
                width: 150,
                dataIndex: "Group"
+            },
+            {
+               header: "Sub group",
+               sortable: true,
+               width: 150,
+               dataIndex: "SubGroup"
             },
             {
                header: "Sequence",

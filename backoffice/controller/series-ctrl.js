@@ -666,7 +666,7 @@ exports.getSpecGroup = async (req, res) => {
 exports.getSerieMaster = async (req, res) => {
    const { Sid } = req.query;
 
-   const query = `SELECT SeriesMaster.Id, SeriesMaster.Key, SeriesMaster.Group, Sequence FROM SeriesMaster WHERE Sid = ${Sid};`
+   const query = `SELECT SeriesMaster.Id, SeriesMaster.Key, SeriesMaster.Group, SeriesMaster.SubGroup,  Sequence FROM SeriesMaster WHERE Sid = ${Sid};`
 
    con.query(query, (err, results) => {
       if (err) throw err;
