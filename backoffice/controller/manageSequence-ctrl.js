@@ -70,21 +70,22 @@ exports.addCategory = async (req, res) => {
    const { ParentId, Title } = req.body;
    
 
-   con.query(maxSequence, (err, result, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      let Sequence = result[0].maxSequence
+  // con.query(maxSequence, (err, result, fields) => {
+    //  if (err) {
+      //   console.log(err)
+     // }
+    //  let Sequence = result[0].maxSequence
+    let Sequence = 98 ;
       con.query(`INSERT INTO Category (Sequence, WorkingTitle, Publish) VALUES ( "${Sequence + 1}", "${Title}", "1");`, (err, results, fields) => {
          if (err) {
             console.log(err)
          }
          let CategoryId = results.insertId;
 
-         // con.query(`INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ("C", "${ParentId}", "${Sequence}", "1", "${CategoryId}");`, (err, resultsTree, fields) => {
-         //    if (err) {
-         //       console.log(err)
-         //    }
+          con.query(`INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ("C", "${ParentId}", "${Sequence}", "1", "${CategoryId}");`, (err, resultsTree, fields) => {
+             if (err) {
+                console.log(err)
+             }
             const { Language, Slug, Name,
                FRLanguage, FRName, FRSlug,
                DELanguage, DEName, DESlug,
@@ -138,8 +139,8 @@ exports.addCategory = async (req, res) => {
                console.log('spanish wasnt filled in')
             }
          })
-      // })
-   })
+       })
+   //})
 }
 
 
