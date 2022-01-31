@@ -1290,16 +1290,10 @@
                            Ext.getCmp('tabTrans').setActiveTab(0)
                            Ext.getCmp("addSave").setHidden(true);
                            Ext.getCmp("editSave").setHidden(false);
-                           Ext.getCmp("panelAdd").setTitle("Edit Serie");
+                           Ext.getCmp("panelAdd").setTitle("Edit Serie (a)");
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
 
-                           getSerieDetails(selectedRecord.data.Sid);
-                           serieIDGlobal = selectedRecord.data.Sid;
-                           getOtherLanguageDetail('fr', serieIDGlobal)
-                           getOtherLanguageDetail('de', serieIDGlobal)
-                           getOtherLanguageDetail('sp', serieIDGlobal)
-                           getOtherLanguageDetail('ru', serieIDGlobal)
-                           tinymce.init({
+                         tinymce.init({
                               selector: 'textarea',
                               plugins: [
 
@@ -1321,6 +1315,14 @@
 
                               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                            });
+
+                           getSerieDetails(selectedRecord.data.Sid);
+                           serieIDGlobal = selectedRecord.data.Sid;
+                           getOtherLanguageDetail('fr', serieIDGlobal)
+                           getOtherLanguageDetail('de', serieIDGlobal)
+                           getOtherLanguageDetail('sp', serieIDGlobal)
+                           getOtherLanguageDetail('ru', serieIDGlobal)
+
                         }
                      },
                   },
@@ -1959,7 +1961,7 @@
                   iconCls: "fas fa-save",
                   handler: function () {
                      if (Ext.getCmp('addForm').isValid()) {
-                        edit = false;
+                        edit = false;  
                         editSerie();
                         Ext.getCmp("relatedProducts").removeAll();
                         Ext.getCmp("relatedAccessories").removeAll();
@@ -2187,7 +2189,7 @@
                            edit = true;
                            Ext.getCmp("addSave").setHidden(true);
                            Ext.getCmp("editSave").setHidden(false);
-                           Ext.getCmp('panelAdd').setTitle('Edit Serie');
+                           Ext.getCmp('panelAdd').setTitle('Edit Serie (b)');
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
                            tinymce.init({
                               selector: 'textarea',
@@ -2212,6 +2214,10 @@
                               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                            });
                            getSerieDetails(serieIDGlobal);
+                           getOtherLanguageDetail('fr', serieIDGlobal)
+                           getOtherLanguageDetail('de', serieIDGlobal)
+                           getOtherLanguageDetail('sp', serieIDGlobal)
+                           getOtherLanguageDetail('ru', serieIDGlobal)
                            Ext.getCmp("relatedProducts").removeAll();
                            Ext.getCmp("relatedAccessories").removeAll();
                            Ext.getCmp("relatedParts").removeAll();
