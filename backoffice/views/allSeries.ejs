@@ -72,12 +72,20 @@
       #RUFIELD-legendTitle {
          font-weight: bold;
       }
+
+      /*Container, container body, iframe*/
+      .mce-tinymce, .mce-container-body, #code_ifr {
+         min-height: 100% !important;
+      }
    </style>
    <script type="text/javascript">
       //=========================================================================================================
       //		           APPLICATION START
       // ========================================================================================================
       Ext.onReady(() => {
+         // Settings
+         let tinyHeight = 500;
+
          // // FOR TESTING 
          // let userRightObject = {
          //    english: "V",
@@ -95,7 +103,6 @@
          // localStorage.setItem('userRights', userRightString);
 
          // // =============================================
-
 
          let edit = false;
          let serieIDGlobal = '';
@@ -499,7 +506,8 @@
          const getEditInfo = (serie) => {
             Ext.getCmp("Title").setValue(serie.Title);
             Ext.getCmp("Key").setValue(serie.Key);
-
+           //alert('get info');
+           //alert(serie.Specification);
             tinyMCE.get('FDesc').setContent(serie.FullDescription);
             tinyMCE.get('spec').setContent(serie.Specification);
          };
@@ -548,6 +556,9 @@
                      Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
                      // Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
                      // Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
+
+                     console.log(tinyMCE.get(`${language.toUpperCase()}FDesc`) );
+                     console.log(res[0].FullDescription);
                      if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
                         tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
 
@@ -760,6 +771,8 @@
          };
 
          var editSerie = function () {
+           //alert(tinyMCE.get('FRspec').getContent());
+           //alert(tinyMCE.get('FRFDesc').getContent());
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
                url: "/apiSeries/editSeries",
@@ -1318,10 +1331,10 @@
 
                            getSerieDetails(selectedRecord.data.Sid);
                            serieIDGlobal = selectedRecord.data.Sid;
-                           getOtherLanguageDetail('fr', serieIDGlobal)
-                           getOtherLanguageDetail('de', serieIDGlobal)
-                           getOtherLanguageDetail('sp', serieIDGlobal)
-                           getOtherLanguageDetail('ru', serieIDGlobal)
+                           getOtherLanguageDetail('fr', serieIDGlobal);
+                           getOtherLanguageDetail('de', serieIDGlobal);
+                           getOtherLanguageDetail('sp', serieIDGlobal);
+                           getOtherLanguageDetail('ru', serieIDGlobal);
 
                         }
                      },
@@ -1406,35 +1419,13 @@
             listeners: {
                render: function () {
                   this.items.each(function (i) {
+                    // Ext.getCmp('tabTrans').setActiveTab(i);
                      i.tab.on('click', function () {
                         Ext.getCmp('tabTrans').setActiveTab(i)
-
-                        tinymce.init({
-                           selector: 'textarea',
-                           plugins: [
-
-                              'advlist autolink lists link image charmap print preview anchor',
-
-                              'searchreplace visualblocks code fullscreen',
-
-                              'insertdatetime media table paste code help wordcount'
-
-                           ],
-                           // menubar: 'true',
-                           toolbar: 'undo redo |  ' +
-
-                              'bold italic forecolor | alignleft aligncenter ' +
-
-                              ' | bullist numlist outdent indent | ' +
-
-                              ' table | link image | removeformat  code | help',
-
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                        });
-                        getOtherLanguageDetail('fr', serieIDGlobal)
-                        getOtherLanguageDetail('de', serieIDGlobal)
-                        getOtherLanguageDetail('sp', serieIDGlobal)
-                        getOtherLanguageDetail('ru', serieIDGlobal)
+                      //  getOtherLanguageDetail('fr', serieIDGlobal)
+                      //  getOtherLanguageDetail('de', serieIDGlobal)
+                      //  getOtherLanguageDetail('sp', serieIDGlobal)
+                      //  getOtherLanguageDetail('ru', serieIDGlobal)
                      });
                   })
                },
@@ -1482,12 +1473,12 @@
                                        {
 
                                           html: '<h4>Full description :</h4><textarea id="FDesc"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
                                        },
 
                                        {
                                           html: '<h4>Specification :</h4><textarea id="spec"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
 
                                        },
                                     ]
@@ -1540,13 +1531,13 @@
 
                                        {
                                           html: '<h4>Full description :</h4><textarea id="FRFDesc"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
 
                                        },
 
                                        {
                                           html: '<h4>Specification :</h4><textarea id="FRspec"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
 
                                        },
                                     ]
@@ -1599,14 +1590,14 @@
 
                                        {
                                           html: '<h4>Full description :</h4><textarea id="DEFDesc"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
 
                                        },
 
                                        {
 
                                           html: '<h4>Specification :</h4><textarea id="DEspec"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
 
                                        },
                                     ]
@@ -1660,13 +1651,13 @@
 
                                        {
                                           html: '<h4>Full description :</h4><textarea id="SPFDesc"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
 
                                        },
 
                                        {
                                           html: '<h4>Specification :</h4><textarea id="SPspec"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
 
                                        },
                                     ]
@@ -1719,13 +1710,13 @@
 
                                        {
                                           html: '<h4>Full description :</h4><textarea id="RUFDesc"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
 
                                        },
 
                                        {
                                           html: '<h4>Specification :</h4><textarea id="RUspec"></textarea>',
-                                          height: 250,
+                                          height: tinyHeight,
 
                                        },
                                     ]
@@ -1794,7 +1785,7 @@
             },
 
             TabTranslations
-
+      
 
          ];
 
@@ -1962,7 +1953,10 @@
                   handler: function () {
                      if (Ext.getCmp('addForm').isValid()) {
                         edit = false;  
-                        editSerie();
+                           //start debug
+                           //alert('save data handler')
+                           //end debug
+                       editSerie();
                         Ext.getCmp("relatedProducts").removeAll();
                         Ext.getCmp("relatedAccessories").removeAll();
                         Ext.getCmp("relatedParts").removeAll();
@@ -2191,36 +2185,68 @@
                            Ext.getCmp("editSave").setHidden(false);
                            Ext.getCmp('panelAdd').setTitle('Edit Serie (b)');
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
+                           // Load different tabs to allow saving everthing
+                           Ext.getCmp('tabTrans').setActiveTab(1);
+                           Ext.getCmp('tabTrans').setActiveTab(2);
+                           Ext.getCmp('tabTrans').setActiveTab(3);
+                           Ext.getCmp('tabTrans').setActiveTab(4);
+                           Ext.getCmp('tabTrans').setActiveTab(0);
+                          
+                           // if tinyMCE fields are allready innitated
+                           if (tinyMCE.get(`spec`) != null) {
+                           getSerieDetails(serieIDGlobal); 
+                           }
+                           if (tinyMCE.get(`DEspec`) != null) {
+                              getOtherLanguageDetail('de', serieIDGlobal);
+                           }
+                           if (tinyMCE.get(`FRspec`) != null) {
+                              getOtherLanguageDetail('fr', serieIDGlobal);
+                           }
+                           if (tinyMCE.get(`SPspec`) != null) {
+                              getOtherLanguageDetail('sp', serieIDGlobal);
+                           }
+                           if (tinyMCE.get(`RUspec`) != null) {
+                              getOtherLanguageDetail('ru', serieIDGlobal);
+                           }
                            tinymce.init({
                               selector: 'textarea',
+                              setup: function(editor) {
+                                    editor.on('init', function(e) {
+                                    console.log('The Editor has initialized:' + this.id);
+                                    if ( this.id== 'spec'){ 
+                                       getSerieDetails(serieIDGlobal); 
+                                    }
+                                    if (this.id == 'DEspec'){ 
+                                       getOtherLanguageDetail('de', serieIDGlobal);
+                                    }
+                                    if (this.id == 'FRspec'){ 
+                                       getOtherLanguageDetail('fr', serieIDGlobal);
+                                    }
+                                    if ( this.id== 'SPspec'){ 
+                                       getOtherLanguageDetail('sp', serieIDGlobal);
+                                    }
+                                    if (this.id == 'RUspec'){ 
+                                       getOtherLanguageDetail('ru', serieIDGlobal);
+                                    }
+                                 });
+                              },
                               plugins: [
-
                                  'advlist autolink lists link image charmap print preview anchor',
-
                                  'searchreplace visualblocks code fullscreen',
-
                                  'insertdatetime media table paste code help wordcount'
-
                               ],
                               // menubar: 'true',
                               toolbar: 'undo redo |  ' +
-
                                  'bold italic forecolor | alignleft aligncenter ' +
-
                                  ' | bullist numlist outdent indent | ' +
-
                                  ' table | link image | removeformat  code | help',
-
+                              height: '350',
                               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                            });
-                           getSerieDetails(serieIDGlobal);
-                           getOtherLanguageDetail('fr', serieIDGlobal)
-                           getOtherLanguageDetail('de', serieIDGlobal)
-                           getOtherLanguageDetail('sp', serieIDGlobal)
-                           getOtherLanguageDetail('ru', serieIDGlobal)
                            Ext.getCmp("relatedProducts").removeAll();
                            Ext.getCmp("relatedAccessories").removeAll();
                            Ext.getCmp("relatedParts").removeAll();
+
                         },
                      },
                      "-",
