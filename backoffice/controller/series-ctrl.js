@@ -32,7 +32,7 @@ exports.getAllSeries = async (req, res) => {
 
 exports.getSerieDetails = async (req, res) => {
    const { serieId } = req.query;
-   
+
    let finalResults = [];
    const serieQuery
       = `SELECT Series.Key, Title, FullDescription, Specification, InfoTree.Parent AS CategoryId `
@@ -47,30 +47,30 @@ exports.getSerieDetails = async (req, res) => {
       + `LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = RelatedProducts.LinkedSeriesID `
       + `WHERE RelatedProducts.SeriesId = "${serieId}";`
 
-      if (serieId == undefined || serieId == '' || serieId == null){
-         serieId = 0
-         con.query(serieQuery, (err, serieResults) => {
-            if (err) throw err;
-            finalResults.push(serieResults);
-            con.query(relatedQuery, (error, relatedResults) => {
-               if (error) throw error;
-               finalResults.push(relatedResults);
-      
-               res.send(finalResults);
-            })
+   if (serieId == undefined || serieId == '' || serieId == null) {
+      serieId = 0
+      con.query(serieQuery, (err, serieResults) => {
+         if (err) throw err;
+         finalResults.push(serieResults);
+         con.query(relatedQuery, (error, relatedResults) => {
+            if (error) throw error;
+            finalResults.push(relatedResults);
+
+            res.send(finalResults);
          })
-      } else {
-         con.query(serieQuery, (err, serieResults) => {
-            if (err) throw err;
-            finalResults.push(serieResults);
-            con.query(relatedQuery, (error, relatedResults) => {
-               if (error) throw error;
-               finalResults.push(relatedResults);
-      
-               res.send(finalResults);
-            })
+      })
+   } else {
+      con.query(serieQuery, (err, serieResults) => {
+         if (err) throw err;
+         finalResults.push(serieResults);
+         con.query(relatedQuery, (error, relatedResults) => {
+            if (error) throw error;
+            finalResults.push(relatedResults);
+
+            res.send(finalResults);
          })
-      }
+      })
+   }
 }
 
 
@@ -196,6 +196,7 @@ exports.editSeries = async (req, res) => {
    const categoryLinkInsert = `INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ('S', ${CategoryId}, 0, 1, ${SeriesId});`;
    const categoryLinkDelete = `DELETE FROM InfoTree WHERE Type = 'S' AND LinkId = ${SeriesId} AND Publish = 1`;
 
+
    if (unlinkCategory === '1') {
       con.query(categoryLinkDelete, (err, deleteResult) => {
          if (err) throw err;
@@ -218,7 +219,6 @@ exports.editSeries = async (req, res) => {
                if (err) {
                   console.log('INSERT ERRRROR', err);
                }
-
                console.log('insert Serie Category Link')
             })
          }
@@ -236,62 +236,158 @@ exports.editSeries = async (req, res) => {
          SPTitle, SPSpecification, SPFullDescription,
          RUTitle, RUSpecification, RUFullDescription } = req.body;
 
+      //INSERT QUERY
+      const IENQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("en", "${ModifiedOn}", "${SeriesId}", "${Title}", "${Specification}", "${FullDescription}");`
+      const IFRQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("fr", "${ModifiedOn}", "${SeriesId}", "${FRTitle}", "${FRSpecification}", "${FRFullDescription}");`
+      const IDEQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("de", "${ModifiedOn}", "${SeriesId}", "${DETitle}", "${DESpecification}", "${DEFullDescription}");`
+      const ISPQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("sp", "${ModifiedOn}", "${SeriesId}", "${SPTitle}", "${SPSpecification}", "${SPFullDescription}");`
+      const IRUQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("ru", "${ModifiedOn}", "${SeriesId}", "${RUTitle}", "${RUSpecification}", "${RUFullDescription}");`
+
+      // UPDATE QUERY
       const ENQuery = `UPDATE SeriesInfo SET Title = '${Title}', ModifiedOn = ${ModifiedOn}, Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "en"`;
       const FRQuery = `UPDATE SeriesInfo SET Title = '${FRTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "fr"`;
       const DEQuery = `UPDATE SeriesInfo SET Title = '${DETitle}', ModifiedOn = ${ModifiedOn}, Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "de"`;
       const SPQuery = `UPDATE SeriesInfo SET Title = '${SPTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "sp"`;
       const RUQuery = `UPDATE SeriesInfo SET Title = '${RUTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "ru"`;
 
-      if (Title !== "") {
-         con.query(ENQuery, (err, result) => {
-            if (err) {
-               errorString += "English, ";
-               console.log(err);
-            }
 
+      //check if datas for translations exists
+      const existTransEN = `SELECT COUNT(*) AS transCount FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'en';`;
+      const existTransFR = `SELECT COUNT(*) AS transCountFR FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'fr';`;
+      const existTransDE = `SELECT COUNT(*) AS transCountDE FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'de';`;
+      const existTransES = `SELECT COUNT(*) AS transCountES FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'sp';`;
+      const existTransRU = `SELECT COUNT(*) AS transCountRU FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'ru';`;
+
+      if (Title !== "") {
+
+         con.query(existTransEN, (err, transResult) => {
+            if (err) throw err;
+
+            if (transResult[0].transCount > 0) {                 // 2 - if TRUE =>  update Translations
+               con.query(ENQuery, (err, result) => {
+                  if (err) {
+                     errorString += "English, ";
+                     console.log(err);
+                  }
+
+               })
+            }
+            else {                                             // 2 - if FALSE => insert NEW record
+               con.query(IENQuery, (err, insertResult) => {
+                  if (err) {
+                     console.log('INSERT ERRRROR', err);
+                  }
+                  console.log('insert Serie english translations')
+               })
+            }
          })
+
+         
       } else {
          console.log('English wasnt filled in');
       }
 
       if (FRTitle !== "") {
-         con.query(FRQuery, (err, result) => {
-            if (err) {
-               errorString += "French, ";
-               console.log(err);
-            }
+         con.query(existTransFR, (err, transResult) => {
+            if (err) throw err;
 
+            if (transResult[0].transCountFR > 0) {                 // 2 - if TRUE =>  update Translations
+               con.query(FRQuery, (err, result) => {
+                  if (err) {
+                     errorString += "French, ";
+                     console.log(err);
+                  }
+      
+               })
+            }
+            else {                                             // 2 - if FALSE => insert NEW record
+               con.query(IFRQuery, (err, insertResult) => {
+                  if (err) {
+                     console.log('INSERT ERRRROR', err);
+                  }
+                  console.log('insert Serie French translations')
+               })
+            }
          })
+         
       } else {
          console.log('French wasnt filled in');
       }
 
       if (DETitle !== "") {
-         con.query(DEQuery, (err, result) => {
-            errorString += "German, ";
-            console.log(err);
+         con.query(existTransDE, (err, transResult) => {
+            if (err) throw err;
 
+            if (transResult[0].transCountDE > 0) {                 // 2 - if TRUE =>  update Translations
+               con.query(DEQuery, (err, result) => {
+                  errorString += "German, ";
+                  console.log(err);
+      
+               })
+            }
+            else {                                             // 2 - if FALSE => insert NEW record
+               con.query(IDEQuery, (err, insertResult) => {
+                  if (err) {
+                     console.log('INSERT ERRRROR', err);
+                  }
+                  console.log('insert Serie DE translations')
+               })
+            }
          })
+
+         
       } else {
          console.log('German wasnt filled in');
       }
 
       if (SPTitle !== "") {
-         con.query(SPQuery, (err, result) => {
-            errorString += "Spanish, ";
-            console.log(err);
+         con.query(existTransES, (err, transResult) => {
+            if (err) throw err;
 
+            if (transResult[0].transCountES > 0) {                 // 2 - if TRUE =>  update Translations
+               con.query(SPQuery, (err, result) => {
+                  errorString += "Spanish, ";
+                  console.log(err);
+      
+               })
+            }
+            else {                                             // 2 - if FALSE => insert NEW record
+               con.query(ISPQuery, (err, insertResult) => {
+                  if (err) {
+                     console.log('INSERT ERRRROR', err);
+                  }
+                  console.log('insert Serie ES translations')
+               })
+            }
          })
+
+         
       } else {
          console.log('Spanish wasnt filled in');
       }
 
       if (RUTitle !== "") {
-         con.query(RUQuery, (err, result) => {
-            errorString += "Russian";
-            console.log(err);
+         con.query(existTransRU, (err, transResult) => {
+            if (err) throw err;
 
+            if (transResult[0].transCountRU > 0) {                 // 2 - if TRUE =>  update Translations
+               con.query(RUQuery, (err, result) => {
+                  errorString += "Russian";
+                  console.log(err);
+      
+               })
+            }
+            else {                                             // 2 - if FALSE => insert NEW record
+               con.query(IRUQuery, (err, insertResult) => {
+                  if (err) {
+                     console.log('INSERT ERRRROR', err);
+                  }
+                  console.log('insert Serie RU translations')
+               })
+            }
          })
+
+         
       } else {
          console.log('Russian wasnt filled in');
       }
@@ -730,78 +826,78 @@ exports.uploadSerieImage = async (req, res) => {
    const check = originalname.split('.')
    const pathpng = `assets/${check[0]}-large.PNG`
    const pathjpg = `assets/${check[0]}-large.JPG`
-   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
+   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg)) {
       res.send({ isExist: "yes" })
-    }else{
-   const imageSizes = [
-      {
-         size: 'large',
-         width: 1280,
-         height: 1280
-      },
-      {
-         size: 'medium',
-         width: 800,
-         height: 800
-      },
-      {
-         size: 'small',
-         width: 400,
-         height: 400,
-      },
-      {
-         size: 'thumb',
-         width: 200,
-         height: 200,
-      },
-   ]
+   } else {
+      const imageSizes = [
+         {
+            size: 'large',
+            width: 1280,
+            height: 1280
+         },
+         {
+            size: 'medium',
+            width: 800,
+            height: 800
+         },
+         {
+            size: 'small',
+            width: 400,
+            height: 400,
+         },
+         {
+            size: 'thumb',
+            width: 200,
+            height: 200,
+         },
+      ]
 
-   con.query(maxSequence, (err, result) => {
-      if (err) throw err;
-      nextSequence = result[0].maxSequence + 1;
-
-
-      const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${originalname}", "${Label}", "${nextSequence}");`
-
-      // insert original size
-      con.query(insertAssets, (err, result) => {
+      con.query(maxSequence, (err, result) => {
          if (err) throw err;
-      })
+         nextSequence = result[0].maxSequence + 1;
 
 
-      imagemagickCli
-         .exec(`identify assets/${originalname}`)
-         .then(({ stdout, stderr }) => {
-            if (stderr) throw stderr;
+         const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${originalname}", "${Label}", "${nextSequence}");`
 
-            let dimensions = stdout.split(' ')[2].split('x');
-            const width = dimensions[0];
-            const height = dimensions[1];
-            // Check if image is landscape;
-            landscape = parseInt(width) > parseInt(height) ? true : false;
-
-            // insert other sizes
-            imageSizes.forEach(size => {
-               // set maxWidth or maxHeight depending on image type
-               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
-               let sizeChar = size.size.charAt(0).toUpperCase();
-               imagemagickCli
-                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${size.size}/${originalname}`)
-                  .then(({ stdout, stderr }) => {
-
-                     const insertAssets = `INSERT INTO Assets (SerieId, Type, Size, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${sizeChar}","${originalname}", "${Label}", "${nextSequence}");`
-
-                     con.query(insertAssets, (err, result) => {
-                        if (err) throw err;
-                        if (size.size === "large") {
-                           res.status(200).send({ ...result, success: true, file: originalname });
-                        }
-                     })
-                  })
-            })
+         // insert original size
+         con.query(insertAssets, (err, result) => {
+            if (err) throw err;
          })
-   })
-}
+
+
+         imagemagickCli
+            .exec(`identify assets/${originalname}`)
+            .then(({ stdout, stderr }) => {
+               if (stderr) throw stderr;
+
+               let dimensions = stdout.split(' ')[2].split('x');
+               const width = dimensions[0];
+               const height = dimensions[1];
+               // Check if image is landscape;
+               landscape = parseInt(width) > parseInt(height) ? true : false;
+
+               // insert other sizes
+               imageSizes.forEach(size => {
+                  // set maxWidth or maxHeight depending on image type
+                  let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+                  let sizeChar = size.size.charAt(0).toUpperCase();
+                  imagemagickCli
+                     .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${size.size}/${originalname}`)
+                     .then(({ stdout, stderr }) => {
+
+                        const insertAssets = `INSERT INTO Assets (SerieId, Type, Size, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${sizeChar}","${originalname}", "${Label}", "${nextSequence}");`
+
+                        con.query(insertAssets, (err, result) => {
+                           if (err) throw err;
+                           if (size.size === "large") {
+                              res.status(200).send({ ...result, success: true, file: originalname });
+                           }
+                        })
+                     })
+               })
+            })
+      })
+   }
 }
 
 

@@ -510,10 +510,12 @@
             Ext.getCmp('Category').setValue(serie.CategoryId);
             tinyMCE.get('FDesc').setContent(serie.FullDescription);
             tinyMCE.get('spec').setContent(serie.Specification);
+            console.log(serie)
          };
 
 
          const displaySerieInfo = (serie) => {
+            console.log(serie)
             Ext.getCmp("key").setValue(serie.Key);
             Ext.getCmp("title").setValue(serie.Title);
             Ext.getCmp("fullDescription").setValue(
@@ -557,9 +559,9 @@
                      Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
                      // Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
                      // Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
-
-                     console.log(tinyMCE.get(`${language.toUpperCase()}FDesc`) );
-                     console.log(res[0].FullDescription);
+                     
+                     // console.log(tinyMCE.get(`${language.toUpperCase()}FDesc`) );
+                     // console.log(res[0].FullDescription);
                      if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
                         tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
 
@@ -1307,7 +1309,11 @@
                         if (selectedRecord === undefined) {
                            Ext.Msg.alert("INFO", "No record selected");
                         } else {
-                           Ext.getCmp('tabTrans').setActiveTab(0)
+                           Ext.getCmp('tabTrans').setActiveTab(1);
+                           Ext.getCmp('tabTrans').setActiveTab(2);
+                           Ext.getCmp('tabTrans').setActiveTab(3);
+                           Ext.getCmp('tabTrans').setActiveTab(4);
+                           Ext.getCmp('tabTrans').setActiveTab(0);
                            Ext.getCmp("addSave").setHidden(true);
                            Ext.getCmp("editSave").setHidden(false);
                            Ext.getCmp("panelAdd").setTitle("Edit Serie (a)");
@@ -1332,7 +1338,7 @@
                                  ' | bullist numlist outdent indent | ' +
 
                                  ' table | link image | removeformat  code | help',
-
+                                 height: '350',
                               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                            });
 
