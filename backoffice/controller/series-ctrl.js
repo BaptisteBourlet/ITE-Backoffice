@@ -191,7 +191,6 @@ exports.addSeries = async (req, res) => {
 exports.editSeries = async (req, res) => {
    const { SeriesId, Key, CategoryId, unlinkCategory, ModifiedOn } = req.body;
    let errorString = '';
-
    const existLink = `SELECT COUNT(*) AS linkCount FROM InfoTree WHERE LinkId = ${SeriesId} AND Type = 'S' and Publish = 1;`;
    const categoryLinkEdit = `Update InfoTree SET Parent = ${CategoryId} WHERE LinkId = ${SeriesId} AND Type = 'S' AND Publish = 1;`;
    const categoryLinkInsert = `INSERT INTO InfoTree (Type, Parent, Sequence, Publish, LinkId) VALUES ('S', ${CategoryId}, 0, 1, ${SeriesId});`;

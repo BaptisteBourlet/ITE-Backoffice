@@ -459,7 +459,7 @@
                   const res = JSON.parse(response.responseText);
                   Ext.getCmp('seriesIdImage').setValue(serieId);
                   if (edit === false) {
-                     displaySerieInfo(res[0][0]);
+                     displaySerieInfo(res[0][0] );
                   } else {
                      getEditInfo(res[0][0]);
                   }
@@ -504,10 +504,10 @@
 
 
          const getEditInfo = (serie) => {
+            
             Ext.getCmp("Title").setValue(serie.Title);
             Ext.getCmp("Key").setValue(serie.Key);
-           //alert('get info');
-           //alert(serie.Specification);
+            Ext.getCmp('Category').setValue(serie.CategoryId);
             tinyMCE.get('FDesc').setContent(serie.FullDescription);
             tinyMCE.get('spec').setContent(serie.Specification);
          };
@@ -520,6 +520,7 @@
                serie.FullDescription || "No Full Description"
             );
             Ext.getCmp('Category').setValue(serie.CategoryId);
+            
             Ext.getCmp("specification").setValue(
                serie.Specification || "No Specification"
             );
@@ -1292,11 +1293,17 @@
                      iconCls: "fa fa-edit",
                      scale: "small",
                      handler: function () {
-                        edit = true;
+                        edit=false
                         const selectedRecord = Ext.getCmp("SeriesGrid")
                            .getSelectionModel()
                            .getSelection()[0];
-
+                           
+                        getSerieDetails(selectedRecord.data.Sid);
+                        edit = true;
+                        
+                           
+                           
+                     
                         if (selectedRecord === undefined) {
                            Ext.Msg.alert("INFO", "No record selected");
                         } else {
@@ -2005,7 +2012,7 @@
                      const selectedRecord = Ext.getCmp("SeriesGrid")
                         .getSelectionModel()
                         .getSelection()[0];
-
+                        
                      serieIDGlobal = selectedRecord.data.Sid;
                      sessionStorage.setItem('serieIDGlobal', serieIDGlobal)
                      getSerieDetails(selectedRecord.data.Sid);
