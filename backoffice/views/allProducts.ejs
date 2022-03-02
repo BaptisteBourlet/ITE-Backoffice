@@ -59,7 +59,7 @@
 
     textarea {
       height: 300px;
-      
+
     }
 
     #ENFIELD-legendTitle,
@@ -129,7 +129,28 @@
 
       });
 
+      const tinyMceInitiation = tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
 
+                    'advlist autolink lists link image charmap print preview anchor',
+
+                    'searchreplace visualblocks code fullscreen',
+
+                    'insertdatetime media table paste code help wordcount'
+
+                  ],
+                  // menubar: 'true',
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+                  height: '350',
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
       const relatedProducts = (products) => {
         let exist = false;
 
@@ -530,6 +551,7 @@
 
 
       const editProduct = () => {
+        console.log(tinyMCE.get('FRFDesc').getContent())
         Ext.Ajax.request({
           url: "/apiProducts/editProduct",
           method: "POST",
@@ -839,7 +861,7 @@
 
               Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
 
-              
+
               if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
                 tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
 
@@ -1208,10 +1230,13 @@
               scale: "small",
               handler: function () {
                 Ext.getCmp('tabTrans').setActiveTab(0)
+
                 Ext.getCmp("addSave").setHidden(false);
                 Ext.getCmp("editSave").setHidden(true);
                 Ext.getCmp("panelAdd").setTitle("Add product");
                 Ext.getCmp("viewport").setActiveItem("panelAdd");
+
+
                 tinymce.init({
                   selector: 'textarea',
                   plugins: [
@@ -1231,7 +1256,7 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-
+                  height: '350',
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                 });
 
@@ -1259,39 +1284,80 @@
                   Ext.getCmp("addSave").setHidden(true);
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp("panelAdd").setTitle("Edit Product (a)");
-                  Ext.getCmp('tabTrans').setActiveTab(0)
-                  
+                 
+
+                  Ext.getCmp('tabTrans').setActiveTab(1);
+                           Ext.getCmp('tabTrans').setActiveTab(2);
+                           Ext.getCmp('tabTrans').setActiveTab(3);
+                           Ext.getCmp('tabTrans').setActiveTab(4);
+                           Ext.getCmp('tabTrans').setActiveTab(0);
+
+                           // if tinyMCE fields are allready innitated
+                           if (tinyMCE.get(`spec`) != null) {
+                            getProductDetails(selectedRecord.data.Id);
+                           }
+                           if (tinyMCE.get(`DEspec`) != null) {
+                            getOtherLanguageDetail('de', productIDGlobal)
+                           }
+                           if (tinyMCE.get(`FRspec`) != null) {
+                            getOtherLanguageDetail('fr', productIDGlobal)
+                           }
+                           if (tinyMCE.get(`SPspec`) != null) {
+                            getOtherLanguageDetail('sp', productIDGlobal)
+                           }
+                           if (tinyMCE.get(`RUspec`) != null) {
+                            getOtherLanguageDetail('ru', productIDGlobal)
+                           }
+                           tinymce.init({
+                              selector: 'textarea',
+
+                              plugins: [
+                                 'advlist autolink lists link image charmap print preview anchor',
+                                 'searchreplace visualblocks code fullscreen',
+                                 'insertdatetime media table paste code help wordcount'
+                              ],
+                              // menubar: 'true',
+                              toolbar: 'undo redo |  ' +
+                                 'bold italic forecolor | alignleft aligncenter ' +
+                                 ' | bullist numlist outdent indent | ' +
+                                 ' table | link image | removeformat  code | help',
+                              height: '350',
+                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                              setup: function (editor) {
+                                 editor.on('init', function (e) {
+                                    console.log('The Editor has initialized:' + this.id);
+                                    
+                                    if (this.id == 'spec') {
+                                      getProductDetails(selectedRecord.data.Id);
+                                    }
+                                    if (this.id == 'ENspec') {
+                                      getOtherLanguageDetail('en', productIDGlobal)
+                                    }
+                                    if (this.id == 'DEspec') {
+                                      getOtherLanguageDetail('de', productIDGlobal)
+                                    }
+                                    if (this.id == 'FRspec') {
+                                      getOtherLanguageDetail('fr', productIDGlobal)
+                                    }
+                                    if (this.id == 'SPspec') {
+                                      getOtherLanguageDetail('sp', productIDGlobal)
+                                    }
+                                    if (this.id == 'RUspec') {
+                                      getOtherLanguageDetail('ru', productIDGlobal)
+                                    }
+                                 });
+                              },
+                           });
 
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
-                  tinymce.init({
-                    selector: 'textarea',
-                    plugins: [
-
-                      'advlist autolink lists link image charmap print preview anchor',
-
-                      'searchreplace visualblocks code fullscreen',
-
-                      'insertdatetime media table paste code help wordcount'
-
-                    ],
-                    // menubar: 'true',
-                    toolbar: 'undo redo |  ' +
-
-                      'bold italic forecolor | alignleft aligncenter ' +
-
-                      ' | bullist numlist outdent indent | ' +
-
-                      ' table | link image | removeformat  code | help',
-
-                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                  });
+                  
                   getProductDetails(selectedRecord.data.Id);
 
-                  getOtherLanguageDetail('en', productIDGlobal)
-                  getOtherLanguageDetail('fr', productIDGlobal)
-                  getOtherLanguageDetail('de', productIDGlobal)
-                  getOtherLanguageDetail('sp', productIDGlobal)
-                  getOtherLanguageDetail('ru', productIDGlobal)
+                  // getOtherLanguageDetail('en', productIDGlobal)
+                  // getOtherLanguageDetail('fr', productIDGlobal)
+                  // getOtherLanguageDetail('de', productIDGlobal)
+                  // getOtherLanguageDetail('sp', productIDGlobal)
+                  // getOtherLanguageDetail('ru', productIDGlobal)
 
                 }
               },
@@ -1616,6 +1682,7 @@
                 iconCls: "fa fa-undo-alt",
                 handler: function () {
                   edit = false;
+                  
                   Ext.getCmp("relatedProducts").removeAll();
                   Ext.getCmp("relatedAccessories").removeAll();
                   Ext.getCmp("relatedParts").removeAll();
@@ -1653,12 +1720,12 @@
                       ' | bullist numlist outdent indent | ' +
 
                       ' table | link image | removeformat  code | help',
-
+                    height: '350',
                     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                   });
                   getProductDetails(productIDGlobal);
                   getOtherLanguageDetail('en', productIDGlobal)
-                  
+
 
                 },
               },
@@ -1689,7 +1756,7 @@
                       ' | bullist numlist outdent indent | ' +
 
                       ' table | link image | removeformat  code | help',
-
+                    height: '350',
                     content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                   });
                   getRelatedProductSerie(serieIDGlobal);
@@ -1761,32 +1828,34 @@
               i.tab.on('click', function () {
                 Ext.getCmp('tabTrans').setActiveTab(i)
 
-                tinymce.init({
-                  selector: 'textarea',
-                  plugins: [
+                // tinymce.init({
+                //   selector: 'textarea',
+                //   plugins: [
 
-                    'advlist autolink lists link image charmap print preview anchor',
+                //     'advlist autolink lists link image charmap print preview anchor',
 
-                    'searchreplace visualblocks code fullscreen',
+                //     'searchreplace visualblocks code fullscreen',
 
-                    'insertdatetime media table paste code help wordcount'
+                //     'insertdatetime media table paste code help wordcount'
 
-                  ],
-                  // menubar: 'true',
-                  toolbar: 'undo redo |  ' +
+                //   ],
+                //   // menubar: 'true',
+                //   toolbar: 'undo redo |  ' +
 
-                    'bold italic forecolor | alignleft aligncenter ' +
+                //     'bold italic forecolor | alignleft aligncenter ' +
 
-                    ' | bullist numlist outdent indent | ' +
+                //     ' | bullist numlist outdent indent | ' +
 
-                    ' table | link image | removeformat  code | help',
-
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                });
-                getOtherLanguageDetail('fr', productIDGlobal)
-                getOtherLanguageDetail('de', productIDGlobal)
-                getOtherLanguageDetail('sp', productIDGlobal)
-                getOtherLanguageDetail('ru', productIDGlobal)
+                //     ' table | link image | removeformat  code | help',
+                //   height: '350',
+                //   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                // });
+                // if(edit == true){
+                // getOtherLanguageDetail('fr', productIDGlobal)
+                // getOtherLanguageDetail('de', productIDGlobal)
+                // getOtherLanguageDetail('sp', productIDGlobal)
+                // getOtherLanguageDetail('ru', productIDGlobal)
+                // }
               });
             });
           }
@@ -1849,7 +1918,7 @@
                           },
                           {
                             html: '<h4>Specification :</h4><textarea id="ENspec"></textarea>',
-                            
+
                             // height: 250,
                           },
                         ]
@@ -1923,13 +1992,13 @@
                           {
                             html: '<h4>Full description :</h4><textarea id="FRFDesc"></textarea><br>',
 
-                            height: 250,
+                            // height: 250,
 
                           },
                           {
                             html: '<h4>Specification :</h4><textarea id="FRspec"></textarea>',
 
-                            height: 250,
+                            // height: 250,
 
                           },
                         ]
@@ -1996,14 +2065,14 @@
                           {
                             html: '<h4>Full description :</h4><textarea id="DEFDesc"></textarea><br>',
 
-                            height: 250,
+                            // height: 250,
 
 
                           },
                           {
                             html: '<h4>Specification :</h4><textarea id="DEspec"></textarea>',
 
-                            height: 250,
+                            // height: 250,
 
                           },
                         ]
@@ -2071,13 +2140,13 @@
                           {
                             html: '<h4>Full description :</h4><textarea id="SPFDesc"></textarea><br>',
 
-                            height: 250,
+                            // height: 250,
 
                           },
                           {
                             html: '<h4>Specification :</h4><textarea id="SPspec"></textarea>',
 
-                            height: 250,
+                            // height: 250,
 
                           },
                         ]
@@ -2144,15 +2213,13 @@
                           {
                             html: '<h4>Full description :</h4><textarea id="RUFDesc"></textarea><br>',
 
-                            height: 250,
-
-
+                            // height: 250,
                           },
                           {
 
                             html: '<h4>Specification :</h4><textarea id="RUspec"></textarea>',
 
-                            height: 250,
+                            // height: 250,
 
                           },
                         ]
@@ -2333,7 +2400,7 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-
+                  height: '350',
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                 });
                 Ext.getCmp('tabTrans').setActiveTab(2)
@@ -2356,7 +2423,7 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-
+                  height: '350',
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                 });
                 Ext.getCmp('tabTrans').setActiveTab(3)
@@ -2379,7 +2446,7 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-
+                  height: '350',
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                 });
                 Ext.getCmp('tabTrans').setActiveTab(4)
@@ -2402,7 +2469,7 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-
+                  height: '350',
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                 });
                 setProductSessionStorage();
@@ -2417,99 +2484,98 @@
             iconCls: "fas fa-save",
             handler: function () {
               if (Ext.getCmp('addForm').isValid()) {
-                Ext.getCmp('tabTrans').setActiveTab(0)
-                Ext.getCmp('tabTrans').setActiveTab(1)
-                tinymce.init({
-                  selector: 'textarea',
-                  plugins: [
+                        Ext.getCmp('tabTrans').setActiveTab(1)
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
 
-                    'advlist autolink lists link image charmap print preview anchor',
+                              'advlist autolink lists link image charmap print preview anchor',
 
-                    'searchreplace visualblocks code fullscreen',
+                              'searchreplace visualblocks code fullscreen',
 
-                    'insertdatetime media table paste code help wordcount'
+                              'insertdatetime media table paste code help wordcount'
 
-                  ],
-                  // menubar: 'true',
-                  toolbar: 'undo redo |  ' +
+                           ],
+                           // menubar: 'true',
+                           toolbar: 'undo redo |  ' +
 
-                    'bold italic forecolor | alignleft aligncenter ' +
+                              'bold italic forecolor | alignleft aligncenter ' +
 
-                    ' | bullist numlist outdent indent | ' +
+                              ' | bullist numlist outdent indent | ' +
 
-                    ' table | link image | removeformat  code | help',
+                              ' table | link image | removeformat  code | help',
+                              height: '350',
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                        Ext.getCmp('tabTrans').setActiveTab(2)
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
 
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                });
-                Ext.getCmp('tabTrans').setActiveTab(2)
-                tinymce.init({
-                  selector: 'textarea',
-                  plugins: [
+                              'advlist autolink lists link image charmap print preview anchor',
 
-                    'advlist autolink lists link image charmap print preview anchor',
+                              'searchreplace visualblocks code fullscreen',
 
-                    'searchreplace visualblocks code fullscreen',
+                              'insertdatetime media table paste code help wordcount'
 
-                    'insertdatetime media table paste code help wordcount'
+                           ],
+                           // menubar: 'true',
+                           toolbar: 'undo redo |  ' +
 
-                  ],
-                  // menubar: 'true',
-                  toolbar: 'undo redo |  ' +
+                              'bold italic forecolor | alignleft aligncenter ' +
 
-                    'bold italic forecolor | alignleft aligncenter ' +
+                              ' | bullist numlist outdent indent | ' +
 
-                    ' | bullist numlist outdent indent | ' +
+                              ' table | link image | removeformat  code | help',
+                              height: '350',
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                        Ext.getCmp('tabTrans').setActiveTab(3)
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
 
-                    ' table | link image | removeformat  code | help',
+                              'advlist autolink lists link image charmap print preview anchor',
 
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                });
-                Ext.getCmp('tabTrans').setActiveTab(3)
-                tinymce.init({
-                  selector: 'textarea',
-                  plugins: [
+                              'searchreplace visualblocks code fullscreen',
 
-                    'advlist autolink lists link image charmap print preview anchor',
+                              'insertdatetime media table paste code help wordcount'
 
-                    'searchreplace visualblocks code fullscreen',
+                           ],
+                           // menubar: 'true',
+                           toolbar: 'undo redo |  ' +
 
-                    'insertdatetime media table paste code help wordcount'
+                              'bold italic forecolor | alignleft aligncenter ' +
 
-                  ],
-                  // menubar: 'true',
-                  toolbar: 'undo redo |  ' +
+                              ' | bullist numlist outdent indent | ' +
 
-                    'bold italic forecolor | alignleft aligncenter ' +
+                              ' table | link image | removeformat  code | help',
+                              height: '350',
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                        Ext.getCmp('tabTrans').setActiveTab(4)
+                        tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
 
-                    ' | bullist numlist outdent indent | ' +
+                              'advlist autolink lists link image charmap print preview anchor',
 
-                    ' table | link image | removeformat  code | help',
+                              'searchreplace visualblocks code fullscreen',
 
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                });
-                Ext.getCmp('tabTrans').setActiveTab(4)
-                tinymce.init({
-                  selector: 'textarea',
-                  plugins: [
+                              'insertdatetime media table paste code help wordcount'
 
-                    'advlist autolink lists link image charmap print preview anchor',
+                           ],
+                           // menubar: 'true',
+                           toolbar: 'undo redo |  ' +
 
-                    'searchreplace visualblocks code fullscreen',
+                              'bold italic forecolor | alignleft aligncenter ' +
 
-                    'insertdatetime media table paste code help wordcount'
+                              ' | bullist numlist outdent indent | ' +
 
-                  ],
-                  // menubar: 'true',
-                  toolbar: 'undo redo |  ' +
-
-                    'bold italic forecolor | alignleft aligncenter ' +
-
-                    ' | bullist numlist outdent indent | ' +
-
-                    ' table | link image | removeformat  code | help',
-
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                });
+                              ' table | link image | removeformat  code | help',
+                              height: '350',
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
                 setProductSessionStorage();
                 editProduct();
                 Ext.getCmp("addForm").reset();
@@ -2524,7 +2590,115 @@
             handler: function () {
               edit = false;
               Ext.getCmp("addForm").reset();
+              
+              Ext.getCmp('tabTrans').setActiveTab(0)
+                  Ext.getCmp('tabTrans').setActiveTab(1)
+                  // tinyMceInitiation
+                  tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
 
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+                           // menubar: 'true',
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                  tinyMCE.get('FRFDesc').setContent('');
+                  tinyMCE.get('FRspec').setContent('');
+                  Ext.getCmp('tabTrans').setActiveTab(2)
+                  // tinyMceInitiation
+                  tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
+
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+                           // menubar: 'true',
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                  tinyMCE.get('DEFDesc').setContent('');
+                  tinyMCE.get('DEspec').setContent('');
+                  Ext.getCmp('tabTrans').setActiveTab(3)
+                  // tinyMceInitiation
+                  tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
+
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+                           // menubar: 'true',
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                  tinyMCE.get('SPFDesc').setContent('');
+                  tinyMCE.get('SPspec').setContent('');
+                  Ext.getCmp('tabTrans').setActiveTab(4)
+                  // tinyMceInitiation
+                  tinymce.init({
+                           selector: 'textarea',
+                           plugins: [
+
+                              'advlist autolink lists link image charmap print preview anchor',
+
+                              'searchreplace visualblocks code fullscreen',
+
+                              'insertdatetime media table paste code help wordcount'
+
+                           ],
+                           // menubar: 'true',
+                           toolbar: 'undo redo |  ' +
+
+                              'bold italic forecolor | alignleft aligncenter ' +
+
+                              ' | bullist numlist outdent indent | ' +
+
+                              ' table | link image | removeformat  code | help',
+
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        });
+                  tinyMCE.get('ENFDesc').setContent('');
+                  tinyMCE.get('ENspec').setContent('');
+
+                  tinyMCE.get('RUFDesc').setContent('');
+                  tinyMCE.get('RUspec').setContent('');
               // clearEditInfo();
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
@@ -2945,17 +3119,17 @@
                     Label: Ext.getCmp('imageLabel').getValue(),
                   },
                   success: function (fp, object) {
-                    
+
                     form.reset();
                     Ext.Msg.alert('Success', 'Your photo "' + object.result.file + '" has been uploaded.');
                   },
                   failure: (fp, object) => {
-                    
-                   if(object.result.isExist == "yes"){
-                    Ext.Msg.alert('Failed', "This file already exist, please change the name");
-                   } else {
-                    Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
-                   }
+
+                    if (object.result.isExist == "yes") {
+                      Ext.Msg.alert('Failed', "This file already exist, please change the name");
+                    } else {
+                      Ext.Msg.alert('Failed', "failed to upload image, please contact your IT Team");
+                    }
                   }
                 });
               } else {

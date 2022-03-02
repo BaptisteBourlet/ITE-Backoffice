@@ -74,7 +74,9 @@
       }
 
       /*Container, container body, iframe*/
-      .mce-tinymce, .mce-container-body, #code_ifr {
+      .mce-tinymce,
+      .mce-container-body,
+      #code_ifr {
          min-height: 100% !important;
       }
    </style>
@@ -459,7 +461,7 @@
                   const res = JSON.parse(response.responseText);
                   Ext.getCmp('seriesIdImage').setValue(serieId);
                   if (edit === false) {
-                     displaySerieInfo(res[0][0] );
+                     displaySerieInfo(res[0][0]);
                   } else {
                      getEditInfo(res[0][0]);
                   }
@@ -504,7 +506,7 @@
 
 
          const getEditInfo = (serie) => {
-            
+
             Ext.getCmp("Title").setValue(serie.Title);
             Ext.getCmp("Key").setValue(serie.Key);
             Ext.getCmp('Category').setValue(serie.CategoryId);
@@ -522,7 +524,7 @@
                serie.FullDescription || "No Full Description"
             );
             Ext.getCmp('Category').setValue(serie.CategoryId);
-            
+
             Ext.getCmp("specification").setValue(
                serie.Specification || "No Specification"
             );
@@ -559,7 +561,7 @@
                      Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
                      // Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
                      // Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
-                     
+
                      // console.log(tinyMCE.get(`${language.toUpperCase()}FDesc`) );
                      // console.log(res[0].FullDescription);
                      if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
@@ -774,8 +776,8 @@
          };
 
          var editSerie = function () {
-           //alert(tinyMCE.get('FRspec').getContent());
-           //alert(tinyMCE.get('FRFDesc').getContent());
+            //alert(tinyMCE.get('FRspec').getContent());
+            //alert(tinyMCE.get('FRFDesc').getContent());
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
                url: "/apiSeries/editSeries",
@@ -1282,7 +1284,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-
+                              height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                      },
@@ -1295,17 +1297,17 @@
                      iconCls: "fa fa-edit",
                      scale: "small",
                      handler: function () {
-                        edit=false
+                        edit = false
                         const selectedRecord = Ext.getCmp("SeriesGrid")
                            .getSelectionModel()
                            .getSelection()[0];
-                           
+
                         getSerieDetails(selectedRecord.data.Sid);
                         edit = true;
-                        
-                           
-                           
-                     
+
+
+
+
                         if (selectedRecord === undefined) {
                            Ext.Msg.alert("INFO", "No record selected");
                         } else {
@@ -1319,7 +1321,7 @@
                            Ext.getCmp("panelAdd").setTitle("Edit Serie (a)");
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
 
-                         tinymce.init({
+                           tinymce.init({
                               selector: 'textarea',
                               plugins: [
 
@@ -1338,16 +1340,19 @@
                                  ' | bullist numlist outdent indent | ' +
 
                                  ' table | link image | removeformat  code | help',
-                                 height: '350',
+                              height: '350',
                               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                            });
 
                            getSerieDetails(selectedRecord.data.Sid);
                            serieIDGlobal = selectedRecord.data.Sid;
-                           getOtherLanguageDetail('fr', serieIDGlobal);
-                           getOtherLanguageDetail('de', serieIDGlobal);
-                           getOtherLanguageDetail('sp', serieIDGlobal);
-                           getOtherLanguageDetail('ru', serieIDGlobal);
+                           if (edit == true) {
+                              getOtherLanguageDetail('fr', serieIDGlobal);
+                              getOtherLanguageDetail('de', serieIDGlobal);
+                              getOtherLanguageDetail('sp', serieIDGlobal);
+                              getOtherLanguageDetail('ru', serieIDGlobal);
+                           }
+
 
                         }
                      },
@@ -1432,13 +1437,13 @@
             listeners: {
                render: function () {
                   this.items.each(function (i) {
-                    // Ext.getCmp('tabTrans').setActiveTab(i);
+                     // Ext.getCmp('tabTrans').setActiveTab(i);
                      i.tab.on('click', function () {
                         Ext.getCmp('tabTrans').setActiveTab(i)
-                      //  getOtherLanguageDetail('fr', serieIDGlobal)
-                      //  getOtherLanguageDetail('de', serieIDGlobal)
-                      //  getOtherLanguageDetail('sp', serieIDGlobal)
-                      //  getOtherLanguageDetail('ru', serieIDGlobal)
+                        //  getOtherLanguageDetail('fr', serieIDGlobal)
+                        //  getOtherLanguageDetail('de', serieIDGlobal)
+                        //  getOtherLanguageDetail('sp', serieIDGlobal)
+                        //  getOtherLanguageDetail('ru', serieIDGlobal)
                      });
                   })
                },
@@ -1798,7 +1803,7 @@
             },
 
             TabTranslations
-      
+
 
          ];
 
@@ -1879,7 +1884,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-
+                              height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                         Ext.getCmp('tabTrans').setActiveTab(2)
@@ -1902,7 +1907,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-
+                              height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                         Ext.getCmp('tabTrans').setActiveTab(3)
@@ -1925,7 +1930,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-
+                              height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                         Ext.getCmp('tabTrans').setActiveTab(4)
@@ -1948,7 +1953,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-
+                              height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                         addSerie();
@@ -1965,11 +1970,11 @@
                   iconCls: "fas fa-save",
                   handler: function () {
                      if (Ext.getCmp('addForm').isValid()) {
-                        edit = false;  
-                           //start debug
-                           //alert('save data handler')
-                           //end debug
-                       editSerie();
+                        edit = false;
+                        //start debug
+                        //alert('save data handler')
+                        //end debug
+                        editSerie();
                         Ext.getCmp("relatedProducts").removeAll();
                         Ext.getCmp("relatedAccessories").removeAll();
                         Ext.getCmp("relatedParts").removeAll();
@@ -1985,6 +1990,111 @@
                   iconCls: "fas fa-undo",
                   handler: function () {
                      edit = false;
+                     Ext.getCmp('tabTrans').setActiveTab(1)
+                     // tinyMceInitiation
+                     tinymce.init({
+                        selector: 'textarea',
+                        plugins: [
+
+                           'advlist autolink lists link image charmap print preview anchor',
+
+                           'searchreplace visualblocks code fullscreen',
+
+                           'insertdatetime media table paste code help wordcount'
+
+                        ],
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
+
+                           'bold italic forecolor | alignleft aligncenter ' +
+
+                           ' | bullist numlist outdent indent | ' +
+
+                           ' table | link image | removeformat  code | help',
+                           height: '350',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                     });
+                     tinyMCE.get('FRFDesc').setContent('');
+                     tinyMCE.get('FRspec').setContent('');
+                     Ext.getCmp('tabTrans').setActiveTab(2)
+                     // tinyMceInitiation
+                     tinymce.init({
+                        selector: 'textarea',
+                        plugins: [
+
+                           'advlist autolink lists link image charmap print preview anchor',
+
+                           'searchreplace visualblocks code fullscreen',
+
+                           'insertdatetime media table paste code help wordcount'
+
+                        ],
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
+
+                           'bold italic forecolor | alignleft aligncenter ' +
+
+                           ' | bullist numlist outdent indent | ' +
+
+                           ' table | link image | removeformat  code | help',
+                           height: '350',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                     });
+                     tinyMCE.get('DEFDesc').setContent('');
+                     tinyMCE.get('DEspec').setContent('');
+                     Ext.getCmp('tabTrans').setActiveTab(3)
+                     // tinyMceInitiation
+                     tinymce.init({
+                        selector: 'textarea',
+                        plugins: [
+
+                           'advlist autolink lists link image charmap print preview anchor',
+
+                           'searchreplace visualblocks code fullscreen',
+
+                           'insertdatetime media table paste code help wordcount'
+
+                        ],
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
+
+                           'bold italic forecolor | alignleft aligncenter ' +
+
+                           ' | bullist numlist outdent indent | ' +
+
+                           ' table | link image | removeformat  code | help',
+                           height: '350',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                     });
+                     tinyMCE.get('SPFDesc').setContent('');
+                     tinyMCE.get('SPspec').setContent('');
+                     Ext.getCmp('tabTrans').setActiveTab(4)
+                     // tinyMceInitiation
+                     tinymce.init({
+                        selector: 'textarea',
+                        plugins: [
+
+                           'advlist autolink lists link image charmap print preview anchor',
+
+                           'searchreplace visualblocks code fullscreen',
+
+                           'insertdatetime media table paste code help wordcount'
+
+                        ],
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
+
+                           'bold italic forecolor | alignleft aligncenter ' +
+
+                           ' | bullist numlist outdent indent | ' +
+
+                           ' table | link image | removeformat  code | help',
+                           height: '350',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                     });
+
+                     tinyMCE.get('RUFDesc').setContent('');
+                     tinyMCE.get('RUspec').setContent('');
                      Ext.getCmp("relatedProducts").removeAll();
                      Ext.getCmp("relatedAccessories").removeAll();
                      Ext.getCmp("relatedParts").removeAll();
@@ -2018,7 +2128,7 @@
                      const selectedRecord = Ext.getCmp("SeriesGrid")
                         .getSelectionModel()
                         .getSelection()[0];
-                        
+
                      serieIDGlobal = selectedRecord.data.Sid;
                      sessionStorage.setItem('serieIDGlobal', serieIDGlobal)
                      getSerieDetails(selectedRecord.data.Sid);
@@ -2204,10 +2314,10 @@
                            Ext.getCmp('tabTrans').setActiveTab(3);
                            Ext.getCmp('tabTrans').setActiveTab(4);
                            Ext.getCmp('tabTrans').setActiveTab(0);
-                          
+
                            // if tinyMCE fields are allready innitated
                            if (tinyMCE.get(`spec`) != null) {
-                           getSerieDetails(serieIDGlobal); 
+                              getSerieDetails(serieIDGlobal);
                            }
                            if (tinyMCE.get(`DEspec`) != null) {
                               getOtherLanguageDetail('de', serieIDGlobal);
@@ -2223,26 +2333,7 @@
                            }
                            tinymce.init({
                               selector: 'textarea',
-                              setup: function(editor) {
-                                    editor.on('init', function(e) {
-                                    console.log('The Editor has initialized:' + this.id);
-                                    if ( this.id== 'spec'){ 
-                                       getSerieDetails(serieIDGlobal); 
-                                    }
-                                    if (this.id == 'DEspec'){ 
-                                       getOtherLanguageDetail('de', serieIDGlobal);
-                                    }
-                                    if (this.id == 'FRspec'){ 
-                                       getOtherLanguageDetail('fr', serieIDGlobal);
-                                    }
-                                    if ( this.id== 'SPspec'){ 
-                                       getOtherLanguageDetail('sp', serieIDGlobal);
-                                    }
-                                    if (this.id == 'RUspec'){ 
-                                       getOtherLanguageDetail('ru', serieIDGlobal);
-                                    }
-                                 });
-                              },
+
                               plugins: [
                                  'advlist autolink lists link image charmap print preview anchor',
                                  'searchreplace visualblocks code fullscreen',
@@ -2254,7 +2345,30 @@
                                  ' | bullist numlist outdent indent | ' +
                                  ' table | link image | removeformat  code | help',
                               height: '350',
-                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                              setup: function (editor) {
+                                 editor.on('init', function (e) {
+                                    console.log('The Editor has initialized:' + this.id);
+                                    if (this.id == 'spec') {
+                                       getSerieDetails(serieIDGlobal);
+                                    }
+                                    if (this.id == 'ENspec') {
+                                       getOtherLanguageDetail('en', serieIDGlobal);
+                                    }
+                                    if (this.id == 'DEspec') {
+                                       getOtherLanguageDetail('de', serieIDGlobal);
+                                    }
+                                    if (this.id == 'FRspec') {
+                                       getOtherLanguageDetail('fr', serieIDGlobal);
+                                    }
+                                    if (this.id == 'SPspec') {
+                                       getOtherLanguageDetail('sp', serieIDGlobal);
+                                    }
+                                    if (this.id == 'RUspec') {
+                                       getOtherLanguageDetail('ru', serieIDGlobal);
+                                    }
+                                 });
+                              },
                            });
                            Ext.getCmp("relatedProducts").removeAll();
                            Ext.getCmp("relatedAccessories").removeAll();
@@ -2338,10 +2452,10 @@
                      var data = eval("(" + response.responseText + ")");
                      if (data.serverStatus == 2) {
                         Ext.getBody().unmask();
-                      //  Ext.Msg.alert(
-                      //     "Success",
-                      //     "You have successfully add the related product"
-                      //  );
+                        //  Ext.Msg.alert(
+                        //     "Success",
+                        //     "You have successfully add the related product"
+                        //  );
                      } else {
                         // display error message
                         Ext.getBody().unmask();
@@ -2745,7 +2859,7 @@
 
          const ModelSerieMaster = Ext.define("Categories5", {
             extend: "Ext.data.Model",
-            fields: ["Id", "Key", "Group", "SubGroup","Sequence"],
+            fields: ["Id", "Key", "Group", "SubGroup", "Sequence"],
          });
          const serieMasterStore = Ext.create("Ext.data.Store", {
             id: "serieMasterStore",
