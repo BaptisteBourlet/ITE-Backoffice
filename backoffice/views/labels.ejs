@@ -151,17 +151,18 @@
                                     Ext.Msg.alert("INFO", "No record selected");
                                 } else {
                                     sessionStorage.setItem('oldKey', selectedRecord.data.Key)
-                                    Ext.getCmp("Key").setValue(selectedRecord.data.Key)
-                                    getLabelsDetails('en', selectedRecord.data.Key)
-                                    getLabelsDetails('fr', selectedRecord.data.Key)
-                                    getLabelsDetails('de', selectedRecord.data.Key)
-                                    getLabelsDetails('es', selectedRecord.data.Key)
-                                    getLabelsDetails('ru', selectedRecord.data.Key)
+                                    
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
                                     Ext.getCmp("panelAdd").setTitle("Edit labels");
 
                                     Ext.getCmp("viewport").setActiveItem("panelAdd");
+                                    Ext.getCmp("Key").setValue(selectedRecord.data.Key)
+                                    getLabelsDetails('en', selectedRecord.data.Key)
+                                    getLabelsDetails('fr', selectedRecord.data.Key)
+                                    getLabelsDetails('de', selectedRecord.data.Key)
+                                    getLabelsDetails('sp', selectedRecord.data.Key)
+                                    getLabelsDetails('ru', selectedRecord.data.Key)
                                 }
                             },
                         },
@@ -345,8 +346,8 @@
                         DELanguage: "de",
                         DEValue: Ext.getCmp("DEValue").getValue(),
                         //SP
-                        SPLanguage: "es",
-                        SPValue: Ext.getCmp("ESValue").getValue(),
+                        SPLanguage: "sp",
+                        SPValue: Ext.getCmp("SPValue").getValue(),
                         //RU
                         RULanguage: "ru",
                         RUValue: Ext.getCmp("RUValue").getValue(),
@@ -403,8 +404,8 @@
                         DELanguage: "de",
                         DEValue: Ext.getCmp("DEValue").getValue(),
                         //SP
-                        SPLanguage: "es",
-                        SPValue: Ext.getCmp("ESValue").getValue(),
+                        SPLanguage: "sp",
+                        SPValue: Ext.getCmp("SPValue").getValue(),
                         //RU
                         RULanguage: "ru",
                         RUValue: Ext.getCmp("RUValue").getValue(),
@@ -620,8 +621,8 @@
 
                                     {
                                         xtype: "textfield",
-                                        id: "ESValue",
-                                        name: "ESValue",
+                                        id: "SPValue",
+                                        name: "SPValue",
                                         fieldLabel: "Translation",
                                         maxLenght: 400,
                                         width: 500,
