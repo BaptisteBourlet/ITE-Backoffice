@@ -731,10 +731,10 @@
                   DESpecification: tinyMCE.get('DEspec').getContent(),
                   DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
                   //SP
-                  SPLanguage: "es",
-                  SPTitle: Ext.getCmp("SPTitle").getValue().trim(),
-                  SPSpecification: tinyMCE.get('SPspec').getContent(),
-                  SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
+                  ESLanguage: "es",
+                  ESTitle: Ext.getCmp("ESTitle").getValue().trim(),
+                  ESSpecification: tinyMCE.get('ESspec').getContent(),
+                  ESFullDescription: tinyMCE.get('ESFDesc').getContent(),
                   //RU
                   RULanguage: "ru",
                   RUTitle: Ext.getCmp("RUTitle").getValue().trim(),
@@ -805,10 +805,10 @@
                   DESpecification: tinyMCE.get('DEspec').getContent(),
                   DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
                   //SP
-                  SPLanguage: "es",
-                  SPTitle: Ext.getCmp("SPTitle").getValue().trim(),
-                  SPSpecification: tinyMCE.get('SPspec').getContent(),
-                  SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
+                  ESLanguage: "es",
+                  ESTitle: Ext.getCmp("ESTitle").getValue().trim(),
+                  ESSpecification: tinyMCE.get('ESspec').getContent(),
+                  ESFullDescription: tinyMCE.get('ESFDesc').getContent(),
                   //RU
                   RULanguage: "ru",
                   RUTitle: Ext.getCmp("RUTitle").getValue().trim(),
@@ -1303,56 +1303,82 @@
                            .getSelection()[0];
 
                         getSerieDetails(selectedRecord.data.Sid);
+                        serieIDGlobal = selectedRecord.data.Sid;
                         edit = true;
-
-
-
 
                         if (selectedRecord === undefined) {
                            Ext.Msg.alert("INFO", "No record selected");
                         } else {
-                           Ext.getCmp('tabTrans').setActiveTab(1);
-                           Ext.getCmp('tabTrans').setActiveTab(2);
-                           Ext.getCmp('tabTrans').setActiveTab(3);
-                           Ext.getCmp('tabTrans').setActiveTab(4);
-                           Ext.getCmp('tabTrans').setActiveTab(0);
                            Ext.getCmp("addSave").setHidden(true);
                            Ext.getCmp("editSave").setHidden(false);
                            Ext.getCmp("panelAdd").setTitle("Edit Serie (a)");
                            Ext.getCmp("viewport").setActiveItem("panelAdd");
 
-                           tinymce.init({
-                              selector: 'textarea',
-                              plugins: [
+                           // Load different tabs to allow saving everthing
+                           Ext.getCmp('tabTrans').setActiveTab(1);
+                           Ext.getCmp('tabTrans').setActiveTab(2);
+                           Ext.getCmp('tabTrans').setActiveTab(3);
+                           Ext.getCmp('tabTrans').setActiveTab(4);
+                           Ext.getCmp('tabTrans').setActiveTab(0);
 
-                                 'advlist autolink lists link image charmap print preview anchor',
 
-                                 'searchreplace visualblocks code fullscreen',
 
-                                 'insertdatetime media table paste code help wordcount'
-
-                              ],
-                              // menubar: 'true',
-                              toolbar: 'undo redo |  ' +
-
-                                 'bold italic forecolor | alignleft aligncenter ' +
-
-                                 ' | bullist numlist outdent indent | ' +
-
-                                 ' table | link image | removeformat  code | help',
-                              height: '350',
-                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                           });
-
-                           getSerieDetails(selectedRecord.data.Sid);
-                           serieIDGlobal = selectedRecord.data.Sid;
-                           if (edit == true) {
-                              getOtherLanguageDetail('fr', serieIDGlobal);
+                           // if tinyMCE fields are allready innitated
+                           if (tinyMCE.get(`spec`) != null) {
+                              getSerieDetails(serieIDGlobal);
+                           }
+                           if (tinyMCE.get(`DEspec`) != null) {
                               getOtherLanguageDetail('de', serieIDGlobal);
+                           }
+                           if (tinyMCE.get(`FRspec`) != null) {
+                              getOtherLanguageDetail('fr', serieIDGlobal);
+                           }
+                           if (tinyMCE.get(`ESspec`) != null) {
                               getOtherLanguageDetail('sp', serieIDGlobal);
+                           }
+                           if (tinyMCE.get(`RUspec`) != null) {
                               getOtherLanguageDetail('ru', serieIDGlobal);
                            }
 
+                           tinymce.init({
+                              selector: 'textarea',
+                              plugins: [
+                                 'advlist autolink lists link image charmap print preview anchor',
+                                 'searchreplace visualblocks code fullscreen',
+                                 'insertdatetime media table paste code help wordcount'
+                              ],
+                              // menubar: 'true',
+                              toolbar: 'undo redo |  ' +
+                                 'bold italic forecolor | alignleft aligncenter ' +
+                                 ' | bullist numlist outdent indent | ' +
+                                 ' table | link image | removeformat  code | help',
+                              height: '350',
+                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                              setup: function (editor) {
+                                 editor.on('init', function (e) {
+                                    console.log('The Editor has initialized:' + this.id);
+                                    if (this.id == 'spec') {
+                                       getSerieDetails(serieIDGlobal);
+                                    }
+                                    if (this.id == 'ENspec') {
+                                       getOtherLanguageDetail('en', serieIDGlobal);
+                                    }
+                                    if (this.id == 'DEspec') {
+                                       getOtherLanguageDetail('de', serieIDGlobal);
+                                    }
+                                    if (this.id == 'FRspec') {
+                                       getOtherLanguageDetail('fr', serieIDGlobal);
+                                    }
+                                    if (this.id == 'ESspec') {
+                                       getOtherLanguageDetail('es', serieIDGlobal);
+                                    }
+                                    if (this.id == 'RUspec') {
+                                       getOtherLanguageDetail('ru', serieIDGlobal);
+                                    }
+                                 });
+                              },
+                          
+                           });
 
                         }
                      },
@@ -1657,8 +1683,8 @@
                                     items: [
                                        {
                                           xtype: "textfield",
-                                          id: "SPTitle",
-                                          name: "SPTitle",
+                                          id: "ESTitle",
+                                          name: "ESTitle",
                                           fieldLabel: "Title",
                                           allowBlank: true,
                                           maxLenght: 46,
@@ -1668,13 +1694,13 @@
                                        },
 
                                        {
-                                          html: '<h4>Full description :</h4><textarea id="SPFDesc"></textarea>',
+                                          html: '<h4>Full description :</h4><textarea id="ESFDesc"></textarea>',
                                           height: tinyHeight,
 
                                        },
 
                                        {
-                                          html: '<h4>Specification :</h4><textarea id="SPspec"></textarea>',
+                                          html: '<h4>Specification :</h4><textarea id="ESspec"></textarea>',
                                           height: tinyHeight,
 
                                        },
@@ -2066,8 +2092,8 @@
                            height: '350',
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                      });
-                     tinyMCE.get('SPFDesc').setContent('');
-                     tinyMCE.get('SPspec').setContent('');
+                     tinyMCE.get('ESFDesc').setContent('');
+                     tinyMCE.get('ESspec').setContent('');
                      Ext.getCmp('tabTrans').setActiveTab(4)
                      // tinyMceInitiation
                      tinymce.init({
@@ -2325,8 +2351,8 @@
                            if (tinyMCE.get(`FRspec`) != null) {
                               getOtherLanguageDetail('fr', serieIDGlobal);
                            }
-                           if (tinyMCE.get(`SPspec`) != null) {
-                              getOtherLanguageDetail('sp', serieIDGlobal);
+                           if (tinyMCE.get(`ESspec`) != null) {
+                              getOtherLanguageDetail('es', serieIDGlobal);
                            }
                            if (tinyMCE.get(`RUspec`) != null) {
                               getOtherLanguageDetail('ru', serieIDGlobal);
@@ -2361,8 +2387,8 @@
                                     if (this.id == 'FRspec') {
                                        getOtherLanguageDetail('fr', serieIDGlobal);
                                     }
-                                    if (this.id == 'SPspec') {
-                                       getOtherLanguageDetail('sp', serieIDGlobal);
+                                    if (this.id == 'ESspec') {
+                                       getOtherLanguageDetail('es', serieIDGlobal);
                                     }
                                     if (this.id == 'RUspec') {
                                        getOtherLanguageDetail('ru', serieIDGlobal);
