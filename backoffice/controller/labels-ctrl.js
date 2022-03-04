@@ -77,7 +77,7 @@ exports.getLabels = async (req, res) => {
     const {
        Key, Language, Value,
        FRLanguage, FRValue,
-       SPLanguage, SPValue,
+       ESLanguage, ESValue,
        DELanguage, DEValue,
        RULanguage, RUValue,
     } = req.body;
@@ -120,8 +120,8 @@ exports.getLabels = async (req, res) => {
        console.log('russian wasnt filled in')
     }
  
-    if (SPValue !== '') {
-       con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${SPLanguage}", "${SPValue}");`, (err, results, fields) => {
+    if (ESValue !== '') {
+       con.query(`INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${ESLanguage}", "${ESValue}");`, (err, results, fields) => {
           if (err) throw err;
  
        });
@@ -149,7 +149,7 @@ exports.getLabels = async (req, res) => {
        oldKey,
        Key, Language, Value,
        FRLanguage, FRValue,
-       SPLanguage, SPValue,
+       ESLanguage, ESValue,
        DELanguage, DEValue,
        RULanguage, RUValue
     } = req.body;
@@ -159,14 +159,14 @@ exports.getLabels = async (req, res) => {
     
     const IFRQuery = `INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${FRLanguage}", "${FRValue}");`
     const IDEQuery = `INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${DELanguage}", "${DEValue}");`
-    const ISPQuery = `INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${SPLanguage}", "${SPValue}");`
+    const ISPQuery = `INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${ESLanguage}", "${ESValue}");`
     const IRUQuery = `INSERT INTO Labels (Labels.Key, Language, Labels.Value) VALUES ("${Key}", "${RULanguage}", "${RUValue}");`
     
     //check if datas for translations exists
     const existTransEN = `SELECT COUNT(*) AS transCount FROM Labels WHERE Labels.Key = "${oldKey}" AND Language = 'en';`;
     const existTransFR = `SELECT COUNT(*) AS transCountFR FROM Labels WHERE Labels.Key = "${oldKey}" AND Language = 'fr';`;
     const existTransDE = `SELECT COUNT(*) AS transCountDE FROM Labels WHERE Labels.Key = "${oldKey}" AND Language = 'de';`;
-    const existTransES = `SELECT COUNT(*) AS transCountES FROM Labels WHERE Labels.Key = "${oldKey}" AND Language = 'sp';`;
+    const existTransES = `SELECT COUNT(*) AS transCountES FROM Labels WHERE Labels.Key = "${oldKey}" AND Language = 'es';`;
     const existTransRU = `SELECT COUNT(*) AS transCountRU FROM Labels WHERE Labels.Key = "${oldKey}" AND Language = 'ru';`;
  
     if (Value !== "") {
@@ -267,12 +267,12 @@ exports.getLabels = async (req, res) => {
        console.log('russian wasnt filled in')
     }
  
-    if (SPValue !== '') {
+    if (ESValue !== '') {
       con.query(existTransES, (err, transResult) => {
          if (err) throw err;
 
          if (transResult[0].transCountES > 0) {                 // 2 - if TRUE =>  update Translations
-            con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${SPLanguage}", Labels.Value = "${SPValue}" WHERE Language = 'sp' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
+            con.query(`UPDATE Labels SET Labels.Key = "${Key}", Language = "${ESLanguage}", Labels.Value = "${ESValue}" WHERE Language = 'es' AND Labels.Key = "${oldKey}";`, (err, results, fields) => {
                if (err) throw err;
       
             });
