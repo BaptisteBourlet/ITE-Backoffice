@@ -176,7 +176,7 @@ exports.addProduct = async (req, res) => {
       const { Language, CreatedOn, Description, Specification, Catalog, FullDescription,
          FRLanguage, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
          DELanguage, DEDescription, DESpecification, DECatalog, DEFullDescription,
-         SPLanguage, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
+         ESLanguage, ESDescription, ESSpecification, ESCatalog, ESFullDescription,
          RULanguage, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
 
@@ -217,8 +217,8 @@ exports.addProduct = async (req, res) => {
          console.log('russian wasnt filled in')
       }
 
-      if (SPCatalog !== '' && SPDescription !== '') {
-         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${SPLanguage}", "${CreatedOn}", "${productId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}");`, (err, results, fields) => {
+      if (ESCatalog !== '' && ESDescription !== '') {
+         con.query(`INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${ESLanguage}", "${CreatedOn}", "${productId}", "${ESDescription}", "${ESSpecification}", "${ESCatalog}", "${SPFullDescription}");`, (err, results, fields) => {
             if (err) throw err;
 
          });
@@ -271,18 +271,18 @@ exports.editProduct = async (req, res) => {
       const { Language, ModifiedOn, Description, Specification, Catalog, FullDescription,
          FRLanguage, FrDetails, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
          DELanguage, DeDetails, DEDescription, DESpecification, DECatalog, DEFullDescription,
-         SPLanguage, EsDetails, SPDescription, SPSpecification, SPCatalog, SPFullDescription,
+         ESLanguage, EsDetails, ESDescription, ESSpecification, ESCatalog, ESFullDescription,
          RULanguage, RuDetails, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
       const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
       const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
       const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
-      const SPQuery = `UPDATE ProductInfo SET Description = '${SPDescription}', Catalog = '${SPCatalog}', Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "sp" OR Language = "es"`;
+      const SPQuery = `UPDATE ProductInfo SET Description = '${ESDescription}', Catalog = '${ESCatalog}', Specification = '${ESSpecification}', FullDescription = '${ESFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "es"`;
       const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "ru"`;
 
       const FrQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${FRLanguage}", "${ModifiedOn}", "${ProductId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}");`
       const DeQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${DELanguage}", "${ModifiedOn}", "${ProductId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}");`
-      const EsQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${SPLanguage}", "${ModifiedOn}", "${ProductId}", "${SPDescription}", "${SPSpecification}", "${SPCatalog}", "${SPFullDescription}");`
+      const EsQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${ESLanguage}", "${ModifiedOn}", "${ProductId}", "${ESDescription}", "${ESSpecification}", "${ESCatalog}", "${ESFullDescription}");`
       const RuQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${RULanguage}", "${ModifiedOn}", "${ProductId}", "${RUDescription}", "${RUSpecification}", "${RUCatalog}", "${RUFullDescription}");`
 
       if (Description !== "" && Catalog !== "") {
@@ -341,16 +341,15 @@ exports.editProduct = async (req, res) => {
          }
       }
 
-      if (EsDetails == 'false' && SPDescription !== "" && SPCatalog !== "") {
+      if (EsDetails == 'false' && ESDescription !== "" && ESCatalog !== "") {
          con.query(EsQueryInsert, (err, results) => {
             if (err) {
                errorString += "Spanish, ";
                console.log(err);
             }
-
          })
       } else {
-         if (SPDescription !== "" && SPCatalog !== "") {
+         if (ESDescription !== "" && ESCatalog !== "") {
             con.query(SPQuery, (err, results) => {
                errorString += "Spanish, ";
                console.log(err);

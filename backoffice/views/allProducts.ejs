@@ -63,7 +63,7 @@
     }
 
     #ENFIELD-legendTitle,
-    #SPFIELD-legendTitle,
+    #ESFIELD-legendTitle,
     #FRFIELD-legendTitle,
     #DEFIELD-legendTitle,
     #RUFIELD-legendTitle {
@@ -132,21 +132,14 @@
       const tinyMceInitiation = tinymce.init({
                   selector: 'textarea',
                   plugins: [
-
                     'advlist autolink lists link image charmap print preview anchor',
-
                     'searchreplace visualblocks code fullscreen',
-
                     'insertdatetime media table paste code help wordcount'
-
                   ],
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
-
                     'bold italic forecolor | alignleft aligncenter ' +
-
                     ' | bullist numlist outdent indent | ' +
-
                     ' table | link image | removeformat  code | help',
                   height: '350',
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
@@ -545,7 +538,7 @@
       const setPanelHidden = () => {
         Ext.getCmp("DEFIELD").setHidden(true);
         Ext.getCmp("FRFIELD").setHidden(true);
-        Ext.getCmp("SPFIELD").setHidden(true);
+        Ext.getCmp("ESFIELD").setHidden(true);
         Ext.getCmp("RUFIELD").setHidden(true);
       }
 
@@ -585,12 +578,12 @@
             DECatalog: Ext.getCmp("DECat").getValue().trim(),
             DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
             //SP
-            EsDetails: sessionStorage.getItem('SPEdit'),
-            SPLanguage: "es",
-            SPDescription: Ext.getCmp("SPdesc").getValue().trim(),
-            SPSpecification: tinyMCE.get('SPspec').getContent(),
-            SPCatalog: Ext.getCmp("SPCat").getValue().trim(),
-            SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
+            EsDetails: sessionStorage.getItem('ESEdit'),
+            ESLanguage: "es",
+            ESDescription: Ext.getCmp("ESdesc").getValue().trim(),
+            ESSpecification: tinyMCE.get('ESspec').getContent(),
+            ESCatalog: Ext.getCmp("ESCat").getValue().trim(),
+            ESFullDescription: tinyMCE.get('ESFDesc').getContent(),
             //RU
             RuDetails: sessionStorage.getItem('RUEdit'),
             RULanguage: "ru",
@@ -728,11 +721,11 @@
             DECatalog: Ext.getCmp("DECat").getValue().trim(),
             DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
             //SP
-            SPLanguage: "es",
-            SPDescription: Ext.getCmp("SPdesc").getValue().trim(),
-            SPSpecification: tinyMCE.get('SPspec').getContent(),
-            SPCatalog: Ext.getCmp("SPCat").getValue().trim(),
-            SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
+            ESLanguage: "es",
+            ESDescription: Ext.getCmp("ESdesc").getValue().trim(),
+            ESSpecification: tinyMCE.get('ESspec').getContent(),
+            ESCatalog: Ext.getCmp("ESCat").getValue().trim(),
+            ESFullDescription: tinyMCE.get('ESFDesc').getContent(),
             //RU
             RULanguage: "ru",
             RUDescription: Ext.getCmp("RUdesc").getValue().trim(),
@@ -1285,25 +1278,26 @@
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp("panelAdd").setTitle("Edit Product (a)");
                  
-
                   Ext.getCmp('tabTrans').setActiveTab(1);
-                           Ext.getCmp('tabTrans').setActiveTab(2);
-                           Ext.getCmp('tabTrans').setActiveTab(3);
-                           Ext.getCmp('tabTrans').setActiveTab(4);
-                           Ext.getCmp('tabTrans').setActiveTab(0);
+                  Ext.getCmp('tabTrans').setActiveTab(2);
+                  Ext.getCmp('tabTrans').setActiveTab(3);
+                  Ext.getCmp('tabTrans').setActiveTab(4);
+                  Ext.getCmp('tabTrans').setActiveTab(0);
+
+                  getProductDetails(selectedRecord.data.Id);
 
                            // if tinyMCE fields are allready innitated
-                           if (tinyMCE.get(`spec`) != null) {
-                            getProductDetails(selectedRecord.data.Id);
+                           if (tinyMCE.get(`specEN`) != null) {
+                            getProductDetailsEN(selectedRecord.data.Id);
                            }
                            if (tinyMCE.get(`DEspec`) != null) {
-                            getOtherLanguageDetail('de', productIDGlobal)
+                            getOtherLanguageDetail('en', productIDGlobal)
                            }
                            if (tinyMCE.get(`FRspec`) != null) {
                             getOtherLanguageDetail('fr', productIDGlobal)
                            }
-                           if (tinyMCE.get(`SPspec`) != null) {
-                            getOtherLanguageDetail('sp', productIDGlobal)
+                           if (tinyMCE.get(`ESspec`) != null) {
+                            getOtherLanguageDetail('es', productIDGlobal)
                            }
                            if (tinyMCE.get(`RUspec`) != null) {
                             getOtherLanguageDetail('ru', productIDGlobal)
@@ -1327,9 +1321,9 @@
                                  editor.on('init', function (e) {
                                     console.log('The Editor has initialized:' + this.id);
                                     
-                                    if (this.id == 'spec') {
-                                      getProductDetails(selectedRecord.data.Id);
-                                    }
+                                  //  if (this.id == 'spec') {
+                                    //  getProductDetails(selectedRecord.data.Id);
+                                   // }
                                     if (this.id == 'ENspec') {
                                       getOtherLanguageDetail('en', productIDGlobal)
                                     }
@@ -1339,8 +1333,8 @@
                                     if (this.id == 'FRspec') {
                                       getOtherLanguageDetail('fr', productIDGlobal)
                                     }
-                                    if (this.id == 'SPspec') {
-                                      getOtherLanguageDetail('sp', productIDGlobal)
+                                    if (this.id == 'ESspec') {
+                                      getOtherLanguageDetail('ES', productIDGlobal)
                                     }
                                     if (this.id == 'RUspec') {
                                       getOtherLanguageDetail('ru', productIDGlobal)
@@ -1701,31 +1695,72 @@
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp('panelAdd').setTitle('Edit product (b)');
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
-                  tinymce.init({
-                    selector: 'textarea',
-                    plugins: [
 
-                      'advlist autolink lists link image charmap print preview anchor',
+                  Ext.getCmp('tabTrans').setActiveTab(1);
+                  Ext.getCmp('tabTrans').setActiveTab(2);
+                  Ext.getCmp('tabTrans').setActiveTab(3);
+                  Ext.getCmp('tabTrans').setActiveTab(4);
+                  Ext.getCmp('tabTrans').setActiveTab(0);
 
-                      'searchreplace visualblocks code fullscreen',
-
-                      'insertdatetime media table paste code help wordcount'
-
-                    ],
-                    // menubar: 'true',
-                    toolbar: 'undo redo |  ' +
-
-                      'bold italic forecolor | alignleft aligncenter ' +
-
-                      ' | bullist numlist outdent indent | ' +
-
-                      ' table | link image | removeformat  code | help',
-                    height: '350',
-                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                  });
                   getProductDetails(productIDGlobal);
-                  getOtherLanguageDetail('en', productIDGlobal)
 
+                // if tinyMCE fields are allready innitated
+                if (tinyMCE.get(`ENspec`) != null) {
+                     getOtherLanguageDetail('en', productIDGlobal)
+                }
+                if (tinyMCE.get(`DEspec`) != null) {
+                            getOtherLanguageDetail('de', productIDGlobal)
+                }
+                if (tinyMCE.get(`FRspec`) != null) {
+                            getOtherLanguageDetail('fr', productIDGlobal)
+                 }
+                if (tinyMCE.get(`ESspec`) != null) {
+                            getOtherLanguageDetail('es', productIDGlobal)
+                }
+                if (tinyMCE.get(`RUspec`) != null) {
+                            getOtherLanguageDetail('ru', productIDGlobal)
+                }
+                tinymce.init({
+                              selector: 'textarea',
+
+                              plugins: [
+                                 'advlist autolink lists link image charmap print preview anchor',
+                                 'searchreplace visualblocks code fullscreen',
+                                 'insertdatetime media table paste code help wordcount'
+                              ],
+                              // menubar: 'true',
+                              toolbar: 'undo redo |  ' +
+                                 'bold italic forecolor | alignleft aligncenter ' +
+                                 ' | bullist numlist outdent indent | ' +
+                                 ' table | link image | removeformat  code | help',
+                              height: '350',
+                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                              setup: function (editor) {
+                                 editor.on('init', function (e) {
+                                    console.log('The Editor has initialized:' + this.id);
+                                    
+                                  //  if (this.id == 'spec') {
+                                    //  getProductDetails(productIDGlobal);
+                                   // }
+                                    if (this.id == 'ENspec') {
+                                      getOtherLanguageDetail('en', productIDGlobal)
+                                    }
+                                    if (this.id == 'DEspec') {
+                                      getOtherLanguageDetail('de', productIDGlobal)
+                                    }
+                                    if (this.id == 'FRspec') {
+                                      getOtherLanguageDetail('fr', productIDGlobal)
+                                    }
+                                    if (this.id == 'ESspec') {
+                                      getOtherLanguageDetail('ES', productIDGlobal)
+                                    }
+                                    if (this.id == 'RUspec') {
+                                      getOtherLanguageDetail('ru', productIDGlobal)
+                                    }
+                                 });
+                              },
+                           });
+                 
 
                 },
               },
@@ -2094,7 +2129,7 @@
                 title: "Spanish Translations",
                 anchor: "100%",
                 hidden: false,
-                id: "SPFIELD",
+                id: "ESFIELD",
                 layoutConfig: {
                   // The total column count must be specified here
                   columns: 9,
@@ -2117,8 +2152,8 @@
 
                           {
                             xtype: "textfield",
-                            id: "SPCat",
-                            name: "SPCat",
+                            id: "ESCat",
+                            name: "ESCat",
                             fieldLabel: "Catalog",
                             allowBlank: true,
                             maxLenght: 118,
@@ -2128,8 +2163,8 @@
                           },
                           {
                             xtype: "textfield",
-                            id: "SPdesc",
-                            name: "SPdesc",
+                            id: "ESdesc",
+                            name: "ESdesc",
                             fieldLabel: "Description",
                             maxLenght: 123,
                             width: 500,
@@ -2138,13 +2173,13 @@
                             margin: "25 0 25 0",
                           },
                           {
-                            html: '<h4>Full description :</h4><textarea id="SPFDesc"></textarea><br>',
+                            html: '<h4>Full description :</h4><textarea id="ESFDesc"></textarea><br>',
 
                             // height: 250,
 
                           },
                           {
-                            html: '<h4>Specification :</h4><textarea id="SPspec"></textarea>',
+                            html: '<h4>Specification :</h4><textarea id="ESspec"></textarea>',
 
                             // height: 250,
 
@@ -2668,8 +2703,8 @@
 
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
-                  tinyMCE.get('SPFDesc').setContent('');
-                  tinyMCE.get('SPspec').setContent('');
+                  tinyMCE.get('ESFDesc').setContent('');
+                  tinyMCE.get('ESspec').setContent('');
                   Ext.getCmp('tabTrans').setActiveTab(4)
                   // tinyMceInitiation
                   tinymce.init({
