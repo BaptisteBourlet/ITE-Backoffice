@@ -14,7 +14,7 @@ const con = mysql.createConnection({
    multipleStatements: true,
 })
 
-const LANGUAGES = ['en', 'de', 'sp', 'fr', 'ru'];
+const LANGUAGES = ['en', 'de', 'es', 'fr', 'ru'];
 
 exports.getLabels = async (req, res) => {
     let query = 'SELECT * FROM Labels order by Labels.Key';
