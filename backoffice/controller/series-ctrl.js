@@ -130,7 +130,7 @@ exports.addSeries = async (req, res) => {
       const { Language, CreatedOn, Specification, Title, FullDescription,
          FRLanguage, FRSpecification, FRTitle, FRFullDescription,
          DELanguage, DESpecification, DETitle, DEFullDescription,
-         SPLanguage, SPSpecification, SPTitle, SPFullDescription,
+         ESLanguage, ESSpecification, ESTitle, ESFullDescription,
          RULanguage, RUSpecification, RUTitle, RUFullDescription } = req.body;
 
 
@@ -174,8 +174,8 @@ exports.addSeries = async (req, res) => {
          console.log('russian wasnt filled in')
       }
 
-      if (SPTitle !== '') {
-         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${SPLanguage}", "${CreatedOn}", "${storage.getItem('SeriesId')}", "${SPTitle}", "${SPSpecification}", "${SPFullDescription}");`, (err, results, fields) => {
+      if (ESTitle !== '') {
+         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${ESLanguage}", "${CreatedOn}", "${storage.getItem('SeriesId')}", "${ESTitle}", "${ESSpecification}", "${ESFullDescription}");`, (err, results, fields) => {
             if (err) throw err;
             console.log(err);
 
@@ -233,21 +233,21 @@ exports.editSeries = async (req, res) => {
       const { ModifiedOn, Title, Specification, FullDescription,
          FRTitle, FRSpecification, FRFullDescription,
          DETitle, DESpecification, DEFullDescription,
-         SPTitle, SPSpecification, SPFullDescription,
+         ESTitle, ESSpecification, ESFullDescription,
          RUTitle, RUSpecification, RUFullDescription } = req.body;
 
       //INSERT QUERY
       const IENQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("en", "${ModifiedOn}", "${SeriesId}", "${Title}", "${Specification}", "${FullDescription}");`
       const IFRQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("fr", "${ModifiedOn}", "${SeriesId}", "${FRTitle}", "${FRSpecification}", "${FRFullDescription}");`
       const IDEQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("de", "${ModifiedOn}", "${SeriesId}", "${DETitle}", "${DESpecification}", "${DEFullDescription}");`
-      const ISPQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("sp", "${ModifiedOn}", "${SeriesId}", "${SPTitle}", "${SPSpecification}", "${SPFullDescription}");`
+      const ISPQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("es", "${ModifiedOn}", "${SeriesId}", "${ESTitle}", "${ESSpecification}", "${ESFullDescription}");`
       const IRUQuery = `INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("ru", "${ModifiedOn}", "${SeriesId}", "${RUTitle}", "${RUSpecification}", "${RUFullDescription}");`
 
       // UPDATE QUERY
       const ENQuery = `UPDATE SeriesInfo SET Title = '${Title}', ModifiedOn = ${ModifiedOn}, Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "en"`;
       const FRQuery = `UPDATE SeriesInfo SET Title = '${FRTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "fr"`;
       const DEQuery = `UPDATE SeriesInfo SET Title = '${DETitle}', ModifiedOn = ${ModifiedOn}, Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "de"`;
-      const SPQuery = `UPDATE SeriesInfo SET Title = '${SPTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${SPSpecification}', FullDescription = '${SPFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "sp"`;
+      const SPQuery = `UPDATE SeriesInfo SET Title = '${ESTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${ESSpecification}', FullDescription = '${ESFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "es"`;
       const RUQuery = `UPDATE SeriesInfo SET Title = '${RUTitle}', ModifiedOn = ${ModifiedOn}, Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE SeriesId = "${SeriesId}" AND Language = "ru"`;
 
 
@@ -255,7 +255,7 @@ exports.editSeries = async (req, res) => {
       const existTransEN = `SELECT COUNT(*) AS transCount FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'en';`;
       const existTransFR = `SELECT COUNT(*) AS transCountFR FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'fr';`;
       const existTransDE = `SELECT COUNT(*) AS transCountDE FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'de';`;
-      const existTransES = `SELECT COUNT(*) AS transCountES FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'sp';`;
+      const existTransES = `SELECT COUNT(*) AS transCountES FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'es';`;
       const existTransRU = `SELECT COUNT(*) AS transCountRU FROM SeriesInfo WHERE SeriesId = ${SeriesId} AND Language = 'ru';`;
 
       if (Title !== "") {
@@ -340,7 +340,7 @@ exports.editSeries = async (req, res) => {
          console.log('German wasnt filled in');
       }
 
-      if (SPTitle !== "") {
+      if (ESTitle !== "") {
          con.query(existTransES, (err, transResult) => {
             if (err) throw err;
 
@@ -550,7 +550,6 @@ exports.getRelatedProductSerie = async (req, res) => {
 exports.addSeriesRelatedProduct = async (req, res) => {
    const { ProductId, SeriesId } = req.body;
 
-   console.log(req.body);
 
    const querySeriesProductLink = `INSERT INTO SeriesProductLink (ProductId, SeriesId) VALUES ("${ProductId}", "${SeriesId}");`
 
@@ -576,7 +575,6 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
          if (err) {
             errorString += 'Product, '
          }
-         console.log(results);
          console.log('delete from serie product link')
          res.send(results)
       })
@@ -723,7 +721,6 @@ exports.addSerieMasterSpecs = async (req, res) => {
 exports.deleteSeriesMasterSpecs = async (req, res) => {
    const { Id } = req.body;
 
-   console.log(req.body);
    const deleteSeriesData
       = `DELETE FROM SeriesData `
       + `WHERE SerieMasterId = ${Id};`
@@ -773,7 +770,6 @@ exports.getSerieMaster = async (req, res) => {
 exports.addSerieSpecValue = async (req, res) => {
    const { Key, Value, Group, SubGroup, SeriesMasterId } = req.body;
 
-   console.log(req.body);
 }
 
 

@@ -63,7 +63,7 @@
     }
 
     #ENFIELD-legendTitle,
-    #SPFIELD-legendTitle,
+    #ESFIELD-legendTitle,
     #FRFIELD-legendTitle,
     #DEFIELD-legendTitle,
     #RUFIELD-legendTitle {
@@ -130,27 +130,27 @@
       });
 
       const tinyMceInitiation = tinymce.init({
-                  selector: 'textarea',
-                  plugins: [
+        selector: 'textarea',
+        plugins: [
 
-                    'advlist autolink lists link image charmap print preview anchor',
+          'advlist autolink lists link image charmap print preview anchor',
 
-                    'searchreplace visualblocks code fullscreen',
+          'searchreplace visualblocks code fullscreen',
 
-                    'insertdatetime media table paste code help wordcount'
+          'insertdatetime media table paste code help wordcount'
 
-                  ],
-                  // menubar: 'true',
-                  toolbar: 'undo redo |  ' +
+        ],
+        // menubar: 'true',
+        toolbar: 'undo redo |  ' +
 
-                    'bold italic forecolor | alignleft aligncenter ' +
+          'bold italic forecolor | alignleft aligncenter ' +
 
-                    ' | bullist numlist outdent indent | ' +
+          ' | bullist numlist outdent indent | ' +
 
-                    ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                });
+          ' table | link image | removeformat  code | help',
+        height: '350',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+      });
       const relatedProducts = (products) => {
         let exist = false;
 
@@ -545,13 +545,12 @@
       const setPanelHidden = () => {
         Ext.getCmp("DEFIELD").setHidden(true);
         Ext.getCmp("FRFIELD").setHidden(true);
-        Ext.getCmp("SPFIELD").setHidden(true);
+        Ext.getCmp("ESFIELD").setHidden(true);
         Ext.getCmp("RUFIELD").setHidden(true);
       }
 
 
       const editProduct = () => {
-        console.log(tinyMCE.get('FRFDesc').getContent())
         Ext.Ajax.request({
           url: "/apiProducts/editProduct",
           method: "POST",
@@ -584,13 +583,13 @@
             DESpecification: tinyMCE.get('DEspec').getContent(),
             DECatalog: Ext.getCmp("DECat").getValue().trim(),
             DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
-            //SP
-            EsDetails: sessionStorage.getItem('SPEdit'),
-            SPLanguage: "sp",
-            SPDescription: Ext.getCmp("SPdesc").getValue().trim(),
-            SPSpecification: tinyMCE.get('SPspec').getContent(),
-            SPCatalog: Ext.getCmp("SPCat").getValue().trim(),
-            SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
+            //ES
+            EsDetails: sessionStorage.getItem('ESEdit'),
+            ESLanguage: "es",
+            ESDescription: Ext.getCmp("ESdesc").getValue().trim(),
+            ESSpecification: tinyMCE.get('ESspec').getContent(),
+            ESCatalog: Ext.getCmp("ESCat").getValue().trim(),
+            ESFullDescription: tinyMCE.get('ESFDesc').getContent(),
             //RU
             RuDetails: sessionStorage.getItem('RUEdit'),
             RULanguage: "ru",
@@ -727,12 +726,12 @@
             DESpecification: tinyMCE.get('DEspec').getContent(),
             DECatalog: Ext.getCmp("DECat").getValue().trim(),
             DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
-            //SP
-            SPLanguage: "sp",
-            SPDescription: Ext.getCmp("SPdesc").getValue().trim(),
-            SPSpecification: tinyMCE.get('SPspec').getContent(),
-            SPCatalog: Ext.getCmp("SPCat").getValue().trim(),
-            SPFullDescription: tinyMCE.get('SPFDesc').getContent(),
+            //ES
+            ESLanguage: "es",
+            ESDescription: Ext.getCmp("ESdesc").getValue().trim(),
+            ESSpecification: tinyMCE.get('ESspec').getContent(),
+            ESCatalog: Ext.getCmp("ESCat").getValue().trim(),
+            ESFullDescription: tinyMCE.get('ESFDesc').getContent(),
             //RU
             RULanguage: "ru",
             RUDescription: Ext.getCmp("RUdesc").getValue().trim(),
@@ -1087,10 +1086,10 @@
       });
       mainStore.on('load', function (store, records) {
         records.forEach(element => {
-          if (element.data.Tree != null && element.data.SProductId != '' && element.data.SProductId != null) {
+          if (element.data.Tree != null && element.data.ESroductId != '' && element.data.ESroductId != null) {
             element.data.Tree = element.data.Tree + ' serie'
 
-          } else if (element.data.Tree == null && element.data.SProductId != '' && element.data.SProductId != null) {
+          } else if (element.data.Tree == null && element.data.ESroductId != '' && element.data.ESroductId != null) {
 
             element.data.Tree = 'serie'
           } else {
@@ -1284,79 +1283,78 @@
                   Ext.getCmp("addSave").setHidden(true);
                   Ext.getCmp("editSave").setHidden(false);
                   Ext.getCmp("panelAdd").setTitle("Edit Product (a)");
-                 
+
 
                   Ext.getCmp('tabTrans').setActiveTab(1);
-                           Ext.getCmp('tabTrans').setActiveTab(2);
-                           Ext.getCmp('tabTrans').setActiveTab(3);
-                           Ext.getCmp('tabTrans').setActiveTab(4);
-                           Ext.getCmp('tabTrans').setActiveTab(0);
+                  Ext.getCmp('tabTrans').setActiveTab(2);
+                  Ext.getCmp('tabTrans').setActiveTab(3);
+                  Ext.getCmp('tabTrans').setActiveTab(4);
+                  Ext.getCmp('tabTrans').setActiveTab(0);
 
-                           // if tinyMCE fields are allready innitated
-                           if (tinyMCE.get(`spec`) != null) {
-                            getProductDetails(selectedRecord.data.Id);
-                           }
-                           if (tinyMCE.get(`DEspec`) != null) {
-                            getOtherLanguageDetail('de', productIDGlobal)
-                           }
-                           if (tinyMCE.get(`FRspec`) != null) {
-                            getOtherLanguageDetail('fr', productIDGlobal)
-                           }
-                           if (tinyMCE.get(`SPspec`) != null) {
-                            getOtherLanguageDetail('sp', productIDGlobal)
-                           }
-                           if (tinyMCE.get(`RUspec`) != null) {
-                            getOtherLanguageDetail('ru', productIDGlobal)
-                           }
-                           tinymce.init({
-                              selector: 'textarea',
+                  // if tinyMCE fields are allready innitated
+                  if (tinyMCE.get(`spec`) != null) {
+                    getProductDetails(selectedRecord.data.Id);
+                  }
+                  if (tinyMCE.get(`DEspec`) != null) {
+                    getOtherLanguageDetail('de', productIDGlobal)
+                  }
+                  if (tinyMCE.get(`FRspec`) != null) {
+                    getOtherLanguageDetail('fr', productIDGlobal)
+                  }
+                  if (tinyMCE.get(`ESspec`) != null) {
+                    getOtherLanguageDetail('es', productIDGlobal)
+                  }
+                  if (tinyMCE.get(`RUspec`) != null) {
+                    getOtherLanguageDetail('ru', productIDGlobal)
+                  }
+                  tinymce.init({
+                    selector: 'textarea',
 
-                              plugins: [
-                                 'advlist autolink lists link image charmap print preview anchor',
-                                 'searchreplace visualblocks code fullscreen',
-                                 'insertdatetime media table paste code help wordcount'
-                              ],
-                              // menubar: 'true',
-                              toolbar: 'undo redo |  ' +
-                                 'bold italic forecolor | alignleft aligncenter ' +
-                                 ' | bullist numlist outdent indent | ' +
-                                 ' table | link image | removeformat  code | help',
-                              height: '350',
-                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
-                              setup: function (editor) {
-                                 editor.on('init', function (e) {
-                                    console.log('The Editor has initialized:' + this.id);
-                                    
-                                    if (this.id == 'spec') {
-                                      getProductDetails(selectedRecord.data.Id);
-                                    }
-                                    if (this.id == 'ENspec') {
-                                      getOtherLanguageDetail('en', productIDGlobal)
-                                    }
-                                    if (this.id == 'DEspec') {
-                                      getOtherLanguageDetail('de', productIDGlobal)
-                                    }
-                                    if (this.id == 'FRspec') {
-                                      getOtherLanguageDetail('fr', productIDGlobal)
-                                    }
-                                    if (this.id == 'SPspec') {
-                                      getOtherLanguageDetail('sp', productIDGlobal)
-                                    }
-                                    if (this.id == 'RUspec') {
-                                      getOtherLanguageDetail('ru', productIDGlobal)
-                                    }
-                                 });
-                              },
-                           });
+                    plugins: [
+                      'advlist autolink lists link image charmap print preview anchor',
+                      'searchreplace visualblocks code fullscreen',
+                      'insertdatetime media table paste code help wordcount'
+                    ],
+                    // menubar: 'true',
+                    toolbar: 'undo redo |  ' +
+                      'bold italic forecolor | alignleft aligncenter ' +
+                      ' | bullist numlist outdent indent | ' +
+                      ' table | link image | removeformat  code | help',
+                    height: '350',
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                    setup: function (editor) {
+                      editor.on('init', function (e) {
+
+                        if (this.id == 'spec') {
+                          getProductDetails(selectedRecord.data.Id);
+                        }
+                        if (this.id == 'ENspec') {
+                          getOtherLanguageDetail('en', productIDGlobal)
+                        }
+                        if (this.id == 'DEspec') {
+                          getOtherLanguageDetail('de', productIDGlobal)
+                        }
+                        if (this.id == 'FRspec') {
+                          getOtherLanguageDetail('fr', productIDGlobal)
+                        }
+                        if (this.id == 'ESspec') {
+                          getOtherLanguageDetail('es', productIDGlobal)
+                        }
+                        if (this.id == 'RUspec') {
+                          getOtherLanguageDetail('ru', productIDGlobal)
+                        }
+                      });
+                    },
+                  });
 
                   Ext.getCmp("viewport").setActiveItem("panelAdd");
-                  
+
                   getProductDetails(selectedRecord.data.Id);
 
                   // getOtherLanguageDetail('en', productIDGlobal)
                   // getOtherLanguageDetail('fr', productIDGlobal)
                   // getOtherLanguageDetail('de', productIDGlobal)
-                  // getOtherLanguageDetail('sp', productIDGlobal)
+                  // getOtherLanguageDetail('es', productIDGlobal)
                   // getOtherLanguageDetail('ru', productIDGlobal)
 
                 }
@@ -1682,7 +1680,7 @@
                 iconCls: "fa fa-undo-alt",
                 handler: function () {
                   edit = false;
-                  
+
                   Ext.getCmp("relatedProducts").removeAll();
                   Ext.getCmp("relatedAccessories").removeAll();
                   Ext.getCmp("relatedParts").removeAll();
@@ -1853,7 +1851,7 @@
                 // if(edit == true){
                 // getOtherLanguageDetail('fr', productIDGlobal)
                 // getOtherLanguageDetail('de', productIDGlobal)
-                // getOtherLanguageDetail('sp', productIDGlobal)
+                // getOtherLanguageDetail('es', productIDGlobal)
                 // getOtherLanguageDetail('ru', productIDGlobal)
                 // }
               });
@@ -2094,7 +2092,7 @@
                 title: "Spanish Translations",
                 anchor: "100%",
                 hidden: false,
-                id: "SPFIELD",
+                id: "ESFIELD",
                 layoutConfig: {
                   // The total column count must be specified here
                   columns: 9,
@@ -2111,14 +2109,14 @@
                         xtype: 'my-form',
                         width: '70%',
                         frame: false,
-                        id: 'formSP',
+                        id: 'formES',
                         border: false,
                         items: [
 
                           {
                             xtype: "textfield",
-                            id: "SPCat",
-                            name: "SPCat",
+                            id: "ESCat",
+                            name: "ESCat",
                             fieldLabel: "Catalog",
                             allowBlank: true,
                             maxLenght: 118,
@@ -2128,8 +2126,8 @@
                           },
                           {
                             xtype: "textfield",
-                            id: "SPdesc",
-                            name: "SPdesc",
+                            id: "ESdesc",
+                            name: "ESdesc",
                             fieldLabel: "Description",
                             maxLenght: 123,
                             width: 500,
@@ -2138,13 +2136,13 @@
                             margin: "25 0 25 0",
                           },
                           {
-                            html: '<h4>Full description :</h4><textarea id="SPFDesc"></textarea><br>',
+                            html: '<h4>Full description :</h4><textarea id="ESFDesc"></textarea><br>',
 
                             // height: 250,
 
                           },
                           {
-                            html: '<h4>Specification :</h4><textarea id="SPspec"></textarea>',
+                            html: '<h4>Specification :</h4><textarea id="ESspec"></textarea>',
 
                             // height: 250,
 
@@ -2484,98 +2482,98 @@
             iconCls: "fas fa-save",
             handler: function () {
               if (Ext.getCmp('addForm').isValid()) {
-                        Ext.getCmp('tabTrans').setActiveTab(1)
-                        tinymce.init({
-                           selector: 'textarea',
-                           plugins: [
+                Ext.getCmp('tabTrans').setActiveTab(1)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
 
-                              'advlist autolink lists link image charmap print preview anchor',
+                    'advlist autolink lists link image charmap print preview anchor',
 
-                              'searchreplace visualblocks code fullscreen',
+                    'searchreplace visualblocks code fullscreen',
 
-                              'insertdatetime media table paste code help wordcount'
+                    'insertdatetime media table paste code help wordcount'
 
-                           ],
-                           // menubar: 'true',
-                           toolbar: 'undo redo |  ' +
+                  ],
+                  // menubar: 'true',
+                  toolbar: 'undo redo |  ' +
 
-                              'bold italic forecolor | alignleft aligncenter ' +
+                    'bold italic forecolor | alignleft aligncenter ' +
 
-                              ' | bullist numlist outdent indent | ' +
+                    ' | bullist numlist outdent indent | ' +
 
-                              ' table | link image | removeformat  code | help',
-                              height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                        });
-                        Ext.getCmp('tabTrans').setActiveTab(2)
-                        tinymce.init({
-                           selector: 'textarea',
-                           plugins: [
+                    ' table | link image | removeformat  code | help',
+                  height: '350',
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                Ext.getCmp('tabTrans').setActiveTab(2)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
 
-                              'advlist autolink lists link image charmap print preview anchor',
+                    'advlist autolink lists link image charmap print preview anchor',
 
-                              'searchreplace visualblocks code fullscreen',
+                    'searchreplace visualblocks code fullscreen',
 
-                              'insertdatetime media table paste code help wordcount'
+                    'insertdatetime media table paste code help wordcount'
 
-                           ],
-                           // menubar: 'true',
-                           toolbar: 'undo redo |  ' +
+                  ],
+                  // menubar: 'true',
+                  toolbar: 'undo redo |  ' +
 
-                              'bold italic forecolor | alignleft aligncenter ' +
+                    'bold italic forecolor | alignleft aligncenter ' +
 
-                              ' | bullist numlist outdent indent | ' +
+                    ' | bullist numlist outdent indent | ' +
 
-                              ' table | link image | removeformat  code | help',
-                              height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                        });
-                        Ext.getCmp('tabTrans').setActiveTab(3)
-                        tinymce.init({
-                           selector: 'textarea',
-                           plugins: [
+                    ' table | link image | removeformat  code | help',
+                  height: '350',
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                Ext.getCmp('tabTrans').setActiveTab(3)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
 
-                              'advlist autolink lists link image charmap print preview anchor',
+                    'advlist autolink lists link image charmap print preview anchor',
 
-                              'searchreplace visualblocks code fullscreen',
+                    'searchreplace visualblocks code fullscreen',
 
-                              'insertdatetime media table paste code help wordcount'
+                    'insertdatetime media table paste code help wordcount'
 
-                           ],
-                           // menubar: 'true',
-                           toolbar: 'undo redo |  ' +
+                  ],
+                  // menubar: 'true',
+                  toolbar: 'undo redo |  ' +
 
-                              'bold italic forecolor | alignleft aligncenter ' +
+                    'bold italic forecolor | alignleft aligncenter ' +
 
-                              ' | bullist numlist outdent indent | ' +
+                    ' | bullist numlist outdent indent | ' +
 
-                              ' table | link image | removeformat  code | help',
-                              height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                        });
-                        Ext.getCmp('tabTrans').setActiveTab(4)
-                        tinymce.init({
-                           selector: 'textarea',
-                           plugins: [
+                    ' table | link image | removeformat  code | help',
+                  height: '350',
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                Ext.getCmp('tabTrans').setActiveTab(4)
+                tinymce.init({
+                  selector: 'textarea',
+                  plugins: [
 
-                              'advlist autolink lists link image charmap print preview anchor',
+                    'advlist autolink lists link image charmap print preview anchor',
 
-                              'searchreplace visualblocks code fullscreen',
+                    'searchreplace visualblocks code fullscreen',
 
-                              'insertdatetime media table paste code help wordcount'
+                    'insertdatetime media table paste code help wordcount'
 
-                           ],
-                           // menubar: 'true',
-                           toolbar: 'undo redo |  ' +
+                  ],
+                  // menubar: 'true',
+                  toolbar: 'undo redo |  ' +
 
-                              'bold italic forecolor | alignleft aligncenter ' +
+                    'bold italic forecolor | alignleft aligncenter ' +
 
-                              ' | bullist numlist outdent indent | ' +
+                    ' | bullist numlist outdent indent | ' +
 
-                              ' table | link image | removeformat  code | help',
-                              height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                        });
+                    ' table | link image | removeformat  code | help',
+                  height: '350',
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
                 setProductSessionStorage();
                 editProduct();
                 Ext.getCmp("addForm").reset();
@@ -2590,115 +2588,115 @@
             handler: function () {
               edit = false;
               Ext.getCmp("addForm").reset();
-              
+
               Ext.getCmp('tabTrans').setActiveTab(0)
-                  Ext.getCmp('tabTrans').setActiveTab(1)
-                  // tinyMceInitiation
-                  tinymce.init({
-                           selector: 'textarea',
-                           plugins: [
+              Ext.getCmp('tabTrans').setActiveTab(1)
+              // tinyMceInitiation
+              tinymce.init({
+                selector: 'textarea',
+                plugins: [
 
-                              'advlist autolink lists link image charmap print preview anchor',
+                  'advlist autolink lists link image charmap print preview anchor',
 
-                              'searchreplace visualblocks code fullscreen',
+                  'searchreplace visualblocks code fullscreen',
 
-                              'insertdatetime media table paste code help wordcount'
+                  'insertdatetime media table paste code help wordcount'
 
-                           ],
-                           // menubar: 'true',
-                           toolbar: 'undo redo |  ' +
+                ],
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
 
-                              'bold italic forecolor | alignleft aligncenter ' +
+                  'bold italic forecolor | alignleft aligncenter ' +
 
-                              ' | bullist numlist outdent indent | ' +
+                  ' | bullist numlist outdent indent | ' +
 
-                              ' table | link image | removeformat  code | help',
+                  ' table | link image | removeformat  code | help',
 
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                        });
-                  tinyMCE.get('FRFDesc').setContent('');
-                  tinyMCE.get('FRspec').setContent('');
-                  Ext.getCmp('tabTrans').setActiveTab(2)
-                  // tinyMceInitiation
-                  tinymce.init({
-                           selector: 'textarea',
-                           plugins: [
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+              });
+              tinyMCE.get('FRFDesc').setContent('');
+              tinyMCE.get('FRspec').setContent('');
+              Ext.getCmp('tabTrans').setActiveTab(2)
+              // tinyMceInitiation
+              tinymce.init({
+                selector: 'textarea',
+                plugins: [
 
-                              'advlist autolink lists link image charmap print preview anchor',
+                  'advlist autolink lists link image charmap print preview anchor',
 
-                              'searchreplace visualblocks code fullscreen',
+                  'searchreplace visualblocks code fullscreen',
 
-                              'insertdatetime media table paste code help wordcount'
+                  'insertdatetime media table paste code help wordcount'
 
-                           ],
-                           // menubar: 'true',
-                           toolbar: 'undo redo |  ' +
+                ],
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
 
-                              'bold italic forecolor | alignleft aligncenter ' +
+                  'bold italic forecolor | alignleft aligncenter ' +
 
-                              ' | bullist numlist outdent indent | ' +
+                  ' | bullist numlist outdent indent | ' +
 
-                              ' table | link image | removeformat  code | help',
+                  ' table | link image | removeformat  code | help',
 
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                        });
-                  tinyMCE.get('DEFDesc').setContent('');
-                  tinyMCE.get('DEspec').setContent('');
-                  Ext.getCmp('tabTrans').setActiveTab(3)
-                  // tinyMceInitiation
-                  tinymce.init({
-                           selector: 'textarea',
-                           plugins: [
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+              });
+              tinyMCE.get('DEFDesc').setContent('');
+              tinyMCE.get('DEspec').setContent('');
+              Ext.getCmp('tabTrans').setActiveTab(3)
+              // tinyMceInitiation
+              tinymce.init({
+                selector: 'textarea',
+                plugins: [
 
-                              'advlist autolink lists link image charmap print preview anchor',
+                  'advlist autolink lists link image charmap print preview anchor',
 
-                              'searchreplace visualblocks code fullscreen',
+                  'searchreplace visualblocks code fullscreen',
 
-                              'insertdatetime media table paste code help wordcount'
+                  'insertdatetime media table paste code help wordcount'
 
-                           ],
-                           // menubar: 'true',
-                           toolbar: 'undo redo |  ' +
+                ],
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
 
-                              'bold italic forecolor | alignleft aligncenter ' +
+                  'bold italic forecolor | alignleft aligncenter ' +
 
-                              ' | bullist numlist outdent indent | ' +
+                  ' | bullist numlist outdent indent | ' +
 
-                              ' table | link image | removeformat  code | help',
+                  ' table | link image | removeformat  code | help',
 
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                        });
-                  tinyMCE.get('SPFDesc').setContent('');
-                  tinyMCE.get('SPspec').setContent('');
-                  Ext.getCmp('tabTrans').setActiveTab(4)
-                  // tinyMceInitiation
-                  tinymce.init({
-                           selector: 'textarea',
-                           plugins: [
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+              });
+              tinyMCE.get('ESFDesc').setContent('');
+              tinyMCE.get('ESspec').setContent('');
+              Ext.getCmp('tabTrans').setActiveTab(4)
+              // tinyMceInitiation
+              tinymce.init({
+                selector: 'textarea',
+                plugins: [
 
-                              'advlist autolink lists link image charmap print preview anchor',
+                  'advlist autolink lists link image charmap print preview anchor',
 
-                              'searchreplace visualblocks code fullscreen',
+                  'searchreplace visualblocks code fullscreen',
 
-                              'insertdatetime media table paste code help wordcount'
+                  'insertdatetime media table paste code help wordcount'
 
-                           ],
-                           // menubar: 'true',
-                           toolbar: 'undo redo |  ' +
+                ],
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
 
-                              'bold italic forecolor | alignleft aligncenter ' +
+                  'bold italic forecolor | alignleft aligncenter ' +
 
-                              ' | bullist numlist outdent indent | ' +
+                  ' | bullist numlist outdent indent | ' +
 
-                              ' table | link image | removeformat  code | help',
+                  ' table | link image | removeformat  code | help',
 
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                        });
-                  tinyMCE.get('ENFDesc').setContent('');
-                  tinyMCE.get('ENspec').setContent('');
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+              });
+              tinyMCE.get('ENFDesc').setContent('');
+              tinyMCE.get('ENspec').setContent('');
 
-                  tinyMCE.get('RUFDesc').setContent('');
-                  tinyMCE.get('RUspec').setContent('');
+              tinyMCE.get('RUFDesc').setContent('');
+              tinyMCE.get('RUspec').setContent('');
               // clearEditInfo();
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();

@@ -39,7 +39,7 @@
         }
 
         #ENFIELD-legendTitle,
-        #SPFIELD-legendTitle,
+        #ESFIELD-legendTitle,
         #FRFIELD-legendTitle,
         #DEFIELD-legendTitle,
         #RUFIELD-legendTitle {
@@ -161,7 +161,7 @@
                                     getLabelsDetails('en', selectedRecord.data.Key)
                                     getLabelsDetails('fr', selectedRecord.data.Key)
                                     getLabelsDetails('de', selectedRecord.data.Key)
-                                    getLabelsDetails('sp', selectedRecord.data.Key)
+                                    getLabelsDetails('es', selectedRecord.data.Key)
                                     getLabelsDetails('ru', selectedRecord.data.Key)
                                 }
                             },
@@ -346,8 +346,8 @@
                         DELanguage: "de",
                         DEValue: Ext.getCmp("DEValue").getValue(),
                         //SP
-                        SPLanguage: "sp",
-                        SPValue: Ext.getCmp("SPValue").getValue(),
+                        ESLanguage: "es",
+                        ESValue: Ext.getCmp("ESValue").getValue(),
                         //RU
                         RULanguage: "ru",
                         RUValue: Ext.getCmp("RUValue").getValue(),
@@ -404,8 +404,8 @@
                         DELanguage: "de",
                         DEValue: Ext.getCmp("DEValue").getValue(),
                         //SP
-                        SPLanguage: "sp",
-                        SPValue: Ext.getCmp("SPValue").getValue(),
+                        ESLanguage: "es",
+                        ESValue: Ext.getCmp("ESValue").getValue(),
                         //RU
                         RULanguage: "ru",
                         RUValue: Ext.getCmp("RUValue").getValue(),
@@ -612,7 +612,7 @@
                                 title: "Spanish Translations",
                                 anchor: "100%",
                                 hidden: false,
-                                id: "SPFIELD",
+                                id: "ESFIELD",
                                 layoutConfig: {
                                     // The total column count must be specified here
                                     columns: 9,
@@ -621,8 +621,8 @@
 
                                     {
                                         xtype: "textfield",
-                                        id: "SPValue",
-                                        name: "SPValue",
+                                        id: "ESValue",
+                                        name: "ESValue",
                                         fieldLabel: "Translation",
                                         maxLenght: 400,
                                         width: 500,
