@@ -175,7 +175,7 @@ exports.addSeries = async (req, res) => {
       }
 
       if (ESTitle !== '') {
-         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${SPLanguage}", "${CreatedOn}", "${storage.getItem('SeriesId')}", "${ESTitle}", "${ESSpecification}", "${ESFullDescription}");`, (err, results, fields) => {
+         con.query(`INSERT INTO SeriesInfo (Language, CreatedOn, SeriesId, Title, Specification, FullDescription) VALUES ("${ESLanguage}", "${CreatedOn}", "${storage.getItem('SeriesId')}", "${ESTitle}", "${ESSpecification}", "${ESFullDescription}");`, (err, results, fields) => {
             if (err) throw err;
             console.log(err);
 
@@ -550,7 +550,6 @@ exports.getRelatedProductSerie = async (req, res) => {
 exports.addSeriesRelatedProduct = async (req, res) => {
    const { ProductId, SeriesId } = req.body;
 
-   console.log(req.body);
 
    const querySeriesProductLink = `INSERT INTO SeriesProductLink (ProductId, SeriesId) VALUES ("${ProductId}", "${SeriesId}");`
 
@@ -576,7 +575,6 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
          if (err) {
             errorString += 'Product, '
          }
-         console.log(results);
          console.log('delete from serie product link')
          res.send(results)
       })
@@ -723,7 +721,6 @@ exports.addSerieMasterSpecs = async (req, res) => {
 exports.deleteSeriesMasterSpecs = async (req, res) => {
    const { Id } = req.body;
 
-   console.log(req.body);
    const deleteSeriesData
       = `DELETE FROM SeriesData `
       + `WHERE SerieMasterId = ${Id};`
@@ -773,7 +770,6 @@ exports.getSerieMaster = async (req, res) => {
 exports.addSerieSpecValue = async (req, res) => {
    const { Key, Value, Group, SubGroup, SeriesMasterId } = req.body;
 
-   console.log(req.body);
 }
 
 

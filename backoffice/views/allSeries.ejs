@@ -66,7 +66,7 @@
       }
 
       #ENFIELD-legendTitle,
-      #SPFIELD-legendTitle,
+      #ESFIELD-legendTitle,
       #FRFIELD-legendTitle,
       #DEFIELD-legendTitle,
       #RUFIELD-legendTitle {
@@ -512,12 +512,12 @@
             Ext.getCmp('Category').setValue(serie.CategoryId);
             tinyMCE.get('FDesc').setContent(serie.FullDescription);
             tinyMCE.get('spec').setContent(serie.Specification);
-            console.log(serie)
+            
          };
 
 
          const displaySerieInfo = (serie) => {
-            console.log(serie)
+           
             Ext.getCmp("key").setValue(serie.Key);
             Ext.getCmp("title").setValue(serie.Title);
             Ext.getCmp("fullDescription").setValue(
@@ -559,11 +559,7 @@
                   const res = JSON.parse(response.responseText);
                   if (res.length != 0) {
                      Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
-                     // Ext.getCmp(`${language.toUpperCase()}FDesc`).setValue(res[0].FullDescription);
-                     // Ext.getCmp(`${language.toUpperCase()}spec`).setValue(res[0].Specification);
-
-                     // console.log(tinyMCE.get(`${language.toUpperCase()}FDesc`) );
-                     // console.log(res[0].FullDescription);
+                     
                      if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
                         tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
 
@@ -730,7 +726,7 @@
                   DETitle: Ext.getCmp("DETitle").getValue().trim(),
                   DESpecification: tinyMCE.get('DEspec').getContent(),
                   DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
-                  //SP
+                  //ES
                   ESLanguage: "es",
                   ESTitle: Ext.getCmp("ESTitle").getValue().trim(),
                   ESSpecification: tinyMCE.get('ESspec').getContent(),
@@ -804,7 +800,7 @@
                   DETitle: Ext.getCmp("DETitle").getValue().trim(),
                   DESpecification: tinyMCE.get('DEspec').getContent(),
                   DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
-                  //SP
+                  //ES
                   ESLanguage: "es",
                   ESTitle: Ext.getCmp("ESTitle").getValue().trim(),
                   ESSpecification: tinyMCE.get('ESspec').getContent(),
@@ -887,7 +883,7 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-                  console.log(res);
+                  
                   let keys = Object.keys(res[0]);
 
                   let allColumns = keys.map(key => {
@@ -1284,7 +1280,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-                              height: '350',
+                           height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                      },
@@ -1306,9 +1302,11 @@
                         serieIDGlobal = selectedRecord.data.Sid;
                         edit = true;
 
+
                         if (selectedRecord === undefined) {
                            Ext.Msg.alert("INFO", "No record selected");
                         } else {
+
                            Ext.getCmp("addSave").setHidden(true);
                            Ext.getCmp("editSave").setHidden(false);
                            Ext.getCmp("panelAdd").setTitle("Edit Serie (a)");
@@ -1320,9 +1318,7 @@
                            Ext.getCmp('tabTrans').setActiveTab(3);
                            Ext.getCmp('tabTrans').setActiveTab(4);
                            Ext.getCmp('tabTrans').setActiveTab(0);
-
-
-
+                           serieIDGlobal = selectedRecord.data.Sid;
                            // if tinyMCE fields are allready innitated
                            if (tinyMCE.get(`spec`) != null) {
                               getSerieDetails(serieIDGlobal);
@@ -1334,14 +1330,14 @@
                               getOtherLanguageDetail('fr', serieIDGlobal);
                            }
                            if (tinyMCE.get(`ESspec`) != null) {
-                              getOtherLanguageDetail('sp', serieIDGlobal);
+                              getOtherLanguageDetail('es', serieIDGlobal);
                            }
                            if (tinyMCE.get(`RUspec`) != null) {
                               getOtherLanguageDetail('ru', serieIDGlobal);
                            }
-
                            tinymce.init({
                               selector: 'textarea',
+
                               plugins: [
                                  'advlist autolink lists link image charmap print preview anchor',
                                  'searchreplace visualblocks code fullscreen',
@@ -1356,30 +1352,26 @@
                               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
                               setup: function (editor) {
                                  editor.on('init', function (e) {
-                                    console.log('The Editor has initialized:' + this.id);
-                                    if (this.id == 'spec') {
+                                    
+
+                                    if (tinyMCE.get(`spec`) != null) {
                                        getSerieDetails(serieIDGlobal);
                                     }
-                                    if (this.id == 'ENspec') {
-                                       getOtherLanguageDetail('en', serieIDGlobal);
-                                    }
-                                    if (this.id == 'DEspec') {
+                                    if (tinyMCE.get(`DEspec`) != null) {
                                        getOtherLanguageDetail('de', serieIDGlobal);
                                     }
-                                    if (this.id == 'FRspec') {
+                                    if (tinyMCE.get(`FRspec`) != null) {
                                        getOtherLanguageDetail('fr', serieIDGlobal);
                                     }
-                                    if (this.id == 'ESspec') {
+                                    if (tinyMCE.get(`ESspec`) != null) {
                                        getOtherLanguageDetail('es', serieIDGlobal);
                                     }
-                                    if (this.id == 'RUspec') {
+                                    if (tinyMCE.get(`RUspec`) != null) {
                                        getOtherLanguageDetail('ru', serieIDGlobal);
                                     }
                                  });
                               },
-                          
                            });
-
                         }
                      },
                   },
@@ -1468,7 +1460,7 @@
                         Ext.getCmp('tabTrans').setActiveTab(i)
                         //  getOtherLanguageDetail('fr', serieIDGlobal)
                         //  getOtherLanguageDetail('de', serieIDGlobal)
-                        //  getOtherLanguageDetail('sp', serieIDGlobal)
+                        //  getOtherLanguageDetail('es', serieIDGlobal)
                         //  getOtherLanguageDetail('ru', serieIDGlobal)
                      });
                   })
@@ -1662,7 +1654,7 @@
                         title: "Spanish Translations",
                         anchor: "100%",
                         hidden: false,
-                        id: "SPFIELD",
+                        id: "ESFIELD",
                         layoutConfig: {
                            // The total column count must be specified here
                            columns: 9,
@@ -1910,7 +1902,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-                              height: '350',
+                           height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                         Ext.getCmp('tabTrans').setActiveTab(2)
@@ -1933,7 +1925,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-                              height: '350',
+                           height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                         Ext.getCmp('tabTrans').setActiveTab(3)
@@ -1956,7 +1948,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-                              height: '350',
+                           height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                         Ext.getCmp('tabTrans').setActiveTab(4)
@@ -1979,7 +1971,7 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-                              height: '350',
+                           height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                         });
                         addSerie();
@@ -2037,7 +2029,7 @@
                            ' | bullist numlist outdent indent | ' +
 
                            ' table | link image | removeformat  code | help',
-                           height: '350',
+                        height: '350',
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                      });
                      tinyMCE.get('FRFDesc').setContent('');
@@ -2063,7 +2055,7 @@
                            ' | bullist numlist outdent indent | ' +
 
                            ' table | link image | removeformat  code | help',
-                           height: '350',
+                        height: '350',
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                      });
                      tinyMCE.get('DEFDesc').setContent('');
@@ -2089,7 +2081,7 @@
                            ' | bullist numlist outdent indent | ' +
 
                            ' table | link image | removeformat  code | help',
-                           height: '350',
+                        height: '350',
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                      });
                      tinyMCE.get('ESFDesc').setContent('');
@@ -2115,7 +2107,7 @@
                            ' | bullist numlist outdent indent | ' +
 
                            ' table | link image | removeformat  code | help',
-                           height: '350',
+                        height: '350',
                         content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                      });
 
@@ -2374,7 +2366,6 @@
                               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
                               setup: function (editor) {
                                  editor.on('init', function (e) {
-                                    console.log('The Editor has initialized:' + this.id);
                                     if (this.id == 'spec') {
                                        getSerieDetails(serieIDGlobal);
                                     }
