@@ -512,12 +512,12 @@
             Ext.getCmp('Category').setValue(serie.CategoryId);
             tinyMCE.get('FDesc').setContent(serie.FullDescription);
             tinyMCE.get('spec').setContent(serie.Specification);
-            
+
          };
 
 
          const displaySerieInfo = (serie) => {
-           
+
             Ext.getCmp("key").setValue(serie.Key);
             Ext.getCmp("title").setValue(serie.Title);
             Ext.getCmp("fullDescription").setValue(
@@ -559,7 +559,7 @@
                   const res = JSON.parse(response.responseText);
                   if (res.length != 0) {
                      Ext.getCmp(`${language.toUpperCase()}Title`).setValue(res[0].Title);
-                     
+
                      if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
                         tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
 
@@ -883,7 +883,7 @@
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
-                  
+
                   let keys = Object.keys(res[0]);
 
                   let allColumns = keys.map(key => {
@@ -1352,7 +1352,7 @@
                               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
                               setup: function (editor) {
                                  editor.on('init', function (e) {
-                                    
+
 
                                     if (tinyMCE.get(`spec`) != null) {
                                        getSerieDetails(serieIDGlobal);
@@ -2503,7 +2503,9 @@
             id: "ProductDetStore",
             autoLoad: true,
             model: ProductDet,
+
             proxy: {
+
                type: "ajax",
                method: "POST",
                url: "/apiSeries/getProductDet",
@@ -2517,7 +2519,7 @@
          });
 
 
-         const getRelatedCatalog = (ProductId, from) => {
+         const getRelatedCatalog = (ProductId, from, SerOrProd) => {
             Ext.Ajax.request({
                url: "/apiSeries/getRelatedCatalog",
                method: "POST",
@@ -2525,11 +2527,16 @@
                useDefaultXhrHeader: false,
                params: {
                   ProductId: ProductId,
+                  SerProd: SerOrProd
                },
                success: function (response) {
                   const res = JSON.parse(response.responseText);
+
                   if (from === 'itemsAdd2') {
+                     console.log(res[0].Catalog)
                      Ext.getCmp("RPCatalog").setValue(res[0].Catalog);
+
+
                   } else {
                      Ext.getCmp("ProductCatalog").setValue(res[0].Catalog);
                   }
@@ -3254,6 +3261,7 @@
                   serieIDGlobal: serieIDGlobal,
                   Code: Ext.getCmp("ProductDesc").getRawValue(),
                   Catalog: Ext.getCmp("RPCatalog").getValue(),
+                  ProdSer: Ext.getCmp('ProdSer').getValue()
                },
                success: function (response) {
                   // check for errors and display error message
@@ -3296,6 +3304,17 @@
             storeId: "TypeStore",
          });
 
+         var ProdSerStore = Ext.create("Ext.data.Store", {
+            fields: ["ProdSerCode", "ProdSerName"],
+            data: [
+               { ProdSerCode: "P", ProdSerName: "Product" },
+               { ProdSerCode: "S", ProdSerName: "Serie" }
+            ],
+            storeId: "ProdSerStore",
+         });
+
+
+
          var itemsAdd2 = [
             {
                xtype: "combo",
@@ -3312,6 +3331,25 @@
             },
             {
                xtype: "combo",
+               id: "ProdSer",
+               name: "ProdSer",
+               store: ProdSerStore,
+               width: 300,
+               fieldLabel: "Product/Serie",
+               displayField: "ProdSerName",
+               valueField: "ProdSerCode",
+               allowBlank: false,
+               selectOnFocus: false,
+               editable: false,
+               listeners: {
+                  change: function () {
+                     ProductDetStore.getProxy().setExtraParam('ProdSer', this.getValue());
+                     ProductDetStore.reload()
+                  },
+               },
+            },
+            {
+               xtype: "combo",
                id: "ProductDesc",
                name: "ProductDesc",
                store: ProductDetStore,
@@ -3324,9 +3362,24 @@
                anyMatch: true,
                queryMode: "local",
                listeners: {
+                  click: {
+
+                     fn: function () {
+                        console.log(Ext.getCmp('ProdSer').getValue())
+                        if (Ext.getCmp('ProdSer').getValue() == '' || Ext.getCmp('ProdSer').getValue() == undefined) {
+                           Ext.Msg.alert(
+                              "INFO",
+                              "Please choose if it is a product or a serie."
+                           );
+                        }
+                     }
+                  },
+
                   change: function () {
+
+                     let SerOrProd = Ext.getCmp('ProdSer').getValue()
                      let ProductId = this.getValue();
-                     getRelatedCatalog(ProductId, 'itemsAdd2');
+                     getRelatedCatalog(ProductId, 'itemsAdd2', SerOrProd);
                   },
                },
             },
@@ -3377,6 +3430,7 @@
          const resetForm2 = () => {
             Ext.getCmp('Type').setValue('');
             Ext.getCmp('ProductDesc').setValue('');
+            Ext.getCmp('ProdSer').setValue('');
             Ext.getCmp('RPCatalog').setValue('');
          }
 

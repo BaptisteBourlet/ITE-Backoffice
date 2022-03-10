@@ -582,15 +582,27 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
 }
 
 exports.addRelatedProductFromSeriesView = async (req, res) => {
-   const { Type, serieIDGlobal, LinkedProductID, Catalog, Code } = req.body;
-   con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE SeriesId = "${serieIDGlobal}";`, (err, results) => {
-      con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, SeriesId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", "${LinkedProductID}", ${serieIDGlobal}, "${Catalog}");`, (err, results, fields) => {
-         if (err) {
-            console.log(err)
-         }
-         res.send(results)
+   const { Type, serieIDGlobal, LinkedProductID, Catalog, Code, ProdSer } = req.body;
+   if (ProdSer == 'P') {
+      con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE SeriesId = "${serieIDGlobal}";`, (err, results) => {
+         con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, SeriesId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", "${LinkedProductID}", ${serieIDGlobal}, "${Catalog}");`, (err, results, fields) => {
+            if (err) {
+               console.log(err)
+            }
+            res.send(results)
+         })
       })
-   })
+   } else {
+      con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE SeriesId = "${serieIDGlobal}";`, (err, results) => {
+         con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedSeriesID, SeriesId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", "${LinkedProductID}", ${serieIDGlobal}, "${Catalog}");`, (err, results, fields) => {
+            if (err) {
+               console.log(err)
+            }
+            res.send(results)
+         })
+      })
+   }
+   
 }
 exports.getSerieSpecs = async (req, res) => {
    const { serieLink } = req.query;
@@ -790,23 +802,45 @@ exports.checkIfSerie = async (req, res) => {
 
 
 exports.getProductDet = async (req, res) => {
-   con.query("SELECT CODE, Id FROM Product;", (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
-   })
+   const { ProdSer } = req.query;
+   
+   if(ProdSer == 'P'){
+      con.query("SELECT CODE, Id FROM Product;", (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   } else if (ProdSer == 'S') {
+      con.query("SELECT Series.Key AS CODE, Sid AS Id FROM Series;", (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   }
+   
 }
 
 exports.getRelatedCatalog = async (req, res) => {
-   const { ProductId } = req.body;
+   const { ProductId, SerOrProd } = req.body;
 
-   con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
-   })
+   if (SerOrProd == 'S'){
+      con.query(`SELECT Title AS Catalog FROM SeriesInfo WHERE SeriesId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   } else {
+      con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   }
+   
 }
 
 
