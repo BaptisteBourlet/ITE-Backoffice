@@ -681,8 +681,8 @@ exports.getProductDetails = async (req, res) => {
 }
 
 exports.updateSequenceSeriesMaster = async (req, res) => {
-   const { Id, Sequence } = req.body;
-   const query = `UPDATE SeriesMaster SET Sequence = ${Sequence} WHERE Id = ${Id};`
+   const { Id, Sequence , SubGroup } = req.body;
+   const query = `UPDATE SeriesMaster SET Sequence = ${Sequence}, SubGroup =  '${SubGroup}' WHERE Id = ${Id};`
 
    con.query(query, (err, result) => {
       if (err) throw err;

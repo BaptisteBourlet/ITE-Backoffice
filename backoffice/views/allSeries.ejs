@@ -2931,7 +2931,14 @@
                header: "Sub group",
                sortable: true,
                width: 150,
-               dataIndex: "SubGroup"
+               dataIndex: "SubGroup",
+               editor: {
+                  completeOnEnter: true,
+                  field: {
+                     xtype: "textfield",
+                     allowBlank: true,
+                  },
+               },
             },
             {
                header: "Sequence",
@@ -2990,6 +2997,7 @@
                params: {
                   Id: event.record.data.Id,
                   Sequence: event.record.data.Sequence,
+                  SubGroup: event.record.data.SubGroup,
                },
                success: function (response) {
                   let result = JSON.parse(response.responseText);
