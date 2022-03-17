@@ -445,12 +445,25 @@ exports.deleteSerieRelatedProductFromDetailsView = async (req, res) => {
 
 
 exports.getProductDet = async (req, res) => {
-   con.query("SELECT CODE, Id FROM Product;", (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
-   })
+   
+
+   const { ProdSer } = req.query;
+   
+   if(ProdSer == 'P'){
+      con.query("SELECT CODE, Id FROM Product;", (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   } else if (ProdSer == 'S') {
+      con.query("SELECT Series.Key AS CODE, Sid AS Id FROM Series;", (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   }
 }
 
 
@@ -513,29 +526,56 @@ exports.getRelatedCatalog = async (req, res) => {
 
 
 exports.addRelatedProduct = async (req, res) => {
-   const { Type, Sequence, LinkedProductID, Catalog, Code } = req.body;
+   const { Type, Sequence, LinkedProductID, Catalog, Code, ProdSer } = req.body;
    const ProdId = storage.getItem('ProdId')
+   console.log(ProdSer)
 
-   con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence}, "${Code}", ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
-   })
-}
-
-
-
-exports.addRelatedProductFromView = async (req, res) => {
-   const { Type, Sequence, productIDGlobal, LinkedProductID, Catalog, Code } = req.body;
-   con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE ProductId = "${productIDGlobal}";`, (err, results) => {
-      con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", ${LinkedProductID}, ${productIDGlobal}, "${Catalog}");`, (err, results, fields) => {
+   if (ProdSer == 'P') {
+      con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence}, "${Code}", ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {
          if (err) {
             console.log(err)
          }
          res.send(results)
       })
-   })
+   } else {
+      con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE ProductId = "${ProdId}";`, (err, results) => {
+         con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedSeriesID, ProductId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", "${LinkedProductID}", ${ProdId}, "${Catalog}");`, (err, results, fields) => {
+            if (err) {
+               console.log(err)
+            }
+            res.send(results)
+         })
+      })
+   }
+}
+
+
+
+exports.addRelatedProductFromView = async (req, res) => {
+   const { Type, Sequence, productIDGlobal, LinkedProductID, Catalog, Code, ProdSer } = req.body;
+   
+
+   if (ProdSer == 'P') {
+      con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE ProductId = "${productIDGlobal}";`, (err, results) => {
+         con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", ${LinkedProductID}, ${productIDGlobal}, "${Catalog}");`, (err, results, fields) => {
+            if (err) {
+               console.log(err)
+            }
+            res.send(results)
+         })
+      })
+   } else {
+
+      
+      con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE ProductId = "${productIDGlobal}";`, (err, results) => {
+         con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedSeriesID, ProductId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", "${LinkedProductID}", ${productIDGlobal}, "${Catalog}");`, (err, results, fields) => {
+            if (err) {
+               console.log(err)
+            }
+            res.send(results)
+         })
+      })
+   }
 }
 
 

@@ -130,20 +130,20 @@
       });
 
       const tinyMceInitiation = tinymce.init({
-                  selector: 'textarea',
-                  plugins: [
-                    'advlist autolink lists link image charmap print preview anchor',
-                    'searchreplace visualblocks code fullscreen',
-                    'insertdatetime media table paste code help wordcount'
-                  ],
-                  // menubar: 'true',
-                  toolbar: 'undo redo |  ' +
-                    'bold italic forecolor | alignleft aligncenter ' +
-                    ' | bullist numlist outdent indent | ' +
-                    ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-                });
+        selector: 'textarea',
+        plugins: [
+          'advlist autolink lists link image charmap print preview anchor',
+          'searchreplace visualblocks code fullscreen',
+          'insertdatetime media table paste code help wordcount'
+        ],
+        // menubar: 'true',
+        toolbar: 'undo redo |  ' +
+          'bold italic forecolor | alignleft aligncenter ' +
+          ' | bullist numlist outdent indent | ' +
+          ' table | link image | removeformat  code | help',
+        height: '350',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+      });
       const relatedProducts = (products) => {
         let exist = false;
 
@@ -608,10 +608,11 @@
       const resetForm2 = () => {
         Ext.getCmp('Type').setValue('');
         Ext.getCmp('ProductDesc').setValue('');
+        Ext.getCmp('ProdSer').setValue('');
         Ext.getCmp('RPCatalog').setValue('');
       }
 
-      const getRelatedCatalog = (ProductId) => {
+      const getRelatedCatalog = (ProductId, SerOrProd) => {
         Ext.Ajax.request({
           url: "/apiProducts/getRelatedCatalog",
           method: "POST",
@@ -619,6 +620,7 @@
           useDefaultXhrHeader: false,
           params: {
             ProductId: ProductId,
+            SerProd: SerOrProd
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
@@ -907,6 +909,15 @@
           { TypeCode: "R", TypeName: "Related product" },
         ],
         storeId: "TypeStore",
+      });
+
+      var ProdSerStore = Ext.create("Ext.data.Store", {
+        fields: ["ProdSerCode", "ProdSerName"],
+        data: [
+          { ProdSerCode: "P", ProdSerName: "Product" },
+          { ProdSerCode: "S", ProdSerName: "Serie" }
+        ],
+        storeId: "ProdSerStore",
       });
 
       const ProductDet = Ext.define("ProductDet", {
@@ -1701,63 +1712,63 @@
 
                   getProductDetails(productIDGlobal);
 
-                // if tinyMCE fields are allready innitated
-                if (tinyMCE.get(`ENspec`) != null) {
-                     getOtherLanguageDetail('en', productIDGlobal)
-                }
-                if (tinyMCE.get(`DEspec`) != null) {
-                            getOtherLanguageDetail('de', productIDGlobal)
-                }
-                if (tinyMCE.get(`FRspec`) != null) {
-                            getOtherLanguageDetail('fr', productIDGlobal)
-                 }
-                if (tinyMCE.get(`ESspec`) != null) {
-                            getOtherLanguageDetail('es', productIDGlobal)
-                }
-                if (tinyMCE.get(`RUspec`) != null) {
-                            getOtherLanguageDetail('ru', productIDGlobal)
-                }
-                tinymce.init({
-                              selector: 'textarea',
+                  // if tinyMCE fields are allready innitated
+                  if (tinyMCE.get(`ENspec`) != null) {
+                    getOtherLanguageDetail('en', productIDGlobal)
+                  }
+                  if (tinyMCE.get(`DEspec`) != null) {
+                    getOtherLanguageDetail('de', productIDGlobal)
+                  }
+                  if (tinyMCE.get(`FRspec`) != null) {
+                    getOtherLanguageDetail('fr', productIDGlobal)
+                  }
+                  if (tinyMCE.get(`ESspec`) != null) {
+                    getOtherLanguageDetail('es', productIDGlobal)
+                  }
+                  if (tinyMCE.get(`RUspec`) != null) {
+                    getOtherLanguageDetail('ru', productIDGlobal)
+                  }
+                  tinymce.init({
+                    selector: 'textarea',
 
-                              plugins: [
-                                 'advlist autolink lists link image charmap print preview anchor',
-                                 'searchreplace visualblocks code fullscreen',
-                                 'insertdatetime media table paste code help wordcount'
-                              ],
-                              // menubar: 'true',
-                              toolbar: 'undo redo |  ' +
-                                 'bold italic forecolor | alignleft aligncenter ' +
-                                 ' | bullist numlist outdent indent | ' +
-                                 ' table | link image | removeformat  code | help',
-                              height: '350',
-                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
-                              setup: function (editor) {
-                                 editor.on('init', function (e) {
-                                    console.log('The Editor has initialized:' + this.id);
-                                    
-                                  //  if (this.id == 'spec') {
-                                    //  getProductDetails(productIDGlobal);
-                                   // }
-                                    if (this.id == 'ENspec') {
-                                      getOtherLanguageDetail('en', productIDGlobal)
-                                    }
-                                    if (this.id == 'DEspec') {
-                                      getOtherLanguageDetail('de', productIDGlobal)
-                                    }
-                                    if (this.id == 'FRspec') {
-                                      getOtherLanguageDetail('fr', productIDGlobal)
-                                    }
-                                    if (this.id == 'ESspec') {
-                                      getOtherLanguageDetail('ES', productIDGlobal)
-                                    }
-                                    if (this.id == 'RUspec') {
-                                      getOtherLanguageDetail('ru', productIDGlobal)
-                                    }
-                                 });
-                              },
-                           });
-                 
+                    plugins: [
+                      'advlist autolink lists link image charmap print preview anchor',
+                      'searchreplace visualblocks code fullscreen',
+                      'insertdatetime media table paste code help wordcount'
+                    ],
+                    // menubar: 'true',
+                    toolbar: 'undo redo |  ' +
+                      'bold italic forecolor | alignleft aligncenter ' +
+                      ' | bullist numlist outdent indent | ' +
+                      ' table | link image | removeformat  code | help',
+                    height: '350',
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                    setup: function (editor) {
+                      editor.on('init', function (e) {
+                        console.log('The Editor has initialized:' + this.id);
+
+                        //  if (this.id == 'spec') {
+                        //  getProductDetails(productIDGlobal);
+                        // }
+                        if (this.id == 'ENspec') {
+                          getOtherLanguageDetail('en', productIDGlobal)
+                        }
+                        if (this.id == 'DEspec') {
+                          getOtherLanguageDetail('de', productIDGlobal)
+                        }
+                        if (this.id == 'FRspec') {
+                          getOtherLanguageDetail('fr', productIDGlobal)
+                        }
+                        if (this.id == 'ESspec') {
+                          getOtherLanguageDetail('ES', productIDGlobal)
+                        }
+                        if (this.id == 'RUspec') {
+                          getOtherLanguageDetail('ru', productIDGlobal)
+                        }
+                      });
+                    },
+                  });
+
 
                 },
               },
@@ -2757,6 +2768,25 @@
         },
         {
           xtype: "combo",
+          id: "ProdSer",
+          name: "ProdSer",
+          store: ProdSerStore,
+          width: 300,
+          fieldLabel: "Product/Serie",
+          displayField: "ProdSerName",
+          valueField: "ProdSerCode",
+          allowBlank: false,
+          selectOnFocus: false,
+          editable: false,
+          listeners: {
+            change: function () {
+              ProductDetStore.getProxy().setExtraParam('ProdSer', this.getValue());
+              ProductDetStore.reload()
+            },
+          },
+        },
+        {
+          xtype: "combo",
           id: "ProductDesc",
           name: "ProductDesc",
           store: ProductDetStore,
@@ -2769,9 +2799,21 @@
           anyMatch: true,
           queryMode: "local",
           listeners: {
+            click: {
+
+              fn: function () {
+                if (Ext.getCmp('ProdSer').getValue() == '' || Ext.getCmp('ProdSer').getValue() == undefined) {
+                  Ext.Msg.alert(
+                    "INFO",
+                    "Please choose if it is a product or a serie."
+                  );
+                }
+              }
+            },
             change: function () {
+              let SerOrProd = Ext.getCmp('ProdSer').getValue()
               let ProductId = this.getValue();
-              getRelatedCatalog(ProductId);
+              getRelatedCatalog(ProductId, SerOrProd);
             },
           },
         },
@@ -2934,6 +2976,7 @@
             productIDGlobal: productIDGlobal,
             Code: Ext.getCmp("ProductDesc").getRawValue(),
             Catalog: Ext.getCmp("RPCatalog").getValue(),
+            ProdSer: Ext.getCmp('ProdSer').getValue()
           },
           success: function (response) {
             // check for errors and display error message
