@@ -68,8 +68,11 @@
                         const res = JSON.parse(response.responseText);
 
                         if (res != '') {
+                            sessionStorage.setItem(language+'Pdf', res[0].Pdf)
+                            
                             sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
                             Ext.getCmp(`${language.toUpperCase()}Name`).setValue(res[0].Title);
+                            Ext.getCmp(`${language.toUpperCase()}pdf`).setRawValue(res[0].Pdf);
 
                         } else {
                             sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
@@ -164,12 +167,12 @@
                                 } else {
                                     spotlightIdGlobal = selectedRecord.data.Id;
                                     Ext.getCmp("WorkingTitle").setValue(selectedRecord.data.WorkingTitle)
-                                    Ext.getCmp("Visual").setValue(selectedRecord.data.Visual)
+                                    Ext.getCmp("Visual").setRawValue(selectedRecord.data.Visual)
 
                                     const unformatDate = new Date(selectedRecord.data.Date)
-                                   
+
                                     var formatDate = unformatDate.getDate() + "-" + (unformatDate.getMonth() + 1) + "-" + unformatDate.getFullYear()
-                                    
+
                                     Ext.getCmp("Dates").setValue(unformatDate)
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
@@ -177,7 +180,7 @@
                                     getOtherLanguageDetail('en', spotlightIdGlobal)
                                     getOtherLanguageDetail('fr', spotlightIdGlobal)
                                     getOtherLanguageDetail('de', spotlightIdGlobal)
-                                    getOtherLanguageDetail('sp', spotlightIdGlobal)
+                                    getOtherLanguageDetail('es', spotlightIdGlobal)
                                     getOtherLanguageDetail('ru', spotlightIdGlobal)
 
                                     Ext.getCmp("panelAdd").setTitle("Edit spotlight");
@@ -301,10 +304,10 @@
                 var DETitle = Ext.getCmp("DEName").getValue();
                 var DEPdfArray = (Ext.getCmp("DEpdf").getValue()).split('\\');
                 var DEPdfName = DEPdfArray.pop();
-                // SP
-                var SPTitle = Ext.getCmp("SPName").getValue();
-                var SPPdfArray = (Ext.getCmp("SPpdf").getValue()).split('\\');
-                var SPPdfName = SPPdfArray.pop();
+                // ES
+                var ESTitle = Ext.getCmp("ESName").getValue();
+                var ESPdfArray = (Ext.getCmp("ESpdf").getValue()).split('\\');
+                var ESPdfName = ESPdfArray.pop();
                 // RU
                 var RUTitle = Ext.getCmp("RUName").getValue();
                 var RUPdfArray = (Ext.getCmp("RUpdf").getValue()).split('\\');
@@ -312,30 +315,30 @@
 
                 // All Files
                 const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
-                
-                if(Ext.getCmp("FRpdf").getValue() != ''){
-                    
+
+                if (Ext.getCmp("FRpdf").getValue() != '') {
+
                     var FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
                 } else {
                     var FRfile = ''
                 }
-                
-                if(Ext.getCmp("DEpdf").getValue() != ''){
+
+                if (Ext.getCmp("DEpdf").getValue() != '') {
                     var DEfile = Ext.getCmp("DEpdf").fileInputEl.dom.files[0];
-                }else {
+                } else {
                     var DEfile = ''
                 }
 
-                if(Ext.getCmp("SPpdf").getValue() != ''){
-                    console.log( 'ok ' )
-                    var SPfile = Ext.getCmp("SPpdf").fileInputEl.dom.files[0];
-                }else {
-                    var SPfile = ''
+                if (Ext.getCmp("ESpdf").getValue() != '') {
+                    console.log('ok ')
+                    var ESfile = Ext.getCmp("ESpdf").fileInputEl.dom.files[0];
+                } else {
+                    var ESfile = ''
                 }
 
-                if(Ext.getCmp("RUpdf").getValue() != ''){
+                if (Ext.getCmp("RUpdf").getValue() != '') {
                     var RUfile = Ext.getCmp("RUpdf").fileInputEl.dom.files[0];
-                }else {
+                } else {
                     var RUfile = ''
                 }
 
@@ -353,28 +356,28 @@
 
                 // EN PDF BASE 64
                 // const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
-                
+
                 let ENPdfFile = await toBase64(ENfile)
 
                 // FR PDF BASE 64
                 // const FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
-                if(FRfile != ''){
+                if (FRfile != '') {
                     var FRPdfFile = await toBase64(FRfile)
                 }
-                
-                if(DEfile != ''){
+
+                if (DEfile != '') {
                     var DEPdfFile = await toBase64(DEfile)
                 }
 
-                if(SPfile != ''){
-                    var SPPdfFile = await toBase64(SPfile)
+                if (ESfile != '') {
+                    var ESPdfFile = await toBase64(ESfile)
                 }
 
 
-                if(RUfile != ''){
+                if (RUfile != '') {
                     var RUPdfFile = await toBase64(RUfile)
                 }
-                
+
 
                 Ext.Ajax.request({
                     url: "/apiSpotlight/addSpotlight",
@@ -385,7 +388,7 @@
                         ENPdfFile: ENPdfFile,
                         FRPdfFile: FRPdfFile,
                         DEPdfFile: DEPdfFile,
-                        SPPdfFile: SPPdfFile,
+                        ESPdfFile: ESPdfFile,
                         RUPdfFile: RUPdfFile,
                         VisualFile: VisualFile,
 
@@ -406,10 +409,10 @@
                         DETitle: DETitle,
                         DEPdfName: DEPdfName,
 
-                        // SP
-                        SPLanguage: 'es',
-                        SPTitle: SPTitle,
-                        SPPdfName: SPPdfName,
+                        // ES
+                        ESLanguage: 'es',
+                        ESTitle: ESTitle,
+                        ESPdfName: ESPdfName,
 
                         // RU
                         RULanguage: 'ru',
@@ -420,7 +423,7 @@
                     success: function (fp, object) {
                         Ext.getBody().unmask();
                         SpotlightStore.reload();
-                            Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
+                        Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
                     },
                     failure: function (obj, res) {
                         Ext.getBody().unmask();
@@ -446,10 +449,75 @@
             var editSpotlight = async function () {
                 var form = Ext.getCmp('addForm')
                 Ext.getBody().mask("Saving", "x-msg-loading");
-                console.log(spotlightIdGlobal)
+
+
+                const selectedRecord = Ext.getCmp("SpotlightGrid")
+                    .getSelectionModel()
+                    .getSelection()[0];
+
+                // check if image change 
+                const VisualArrayCheck = (Ext.getCmp("Visual").getValue()).split('\\')
+                var VisualNameCheck = VisualArrayCheck.pop();
+                var visualChange
+                if (VisualNameCheck == selectedRecord.data.Visual) {
+                    visualChange = 'No'
+                } else {
+                    visualChange = 'Yes'
+                }
+                // check if pdf change for each languages
+                const ENPdfArrayCheck = (Ext.getCmp("ENpdf").getValue()).split('\\')
+                var ENpdfNameCheck = ENPdfArrayCheck.pop();
+                var ENPdfChange
+
+                if (ENpdfNameCheck == sessionStorage.getItem('ENPdf')) {
+                   
+                    ENPdfChange = 'No'
+                } else {
+                    
+                    ENPdfChange = 'Yes'
+                }
+
+
+                const FRPdfArrayCheck = (Ext.getCmp("FRpdf").getValue()).split('\\')
+                var FRpdfNameCheck = FRPdfArrayCheck.pop();
+                var FRPdfChange
+                if (FRpdfNameCheck == selectedRecord.data.Pdf) {
+                    FRPdfChange = 'No'
+                } else {
+                    FRPdfChange = 'Yes'
+                }
+
+
+                const DEPdfArrayCheck = (Ext.getCmp("DEpdf").getValue()).split('\\')
+                var DEpdfNameCheck = DEPdfArrayCheck.pop();
+                var DEPdfChange
+                if (DEpdfNameCheck == selectedRecord.data.Pdf) {
+                    DEPdfChange = 'No'
+                } else {
+                    DEPdfChange = 'Yes'
+                }
+
+                const ESPdfArrayCheck = (Ext.getCmp("ESpdf").getValue()).split('\\')
+                var ESpdfNameCheck = ESPdfArrayCheck.pop();
+                var ESPdfChange
+                if (ESpdfNameCheck == selectedRecord.data.Pdf) {
+                    ESPdfChange = 'No'
+                } else {
+                    ESPdfChange = 'Yes'
+                }
+
+                const RUPdfArrayCheck = (Ext.getCmp("RUpdf").getValue()).split('\\')
+                var RUpdfNameCheck = RUPdfArrayCheck.pop();
+                var RUPdfChange
+                if (RUpdfNameCheck == selectedRecord.data.Pdf) {
+                    RUPdfChange = 'No'
+                } else {
+                    RUPdfChange = 'Yes'
+                }
                 WorlkingTitle = Ext.getCmp("WorkingTitle").getValue()
                 const VisualArray = (Ext.getCmp("Visual").getValue()).split('\\')
                 var VisualName = VisualArray.pop();
+                var VisualChanges = visualChange;
                 var Date = Ext.getCmp("Dates").getValue();
                 var Title = Ext.getCmp("ENName").getValue();
                 var Pdf = (Ext.getCmp("ENpdf").getValue()).split('\\');
@@ -462,80 +530,102 @@
                 var DETitle = Ext.getCmp("DEName").getValue();
                 var DEPdfArray = (Ext.getCmp("DEpdf").getValue()).split('\\');
                 var DEPdfName = DEPdfArray.pop();
-                // SP
-                var SPTitle = Ext.getCmp("SPName").getValue();
-                var SPPdfArray = (Ext.getCmp("SPpdf").getValue()).split('\\');
-                var SPPdfName = SPPdfArray.pop();
+                // ES
+                var ESTitle = Ext.getCmp("ESName").getValue();
+                var ESPdfArray = (Ext.getCmp("ESpdf").getValue()).split('\\');
+                var ESPdfName = ESPdfArray.pop();
                 // RU
                 var RUTitle = Ext.getCmp("RUName").getValue();
                 var RUPdfArray = (Ext.getCmp("RUpdf").getValue()).split('\\');
                 var RUPdfName = RUPdfArray.pop();
 
                 // All Files
-                const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
-                
-                if(Ext.getCmp("FRpdf").getValue() != ''){
-                    
+
+                if (Ext.getCmp("ENpdf").getValue() != '') {
+                    var EnFileNameCheck = Ext.getCmp("ENpdf").getValue()
+                   
+                    var ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
+                } else {
+                    var EnFileNameCheck = ''
+                    var ENfile = ''
+                }
+                // const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
+
+                if (Ext.getCmp("FRpdf").getValue() != '') {
+                    var FRFileNameCheck = Ext.getCmp("FRpdf").getValue()
                     var FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
                 } else {
+                    var FRFileNameCheck = ''
                     var FRfile = ''
                 }
-                
-                if(Ext.getCmp("DEpdf").getValue() != ''){
+
+                if (Ext.getCmp("DEpdf").getValue() != '') {
+                    var DEFileNameCheck = Ext.getCmp("DEpdf").getValue()
                     var DEfile = Ext.getCmp("DEpdf").fileInputEl.dom.files[0];
-                }else {
+                } else {
+                    var DEFileNameCheck = ''
                     var DEfile = ''
                 }
 
-                if(Ext.getCmp("SPpdf").getValue() != ''){
-                    console.log( 'ok ' )
-                    var SPfile = Ext.getCmp("SPpdf").fileInputEl.dom.files[0];
-                }else {
-                    var SPfile = ''
+                if (Ext.getCmp("ESpdf").getValue() != '') {
+                    var ESFileNameCheck = Ext.getCmp("ESpdf").getValue()
+                    var ESfile = Ext.getCmp("ESpdf").fileInputEl.dom.files[0];
+                } else {
+                    var ESFileNameCheck = ''
+                    var ESfile = ''
                 }
 
-                if(Ext.getCmp("RUpdf").getValue() != ''){
+                if (Ext.getCmp("RUpdf").getValue() != '') {
+                    var RUFileNameCheck = Ext.getCmp("RUpdf").getValue()
                     var RUfile = Ext.getCmp("RUpdf").fileInputEl.dom.files[0];
-                }else {
+                } else {
+                    var RUFileNameCheck = ''
                     var RUfile = ''
                 }
 
                 const toBase64 = file => new Promise((resolve, reject) => {
                     const reader = new FileReader();
-
+                    
                     reader.readAsDataURL(file);
                     reader.onload = () => resolve(reader.result.replace("data:", "").replace(/^.+,/, ""));
                     reader.onerror = error => reject(error);
                 });
 
                 // VISUAL BASE 64
-                const file = Ext.getCmp("Visual").fileInputEl.dom.files[0];
-                let VisualFile = await toBase64(file)
+                if (Ext.getCmp("Visual").getValue()!= selectedRecord.data.Visual){
+                    const file = Ext.getCmp("Visual").fileInputEl.dom.files[0];
+                var VisualFile = await toBase64(file)
+                }
+                
 
                 // EN PDF BASE 64
                 // const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
-                
-                let ENPdfFile = await toBase64(ENfile)
+                if (EnFileNameCheck != sessionStorage.getItem('enPdf')) {
+                    console.log(EnFileNameCheck + '-' + sessionStorage.getItem('enPdf'))
+                    var ENPdfFile = await toBase64(ENfile)
+                }
 
                 // FR PDF BASE 64
                 // const FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
-                if(FRfile != ''){
+                if ( FRFileNameCheck != sessionStorage.getItem('frPdf') && sessionStorage.getItem('frPdf') != null) {
+                    console.log('test ' + FRFileNameCheck + ' --- '+ sessionStorage.getItem('frPdf'))
                     var FRPdfFile = await toBase64(FRfile)
+                } else {
+                    console.log('test ' + FRFileNameCheck + ' - ' + sessionStorage.getItem('frPdf'))
                 }
-                
-                if(DEfile != ''){
+
+                if (DEFileNameCheck != sessionStorage.getItem('dePdf') && sessionStorage.getItem('dePdf') != null) {
                     var DEPdfFile = await toBase64(DEfile)
                 }
 
-                if(SPfile != ''){
-                    var SPPdfFile = await toBase64(SPfile)
+                if (ESFileNameCheck != sessionStorage.getItem('spPdf') && sessionStorage.getItem('spPdf') != null) {
+                    var ESPdfFile = await toBase64(ESfile)
                 }
 
-
-                if(RUfile != ''){
+                if (RUFileNameCheck != sessionStorage.getItem('ruPdf') && sessionStorage.getItem('ruPdf') != null) {
                     var RUPdfFile = await toBase64(RUfile)
                 }
-                
+
 
                 Ext.Ajax.request({
                     url: "/apiSpotlight/updateSpotlight",
@@ -547,10 +637,15 @@
                         ENPdfFile: ENPdfFile,
                         FRPdfFile: FRPdfFile,
                         DEPdfFile: DEPdfFile,
-                        SPPdfFile: SPPdfFile,
+                        ESPdfFile: ESPdfFile,
                         RUPdfFile: RUPdfFile,
                         VisualFile: VisualFile,
-
+                        VisualChanges: VisualChanges,
+                        ENPdfChange: ENPdfChange,
+                        FRPdfChange: FRPdfChange,
+                        DEPdfChange: DEPdfChange,
+                        ESPdfChange: ESPdfChange,
+                        RUPdfChange: RUPdfChange,
                         ModifiedOn: formatDate,
                         WorkingTitle: WorlkingTitle,
                         Date: Date,
@@ -568,10 +663,10 @@
                         DETitle: DETitle,
                         DEPdfName: DEPdfName,
 
-                        // SP
-                        SPLanguage: 'es',
-                        SPTitle: SPTitle,
-                        SPPdfName: SPPdfName,
+                        // ES
+                        ESLanguage: 'es',
+                        ESTitle: ESTitle,
+                        ESPdfName: ESPdfName,
 
                         // RU
                         RULanguage: 'ru',
@@ -582,7 +677,7 @@
                     success: function (fp, object) {
                         Ext.getBody().unmask();
                         SpotlightStore.reload();
-                            Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
+                        Ext.getCmp("viewport").setActiveItem('SpotlightGrid');
                     },
                     failure: function (obj, res) {
                         Ext.getBody().unmask();
@@ -861,7 +956,7 @@
                                 title: "Spanish Translations",
                                 anchor: "100%",
                                 hidden: false,
-                                id: "SPFIELD",
+                                id: "ESFIELD",
                                 layoutConfig: {
                                     // The total column count must be specified here
                                     columns: 9,
@@ -878,14 +973,14 @@
                                                 xtype: 'my-form',
                                                 width: '40%',
                                                 frame: false,
-                                                id: 'formSP',
+                                                id: 'formES',
                                                 border: false,
                                                 items: [
 
                                                     {
                                                         xtype: "textfield",
-                                                        id: "SPName",
-                                                        name: "SPName",
+                                                        id: "ESName",
+                                                        name: "ESName",
                                                         fieldLabel: "Title",
                                                         allowBlank: true,
                                                         maxLenght: 118,
@@ -895,8 +990,8 @@
                                                     },
                                                     {
                                                         xtype: 'filefield',
-                                                        id: 'SPpdf',
-                                                        name: 'SPpdf',
+                                                        id: 'ESpdf',
+                                                        name: 'ESpdf',
                                                         fieldLabel: 'PDF',
                                                         accept: '.pdf',
                                                         labelWidth: 50,
@@ -1073,9 +1168,9 @@
                         id: "addSave",
                         iconCls: "fas fa-save",
                         handler: function () {
-                            console.log('rigth button')
+
                             if (Ext.getCmp('addForm').isValid()) {
-                                console.log('is valid')
+
                                 addSpotlight();
                                 Ext.getCmp('addForm').reset()
                             } else {
@@ -1088,7 +1183,9 @@
                         id: "editSave",
                         iconCls: "fas fa-save",
                         handler: function () {
+
                             if (Ext.getCmp('addForm').isValid()) {
+
                                 edit = false;
                                 editSpotlight();
                                 Ext.getCmp("addForm").reset();
@@ -1096,7 +1193,7 @@
                         },
                     },
                     "-",
-                    
+
                     {
                         text: "Cancel",
                         tooltip: "Cancel",
