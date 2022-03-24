@@ -68,8 +68,8 @@
                         const res = JSON.parse(response.responseText);
 
                         if (res != '') {
-                            sessionStorage.setItem(language+'Pdf', res[0].Pdf)
-                            
+                            sessionStorage.setItem(language + 'Pdf', res[0].Pdf)
+
                             sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
                             Ext.getCmp(`${language.toUpperCase()}Name`).setValue(res[0].Title);
                             Ext.getCmp(`${language.toUpperCase()}pdf`).setRawValue(res[0].Pdf);
@@ -470,10 +470,10 @@
                 var ENPdfChange
 
                 if (ENpdfNameCheck == sessionStorage.getItem('ENPdf')) {
-                   
+
                     ENPdfChange = 'No'
                 } else {
-                    
+
                     ENPdfChange = 'Yes'
                 }
 
@@ -541,9 +541,9 @@
 
                 // All Files
 
-                if (Ext.getCmp("ENpdf").getValue() != '') {
+                if (Ext.getCmp("ENpdf").getValue() != '' && PdfName != sessionStorage.getItem('enPdf')) {
                     var EnFileNameCheck = Ext.getCmp("ENpdf").getValue()
-                   
+                    console.log(PdfName)
                     var ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
                 } else {
                     var EnFileNameCheck = ''
@@ -551,7 +551,8 @@
                 }
                 // const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
 
-                if (Ext.getCmp("FRpdf").getValue() != '') {
+                if (Ext.getCmp("FRpdf").getValue() != '' && FRPdfName != sessionStorage.getItem('frPdf')) {
+                    console.log(FRPdfName)
                     var FRFileNameCheck = Ext.getCmp("FRpdf").getValue()
                     var FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
                 } else {
@@ -559,7 +560,7 @@
                     var FRfile = ''
                 }
 
-                if (Ext.getCmp("DEpdf").getValue() != '') {
+                if (Ext.getCmp("DEpdf").getValue() != ''&& DEPdfName!= sessionStorage.getItem('dePdf')) {
                     var DEFileNameCheck = Ext.getCmp("DEpdf").getValue()
                     var DEfile = Ext.getCmp("DEpdf").fileInputEl.dom.files[0];
                 } else {
@@ -567,7 +568,7 @@
                     var DEfile = ''
                 }
 
-                if (Ext.getCmp("ESpdf").getValue() != '') {
+                if (Ext.getCmp("ESpdf").getValue() != '' && ESPdfName != sessionStorage.getItem('esPdf')) {
                     var ESFileNameCheck = Ext.getCmp("ESpdf").getValue()
                     var ESfile = Ext.getCmp("ESpdf").fileInputEl.dom.files[0];
                 } else {
@@ -575,7 +576,7 @@
                     var ESfile = ''
                 }
 
-                if (Ext.getCmp("RUpdf").getValue() != '') {
+                if (Ext.getCmp("RUpdf").getValue() != '' && RUPdfName != sessionStorage.getItem('ruPdf')) {
                     var RUFileNameCheck = Ext.getCmp("RUpdf").getValue()
                     var RUfile = Ext.getCmp("RUpdf").fileInputEl.dom.files[0];
                 } else {
@@ -585,44 +586,44 @@
 
                 const toBase64 = file => new Promise((resolve, reject) => {
                     const reader = new FileReader();
-                    
+
                     reader.readAsDataURL(file);
                     reader.onload = () => resolve(reader.result.replace("data:", "").replace(/^.+,/, ""));
                     reader.onerror = error => reject(error);
                 });
 
                 // VISUAL BASE 64
-                if (Ext.getCmp("Visual").getValue()!= selectedRecord.data.Visual){
+                if (Ext.getCmp("Visual").getValue() != selectedRecord.data.Visual) {
                     const file = Ext.getCmp("Visual").fileInputEl.dom.files[0];
-                var VisualFile = await toBase64(file)
+                    var VisualFile = await toBase64(file)
                 }
-                
+
 
                 // EN PDF BASE 64
                 // const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
-                if (EnFileNameCheck != sessionStorage.getItem('enPdf')) {
+                if (EnFileNameCheck != '') {
                     console.log(EnFileNameCheck + '-' + sessionStorage.getItem('enPdf'))
                     var ENPdfFile = await toBase64(ENfile)
                 }
 
                 // FR PDF BASE 64
                 // const FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
-                if ( FRFileNameCheck != sessionStorage.getItem('frPdf') && sessionStorage.getItem('frPdf') != null) {
-                    console.log('test ' + FRFileNameCheck + ' --- '+ sessionStorage.getItem('frPdf'))
+                if (FRFileNameCheck != '' && sessionStorage.getItem('frPdf') != null) {
+                    console.log('test ' + FRFileNameCheck + ' --- ' + sessionStorage.getItem('frPdf'))
                     var FRPdfFile = await toBase64(FRfile)
                 } else {
                     console.log('test ' + FRFileNameCheck + ' - ' + sessionStorage.getItem('frPdf'))
                 }
 
-                if (DEFileNameCheck != sessionStorage.getItem('dePdf') && sessionStorage.getItem('dePdf') != null) {
+                if (DEFileNameCheck != '' && sessionStorage.getItem('dePdf') != null) {
                     var DEPdfFile = await toBase64(DEfile)
                 }
 
-                if (ESFileNameCheck != sessionStorage.getItem('spPdf') && sessionStorage.getItem('spPdf') != null) {
+                if (ESFileNameCheck != ''  && sessionStorage.getItem('spPdf') != null) {
                     var ESPdfFile = await toBase64(ESfile)
                 }
 
-                if (RUFileNameCheck != sessionStorage.getItem('ruPdf') && sessionStorage.getItem('ruPdf') != null) {
+                if (RUFileNameCheck != '' && sessionStorage.getItem('ruPdf') != null) {
                     var RUPdfFile = await toBase64(RUfile)
                 }
 
@@ -1189,6 +1190,11 @@
                                 edit = false;
                                 editSpotlight();
                                 Ext.getCmp("addForm").reset();
+                                sessionStorage.removeItem('enPdf')
+                                sessionStorage.removeItem('frPdf')
+                                sessionStorage.removeItem('dePdf')
+                                sessionStorage.removeItem('ruPdf')
+                                sessionStorage.removeItem('esPdf')
                             }
                         },
                     },
@@ -1202,6 +1208,11 @@
                         handler: function () {
                             edit = false;
                             Ext.getCmp('addForm').reset();
+                            sessionStorage.removeItem('enPdf')
+                            sessionStorage.removeItem('frPdf')
+                            sessionStorage.removeItem('dePdf')
+                            sessionStorage.removeItem('ruPdf')
+                            sessionStorage.removeItem('esPdf')
                             Ext.getCmp("viewport").setActiveItem("SpotlightGrid");
                         },
                     },
