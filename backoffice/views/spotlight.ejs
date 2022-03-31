@@ -602,18 +602,14 @@
                 // EN PDF BASE 64
                 // const ENfile = Ext.getCmp("ENpdf").fileInputEl.dom.files[0];
                 if (EnFileNameCheck != '') {
-                    console.log(EnFileNameCheck + '-' + sessionStorage.getItem('enPdf'))
                     var ENPdfFile = await toBase64(ENfile)
                 }
 
                 // FR PDF BASE 64
                 // const FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
                 if (FRFileNameCheck != '' && sessionStorage.getItem('frPdf') != null) {
-                    console.log('test ' + FRFileNameCheck + ' --- ' + sessionStorage.getItem('frPdf'))
                     var FRPdfFile = await toBase64(FRfile)
-                } else {
-                    console.log('test ' + FRFileNameCheck + ' - ' + sessionStorage.getItem('frPdf'))
-                }
+                } 
 
                 if (DEFileNameCheck != '' && sessionStorage.getItem('dePdf') != null) {
                     var DEPdfFile = await toBase64(DEfile)
