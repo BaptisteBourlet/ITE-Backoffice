@@ -112,12 +112,17 @@ exports.updateSequence = async (req, res) => {
 }
 
 exports.deleteAssets = async (req, res) => {
-   const { itemId } = req.body;
+   const { itemId, PathJPG } = req.body;
 
    con.query(`DELETE FROM Assets WHERE Id = ${itemId};`, (err, results, fields) => {
       if (err) {
          console.log(err);
       }
+      // fs.unlink(appRoot + `/assets/${PathJPG}`, function (err) {
+      //    if (err) throw err;
+      //    // if no error, file has been deleted successfully
+      //    console.log('File deleted!');
+      // });
       res.send(results)
    })
 }

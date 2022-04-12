@@ -701,6 +701,7 @@
                 const selectedRecord = Ext.getCmp("SpotlightGrid")
                     .getSelectionModel()
                     .getSelection()[0];
+                    
                 Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this spotlight ?", function (btn, text) {
                     if (btn == 'yes') {
                         Ext.getBody().mask('Deleting', 'x-msg-loading');
@@ -710,7 +711,9 @@
                             cors: true,
                             useDefaultXhrHeader: false,
                             params: {
-                                Id: selectedRecord.data.Id
+                                Id: selectedRecord.data.Id,
+                                PathPdf: selectedRecord.data.Pdf,
+                                PathVisual: selectedRecord.data.Visual
                             },
                             success: function (response) {
                                 // check for errors and display error message

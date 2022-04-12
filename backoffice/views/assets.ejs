@@ -1079,7 +1079,6 @@
                     var selectedRecord = Ext.getCmp("AssetsSerieGrid")
                         .getSelectionModel()
                         .getSelection()[0];
-                    console.log(selectedRecord)
                 }
                 Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this assets ?", function (btn, text) {
                     if (btn == 'yes') {
@@ -1091,7 +1090,8 @@
                             cors: true,
                             useDefaultXhrHeader: false,
                             params: {
-                                itemId: selectedRecord.data.Id
+                                itemId: selectedRecord.data.Id,
+                                PathJPG: selectedRecord.data.Path
                             },
                             success: function (response) {
                                 // check for errors and display error message
