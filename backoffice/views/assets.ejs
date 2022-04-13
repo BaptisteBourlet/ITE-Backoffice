@@ -1063,7 +1063,7 @@
                     .getSelectionModel()
                     .getSelection()[0];
 
-                console.log(selectedRecordProd)
+                console.log('test ' + selectedRecordProd)
                 const selectedRecordProdSer = Ext.getCmp("AssetsSerieGrid")
                     .getSelectionModel()
                     .getSelection()[0];
@@ -1072,17 +1072,18 @@
                         var selectedRecord = Ext.getCmp("AssetsGrid")
                             .getSelectionModel()
                             .getSelection()[0];
-                        console.log(selectedRecord)
+                        console.log(selectedRecord.data)
                     }
 
                 } else {
                     var selectedRecord = Ext.getCmp("AssetsSerieGrid")
                         .getSelectionModel()
                         .getSelection()[0];
+                        console.log(selectedRecord.data)
                 }
                 Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this assets ?", function (btn, text) {
                     if (btn == 'yes') {
-                        console.log(selectedRecord)
+                        
                         Ext.getBody().mask('Deleting', 'x-msg-loading');
                         Ext.Ajax.request({
                             url: "/apiAssets/deleteAssets",

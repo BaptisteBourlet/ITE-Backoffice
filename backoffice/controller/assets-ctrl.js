@@ -113,18 +113,32 @@ exports.updateSequence = async (req, res) => {
 
 exports.deleteAssets = async (req, res) => {
    const { itemId, PathJPG } = req.body;
-
-   con.query(`DELETE FROM Assets WHERE Id = ${itemId};`, (err, results, fields) => {
-      if (err) {
-         console.log(err);
-      }
-      // fs.unlink(appRoot + `/assets/${PathJPG}`, function (err) {
-      //    if (err) throw err;
-      //    // if no error, file has been deleted successfully
-      //    console.log('File deleted!');
-      // });
-      res.send(results)
-   })
+   
+   if (fs.existsSync(appRoot + `/assets/${PathJPG}`)) {
+      fs.unlink(appRoot + `/assets/${PathJPG}`, function (err) {
+         if (err) throw err;
+         // if no error, file has been deleted successfully
+         console.log('File P deleted!');
+         con.query(`DELETE FROM Assets WHERE Id = ${itemId};`, (err, results, fields) => {
+            if (err) {
+               console.log(err);
+            }
+            
+            res.send(results)
+         })
+      });
+      console.log('File exists!');
+   } else {
+      con.query(`DELETE FROM Assets WHERE Id = ${itemId};`, (err, results, fields) => {
+         if (err) {
+            console.log(err);
+         }
+        
+         res.send(results)
+      })
+      console.log('Sorry, File does not exists!');
+   }
+   
 }
 
 

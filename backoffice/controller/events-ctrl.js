@@ -56,7 +56,7 @@ exports.addEvent = async (req, res) => {
    const insertInfo
       = `INSERT INTO Event (Name, Location, Online, OnHomePage, Start, End, Url, CreatedOn) `
       + `VALUES ("${Name}", "${Location}", '1', '1', "${Start}", "${End}", "${URL}", CURRENT_TIMESTAMP())`;
-   console.log(req.body);
+   
    con.query(insertInfo, (err, result) => {
       if (err) throw err;
       if (req.files.length > 0) {
@@ -130,12 +130,39 @@ exports.editEvent = async (req, res) => {
 
 
 exports.deleteEvent = async (req, res) => {
-   const { Id } = req.body;
+   const { Id, PathJpg, PathBanner } = req.body;
    const deleteEvent = `DELETE FROM Event WHERE Id = "${Id}"`;
+   // console.log(PathBanner + ' ---- ' + PathJpg)
 
-   con.query(deleteEvent, (err, result) => {
-      if (err) throw err;
+   // if (fs.existsSync(appRoot + `/assets/images/spotlight/${PathJpg}`)) {
+   //    fs.unlink(appRoot + `/assets/images/spotlight/${PathJpg}`, function (err) {
+   //       if (err) throw err;
+   //       // if no error, file has been deleted successfully
+   //       console.log('File P deleted!');
+         con.query(deleteEvent, (err, results, fields) => {
+            if (err) {
+               console.log(err);
+            }
+            
+            res.send(results)
+         })
+   //    });
+   //    console.log('File exists!');
+   // } else {
+   //    con.query(deleteEvent, (err, results, fields) => {
+   //       if (err) {
+   //          console.log(err);
+   //       }
+        
+   //       res.send(results)
+   //    })
+   //    console.log('Sorry, File does not exists!');
+   // }
 
-      res.send(result);
-   })
+
+   // con.query(deleteEvent, (err, result) => {
+   //    if (err) throw err;
+
+   //    res.send(result);
+   // })
 }

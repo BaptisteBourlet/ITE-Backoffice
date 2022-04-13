@@ -184,6 +184,8 @@
                useDefaultXhrHeader: false,
                params: {
                   Id: record.data.Id,
+                  PathJpg: record.data.Visual,
+                  PathBanner: record.data.BannerVisual
                },
                success: function (response) {
                   Ext.Msg.alert('INFO', "Event deleted successfully");
