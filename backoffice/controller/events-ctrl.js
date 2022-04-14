@@ -89,13 +89,11 @@ exports.editEvent = async (req, res) => {
       + `Start = "${Start}", End = "${End}", ModifiedOn = CURRENT_TIMESTAMP() `
       + `WHERE Id = "${Id}";`
 
-      console.log(Id)
    con.query(updateInfo, (err, result) => {
       if (err) throw err;
 
-      console.log(req.files.length)
       if (req.files.length === 2) {
-         
+
          const insertVisual = `UPDATE Event SET Visual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${Id}"`;
          const insertBannerVisual = `UPDATE Event SET BannerVisual = "${visualPath}${req.files[1].originalname}" WHERE Id = "${Id}"`;
 

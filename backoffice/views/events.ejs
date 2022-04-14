@@ -60,7 +60,7 @@
          const addEvent = () => {
             let form = Ext.getCmp('addEventForm')
             Ext.getBody().mask('Adding', 'x-msg-loading');
-            console.log('inside');
+            
             if (form.isValid()) {
                form.submit({
                   url: "/apiEvents/addEvent",
@@ -249,8 +249,7 @@
                dataIndex: "Start",
                renderer: (value) => {
 
-                  console.log(new Date(value).getTime());
-                  console.log(value);
+                  
                   return value.slice(0, 10).split('-').reverse().join('-');
                }
             },
