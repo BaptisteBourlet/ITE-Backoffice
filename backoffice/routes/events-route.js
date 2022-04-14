@@ -7,7 +7,7 @@ const appRoot = require('app-root-path');
 // multer middleware to upload images
 var storage = multer.diskStorage({
    destination: function (req, file, cb) {
-      cb(null, appRoot + '/assets')
+      cb(null, appRoot + '/assets/images/events')
    },
    filename: function (req, file, cb) {
       cb(null, file.originalname)

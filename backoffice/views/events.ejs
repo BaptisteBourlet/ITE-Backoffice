@@ -168,12 +168,13 @@
 
             Ext.getCmp('eventVisual').allowBlank = true;
             Ext.getCmp('eventVisualBanner').allowBlank = true;
-            // Ext.getCmp('visual').setSrc(record.data['Visual']);
-            // Ext.getCmp('bannerVisual').setSrc(record.data['BannerVisual']);
+            
             Ext.getCmp('editEventSave').setHidden(false);
             Ext.getCmp('addEventSave').setHidden(true);
             Ext.getCmp('addEditEventPanel').setTitle('Edit Event');
             Ext.getCmp('viewport').setActiveItem('addEditEventPanel');
+            Ext.getCmp('eventVisual').setRawValue(record.data['Visual']);
+            Ext.getCmp('eventVisualBanner').setRawValue(record.data['BannerVisual']);
          }
 
          const deleteEvent = (record) => {
@@ -379,12 +380,10 @@
                   {
                      xtype: "button",
                      id: 'addEventSave',
-                     text: "AddSave",
+                     text: "Save",
                      iconCls: "fas fa-save",
                      scale: "small",
                      handler: function () { //ongoing
-
-                        console.log('aha');
 
                         addEvent();
                      },
@@ -392,7 +391,7 @@
                   {
                      xtype: "button",
                      id: 'editEventSave',
-                     text: "EditSave",
+                     text: "Save",
                      iconCls: "fas fa-save",
                      scale: "small",
                      handler: function () { //ongoing
