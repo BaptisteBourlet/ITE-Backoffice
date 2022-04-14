@@ -15,9 +15,10 @@
    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
    <style>
       .x-grid-view {
-	overflow-y: auto !important;
-	position: relative;
-	}
+         overflow-y: auto !important;
+         position: relative;
+      }
+
       .x-grid-cell-inner {
          overflow: hidden;
          padding: 10px 6px;
@@ -55,6 +56,14 @@
             line-height: 50px;
             display: block !important;
          }
+      }
+
+      .x-autocontainer-outerCt {
+         overflow-y: auto !important;
+      }
+
+      .x-boundlist-list-ct {
+         overflow-y: auto !important;
       }
    </style>
    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
@@ -352,7 +361,7 @@
 
                            if (selectedRecord === undefined) {
                               Ext.Msg.alert("INFO", "No record selected");
-                           } else if(selectedRecord.data.Type != 'C'){
+                           } else if (selectedRecord.data.Type != 'C') {
                               Ext.Msg.alert("INFO", "This is not a category");
                            } else {
 
@@ -390,18 +399,18 @@
                      text: "Add linked item",
                      style: "padding: 7px; border: none; background-color: #000",
                      handler: function () {
-                        if(Ext.getCmp('CategoryID').getValue() == '' || Ext.getCmp('CategoryID').getValue() == null){
+                        if (Ext.getCmp('CategoryID').getValue() == '' || Ext.getCmp('CategoryID').getValue() == null) {
                            Ext.Msg.alert(
-                           "INFO",
-                           `You must choose a category`,
-                        );
-                        
-                     } else {
-                        console.log(Ext.getCmp('CategoryID').getValue())
-                        sessionStorage.setItem('CategoryId',Ext.getCmp('CategoryID').getValue())
-                        Ext.getCmp("viewport").setActiveItem("panelAddRelated");
+                              "INFO",
+                              `You must choose a category`,
+                           );
+
+                        } else {
+                           console.log(Ext.getCmp('CategoryID').getValue())
+                           sessionStorage.setItem('CategoryId', Ext.getCmp('CategoryID').getValue())
+                           Ext.getCmp("viewport").setActiveItem("panelAddRelated");
+                        }
                      }
-                  }
                   },
                ],
             },
@@ -1103,7 +1112,7 @@
                   CategoryId: sessionStorage.getItem('CategoryId'),
                   LinkId: Ext.getCmp("ProductDesc").getValue(),
                   Type: Ext.getCmp('Types').getValue(),
-                  
+
                },
                success: function (response) {
                   // check for errors and display error message
@@ -1140,7 +1149,7 @@
          });
 
 
-        
+
 
          const ProductDetStore = Ext.create("Ext.data.Store", {
             id: "ProductDetStore",
@@ -1169,7 +1178,7 @@
                method: "GET",
                cors: true,
                useDefaultXhrHeader: false,
-               params:{
+               params: {
                   Type: Ext.getCmp('Types').getValue(),
                   ItemId: ItemId
                },
@@ -1210,7 +1219,7 @@
                listeners: {
                   select: () => {
                      let type = Ext.getCmp('Types').getValue()
-                     
+
                      Ext.getCmp('ProductDesc').setValue('')
                      ProductDetStore.getProxy().setExtraParam('Type', type);
                      ProductDetStore.reload()
@@ -1235,7 +1244,7 @@
                   select: function () {
                      console.log('works')
                      let ItemId = this.getValue();
-                     
+
                      getRelatedItems(ItemId);
                   }
                }

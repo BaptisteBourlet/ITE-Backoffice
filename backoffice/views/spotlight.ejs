@@ -38,6 +38,14 @@
                 display: block !important;
             }
         }
+
+        .x-autocontainer-outerCt {
+            overflow-y: auto !important;
+        }
+
+        .x-boundlist-list-ct {
+            overflow-y: auto !important;
+        }
     </style>
     <script type="text/javascript">
         //=========================================================================================================
@@ -560,7 +568,7 @@
                     var FRfile = ''
                 }
 
-                if (Ext.getCmp("DEpdf").getValue() != ''&& DEPdfName!= sessionStorage.getItem('dePdf')) {
+                if (Ext.getCmp("DEpdf").getValue() != '' && DEPdfName != sessionStorage.getItem('dePdf')) {
                     var DEFileNameCheck = Ext.getCmp("DEpdf").getValue()
                     var DEfile = Ext.getCmp("DEpdf").fileInputEl.dom.files[0];
                 } else {
@@ -609,13 +617,13 @@
                 // const FRfile = Ext.getCmp("FRpdf").fileInputEl.dom.files[0];
                 if (FRFileNameCheck != '' && sessionStorage.getItem('frPdf') != null) {
                     var FRPdfFile = await toBase64(FRfile)
-                } 
+                }
 
                 if (DEFileNameCheck != '' && sessionStorage.getItem('dePdf') != null) {
                     var DEPdfFile = await toBase64(DEfile)
                 }
 
-                if (ESFileNameCheck != ''  && sessionStorage.getItem('spPdf') != null) {
+                if (ESFileNameCheck != '' && sessionStorage.getItem('spPdf') != null) {
                     var ESPdfFile = await toBase64(ESfile)
                 }
 
@@ -701,7 +709,7 @@
                 const selectedRecord = Ext.getCmp("SpotlightGrid")
                     .getSelectionModel()
                     .getSelection()[0];
-                    
+
                 Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this spotlight ?", function (btn, text) {
                     if (btn == 'yes') {
                         Ext.getBody().mask('Deleting', 'x-msg-loading');

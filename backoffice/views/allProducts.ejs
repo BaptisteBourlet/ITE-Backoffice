@@ -90,6 +90,14 @@
         display: block !important;
       }
     }
+
+    .x-autocontainer-outerCt {
+      overflow-y: auto !important;
+    }
+
+    .x-boundlist-list-ct {
+      overflow-y: auto !important;
+    }
   </style>
 
 
@@ -1088,22 +1096,22 @@
           beforeload: function (store) {
 
           },
-          
+
 
         },
 
       });
 
 
-        mainStore.on('load', function (store, records) {
-          
+      mainStore.on('load', function (store, records) {
+
         records.forEach(element => {
           if (element.data.Tree != null && element.data.SProductId != null) {
-             element.data.Tree = element.data.Tree + ' serie'
+            element.data.Tree = element.data.Tree + ' serie'
 
           } else if (element.data.Tree == null && element.data.SProductId != null) {
 
-             element.data.Tree = 'serie'
+            element.data.Tree = 'serie'
           } else {
 
             element.data.Tree = element.data.Tree
@@ -1112,7 +1120,7 @@
 
         Ext.getCmp('AllProductGrid').setStore(mainStore)
         //if store has any records, it would print sum of all values of fieldName column.
-      }, this, {single:true});
+      }, this, { single: true });
 
 
       // const mainStoreT = Ext.create("Ext.data.Store", {
@@ -1564,7 +1572,7 @@
 
         dockedItems: [...tbarItems],
         listeners: {
-         
+
           dblclick: {
             element: "body",
             fn: () => {
@@ -1601,7 +1609,7 @@
 
       //       record.get('Tree') = record.get('Tree')
       //     }
-        
+
 
       //   record.commit();
       // });

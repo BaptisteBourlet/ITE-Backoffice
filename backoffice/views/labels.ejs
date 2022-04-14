@@ -10,15 +10,16 @@
         href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
     <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
     <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
-   <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
 
-   <!-- ----------------------------- PRODUCTION ------------------------------ -->
-   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+    <!-- ----------------------------- PRODUCTION ------------------------------ -->
+    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
     <style>
         .x-grid-view {
-	overflow-y: auto !important;
-	position: relative;
-	}
+            overflow-y: auto !important;
+            position: relative;
+        }
+
         #small-view {
             display: none;
         }
@@ -44,6 +45,14 @@
         #DEFIELD-legendTitle,
         #RUFIELD-legendTitle {
             font-weight: bold;
+        }
+
+        .x-autocontainer-outerCt {
+            overflow-y: auto !important;
+        }
+
+        .x-boundlist-list-ct {
+            overflow-y: auto !important;
         }
     </style>
     <script type="text/javascript">
@@ -91,7 +100,7 @@
                     header: "Translated to",
                     width: 150,
                     dataIndex: "Translated",
-                    renderer: function(value) {
+                    renderer: function (value) {
                         return value.map(lang => `<span title="${lang.Lid}: ${Ext.String.htmlEncode(lang.Value)}">${Ext.String.htmlEncode(lang.Language)}</span>`).join(', ');
                     }
                 },
@@ -99,13 +108,13 @@
                     header: "Not translated to",
                     width: 150,
                     dataIndex: "NotTranslated",
-                    renderer: function(value) {
-                        if(value) {
+                    renderer: function (value) {
+                        if (value) {
                             return value.join(', ');
                         } else {
                             return '';
                         }
-                        
+
                     }
                 }
 
@@ -151,7 +160,7 @@
                                     Ext.Msg.alert("INFO", "No record selected");
                                 } else {
                                     sessionStorage.setItem('oldKey', selectedRecord.data.Key)
-                                    
+
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
                                     Ext.getCmp("panelAdd").setTitle("Edit labels");

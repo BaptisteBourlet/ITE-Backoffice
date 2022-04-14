@@ -48,6 +48,14 @@
         #RUFIELD-legendTitle {
             font-weight: bold;
         }
+
+        .x-autocontainer-outerCt {
+            overflow-y: auto !important;
+        }
+
+        .x-boundlist-list-ct {
+            overflow-y: auto !important;
+        }
     </style>
     <script type="text/javascript">
         //=========================================================================================================
@@ -1079,11 +1087,11 @@
                     var selectedRecord = Ext.getCmp("AssetsSerieGrid")
                         .getSelectionModel()
                         .getSelection()[0];
-                        console.log(selectedRecord.data)
+                    console.log(selectedRecord.data)
                 }
                 Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this assets ?", function (btn, text) {
                     if (btn == 'yes') {
-                        
+
                         Ext.getBody().mask('Deleting', 'x-msg-loading');
                         Ext.Ajax.request({
                             url: "/apiAssets/deleteAssets",

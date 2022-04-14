@@ -17,9 +17,10 @@
 
    <style>
       .x-grid-view {
-	overflow-y: auto !important;
-	position: relative;
-	}
+         overflow-y: auto !important;
+         position: relative;
+      }
+
       .x-grid-cell-inner {
          overflow: hidden;
          padding: 10px 6px;
@@ -44,6 +45,14 @@
             display: block !important;
          }
       }
+
+      .x-autocontainer-outerCt {
+         overflow-y: auto !important;
+      }
+
+      .x-boundlist-list-ct {
+         overflow-y: auto !important;
+      }
    </style>
    <script type="text/javascript">
       //=========================================================================================================
@@ -60,7 +69,7 @@
          const addEvent = () => {
             let form = Ext.getCmp('addEventForm')
             Ext.getBody().mask('Adding', 'x-msg-loading');
-            
+
             if (form.isValid()) {
                form.submit({
                   url: "/apiEvents/addEvent",
@@ -168,7 +177,7 @@
 
             Ext.getCmp('eventVisual').allowBlank = true;
             Ext.getCmp('eventVisualBanner').allowBlank = true;
-            
+
             Ext.getCmp('editEventSave').setHidden(false);
             Ext.getCmp('addEventSave').setHidden(true);
             Ext.getCmp('addEditEventPanel').setTitle('Edit Event');
@@ -249,7 +258,7 @@
                dataIndex: "Start",
                renderer: (value) => {
 
-                  
+
                   return value.slice(0, 10).split('-').reverse().join('-');
                }
             },
