@@ -89,7 +89,7 @@
 
                         if (res != '') {
                             sessionStorage.setItem(language + 'Pdf', res[0].Pdf)
-
+                            sessionStorage.setItem('Old' + language + 'Pdf', res[0].Pdf)
                             sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
                             Ext.getCmp(`${language.toUpperCase()}Name`).setValue(res[0].Title);
                             Ext.getCmp(`${language.toUpperCase()}pdf`).setRawValue(res[0].Pdf);
@@ -188,7 +188,7 @@
                                     spotlightIdGlobal = selectedRecord.data.Id;
                                     Ext.getCmp("WorkingTitle").setValue(selectedRecord.data.WorkingTitle)
                                     Ext.getCmp("Visual").setRawValue(selectedRecord.data.Visual)
-
+                                    sessionStorage.setItem('OldVisual', selectedRecord.data.Visual)
                                     const unformatDate = new Date(selectedRecord.data.Date)
 
                                     var formatDate = unformatDate.getDate() + "-" + (unformatDate.getMonth() + 1) + "-" + unformatDate.getFullYear()
@@ -489,11 +489,10 @@
                 var ENpdfNameCheck = ENPdfArrayCheck.pop();
                 var ENPdfChange
 
-                if (ENpdfNameCheck == sessionStorage.getItem('ENPdf')) {
+                if (ENpdfNameCheck == sessionStorage.getItem('enPdf')) {
 
                     ENPdfChange = 'No'
                 } else {
-
                     ENPdfChange = 'Yes'
                 }
 
@@ -657,6 +656,7 @@
                         ESPdfFile: ESPdfFile,
                         RUPdfFile: RUPdfFile,
                         VisualFile: VisualFile,
+
                         VisualChanges: VisualChanges,
                         ENPdfChange: ENPdfChange,
                         FRPdfChange: FRPdfChange,
@@ -689,6 +689,13 @@
                         RULanguage: 'ru',
                         RUTitle: RUTitle,
                         RUPdfName: RUPdfName,
+
+                        OldVisual: sessionStorage.getItem('OldVisual'),
+                        OldENPdf: sessionStorage.getItem('OldenPdf'),
+                        OldFRPdf: sessionStorage.getItem('OldfrPdf'),
+                        OldDEPdf: sessionStorage.getItem('OlddePdf'),
+                        OldESPdf: sessionStorage.getItem('OldesPdf'),
+                        OldRUPdf: sessionStorage.getItem('OldruPdf'),
 
                     },
                     success: function (fp, object) {

@@ -269,7 +269,23 @@ exports.deleteSpotlight = async (req, res) => {
 }
 
 exports.updateSpotlight = async (req, res) => {
-   const { id, WorkingTitle, Date, VisualName, ModifiedOn, VisualFile, VisualChanges } = req.body;
+   const { id, WorkingTitle, Date, VisualName, ModifiedOn, VisualFile, VisualChanges, OldVisual } = req.body;
+
+   console.log(OldVisual)
+   console.log(VisualChanges)
+
+   if(VisualChanges == 'Yes' && OldVisual != ''){
+      if (fs.existsSync(appRoot + `/assets/images/spotlight/${OldVisual}`)) {
+         
+         fs.unlink(appRoot + `/assets/images/spotlight/${OldVisual}`, function (err) {
+            if (err) throw err;
+            // if no error, file has been deleted successfully
+            console.log('File P deleted!');
+            
+         });
+         console.log('File exists!');
+      }
+   }
 
    var query
    if (VisualChanges == 'Yes') {
@@ -286,13 +302,76 @@ exports.updateSpotlight = async (req, res) => {
    con.query(query, (err, results) => {
       if (err) throw err;
 
-      const { Language, Title, ENPdfFile, PdfName, ENPdfChange,
-         FRLanguage, FRTitle, FRPdf, FRPdfFile, FRPdfName, FRPdfChange,
-         DELanguage, DETitle, DEPdfFile, DEPdfName, DEPdfChange,
-         ESLanguage, ESTitle, ESPdfFile, ESPdfName, ESPdfChange,
-         RULanguage, RUTitle, RUPdfFile, RUPdfName, RUPdfChange } = req.body;
+      const { Language, Title, ENPdfFile, PdfName, ENPdfChange, OldENPdf,
+         FRLanguage, FRTitle, FRPdf, FRPdfFile, FRPdfName, FRPdfChange, OldFRPdf,
+         DELanguage, DETitle, DEPdfFile, DEPdfName, DEPdfChange, OldDEPdf,
+         ESLanguage, ESTitle, ESPdfFile, ESPdfName, ESPdfChange, OldESPdf,
+         RULanguage, RUTitle, RUPdfFile, RUPdfName, RUPdfChange, OldRUPdf, } = req.body;
 
-
+         console.log(ENPdfChange)
+         console.log(OldENPdf)
+         
+         if(ENPdfChange == 'Yes' && OldENPdf != ''){
+            if (fs.existsSync(appRoot + `/assets/images/spotlight/${OldENPdf}`)) {
+               
+               fs.unlink(appRoot + `/assets/images/spotlight/${OldENPdf}`, function (err) {
+                  if (err) throw err;
+                  // if no error, file has been deleted successfully
+                  console.log('File P deleted!');
+                  
+               });
+               console.log('File exists!');
+            }
+         }
+         if(FRPdfChange == 'Yes' && OldFRPdf != ''){
+            if (fs.existsSync(appRoot + `/assets/images/spotlight/${OldFRPdf}`)) {
+               
+               fs.unlink(appRoot + `/assets/images/spotlight/${OldFRPdf}`, function (err) {
+                  if (err) throw err;
+                  // if no error, file has been deleted successfully
+                  console.log('File P deleted!');
+                  
+               });
+               console.log('File exists!');
+            }
+         }
+         if(DEPdfChange == 'Yes' && OldDEPdf != ''){
+            if (fs.existsSync(appRoot + `/assets/images/spotlight/${OldDEPdf}`)) {
+               
+               fs.unlink(appRoot + `/assets/images/spotlight/${OldDEPdf}`, function (err) {
+                  if (err) throw err;
+                  // if no error, file has been deleted successfully
+                  console.log('File P deleted!');
+                  
+               });
+               console.log('File exists!');
+            }
+         }
+         if(ESPdfChange == 'Yes'  && OldESPdf != ''){
+            if (fs.existsSync(appRoot + `/assets/images/spotlight/${OldESPdf}`)) {
+               
+               fs.unlink(appRoot + `/assets/images/spotlight/${OldESPdf}`, function (err) {
+                  if (err) throw err;
+                  // if no error, file has been deleted successfully
+                  console.log('File P deleted!');
+                  
+               });
+               console.log('File exists!');
+            }
+         }
+         if(RUPdfChange == 'Yes' && OldRUPdf != ''){
+            if (fs.existsSync(appRoot + `/assets/images/spotlight/${OldRUPdf}`)) {
+               
+               fs.unlink(appRoot + `/assets/images/spotlight/${OldRUPdf}`, function (err) {
+                  if (err) throw err;
+                  // if no error, file has been deleted successfully
+                  console.log('File P deleted!');
+                  
+               });
+               console.log('File exists!');
+            }
+         }
+         
       //check if datas for translations exists
       const existTransEN = `SELECT COUNT(*) AS transCount FROM SpotlightTranslation WHERE SpotlightID = ${id} AND Language = 'en';`;
       const existTransFR = `SELECT COUNT(*) AS transCountFR FROM SpotlightTranslation WHERE SpotlightID = ${id} AND Language = 'fr';`;

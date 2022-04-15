@@ -146,6 +146,8 @@
                      End: Ext.getCmp('endDate').getValue().toLocaleDateString(),
                      visualCheck: Ext.getCmp('visualCheck').getValue(),
                      visualBannerCheck: Ext.getCmp('visualBannerCheck').getValue(),
+                     OldVisual: sessionStorage.getItem('VisualCheck'),
+                     OldBanner: sessionStorage.getItem('BannerCheck')
                   },
                   success: function (fp, object) {
                      Ext.getBody().unmask();
@@ -196,6 +198,8 @@
             Ext.getCmp('viewport').setActiveItem('addEditEventPanel');
             Ext.getCmp('eventVisual').setRawValue(record.data['Visual']);
             Ext.getCmp('eventVisualBanner').setRawValue(record.data['BannerVisual']);
+            sessionStorage.setItem('VisualCheck', record.data['Visual'])
+            sessionStorage.setItem('BannerCheck', record.data['BannerVisual'])
          }
 
          const deleteEvent = (record) => {

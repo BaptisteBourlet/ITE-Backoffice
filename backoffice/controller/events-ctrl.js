@@ -79,11 +79,12 @@ exports.addEvent = async (req, res) => {
 
 
 exports.editEvent = async (req, res) => {
-   const { Id, Name, Location, URL, visualCheck, visualBannerCheck } = req.body;
+   const { Id, Name, Location, URL, visualCheck, visualBannerCheck, OldVisual, OldBanner } = req.body;
    const Start = req.body['startDate-inputEl'].split('/').reverse().join('-');
    const End = req.body['endDate-inputEl'].split('/').reverse().join('-');
    const visualPath = '/images/events/';
 
+   
    const updateInfo
       = `UPDATE Event SET Name = "${Name}", Location = "${Location}", Url = "${URL}", `
       + `Start = "${Start}", End = "${End}", ModifiedOn = CURRENT_TIMESTAMP() `
@@ -93,6 +94,22 @@ exports.editEvent = async (req, res) => {
       if (err) throw err;
 
       if (req.files.length === 2) {
+
+         if (fs.existsSync(appRoot + `/assets${OldVisual}`)) {
+            if (fs.existsSync(appRoot + `/assets${OldBanner}`)) {
+               fs.unlink(appRoot + `/assets${OldBanner}`, function (err) {
+                  if (err) throw err;
+      
+               });
+            }
+            fs.unlink(appRoot + `/assets${OldVisual}`, function (err) {
+               if (err) throw err;
+               // if no error, file has been deleted successfully
+               console.log('File P deleted!');
+               
+            });
+            console.log('File exists!');
+         }
 
          const insertVisual = `UPDATE Event SET Visual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${Id}"`;
          const insertBannerVisual = `UPDATE Event SET BannerVisual = "${visualPath}${req.files[1].originalname}" WHERE Id = "${Id}"`;
@@ -109,6 +126,16 @@ exports.editEvent = async (req, res) => {
 
          if (visualCheck === 'true') {
 
+            if (fs.existsSync(appRoot + `/assets${OldVisual}`)) {
+               
+               fs.unlink(appRoot + `/assets${OldVisual}`, function (err) {
+                  if (err) throw err;
+                  // if no error, file has been deleted successfully
+                  console.log('File P deleted!');
+                  
+               });
+               console.log('File exists!');
+            }
 
             const insertVisual = `UPDATE Event SET Visual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${Id}"`;
             con.query(insertVisual, (err, visualResult) => {
@@ -117,6 +144,16 @@ exports.editEvent = async (req, res) => {
                res.send(visualResult);
             })
          } else {
+
+               if (fs.existsSync(appRoot + `/assets${OldBanner}`)) {
+                  fs.unlink(appRoot + `/assets${OldBanner}`, function (err) {
+                     if (err) throw err;
+         
+                  });
+               
+               
+               console.log('File exists!');
+            }
 
             const insertBannerVisual = `UPDATE Event SET BannerVisual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${Id}"`;
             con.query(insertBannerVisual, (err, result) => {
