@@ -337,6 +337,19 @@ exports.updateuploadProductImage = async (req, res) => {
    const check = originalname.split('.')
    const pathpng = `assets/${check[0]}-large.PNG`
    const pathjpg = `assets/${check[0]}-large.JPG`
+
+   if(oldPath != originalname ){
+      if (fs.existsSync(appRoot + `/assets/${oldPath}`)) {
+         
+         fs.unlink(appRoot + `/assets/${oldPath}`, function (err) {
+            if (err) throw err;
+            // if no error, file has been deleted successfully
+            console.log('File P deleted!');
+            
+         });
+         console.log('File exists!');
+      }
+   }
    
    if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
       res.send({ isExist: "yes" })
@@ -373,40 +386,41 @@ exports.updateuploadProductImage = async (req, res) => {
       // insert original size
       con.query(insertAssets, (err, result) => {
          if (err) throw err;
+         res.status(200).send({ ...result, success: true, file: originalname })
 
       })
 
-      imagemagickCli
-         .exec(`identify assets/${originalname}`)
-         .then(({ stdout, stderr }) => {
-            let dimensions = stdout.split(' ')[2].split('x');
-            const width = dimensions[0];
-            const height = dimensions[1];
-            landscape = parseInt(width) > parseInt(height) ? true : false;
+      // imagemagickCli
+      //    .exec(`identify assets/${originalname}`)
+      //    .then(({ stdout, stderr }) => {
+      //       let dimensions = stdout.split(' ')[2].split('x');
+      //       const width = dimensions[0];
+      //       const height = dimensions[1];
+      //       landscape = parseInt(width) > parseInt(height) ? true : false;
 
-            // insert other sizes
-            imageSizes.forEach(size => {
-               let newName = originalname.split('.');
-               newName[0] = `${newName[0]}-${size.size}`;
-               newName = newName.join('.');
+      //       // insert other sizes
+      //       imageSizes.forEach(size => {
+      //          let newName = originalname.split('.');
+      //          newName[0] = `${newName[0]}-${size.size}`;
+      //          newName = newName.join('.');
 
-               // set maxWidth or maxHeight depending on image type
-               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
-               imagemagickCli
-                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
-                  .then(({ stdout, stderr }) => {
-                     const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path LIKE "${test.join('') + '-' + size.size}%" AND ProductId = ${ProductId};`
+      //          // set maxWidth or maxHeight depending on image type
+      //          let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+      //          imagemagickCli
+      //             .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+      //             .then(({ stdout, stderr }) => {
+      //                const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path LIKE "${test.join('') + '-' + size.size}%" AND ProductId = ${ProductId};`
 
-                     con.query(insertAssets, (err, result) => {
-                        if (err) throw err;
+      //                con.query(insertAssets, (err, result) => {
+      //                   if (err) throw err;
 
-                        if (size.size === "large") {
-                           res.status(200).send({ ...result, success: true, file: originalname });
-                        }
-                     })
-                  });
-            })
-         });
+      //                   if (size.size === "large") {
+      //                      res.status(200).send({ ...result, success: true, file: originalname });
+      //                   }
+      //                })
+      //             });
+            // })
+         // });
    })
 }
 }
@@ -425,6 +439,21 @@ exports.updateuploadSerieImage = async (req, res) => {
    const check = originalname.split('.')
    const pathpng = `assets/${check[0]}-large.PNG`
    const pathjpg = `assets/${check[0]}-large.JPG`
+
+ 
+
+   if(oldPath != originalname ){
+      if (fs.existsSync(appRoot + `/assets/${oldPath}`)) {
+         
+         fs.unlink(appRoot + `/assets/${oldPath}`, function (err) {
+            if (err) throw err;
+            // if no error, file has been deleted successfully
+            console.log('File P deleted!');
+            
+         });
+         console.log('File exists!');
+      }
+   }
    
    if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
       res.send({ isExist: "yes" })
@@ -456,50 +485,50 @@ exports.updateuploadSerieImage = async (req, res) => {
          if (err) throw err;
          nextSequence = result[0].maxSequence + 1;
 
-
          const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${originalname}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path = "${oldPath}" ;`
 
          // insert original size
          con.query(insertAssets, (err, result) => {
             if (err) throw err;
+            res.status(200).send({ ...result, success: true, file: originalname })
          })
 
          // Check if image is landscape;
 
-         imagemagickCli
-            .exec(`identify assets/${originalname}`)
-            .then(({ stdout, stderr }) => {
-               if (stderr) throw stderr;
+         // imagemagickCli
+         //    .exec(`identify assets/${originalname}`)
+         //    .then(({ stdout, stderr }) => {
+         //       if (stderr) throw stderr;
 
-               let dimensions = stdout.split(' ')[2].split('x');
-               const width = dimensions[0];
-               const height = dimensions[1];
-               landscape = parseInt(width) > parseInt(height) ? true : false;
+         //       let dimensions = stdout.split(' ')[2].split('x');
+         //       const width = dimensions[0];
+         //       const height = dimensions[1];
+         //       landscape = parseInt(width) > parseInt(height) ? true : false;
 
                // insert other sizes
-               imageSizes.forEach(size => {
-                  let newName = originalname.split('.');
+               // imageSizes.forEach(size => {
+               //    let newName = originalname.split('.');
 
-                  newName[0] = `${newName[0]}-${size.size}`;
-                  newName = newName.join('.');
+               //    newName[0] = `${newName[0]}-${size.size}`;
+               //    newName = newName.join('.');
 
-                  // set maxWidth or maxHeight depending on image type
-                  let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
-                  imagemagickCli
-                     .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
-                     .then(({ stdout, stderr }) => {
+               //    // set maxWidth or maxHeight depending on image type
+               //    let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+               //    imagemagickCli
+               //       .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+               //       .then(({ stdout, stderr }) => {
 
-                        const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path LIKE "${test.join('') + '-' + size.size}%";`
+               //          const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path LIKE "${test.join('') + '-' + size.size}%";`
 
-                        con.query(insertAssets, (err, result) => {
-                           if (err) throw err;
-                           if (size.size === "large") {
-                              res.status(200).send({ ...result, success: true, file: originalname });
-                           }
-                        })
-                     })
-               })
-            })
+               //          con.query(insertAssets, (err, result) => {
+               //             if (err) throw err;
+               //             if (size.size === "large") {
+               //                res.status(200).send({ ...result, success: true, file: originalname });
+               //             }
+               //          })
+               //       })
+               // })
+            // })
 
       })
    }

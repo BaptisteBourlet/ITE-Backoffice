@@ -633,6 +633,7 @@
       }
 
       const getRelatedCatalog = (ProductId, SerOrProd) => {
+        console.log(SerOrProd)
         Ext.Ajax.request({
           url: "/apiProducts/getRelatedCatalog",
           method: "POST",
@@ -2867,7 +2868,8 @@
               }
             },
             change: function () {
-              let SerOrProd = Ext.getCmp('ProdSer').getValue()
+              var SerOrProd = Ext.getCmp('ProdSer').getValue()
+              
               let ProductId = this.getValue();
               getRelatedCatalog(ProductId, SerOrProd);
             },

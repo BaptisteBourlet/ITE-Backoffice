@@ -514,21 +514,31 @@ exports.searchProduct = async (req, res) => {
 
 
 exports.getRelatedCatalog = async (req, res) => {
-   let { ProductId } = req.body;
-
-   con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
-      if (err) {
-         console.log(err)
-      }
-      res.send(results)
-   })
+   let { ProductId, SerProd } = req.body;
+   
+   if (SerProd == 'S') {
+      con.query(`SELECT Title AS Catalog FROM SeriesInfo WHERE SeriesId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   } else {
+      con.query(`SELECT Catalog FROM ProductInfo WHERE ProductId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
+         if (err) {
+            console.log(err)
+         }
+         res.send(results)
+      })
+   }
+   
 }
 
 
 exports.addRelatedProduct = async (req, res) => {
    const { Type, Sequence, LinkedProductID, Catalog, Code, ProdSer } = req.body;
    const ProdId = storage.getItem('ProdId')
-   console.log(ProdSer)
+   
 
    if (ProdSer == 'P') {
       con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence}, "${Code}", ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {

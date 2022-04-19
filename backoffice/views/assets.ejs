@@ -271,6 +271,7 @@
                                     sessionStorage.setItem('oldPath', selectedRecord.data.Path)
                                     Ext.getCmp("ProductDesc").setValue(selectedRecord.data.ProductId)
                                     Ext.getCmp("Type").setValue(selectedRecord.data.Type)
+                                    Ext.getCmp("image").setRawValue(selectedRecord.data.Path)
                                     Ext.getCmp("image").setValue(renderImage() + selectedRecord.data.Path)
                                     Ext.getCmp("Label").setValue(selectedRecord.data.Label)
                                     //Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
@@ -425,6 +426,7 @@
                                     sessionStorage.setItem('oldPath', selectedRecord.data.Path)
                                     Ext.getCmp("ProductDesc").setValue(selectedRecord.data.SerieId)
                                     Ext.getCmp("Type").setValue(selectedRecord.data.Type)
+                                    Ext.getCmp("image").setRawValue(selectedRecord.data.Path)
                                     //Ext.getCmp("Path").setValue(selectedRecord.data.Path)
                                     Ext.getCmp("Label").setValue(selectedRecord.data.Label)
                                     //Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
@@ -1083,7 +1085,6 @@
                     .getSelectionModel()
                     .getSelection()[0];
 
-                console.log('test ' + selectedRecordProd)
                 const selectedRecordProdSer = Ext.getCmp("AssetsSerieGrid")
                     .getSelectionModel()
                     .getSelection()[0];

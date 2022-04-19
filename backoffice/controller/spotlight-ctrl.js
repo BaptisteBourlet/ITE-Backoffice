@@ -271,9 +271,7 @@ exports.deleteSpotlight = async (req, res) => {
 exports.updateSpotlight = async (req, res) => {
    const { id, WorkingTitle, Date, VisualName, ModifiedOn, VisualFile, VisualChanges, OldVisual } = req.body;
 
-   console.log(OldVisual)
-   console.log(VisualChanges)
-
+  
    if(VisualChanges == 'Yes' && OldVisual != ''){
       if (fs.existsSync(appRoot + `/assets/images/spotlight/${OldVisual}`)) {
          
