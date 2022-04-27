@@ -310,6 +310,19 @@
                         "-",
                         {
                             xtype: "button",
+                            id: "CategoryAssets",
+                            text: "Overview Category",
+                            iconCls: "fa fa-tasks",
+                            scale: "small",
+                            handler: function () {
+                                wichGrid = false;
+                                Ext.getCmp('AssetsGrid').getSelectionModel().deselectAll()
+                                Ext.getCmp("viewport").setActiveItem('CategoryGrid')
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: "button",
                             id: "convertImages",
                             text: "Convert Images",
                             scale: "small",
@@ -460,6 +473,19 @@
                                 wichGrid = true;
                                 Ext.getCmp('AssetsSerieGrid').getSelectionModel().deselectAll()
                                 Ext.getCmp("viewport").setActiveItem('AssetsGrid')
+                            },
+                        },
+                        "-",
+                        {
+                            xtype: "button",
+                            id: "CategoryAssets2",
+                            text: "Overview Category",
+                            iconCls: "fa fa-tasks",
+                            scale: "small",
+                            handler: function () {
+                                wichGrid = false;
+                                Ext.getCmp('AssetsGrid').getSelectionModel().deselectAll()
+                                Ext.getCmp("viewport").setActiveItem('CategoryGrid')
                             },
                         },
 
@@ -1401,6 +1427,338 @@
                 ],
             });
 
+            // Categories
+
+
+            const CategoryAssetsStore = Ext.create("Ext.data.Store", {
+                id: "CategoryAssetsStore",
+                autoLoad: true,
+                model: SeriesAssetsModel,
+                proxy: {
+                    type: "ajax",
+                    method: "GET",
+                    url: "/apiAssets/getCategoryAssets",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+                    },
+
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+            });
+
+            const CategoryGridColumns = [
+                {
+                    header: "ID",
+                    sortable: true,
+                    width: 80,
+                    dataIndex: "Id",
+                },
+                {
+                    header: "Images",
+                    sortable: true,
+                    width: 130,
+                    dataIndex: "Path",
+                    renderer: renderImage
+                },
+                {
+                    header: "Working Title",
+                    sortable: true,
+                    width: 350,
+                    dataIndex: "Name",
+                },
+
+            ];
+
+            const searchAssetsCat = (searchField) => {
+                let searchQuery = Ext.getCmp(searchField).getValue();
+                Ext.Ajax.request({
+                    url: "/apiAssets/searchAssetsCat",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        searchQuery: searchQuery,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        res
+                            ? CategoryAssetsStore.setData(res)
+                            : console.log("no response received");
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            };
+            const tbarItemsCategory = [
+
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "bottomToolBarCategory",
+                    items: [
+                    {
+                            xtype: "button",
+                            id: "ProductAssetsCat",
+                            text: "Overview Products Assets",
+                            iconCls: "fa fa-tasks",
+                            scale: "small",
+                            handler: function () {
+                                wichGrid = true;
+                                Ext.getCmp('AssetsSerieGrid').getSelectionModel().deselectAll()
+                                Ext.getCmp("viewport").setActiveItem('AssetsGrid')
+                            },
+                        },
+                    "-",
+                        {
+                            xtype: "button",
+                            id: "SerieAssetsCat",
+                            text: "Overview Serie Assets",
+                            iconCls: "fa fa-tasks",
+                            scale: "small",
+                            handler: function () {
+                                wichGrid = false;
+                                Ext.getCmp('AssetsGrid').getSelectionModel().deselectAll()
+                                Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid')
+                            },
+                        },
+
+
+
+                    ],
+                },
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "searchBarCategory",
+                    items: [
+                        {
+                            xtype: "textfield",
+                            id: "searchKeyCategory",
+                            iconCls: "fa fa-search",
+                            width: 200,
+                            labelWidth: 20,
+                            emptyText: "Search by Working title",
+                            enableKeyEvents: true,
+                            listeners: {
+
+                                change: () => {
+                                    searchAssetsCat('searchKeyCategory')
+                                }
+                            },
+                        },
+
+                        {
+                            xtype: "button",
+                            id: "resetSearchCategory",
+                            iconCls: "fas fa-undo-alt",
+                            text: "reset",
+                            style: "padding: 7px; border: none; background-color: #000",
+                            listeners: {
+                                click: () => {
+                                    CategoryAssetsStore.reload();
+                                    Ext.getCmp('searchKeyCategory').setValue('')
+                                    
+                                },
+                            },
+                        },
+                    ],
+                },
+            ];
+
+
+            const CategoryGrid = Ext.create("Ext.grid.GridPanel", {
+                id: "CategoryGrid",
+                bufferedRenderer: false,
+                flex: 1,
+                scrollable: true,
+                title: "Assets - Category",
+                trackOver: true,
+                loadMask: true,
+                store: CategoryAssetsStore, // store
+                columns: CategoryGridColumns, //columns
+                enableColumnMove: false,
+                sortable: true,
+                frame: false,
+                height: 690,
+
+                dockedItems: [...tbarItemsCategory],
+                listeners: {
+                    dblclick: {
+                        element: "body",
+                        fn: () => {
+
+                            const selectedRecord = Ext.getCmp("CategoryGrid")
+                                .getSelectionModel()
+                                .getSelection()[0];
+                            Ext.getCmp("addSaveCat").setHidden(false);
+
+                            Ext.getCmp("panelAddCat").setTitle("Add assets");
+                            Ext.getCmp("viewport").setActiveItem("panelAddCat");
+                            sessionStorage.setItem('Catimage', selectedRecord.data.Path)
+                            Ext.getCmp('Catimage').setRawValue(selectedRecord.data.Path)
+                        },
+                    },
+                },
+            });
+
+            var itemsAdd2Cat = [
+
+                {
+                    xtype: 'filefield',
+                    accept: 'image/*',
+                    id: 'Catimage',
+                    name: 'Catimage',
+                    fieldLabel: 'Select an Image',
+                    style: "margin: 10px 0px;",
+                    allowBlank: false,
+                    width: 500,
+                },
+
+
+            ];
+
+            var screenAddCat = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                    listeners: {
+                        specialkey: function (field, e) {
+                            if (e.getKey() == e.ENTER) {
+                                updateRec();
+                            }
+                            if (e.getKey() == e.ESC) {
+                                Ext.getCmp("viewport").setActiveItem("CategoryGrid");
+                            }
+                        },
+                    },
+                },
+                width: '100%',
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: {
+                            columns: 2,
+                        },
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "addFormCat",
+                                columnWidth: 1,
+                                border: false,
+
+                                items: itemsAdd2Cat,
+                            },
+                        ],
+
+                    }]
+            });
+
+
+
+            var panelAddCat = new Ext.Panel({
+                layout: "fit",
+                id: "panelAddCat",
+                title: "Add Category Image",
+                header: true,
+                items: [screenAddCat],
+                tbar: [
+                    {
+                        text: "Save",
+                        id: "addSaveCat",
+                        iconCls: "fas fa-save",
+                        handler: async function () {
+                            var form = Ext.getCmp('addFormCat')
+                            const selectedRecord = Ext.getCmp("CategoryGrid")
+                                .getSelectionModel()
+                                .getSelection()[0];
+                            if (form.isValid()) {
+                                
+                                 if(Ext.getCmp("Catimage").fileInputEl.dom.files[0] != '' && Ext.getCmp("Catimage").fileInputEl.dom.files[0] != undefined ){
+
+                                const toBase64 = file => new Promise((resolve, reject) => {
+                                    const reader = new FileReader();
+
+                                    reader.readAsDataURL(file);
+                                    reader.onload = () => resolve(reader.result.replace("data:", "").replace(/^.+,/, ""));
+                                    reader.onerror = error => reject(error);
+                                });
+
+                                const file = Ext.getCmp("Catimage").fileInputEl.dom.files[0];
+                                var VisualFile = await toBase64(file)
+                                
+
+                                Ext.Ajax.request({
+                                    url: '/apiAssets/addCatAssets',
+                                    method: "POST",
+                                    cors: true,
+                                    useDefaultXhrHeader: false,
+                                    params: {
+                                        VisualFile: VisualFile,
+                                        CatId: selectedRecord.data.Id,
+                                        Path: Ext.getCmp('Catimage').getRawValue(),
+                                        oldImage: sessionStorage.getItem('Catimage')
+
+                                    },
+                                    success: function (fp, object) {
+                                        Ext.getBody().unmask();
+                                        CategoryAssetsStore.reload();
+                                        Ext.getCmp("viewport").setActiveItem('CategoryGrid');
+                                    },
+                                    failure: function (obj, res) {
+                                        Ext.getBody().unmask();
+                                        if (res) {
+                                            Ext.Msg.alert(
+                                                "INFO",
+                                                "Category image added successfully."
+                                            );
+                                            form.reset();
+                                            CategoryAssetsStore.reload();
+                                            Ext.getCmp("viewport").setActiveItem('CategoryGrid');
+                                        } else {
+                                            Ext.Msg.alert(
+                                                "ERROR",
+                                                "Failed to add new image. Contact your IT team."
+                                            );
+                                        }
+                                    },
+                                });
+
+                            } else {
+                                Ext.getCmp("viewport").setActiveItem('CategoryGrid');
+                            }
+                            }
+                        }
+                    },
+
+                    "-",
+                    {
+                        text: "Cancel",
+                        tooltip: "Cancel",
+                        id: 'cancelCat',
+                        iconCls: "fas fa-undo",
+                        handler: function () {
+                            edit = false;
+                            Ext.getCmp('addFormCat').reset();
+                            Ext.getCmp("viewport").setActiveItem('CategoryGrid');
+
+                        },
+                    },
+                ],
+            });
+
+
+
 
             let userRights = JSON.parse(localStorage.getItem('userRights'));
 
@@ -1414,7 +1772,7 @@
                 id: "viewport",
                 layout: "card",
                 activeItem: 0,
-                items: [AssetsGrid, panelAdd, AssetsSerieGrid],
+                items: [AssetsGrid, panelAdd, AssetsSerieGrid, CategoryGrid, panelAddCat],
             });
         })
 

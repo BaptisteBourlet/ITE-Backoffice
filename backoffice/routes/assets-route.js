@@ -26,6 +26,8 @@ router.get('/getSeriesAssets', apiCtrl.getSeriesAssets);
 
 router.get('/getSeriesDet', apiCtrl.getSeriesDet);
 
+router.get('/getCategoryAssets', apiCtrl.getCategoryAssets);
+
 router.post('/updateSequence', apiCtrl.updateSequence);
 
 router.post('/deleteAssets', apiCtrl.deleteAssets);
@@ -33,6 +35,10 @@ router.post('/deleteAssets', apiCtrl.deleteAssets);
 router.post('/searchAssetsProduct', apiCtrl.searchAssetsProduct);
 
 router.post('/searchAssetsSeries', apiCtrl.searchAssetsSeries);
+
+router.post('/searchAssetsCat', apiCtrl.searchAssetsCat);
+
+router.post('/addCatAssets',  apiCtrl.addCatAssets);
 
 router.post('/uploadProductImage', imgUpload.single('image'), apiCtrl.uploadProductImage);
 

@@ -5,6 +5,9 @@ const mysql = require('mysql');
 const fs = require('fs');
 const appRoot = require('app-root-path');
 const imagemagickCli = require('imagemagick-cli');
+const { writeFile: writeFileCallback } = require('fs');
+const { promisify } = require('util');
+const writeFileP = promisify(writeFileCallback);
 
 const con = mysql.createConnection({
    ...DB,
@@ -113,7 +116,7 @@ exports.updateSequence = async (req, res) => {
 
 exports.deleteAssets = async (req, res) => {
    const { itemId, PathJPG } = req.body;
-   
+
    if (fs.existsSync(appRoot + `/assets/${PathJPG}`)) {
       fs.unlink(appRoot + `/assets/${PathJPG}`, function (err) {
          if (err) throw err;
@@ -123,7 +126,7 @@ exports.deleteAssets = async (req, res) => {
             if (err) {
                console.log(err);
             }
-            
+
             res.send(results)
          })
       });
@@ -133,12 +136,12 @@ exports.deleteAssets = async (req, res) => {
          if (err) {
             console.log(err);
          }
-        
+
          res.send(results)
       })
       console.log('Sorry, File does not exists!');
    }
-   
+
 }
 
 
@@ -154,78 +157,78 @@ exports.uploadProductImage = async (req, res) => {
    const check = originalname.split('.')
    const pathpng = `assets/${check[0]}-large.PNG`
    const pathjpg = `assets/${check[0]}-large.JPG`
-   
-   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
+
+   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg)) {
       res.send({ isExist: "yes" })
    } else {
-   const imageSizes = [
-      {
-         size: 'large',
-         width: 1280,
-         height: 1280
-      },
-      {
-         size: 'medium',
-         width: 800,
-         height: 800
-      },
-      {
-         size: 'small',
-         width: 400,
-         height: 400,
-      },
-      {
-         size: 'thumb',
-         width: 200,
-         height: 200,
-      },
-   ]
+      const imageSizes = [
+         {
+            size: 'large',
+            width: 1280,
+            height: 1280
+         },
+         {
+            size: 'medium',
+            width: 800,
+            height: 800
+         },
+         {
+            size: 'small',
+            width: 400,
+            height: 400,
+         },
+         {
+            size: 'thumb',
+            width: 200,
+            height: 200,
+         },
+      ]
 
-   con.query(maxSequence, (err, result) => {
-      if (err) throw err;
-      nextSequence = result[0].maxSequence + 1;
-
-      const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${originalname}", "${Label}", "${nextSequence}");`
-
-      // insert original size
-      con.query(insertAssets, (err, result) => {
+      con.query(maxSequence, (err, result) => {
          if (err) throw err;
+         nextSequence = result[0].maxSequence + 1;
 
+         const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${originalname}", "${Label}", "${nextSequence}");`
+
+         // insert original size
+         con.query(insertAssets, (err, result) => {
+            if (err) throw err;
+
+         })
+
+         imagemagickCli
+            .exec(`identify assets/${originalname}`)
+            .then(({ stdout, stderr }) => {
+               let dimensions = stdout.split(' ')[2].split('x');
+               const width = dimensions[0];
+               const height = dimensions[1];
+               landscape = parseInt(width) > parseInt(height) ? true : false;
+
+               // insert other sizes
+               imageSizes.forEach(size => {
+                  let newName = originalname.split('.');
+                  newName[0] = `${newName[0]}-${size.size}`;
+                  newName = newName.join('.');
+
+                  // set maxWidth or maxHeight depending on image type
+                  let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+                  imagemagickCli
+                     .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                     .then(({ stdout, stderr }) => {
+                        const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${newName}", "${Label}", "${nextSequence}");`
+
+                        con.query(insertAssets, (err, result) => {
+                           if (err) throw err;
+
+                           if (size.size === "large") {
+                              res.status(200).send({ ...result, success: true, file: originalname });
+                           }
+                        })
+                     });
+               })
+            });
       })
-
-      imagemagickCli
-         .exec(`identify assets/${originalname}`)
-         .then(({ stdout, stderr }) => {
-            let dimensions = stdout.split(' ')[2].split('x');
-            const width = dimensions[0];
-            const height = dimensions[1];
-            landscape = parseInt(width) > parseInt(height) ? true : false;
-
-            // insert other sizes
-            imageSizes.forEach(size => {
-               let newName = originalname.split('.');
-               newName[0] = `${newName[0]}-${size.size}`;
-               newName = newName.join('.');
-
-               // set maxWidth or maxHeight depending on image type
-               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
-               imagemagickCli
-                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
-                  .then(({ stdout, stderr }) => {
-                     const insertAssets = `INSERT INTO Assets (ProductId, Type, Path, Label, Sequence) VALUES ("${ProductId}", "product-image", "${newName}", "${Label}", "${nextSequence}");`
-
-                     con.query(insertAssets, (err, result) => {
-                        if (err) throw err;
-
-                        if (size.size === "large") {
-                           res.status(200).send({ ...result, success: true, file: originalname });
-                        }
-                     })
-                  });
-            })
-         });
-   })
-}
+   }
 }
 
 
@@ -240,86 +243,86 @@ exports.uploadSerieImage = async (req, res) => {
    const check = originalname.split('.')
    const pathpng = `assets/${check[0]}-large.PNG`
    const pathjpg = `assets/${check[0]}-large.JPG`
-   
-   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
+
+   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg)) {
       res.send({ isExist: "yes" })
    } else {
-   const imageSizes = [
-      {
-         size: 'large',
-         width: 1280,
-         height: 1280
-      },
-      {
-         size: 'medium',
-         width: 800,
-         height: 800
-      },
-      {
-         size: 'small',
-         width: 400,
-         height: 400,
-      },
-      {
-         size: 'thumb',
-         width: 200,
-         height: 200,
-      },
-   ]
+      const imageSizes = [
+         {
+            size: 'large',
+            width: 1280,
+            height: 1280
+         },
+         {
+            size: 'medium',
+            width: 800,
+            height: 800
+         },
+         {
+            size: 'small',
+            width: 400,
+            height: 400,
+         },
+         {
+            size: 'thumb',
+            width: 200,
+            height: 200,
+         },
+      ]
 
-   con.query(maxSequence, (err, result) => {
-      if (err) throw err;
-      nextSequence = result[0].maxSequence + 1;
-
-
-      const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${originalname}", "${Label}", "${nextSequence}");`
-
-      // insert original size
-      con.query(insertAssets, (err, result) => {
+      con.query(maxSequence, (err, result) => {
          if (err) throw err;
-      })
+         nextSequence = result[0].maxSequence + 1;
 
 
+         const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${originalname}", "${Label}", "${nextSequence}");`
 
-      // Check if image is landscape;
-
-      imagemagickCli
-         .exec(`identify assets/${originalname}`)
-         .then(({ stdout, stderr }) => {
-            if (stderr) throw stderr;
-
-            let dimensions = stdout.split(' ')[2].split('x');
-            const width = dimensions[0];
-            const height = dimensions[1];
-            landscape = parseInt(width) > parseInt(height) ? true : false;
-
-            // insert other sizes
-            imageSizes.forEach(size => {
-               let newName = originalname.split('.');
-
-               newName[0] = `${newName[0]}-${size.size}`;
-               newName = newName.join('.');
-
-               // set maxWidth or maxHeight depending on image type
-               let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
-               imagemagickCli
-                  .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
-                  .then(({ stdout, stderr }) => {
-
-                     const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
-
-                     con.query(insertAssets, (err, result) => {
-                        if (err) throw err;
-                        if (size.size === "large") {
-                           res.status(200).send({ ...result, success: true, file: originalname });
-                        }
-                     })
-                  })
-            })
+         // insert original size
+         con.query(insertAssets, (err, result) => {
+            if (err) throw err;
          })
 
-   })
-}
+
+
+         // Check if image is landscape;
+
+         imagemagickCli
+            .exec(`identify assets/${originalname}`)
+            .then(({ stdout, stderr }) => {
+               if (stderr) throw stderr;
+
+               let dimensions = stdout.split(' ')[2].split('x');
+               const width = dimensions[0];
+               const height = dimensions[1];
+               landscape = parseInt(width) > parseInt(height) ? true : false;
+
+               // insert other sizes
+               imageSizes.forEach(size => {
+                  let newName = originalname.split('.');
+
+                  newName[0] = `${newName[0]}-${size.size}`;
+                  newName = newName.join('.');
+
+                  // set maxWidth or maxHeight depending on image type
+                  let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+                  imagemagickCli
+                     .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+                     .then(({ stdout, stderr }) => {
+
+                        const insertAssets = `INSERT INTO Assets (SerieId, Type, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${newName}", "${Label}", "${nextSequence}");`
+
+                        con.query(insertAssets, (err, result) => {
+                           if (err) throw err;
+                           if (size.size === "large") {
+                              res.status(200).send({ ...result, success: true, file: originalname });
+                           }
+                        })
+                     })
+               })
+            })
+
+      })
+   }
 }
 
 
@@ -338,91 +341,91 @@ exports.updateuploadProductImage = async (req, res) => {
    const pathpng = `assets/${check[0]}-large.PNG`
    const pathjpg = `assets/${check[0]}-large.JPG`
 
-   if(oldPath != originalname ){
+   if (oldPath != originalname) {
       if (fs.existsSync(appRoot + `/assets/${oldPath}`)) {
-         
+
          fs.unlink(appRoot + `/assets/${oldPath}`, function (err) {
             if (err) throw err;
             // if no error, file has been deleted successfully
             console.log('File P deleted!');
-            
+
          });
          console.log('File exists!');
       }
    }
-   
-   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
+
+   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg)) {
       res.send({ isExist: "yes" })
    } else {
-   const imageSizes = [
-      {
-         size: 'large',
-         width: 1280,
-         height: 1280
-      },
-      {
-         size: 'medium',
-         width: 800,
-         height: 800
-      },
-      {
-         size: 'small',
-         width: 400,
-         height: 400,
-      },
-      {
-         size: 'thumb',
-         width: 200,
-         height: 200,
-      },
-   ]
+      const imageSizes = [
+         {
+            size: 'large',
+            width: 1280,
+            height: 1280
+         },
+         {
+            size: 'medium',
+            width: 800,
+            height: 800
+         },
+         {
+            size: 'small',
+            width: 400,
+            height: 400,
+         },
+         {
+            size: 'thumb',
+            width: 200,
+            height: 200,
+         },
+      ]
 
-   con.query(maxSequence, (err, result) => {
-      if (err) throw err;
-      nextSequence = result[0].maxSequence + 1;
-
-      const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${originalname}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path ="${oldPath}" AND ProductId = ${ProductId};`
-
-      // insert original size
-      con.query(insertAssets, (err, result) => {
+      con.query(maxSequence, (err, result) => {
          if (err) throw err;
-         res.status(200).send({ ...result, success: true, file: originalname })
+         nextSequence = result[0].maxSequence + 1;
 
-      })
+         const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${originalname}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path ="${oldPath}" AND ProductId = ${ProductId};`
 
-      // imagemagickCli
-      //    .exec(`identify assets/${originalname}`)
-      //    .then(({ stdout, stderr }) => {
-      //       let dimensions = stdout.split(' ')[2].split('x');
-      //       const width = dimensions[0];
-      //       const height = dimensions[1];
-      //       landscape = parseInt(width) > parseInt(height) ? true : false;
+         // insert original size
+         con.query(insertAssets, (err, result) => {
+            if (err) throw err;
+            res.status(200).send({ ...result, success: true, file: originalname })
 
-      //       // insert other sizes
-      //       imageSizes.forEach(size => {
-      //          let newName = originalname.split('.');
-      //          newName[0] = `${newName[0]}-${size.size}`;
-      //          newName = newName.join('.');
+         })
 
-      //          // set maxWidth or maxHeight depending on image type
-      //          let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
-      //          imagemagickCli
-      //             .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
-      //             .then(({ stdout, stderr }) => {
-      //                const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path LIKE "${test.join('') + '-' + size.size}%" AND ProductId = ${ProductId};`
+         // imagemagickCli
+         //    .exec(`identify assets/${originalname}`)
+         //    .then(({ stdout, stderr }) => {
+         //       let dimensions = stdout.split(' ')[2].split('x');
+         //       const width = dimensions[0];
+         //       const height = dimensions[1];
+         //       landscape = parseInt(width) > parseInt(height) ? true : false;
 
-      //                con.query(insertAssets, (err, result) => {
-      //                   if (err) throw err;
+         //       // insert other sizes
+         //       imageSizes.forEach(size => {
+         //          let newName = originalname.split('.');
+         //          newName[0] = `${newName[0]}-${size.size}`;
+         //          newName = newName.join('.');
 
-      //                   if (size.size === "large") {
-      //                      res.status(200).send({ ...result, success: true, file: originalname });
-      //                   }
-      //                })
-      //             });
-            // })
+         //          // set maxWidth or maxHeight depending on image type
+         //          let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+         //          imagemagickCli
+         //             .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+         //             .then(({ stdout, stderr }) => {
+         //                const insertAssets = `UPDATE Assets SET ProductId= "${ProductId}" , Type = "product-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE Assets.Path LIKE "${test.join('') + '-' + size.size}%" AND ProductId = ${ProductId};`
+
+         //                con.query(insertAssets, (err, result) => {
+         //                   if (err) throw err;
+
+         //                   if (size.size === "large") {
+         //                      res.status(200).send({ ...result, success: true, file: originalname });
+         //                   }
+         //                })
+         //             });
+         // })
          // });
-   })
-}
+      })
+   }
 }
 
 
@@ -440,22 +443,22 @@ exports.updateuploadSerieImage = async (req, res) => {
    const pathpng = `assets/${check[0]}-large.PNG`
    const pathjpg = `assets/${check[0]}-large.JPG`
 
- 
 
-   if(oldPath != originalname ){
+
+   if (oldPath != originalname) {
       if (fs.existsSync(appRoot + `/assets/${oldPath}`)) {
-         
+
          fs.unlink(appRoot + `/assets/${oldPath}`, function (err) {
             if (err) throw err;
             // if no error, file has been deleted successfully
             console.log('File P deleted!');
-            
+
          });
          console.log('File exists!');
       }
    }
-   
-   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
+
+   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg)) {
       res.send({ isExist: "yes" })
    } else {
       const imageSizes = [
@@ -505,30 +508,30 @@ exports.updateuploadSerieImage = async (req, res) => {
          //       const height = dimensions[1];
          //       landscape = parseInt(width) > parseInt(height) ? true : false;
 
-               // insert other sizes
-               // imageSizes.forEach(size => {
-               //    let newName = originalname.split('.');
+         // insert other sizes
+         // imageSizes.forEach(size => {
+         //    let newName = originalname.split('.');
 
-               //    newName[0] = `${newName[0]}-${size.size}`;
-               //    newName = newName.join('.');
+         //    newName[0] = `${newName[0]}-${size.size}`;
+         //    newName = newName.join('.');
 
-               //    // set maxWidth or maxHeight depending on image type
-               //    let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
-               //    imagemagickCli
-               //       .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
-               //       .then(({ stdout, stderr }) => {
+         //    // set maxWidth or maxHeight depending on image type
+         //    let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
+         //    imagemagickCli
+         //       .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
+         //       .then(({ stdout, stderr }) => {
 
-               //          const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path LIKE "${test.join('') + '-' + size.size}%";`
+         //          const insertAssets = `UPDATE Assets SET SerieId = "${SeriesId}", Type = "serie-image", Path = "${newName}", Label = "${Label}", Sequence = "${nextSequence}" WHERE SerieId = ${SeriesId} AND Assets.Path LIKE "${test.join('') + '-' + size.size}%";`
 
-               //          con.query(insertAssets, (err, result) => {
-               //             if (err) throw err;
-               //             if (size.size === "large") {
-               //                res.status(200).send({ ...result, success: true, file: originalname });
-               //             }
-               //          })
-               //       })
-               // })
-            // })
+         //          con.query(insertAssets, (err, result) => {
+         //             if (err) throw err;
+         //             if (size.size === "large") {
+         //                res.status(200).send({ ...result, success: true, file: originalname });
+         //             }
+         //          })
+         //       })
+         // })
+         // })
 
       })
    }
@@ -701,4 +704,77 @@ exports.convertImages = async (req, res) => {
          })
       }, 200)
    }) //end of querying all Assets
+}
+// Assets.CategoryId,
+exports.getCategoryAssets = async (req, res) => {
+   // const query = 'SELECT Assets.Id, Type, Path, Label, Category.WorkingTitle, CategoryInfo.Name, CatId FROM Assets'
+   //    + " LEFT JOIN Category ON Category.Id = Assets.CatId"
+   //    + " LEFT JOIN CategoryInfo ON CategoryInfo.CategoryId = Category.Id WHERE CategoryInfo.Language = 'en' ORDER BY Assets.CatId;"
+
+   const query = "SELECT C.Id, C.WorkingTitle AS Name, IT.Tree, Path FROM Category C"
+      + " LEFT JOIN Assets ON CatId = C.Id"
+      + " LEFT JOIN InfoTree IT ON C.Id = IT.LinkId and IT.Publish = '1' and IT.Type = 'C' WHERE C.Publish = '1'"
+   con.query(query, (err, result) => {
+      if (err) throw err;
+      res.send(result);
+   })
+}
+
+exports.searchAssetsCat = async (req, res) => {
+   const { searchQuery } = req.body;
+   const query = "SELECT C.Id, C.WorkingTitle AS Name, IT.Tree, Path FROM Category C"
+   + " LEFT JOIN Assets ON CatId = C.Id"
+   + ` LEFT JOIN InfoTree IT ON C.Id = IT.LinkId and IT.Publish = '1' and IT.Type = 'C' WHERE C.WorkingTitle LIKE '%${searchQuery}%' AND C.Publish = '1'`
+   
+   con.query(query, (err, results, fields) => {
+      if (err) {
+         console.log(err)
+      }
+      res.send(results)
+   })
+}
+
+exports.addCatAssets = async (req, res) => {
+
+   const { CatId, Path, VisualFile, oldImage } = req.body;
+   const existCat = `SELECT COUNT(*) AS CatCount FROM Assets WHERE CatId = ${CatId};`;
+
+   let newName = Path.split('\\');
+
+   if (fs.existsSync(appRoot + `/assets/${oldImage}`)) {
+               
+      fs.unlink(appRoot + `/assets/${oldImage}`, function (err) {
+         if (err) throw err;
+         // if no error, file has been deleted successfully
+         console.log('File P deleted!');
+         
+      });
+      console.log('File exists!');
+   }
+   if (newName != oldImage){
+      fs.writeFile(appRoot + `/assets/${newName[2]}`, VisualFile, { encoding: 'base64' }, function (err) {
+         console.log('File created');
+      });
+   }
+   
+
+   con.query(existCat, (err, transResult) => {
+      if (err) throw err;
+      if (transResult[0].CatCount > 0) {
+         con.query(`UPDATE Assets SET Path = "${newName[2]}" WHERE CatId = ${CatId} ;`, (err, results, fields) => {
+            if (err) throw err;
+            res.send(results)
+         });
+      } else {
+         con.query(`INSERT INTO Assets (CatId, Path, Type) VALUES ( "${CatId}", "${newName[2]}", "Category-image");`, (err, results, fields) => {
+            if (err) {
+               console.log(err)
+            }
+
+            res.send(results)
+         })
+      }
+   })
+
+
 }
