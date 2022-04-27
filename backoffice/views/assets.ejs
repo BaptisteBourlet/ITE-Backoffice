@@ -1148,8 +1148,9 @@
                                     var data = eval("(" + response.responseText + ")");
 
                                     if (data.serverStatus == 2) {
-                                        SeriesAssetsStore.reload();
-                                        AssetsStore.reload()
+                                        searchAssetsSeries('searchKeySerie')
+                                       
+                                        searchAssetsProduct('searchKey')
                                         Ext.getBody().unmask();
                                         Ext.Msg.alert(
                                             "Success",
