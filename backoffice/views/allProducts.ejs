@@ -633,7 +633,7 @@
       }
 
       const getRelatedCatalog = (ProductId, SerOrProd) => {
-       
+
         Ext.Ajax.request({
           url: "/apiProducts/getRelatedCatalog",
           method: "POST",
@@ -1104,6 +1104,42 @@
           cors: true,
           useDefaultXhrHeader: false,
         },
+        sorters: [
+          {
+            // Sort by first letter of second word of spirit animal, in descending order
+            sorterFn: function (record1, record2) {
+              var name1 = record1.data.Tree
+              var name2 = record2.data.Tree
+              
+              if (name1 != null) {
+                
+                  name1 = name1.split('.')
+                  name1.splice(1,0,'.')
+                  name1 = name1.join('')
+                 
+                  name1 = Number(name1)
+                 
+
+              }
+
+              if (name2 != null) {
+                
+                  name2 = name2.split('.')
+                  name2.splice(1,0,'.')
+                  name2 = name2.join('')
+                  name2 = Number(name2)
+                  
+                  
+              } else {
+                name1 = null
+                name2 = null
+              }
+              return name1 >= name2 ? 1 :  name1  === null ? -1 : name2  === null ? -1 : 0;
+            },
+            
+            direction: 'ASC'
+          }
+        ],
 
         listeners: {
           beforeload: function (store) {
@@ -2869,7 +2905,7 @@
             },
             change: function () {
               var SerOrProd = Ext.getCmp('ProdSer').getValue()
-              
+
               let ProductId = this.getValue();
               getRelatedCatalog(ProductId, SerOrProd);
             },
