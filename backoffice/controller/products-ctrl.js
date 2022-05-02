@@ -450,14 +450,14 @@ exports.getProductDet = async (req, res) => {
    const { ProdSer } = req.query;
    
    if(ProdSer == 'P'){
-      con.query("SELECT CODE, Id FROM Product;", (err, results, fields) => {
+      con.query("SELECT CODE, Id FROM Product ORDER BY CODE;", (err, results, fields) => {
          if (err) {
             console.log(err)
          }
          res.send(results)
       })
    } else if (ProdSer == 'S') {
-      con.query("SELECT Series.Key AS CODE, Sid AS Id FROM Series;", (err, results, fields) => {
+      con.query("SELECT Series.Key AS CODE, Sid AS Id FROM Series ORDER BY Series.Key;", (err, results, fields) => {
          if (err) {
             console.log(err)
          }

@@ -908,14 +908,19 @@ exports.uploadSerieImage = async (req, res) => {
 
                // insert other sizes
                imageSizes.forEach(size => {
+
+                  let newName = originalname.split('.');
+
+                  newName[0] = `${newName[0]}-${size.size}`;
+                  newName = newName.join('.');
                   // set maxWidth or maxHeight depending on image type
                   let resizeOption = landscape ? `${size.width}` : `x${size.height}`;
                   let sizeChar = size.size.charAt(0).toUpperCase();
                   imagemagickCli
-                     .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${size.size}/${originalname}`)
+                     .exec(`convert assets/${originalname} -resize "${resizeOption}" assets/${newName}`)
                      .then(({ stdout, stderr }) => {
 
-                        const insertAssets = `INSERT INTO Assets (SerieId, Type, Size, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${sizeChar}","${originalname}", "${Label}", "${nextSequence}");`
+                        const insertAssets = `INSERT INTO Assets (SerieId, Type, Size, Path, Label, Sequence) VALUES ("${SeriesId}", "serie-image", "${sizeChar}","${newName}", "${Label}", "${nextSequence}");`
 
                         con.query(insertAssets, (err, result) => {
                            if (err) throw err;
