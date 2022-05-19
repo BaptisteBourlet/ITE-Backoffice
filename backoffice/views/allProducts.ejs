@@ -522,6 +522,7 @@
       const getProductDetails = (productId) => {
         Ext.Ajax.request({
           url: "/apiProducts/getProductDetails",
+          
           method: "GET",
           cors: true,
           useDefaultXhrHeader: false,
@@ -948,7 +949,7 @@
 
       const ProductDetStore = Ext.create("Ext.data.Store", {
         id: "ProductDetStore",
-        autoLoad: true,
+        autoLoad: false,
         model: ProductDet,
         proxy: {
           type: "ajax",
@@ -1004,7 +1005,7 @@
 
       const Model = Ext.define("ALLPRODUCTS", {
         extend: "Ext.data.Model",
-        fields: ["Id", "Catalog", "Description", "CODE", 'Title'],
+        fields: ["Id", "Catalog", {name:'Tree', type: 'string'}, {name:'As400Code', type: 'string'}, {name:'Description', type: 'string'}, "CODE", 'Title'],
       });
 
 
@@ -1065,21 +1066,21 @@
         },
         {
           header: "Translated",
-          sortable: true,
+          sortable: false,
           width: 100,
           dataIndex: "Translated",
           hidden: true,
         },
         {
           header: "Not translated",
-          sortable: true,
+          sortable: false,
           width: 100,
           dataIndex: "NotTranslated",
           hidden: true,
         },
         {
           header: "Count",
-          sortable: true,
+          sortable: false,
           width: 100,
           dataIndex: "Count",
           hidden: true,
@@ -1105,42 +1106,42 @@
           useDefaultXhrHeader: false,
 
         },
-        sorters: [
-          {
-            // Sort by first letter of second word of spirit animal, in descending order
-            sorterFn: function (record1, record2) {
-              var name1 = record1.data.Tree
-              var name2 = record2.data.Tree
+      //  sorters: [
+      //    {
+      //      // Sort by first letter of second word of spirit animal, in descending order
+      //      sorterFn: function (record1, record2) {
+      //        var name1 = record1.data.Tree
+      //        var name2 = record2.data.Tree
+//
+//              if (name1 != null) {
+//
+//                name1 = name1.split('.')
+//                name1.splice(1, 0, '.')
+//                name1 = name1.join('')
+//
+  //              name1 = Number(name1)
+//
+//
+  //            }
 
-              if (name1 != null) {
+   //           if (name2 != null) {
 
-                name1 = name1.split('.')
-                name1.splice(1, 0, '.')
-                name1 = name1.join('')
-
-                name1 = Number(name1)
-
-
-              }
-
-              if (name2 != null) {
-
-                name2 = name2.split('.')
-                name2.splice(1, 0, '.')
-                name2 = name2.join('')
-                name2 = Number(name2)
+     //           name2 = name2.split('.')
+     //           name2.splice(1, 0, '.')
+     //           name2 = name2.join('')
+     //           name2 = Number(name2)
 
 
-              } else {
-                name1 = null
-                name2 = null
-              }
-              return name1 >= name2 ? 1 : name1 === null ? -1 : name2 === null ? -1 : 0;
-            },
+//              } else {
+//                name1 = null
+//                name2 = null
+//              }
+//              return name1 >= name2 ? 1 : name1 === null ? -1 : name2 === null ? -1 : 0;
+//            },
 
-            direction: 'ASC'
-          }
-        ],
+//            direction: 'ASC'
+//          }
+//        ],
 
         listeners: {
           beforeload: function (store) {
@@ -1951,7 +1952,7 @@
       const CategoryStore = Ext.create("Ext.data.Store", {
         id: "CategoryStore",
 
-        autoLoad: true,
+        autoLoad: false,
         model: CATEGORY,
         proxy: {
           type: "ajax",
