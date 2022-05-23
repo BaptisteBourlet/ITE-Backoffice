@@ -107,7 +107,8 @@
       Ext.onReady(() => {
          // Settings
          let tinyHeight = 500;
-
+         let tinyMce_images_upload_url = "http://10.0.10.1:11080/back/upload.php";
+         
          // // FOR TESTING 
          // let userRightObject = {
          //    english: "V",
@@ -133,6 +134,7 @@
             xtype: 'my-form',
 
          });
+
          const relatedProducts = (products) => {
             let exist = false;
 
@@ -1283,22 +1285,16 @@
                         Ext.getCmp('addForm').reset();
                         tinymce.init({
                            selector: 'textarea',
+                           images_upload_url: tinyMce_images_upload_url ,
                            plugins: [
-
                               'advlist autolink lists link image charmap print preview anchor',
-
                               'searchreplace visualblocks code fullscreen',
-
                               'insertdatetime media table paste code help wordcount'
-
                            ],
                            // // menubar: 'true',
                            toolbar: 'undo redo |  ' +
-
                               'bold italic forecolor | alignleft aligncenter ' +
-
                               ' | bullist numlist outdent indent | ' +
-
                               ' table | link image | removeformat  code | help',
                            height: '350',
                            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
@@ -1357,7 +1353,7 @@
                            }
                            tinymce.init({
                               selector: 'textarea',
-
+                              images_upload_url: tinyMce_images_upload_url ,
                               plugins: [
                                  'advlist autolink lists link image charmap print preview anchor',
                                  'searchreplace visualblocks code fullscreen',
@@ -1372,7 +1368,7 @@
                               content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
                               setup: function (editor) {
                                  editor.on('init', function (e) {
-
+                                    console.log('The Editor has initialized:' + this.id);
 
                                     if (tinyMCE.get(`spec`) != null) {
                                        getSerieDetails(serieIDGlobal);
@@ -1905,6 +1901,7 @@
                         Ext.getCmp('tabTrans').setActiveTab(1)
                         tinymce.init({
                            selector: 'textarea',
+                           images_upload_url: tinyMce_images_upload_url ,
                            plugins: [
 
                               'advlist autolink lists link image charmap print preview anchor',
@@ -1928,6 +1925,7 @@
                         Ext.getCmp('tabTrans').setActiveTab(2)
                         tinymce.init({
                            selector: 'textarea',
+                           images_upload_url: tinyMce_images_upload_url ,
                            plugins: [
 
                               'advlist autolink lists link image charmap print preview anchor',
@@ -1951,6 +1949,7 @@
                         Ext.getCmp('tabTrans').setActiveTab(3)
                         tinymce.init({
                            selector: 'textarea',
+                           images_upload_url: tinyMce_images_upload_url ,
                            plugins: [
 
                               'advlist autolink lists link image charmap print preview anchor',
@@ -1974,6 +1973,7 @@
                         Ext.getCmp('tabTrans').setActiveTab(4)
                         tinymce.init({
                            selector: 'textarea',
+                           images_upload_url: tinyMce_images_upload_url ,
                            plugins: [
 
                               'advlist autolink lists link image charmap print preview anchor',
@@ -2032,6 +2032,7 @@
                      // tinyMceInitiation
                      tinymce.init({
                         selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url ,
                         plugins: [
 
                            'advlist autolink lists link image charmap print preview anchor',
@@ -2058,6 +2059,7 @@
                      // tinyMceInitiation
                      tinymce.init({
                         selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url ,
                         plugins: [
 
                            'advlist autolink lists link image charmap print preview anchor',
@@ -2084,6 +2086,7 @@
                      // tinyMceInitiation
                      tinymce.init({
                         selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url ,
                         plugins: [
 
                            'advlist autolink lists link image charmap print preview anchor',
@@ -2110,6 +2113,7 @@
                      // tinyMceInitiation
                      tinymce.init({
                         selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url ,
                         plugins: [
 
                            'advlist autolink lists link image charmap print preview anchor',
@@ -2371,21 +2375,23 @@
                            }
                            tinymce.init({
                               selector: 'textarea',
-
-                              plugins: [
-                                 'advlist autolink lists link image charmap print preview anchor',
-                                 'searchreplace visualblocks code fullscreen',
-                                 'insertdatetime media table paste code help wordcount'
-                              ],
-                              // menubar: 'true',
-                              toolbar: 'undo redo |  ' +
-                                 'bold italic forecolor | alignleft aligncenter ' +
-                                 ' | bullist numlist outdent indent | ' +
-                                 ' table | link image | removeformat  code | help',
-                              height: '350',
-                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                              images_upload_url: tinyMce_images_upload_url ,
+                        plugins: [
+                           'advlist autolink lists link image charmap print preview anchor',
+                           'searchreplace visualblocks code fullscreen',
+                           'insertdatetime media table paste code help wordcount'
+                         ],
+                    // menubar: 'true',
+                           toolbar: 'undo redo |  ' +
+                              'bold italic forecolor | alignleft aligncenter ' +
+                              ' | bullist numlist outdent indent | ' +
+                              ' table | link image | removeformat  code | help',
+                           height: '350',
+                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
                               setup: function (editor) {
                                  editor.on('init', function (e) {
+                                    console.log('The Editor has initialized:' + this.id);
+                                    console.log(tinyMce_images_upload_url);
                                     if (this.id == 'spec') {
                                        getSerieDetails(serieIDGlobal);
                                     }
@@ -2899,7 +2905,6 @@
                ]
             }
          ]
-
 
          const ModelSerieMaster = Ext.define("Categories5", {
             extend: "Ext.data.Model",
