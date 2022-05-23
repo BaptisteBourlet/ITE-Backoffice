@@ -106,8 +106,8 @@
       // ========================================================================================================
       Ext.onReady(() => {
          // Settings
-         let tinyHeight = 500;
          let tinyMce_images_upload_url = "http://10.0.10.1:11080/back/upload.php";
+         let tinyHeight = 500;
          
          // // FOR TESTING 
          // let userRightObject = {
@@ -134,6 +134,23 @@
             xtype: 'my-form',
 
          });
+
+      const tinyMceInitiation = tinymce.init({
+        selector: 'textarea',
+        images_upload_url: tinyMce_images_upload_url ,
+        plugins: [
+          'advlist autolink lists link image charmap print preview anchor',
+          'searchreplace visualblocks code fullscreen',
+          'insertdatetime media table paste code help wordcount'
+        ],
+        // menubar: 'true',
+        toolbar: 'undo redo |  ' +
+          'bold italic forecolor | alignleft aligncenter ' +
+          ' | bullist numlist outdent indent | ' +
+          ' table | link image | removeformat  code | help',
+        height: '350',
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+      });
 
          const relatedProducts = (products) => {
             let exist = false;
