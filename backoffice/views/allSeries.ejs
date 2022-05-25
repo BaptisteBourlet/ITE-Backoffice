@@ -1162,6 +1162,8 @@
                      text: "Add Linked Product",
                      iconCls: "fa fa-plus",
                      handler: function () {
+                        ProductDetStore.getProxy().setExtraParam('ProdSer', 'P');
+                        ProductDetStore.load()
                         Ext.getCmp("viewport").setActiveItem("panelAddRelated");
                      },
                   },
@@ -2586,8 +2588,10 @@
                   select: function () {
                      let ProductId = this.getValue();
                      getRelatedCatalog(ProductId, 'itemAddRelated');
+                     
                   }
                }
+               
             },
             {
                xtype: 'displayfield',
