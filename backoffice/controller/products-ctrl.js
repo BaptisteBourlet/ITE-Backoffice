@@ -177,9 +177,9 @@ exports.getCategories = async (req, res) => {
 
 exports.addProduct = async (req, res) => {
    const { Code, As400, CreateOn, Category, Pub, Slug } = req.body;
+   
 
-
-   con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", "${Category}", "${Slug}", "${Pub}");`, (err, results, fields) => {
+   con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", ${Category}, "${Slug}", "${Pub}");`, (err, results, fields) => {
       if (err) {
          console.log(err)
       }
@@ -486,7 +486,6 @@ exports.searchProduct = async (req, res) => {
 
    let target, searchQueryAdapt;
    let unpublished
-   console.log('test  :  '+unpub)
    
    if(unpub == 'false'){
       unpublished = 1
