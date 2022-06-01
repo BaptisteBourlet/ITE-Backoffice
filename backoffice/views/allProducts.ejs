@@ -120,6 +120,8 @@
     //		           APPLICATION START
     // ========================================================================================================
     Ext.onReady(() => {
+      // Settings
+      let tinyMce_images_upload_url = "http://10.0.10.1:11080/back/upload.php";
 
       // // FOR TESTING 
 
@@ -143,6 +145,7 @@
       let edit = false;
       let productIDGlobal = "";
       let serieIDGlobal = "";
+    
       Ext.define('MyApp.view.Form', {
         extend: 'Ext.form.Panel',
         xtype: 'my-form',
@@ -151,6 +154,7 @@
 
       const tinyMceInitiation = tinymce.init({
         selector: 'textarea',
+        images_upload_url: tinyMce_images_upload_url ,
         plugins: [
           'advlist autolink lists link image charmap print preview anchor',
           'searchreplace visualblocks code fullscreen',
@@ -1315,6 +1319,7 @@
 
                 tinymce.init({
                   selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -1386,7 +1391,7 @@
                   }
                   tinymce.init({
                     selector: 'textarea',
-
+                    images_upload_url: tinyMce_images_upload_url,
                     plugins: [
                       'advlist autolink lists link image charmap print preview anchor',
                       'searchreplace visualblocks code fullscreen',
@@ -1843,7 +1848,7 @@
                   }
                   tinymce.init({
                     selector: 'textarea',
-
+                    images_upload_url: tinyMce_images_upload_url,
                     plugins: [
                       'advlist autolink lists link image charmap print preview anchor',
                       'searchreplace visualblocks code fullscreen',
@@ -1895,6 +1900,7 @@
                   Ext.getCmp('viewport').setActiveItem('linkedProducts');
                   tinymce.init({
                     selector: 'textarea',
+                    images_upload_url: tinyMce_images_upload_url,
                     plugins: [
 
                       'advlist autolink lists link image charmap print preview anchor',
@@ -2539,6 +2545,7 @@
                 Ext.getCmp('tabTrans').setActiveTab(1)
                 tinymce.init({
                   selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -2562,6 +2569,7 @@
                 Ext.getCmp('tabTrans').setActiveTab(2)
                 tinymce.init({
                   selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -2585,6 +2593,7 @@
                 Ext.getCmp('tabTrans').setActiveTab(3)
                 tinymce.init({
                   selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -2608,6 +2617,7 @@
                 Ext.getCmp('tabTrans').setActiveTab(4)
                 tinymce.init({
                   selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -2643,6 +2653,7 @@
                 Ext.getCmp('tabTrans').setActiveTab(1)
                 tinymce.init({
                   selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -2666,6 +2677,7 @@
                 Ext.getCmp('tabTrans').setActiveTab(2)
                 tinymce.init({
                   selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -2689,6 +2701,7 @@
                 Ext.getCmp('tabTrans').setActiveTab(3)
                 tinymce.init({
                   selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -2712,6 +2725,7 @@
                 Ext.getCmp('tabTrans').setActiveTab(4)
                 tinymce.init({
                   selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -2752,6 +2766,7 @@
               // tinyMceInitiation
               tinymce.init({
                 selector: 'textarea',
+                images_upload_url: tinyMce_images_upload_url,
                 plugins: [
 
                   'advlist autolink lists link image charmap print preview anchor',
@@ -2804,6 +2819,7 @@
               // tinyMceInitiation
               tinymce.init({
                 selector: 'textarea',
+                images_upload_url: tinyMce_images_upload_url,
                 plugins: [
 
                   'advlist autolink lists link image charmap print preview anchor',
@@ -2830,6 +2846,7 @@
               // tinyMceInitiation
               tinymce.init({
                 selector: 'textarea',
+                images_upload_url: tinyMce_images_upload_url,
                 plugins: [
 
                   'advlist autolink lists link image charmap print preview anchor',
