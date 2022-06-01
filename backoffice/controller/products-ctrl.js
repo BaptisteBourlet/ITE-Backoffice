@@ -482,10 +482,17 @@ exports.getProductDet = async (req, res) => {
 
 
 exports.searchProduct = async (req, res) => {
-   const { searchQuery, searchTarget } = req.body;
+   const { searchQuery, searchTarget, unpub } = req.body;
 
    let target, searchQueryAdapt;
-
+   let unpublished
+   console.log('test  :  '+unpub)
+   
+   if(unpub == 'false'){
+      unpublished = 1
+   } else {
+      unpublished = 0
+   }
    switch (searchTarget) {
       case 'productCode':
          target = 'Product.Code';
@@ -516,7 +523,7 @@ exports.searchProduct = async (req, res) => {
       + " FROM ProductInfo"
       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
       + " LEFT JOIN InfoTree ON ProductInfo.ProductId = InfoTree.LinkId AND InfoTree.Type = 'P'"
-      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 AND ${target} LIKE '%${searchQueryAdapt}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
+      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = ${unpublished} AND ${target} LIKE '%${searchQueryAdapt}%' ORDER BY ProductInfo.ProductId LIMIT 30;`;
 
    con.query(query, (err, results, fields) => {
       if (err) {

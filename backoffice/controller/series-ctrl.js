@@ -225,7 +225,7 @@ exports.editSeries = async (req, res) => {
       })
    }
 
-   const SeriesQuery = `Update Series SET ModifiedOn = "${ModifiedOn}" WHERE Sid = "${SeriesId}";`;
+   const SeriesQuery = `Update Series SET Series.Key = '${Key}', ModifiedOn = "${ModifiedOn}" WHERE Sid = "${SeriesId}";`;
 
    con.query(SeriesQuery, (err, results) => {
       if (err) throw err;
