@@ -55,26 +55,25 @@ exports.getSomething = async (req, res) => {
 // DISTINCT AS400.AOAROM, 
 exports.getAllProducts = async (req, res) => {
    const { unpub } = req.query;
-   console.log(unpub)
    var query
-   if( unpub == 'true'){
+   if (unpub == 'true') {
       query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesProductLink.ProductId AS SProductId"
-      + " FROM ProductInfo"
-      + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
-      + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
-      + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId AND SeriesInfo.Language = 'en'"
-      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 0 ORDER BY ProductInfo.ProductId;`;
+         + " FROM ProductInfo"
+         + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
+         + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
+         + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
+         + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId AND SeriesInfo.Language = 'en'"
+         + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 0 ORDER BY ProductInfo.ProductId;`;
    } else {
-       query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesProductLink.ProductId AS SProductId"
-      + " FROM ProductInfo"
-      + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-      + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
-      + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
-      + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId AND SeriesInfo.Language = 'en'"
-      + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 ORDER BY ProductInfo.ProductId;`;
+      query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesProductLink.ProductId AS SProductId"
+         + " FROM ProductInfo"
+         + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
+         + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
+         + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
+         + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId AND SeriesInfo.Language = 'en'"
+         + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 ORDER BY ProductInfo.ProductId;`;
    }
-   
+
 
    con.query(query, (err, results, fields) => {
       if (err) {
@@ -177,7 +176,7 @@ exports.getCategories = async (req, res) => {
 
 exports.addProduct = async (req, res) => {
    const { Code, As400, CreateOn, Category, Pub, Slug } = req.body;
-   
+
 
    con.query(`INSERT INTO Product (Code, As400Code, CreatedOn, CategoryId, Slug, Publish) VALUES ("${Code}", "${As400}", "${CreateOn}", ${Category}, "${Slug}", "${Pub}");`, (err, results, fields) => {
       if (err) {
@@ -311,7 +310,7 @@ exports.editProduct = async (req, res) => {
          console.log('English wasnt filled in');
       }
       if (FrDetails == 'false' && FRDescription !== "" && FRCatalog !== "") {
-         
+
          con.query(FrQueryInsert, (err, results) => {
             if (err) {
                errorString += "French, ";
@@ -384,7 +383,7 @@ exports.editProduct = async (req, res) => {
          })
       } else {
          if (RUDescription !== "" && RUCatalog !== "") {
-            
+
             con.query(RUQuery, (err, results) => {
                errorString += "Russian";
                console.log(err);
@@ -403,26 +402,88 @@ exports.editProduct = async (req, res) => {
 
 
 exports.deleteProduct = async (req, res) => {
-   const { ProductId } = req.body;
+   const { ProductId, unpub } = req.body;
+
+   const existRelated = `SELECT COUNT(*) AS linkCount FROM RelatedProducts WHERE LinkedProductID = ${ProductId};`;
+   const existSPL = `SELECT COUNT(*) AS SPLCount FROM SeriesProductLink WHERE ProductId = ${ProductId};`;
+   const existTree = `SELECT COUNT(*) AS TreeCount FROM InfoTree WHERE LinkId = ${ProductId} AND Type = 'P';`;
+
    let errorString = '';
 
-   // con.query(`DELETE FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId};`, (err, results, fields) => {
-   //    if (err) {
-   //       console.log(err)
-   //    }
-   // })
-   // con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
-   //    if (err) {
-   //       console.log(err);
-   //       errorString += 'ProductInfo, '
-   //    }
 
-   con.query(`UPDATE Product SET Publish = 0 WHERE Id = "${ProductId}";`, (err, results, fields) => {
-      if (err) {
-         errorString += 'Product, '
-      }
-      res.send(results)
-   })
+   if (unpub == 'false') {
+
+      con.query(`UPDATE Product SET Publish = 0 WHERE Id = "${ProductId}";`, (err, results, fields) => {
+         if (err) {
+            errorString += 'Product, '
+         }
+         res.send(results)
+      })
+   } else {
+      // DELETE RELATED
+      con.query(existRelated, (err, existResult) => {
+         if (err) throw err;
+         console.log(existResult[0].linkCount)
+         if (existResult[0].linkCount > 0) {
+            con.query(`DELETE FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId};`, (err, results, fields) => {
+               if (err) {
+                  console.log(err)
+               }
+            })
+         }
+      })
+
+      con.query(existSPL, (err, existResult) => {
+         if (err) throw err;
+
+         if (existResult[0].SPLCount > 0) {
+            con.query(`DELETE FROM SeriesProductLink WHERE ProductId = ${ProductId};`, (err, results, fields) => {
+               if (err) {
+                  console.log(err)
+               }
+            })
+         }
+      })
+
+      con.query(existTree, (err, existResult) => {
+         if (err) throw err;
+
+         if (existResult[0].TreeCount > 0) {
+            con.query(`DELETE FROM InfoTree WHERE LinkId = ${ProductId};`, (err, results, fields) => {
+               if (err) {
+                  console.log(err)
+               }
+            })
+         }
+      })
+
+      con.query(existTree, (err, existResult) => {
+         if (err) throw err;
+
+         if (existResult[0].TreeCount > 0) {
+            con.query(`DELETE FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId};`, (err, results, fields) => {
+               if (err) {
+                  console.log(err)
+               }
+            })
+         }
+      })
+
+      con.query(`DELETE FROM ProductInfo WHERE ProductId = ${ProductId};`, (err, results, fields) => {
+         if (err) {
+            console.log(err);
+            errorString += 'ProductInfo, '
+         }
+      })
+      con.query(`DELETE FROM Product WHERE Id = ${ProductId};`, (err, results, fields) => {
+         if (err) {
+            console.log(err);
+            errorString += 'Product, '
+         }
+         res.send(results)
+      })
+
+   }
 
 }
 
@@ -459,11 +520,11 @@ exports.deleteSerieRelatedProductFromDetailsView = async (req, res) => {
 
 
 exports.getProductDet = async (req, res) => {
-   
+
 
    const { ProdSer } = req.query;
-   
-   if(ProdSer == 'P'){
+
+   if (ProdSer == 'P') {
       con.query("SELECT CODE, Id FROM Product ORDER BY CODE;", (err, results, fields) => {
          if (err) {
             console.log(err)
@@ -486,8 +547,8 @@ exports.searchProduct = async (req, res) => {
 
    let target, searchQueryAdapt;
    let unpublished
-   
-   if(unpub == 'false'){
+
+   if (unpub == 'false') {
       unpublished = 1
    } else {
       unpublished = 0
@@ -535,7 +596,7 @@ exports.searchProduct = async (req, res) => {
 
 exports.getRelatedCatalog = async (req, res) => {
    let { ProductId, SerProd } = req.body;
-   
+
    if (SerProd == 'S') {
       con.query(`SELECT Title AS Catalog FROM SeriesInfo WHERE SeriesId = "${ProductId}" AND Language = 'en';`, (err, results, fields) => {
          if (err) {
@@ -551,14 +612,14 @@ exports.getRelatedCatalog = async (req, res) => {
          res.send(results)
       })
    }
-   
+
 }
 
 
 exports.addRelatedProduct = async (req, res) => {
    const { Type, Sequence, LinkedProductID, Catalog, Code, ProdSer } = req.body;
    const ProdId = storage.getItem('ProdId')
-   
+
 
    if (ProdSer == 'P') {
       con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedProductID, ProductId, Description) VALUES ("${Type}", ${Sequence}, "${Code}", ${LinkedProductID}, ${ProdId}, "${Catalog}");`, (err, results, fields) => {
@@ -583,7 +644,7 @@ exports.addRelatedProduct = async (req, res) => {
 
 exports.addRelatedProductFromView = async (req, res) => {
    const { Type, Sequence, productIDGlobal, LinkedProductID, Catalog, Code, ProdSer } = req.body;
-   
+
 
    if (ProdSer == 'P') {
       con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE ProductId = "${productIDGlobal}";`, (err, results) => {
@@ -596,7 +657,7 @@ exports.addRelatedProductFromView = async (req, res) => {
       })
    } else {
 
-      
+
       con.query(`SELECT MAX(Sequence) Sequence FROM RelatedProducts WHERE ProductId = "${productIDGlobal}";`, (err, results) => {
          con.query(`INSERT INTO RelatedProducts (Type, Sequence, Code, LinkedSeriesID, ProductId, Description) VALUES ("${Type}", ${results[0].Sequence + 1}, "${Code}", "${LinkedProductID}", ${productIDGlobal}, "${Catalog}");`, (err, results, fields) => {
             if (err) {
@@ -745,13 +806,13 @@ exports.uploadProductImage = async (req, res) => {
    const check = originalname.split('.')
    const pathpng = `assets/${check[0]}-large.PNG`
    const pathjpg = `assets/${check[0]}-large.JPG`
-   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg) ) {
+   if (fs.existsSync(pathpng) || fs.existsSync(pathjpg)) {
       res.send({ isExist: "yes" })
    } else {
 
-   const { ProductId, Label } = req.body;
-   const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE ProductId = "${ProductId}"`;
-   
+      const { ProductId, Label } = req.body;
+      const maxSequence = `SELECT MAX(Sequence) AS maxSequence FROM Assets WHERE ProductId = "${ProductId}"`;
+
       const imageSizes = [
          {
             size: 'large',

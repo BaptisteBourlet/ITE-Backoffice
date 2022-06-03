@@ -1237,7 +1237,7 @@
 
       const linkedProductStore = Ext.create("Ext.data.Store", {
         id: "mainStorel",
-        autoLoad: true,
+        autoLoad: false,
         model: linkedProductModel,
         proxy: {
           type: "ajax",
@@ -1342,6 +1342,118 @@
                 });
 
 
+                Ext.getCmp('tabTrans').setActiveTab(1)
+              // tinyMceInitiation
+              tinymce.init({
+                selector: 'textarea',
+                images_upload_url: tinyMce_images_upload_url,
+                plugins: [
+
+                  'advlist autolink lists link image charmap print preview anchor',
+
+                  'searchreplace visualblocks code fullscreen',
+
+                  'insertdatetime media table paste code help wordcount'
+
+                ],
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
+
+                  'bold italic forecolor | alignleft aligncenter ' +
+
+                  ' | bullist numlist outdent indent | ' +
+
+                  ' table | link image | removeformat  code | help',
+
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+              });
+              tinyMCE.get('FRFDesc').setContent('');
+              tinyMCE.get('FRspec').setContent('');
+              Ext.getCmp('tabTrans').setActiveTab(2)
+              // tinyMceInitiation
+              tinymce.init({
+                selector: 'textarea',
+                plugins: [
+
+                  'advlist autolink lists link image charmap print preview anchor',
+
+                  'searchreplace visualblocks code fullscreen',
+
+                  'insertdatetime media table paste code help wordcount'
+
+                ],
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
+
+                  'bold italic forecolor | alignleft aligncenter ' +
+
+                  ' | bullist numlist outdent indent | ' +
+
+                  ' table | link image | removeformat  code | help',
+
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+              });
+              tinyMCE.get('DEFDesc').setContent('');
+              tinyMCE.get('DEspec').setContent('');
+              Ext.getCmp('tabTrans').setActiveTab(3)
+              // tinyMceInitiation
+              tinymce.init({
+                selector: 'textarea',
+                images_upload_url: tinyMce_images_upload_url,
+                plugins: [
+
+                  'advlist autolink lists link image charmap print preview anchor',
+
+                  'searchreplace visualblocks code fullscreen',
+
+                  'insertdatetime media table paste code help wordcount'
+
+                ],
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
+
+                  'bold italic forecolor | alignleft aligncenter ' +
+
+                  ' | bullist numlist outdent indent | ' +
+
+                  ' table | link image | removeformat  code | help',
+
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+              });
+              tinyMCE.get('ESFDesc').setContent('');
+              tinyMCE.get('ESspec').setContent('');
+              Ext.getCmp('tabTrans').setActiveTab(4)
+              // tinyMceInitiation
+              tinymce.init({
+                selector: 'textarea',
+                images_upload_url: tinyMce_images_upload_url,
+                plugins: [
+
+                  'advlist autolink lists link image charmap print preview anchor',
+
+                  'searchreplace visualblocks code fullscreen',
+
+                  'insertdatetime media table paste code help wordcount'
+
+                ],
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
+
+                  'bold italic forecolor | alignleft aligncenter ' +
+
+                  ' | bullist numlist outdent indent | ' +
+
+                  ' table | link image | removeformat  code | help',
+
+                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+              });
+              tinyMCE.get('ENFDesc').setContent('');
+              tinyMCE.get('ENspec').setContent('');
+
+              tinyMCE.get('RUFDesc').setContent('');
+              tinyMCE.get('RUspec').setContent('');
+              
+              Ext.getCmp('tabTrans').setActiveTab(0)
               },
             },
             "-",
@@ -2641,6 +2753,21 @@
                 setProductSessionStorage();
                 addRecord();
                 Ext.getCmp("addForm").reset();
+
+                tinyMCE.get('FRFDesc').setContent('');
+              tinyMCE.get('FRspec').setContent('');
+
+              tinyMCE.get('DEFDesc').setContent('');
+              tinyMCE.get('DEspec').setContent('');
+
+              tinyMCE.get('ESFDesc').setContent('');
+              tinyMCE.get('ESspec').setContent('');
+
+              tinyMCE.get('ENFDesc').setContent('');
+              tinyMCE.get('ENspec').setContent('');
+
+              tinyMCE.get('RUFDesc').setContent('');
+              tinyMCE.get('RUspec').setContent('');
               }
             },
           },
@@ -2749,6 +2876,20 @@
                 setProductSessionStorage();
                 editProduct();
                 Ext.getCmp("addForm").reset();
+                tinyMCE.get('FRFDesc').setContent('');
+              tinyMCE.get('FRspec').setContent('');
+              
+              tinyMCE.get('DEFDesc').setContent('');
+              tinyMCE.get('DEspec').setContent('');
+
+              tinyMCE.get('ESFDesc').setContent('');
+              tinyMCE.get('ESspec').setContent('');
+
+              tinyMCE.get('ENFDesc').setContent('');
+              tinyMCE.get('ENspec').setContent('');
+
+              tinyMCE.get('RUFDesc').setContent('');
+              tinyMCE.get('RUspec').setContent('');
               }
             },
           },
@@ -3153,7 +3294,8 @@
               cors: true,
               useDefaultXhrHeader: false,
               params: {
-                ProductId: selectedRecord.data.Id
+                ProductId: selectedRecord.data.Id,
+                unpub: Ext.getCmp('unpub').getValue()
               },
               success: function (response) {
                 // check for errors and display error message
@@ -3355,7 +3497,7 @@
 
       const linkedImageStore = Ext.create("Ext.data.Store", {
         id: "linkedImageStore",
-        autoLoad: true,
+        autoLoad: false,
         model: linkedImageModel,
         proxy: {
           type: "ajax",

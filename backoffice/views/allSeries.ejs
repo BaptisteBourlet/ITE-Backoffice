@@ -2546,7 +2546,7 @@
 
          const ProductDetStore = Ext.create("Ext.data.Store", {
             id: "ProductDetStore",
-            autoLoad: true,
+            autoLoad: false,
             model: ProductDet,
 
             proxy: {
@@ -3539,7 +3539,7 @@
 
          const linkedImageStore = Ext.create("Ext.data.Store", {
             id: "linkedImageStore",
-            autoLoad: true,
+            autoLoad: false,
             model: linkedImageModel,
             proxy: {
                type: "ajax",
