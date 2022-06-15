@@ -38,6 +38,8 @@ router.post('/deleteProduct', apiCtrl.deleteProduct)
 
 router.post('/searchProduct', apiCtrl.searchProduct);
 
+router.post('/installation', apiCtrl.installation);
+
 router.get('/getProductDet', apiCtrl.getProductDet);
 
 router.post('/addRelatedProduct', apiCtrl.addRelatedProduct);

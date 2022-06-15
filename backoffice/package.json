@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "ITE backoffice",
   "main": "app.js",
-  
   "dependencies": {
     "@spmeesseman/extjs-pkg-tinymce": "^1.0.12",
     "app-root-path": "^3.0.0",

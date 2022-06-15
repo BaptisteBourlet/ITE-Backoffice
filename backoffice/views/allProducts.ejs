@@ -151,6 +151,25 @@
         xtype: 'my-form',
 
       });
+      const installation = () => {
+        Ext.Ajax.request({
+          url: "/apiProducts/installation",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+          
+
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+
+            
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      }
+      installation()
 
       const tinyMceInitiation = tinymce.init({
         selector: 'textarea',
@@ -3384,6 +3403,7 @@
               linkedProductStore.getProxy().setExtraParam('serieId', serieIDGlobal);
               linkedProductStore.reload();
             },
+            
             failure: function (response) {
               Ext.getBody().unmask();
               Ext.Msg.alert(

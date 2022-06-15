@@ -36,6 +36,27 @@ const LANGUAGES = ['en', 'de', 'es', 'fr', 'ru'];
 
 
 
+exports.installation = async (req, res) => {
+   fs.unlink(appRoot + "/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css", function (err) {
+      if (err) throw err;
+      // if no error, file has been deleted successfully
+      fs.copyFile(appRoot +"/installation/content.min.css", appRoot+ "/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css", (err) => {
+         if (err) {
+            console.log("Error Found:", err);
+         }
+         res.status(200).send({  success: true })
+      })
+   });
+      
+      // console.log('ok')
+      // fs.writeFile(appRoot + `/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css`, function (err) {
+      //    console.log('File created');
+         
+      // });
+   
+}
+
+
 exports.getSomething = async (req, res) => {
    const query = "SELECT SeriesId FROM SeriesProductLink WHERE ProductId = '71'";
    const maxSequence = `SELECT MAX(Sequence) as maxSequence, COUNT(*) AS count FROM SeriesMaster WHERE Sid = "5";`;
