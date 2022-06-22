@@ -23,9 +23,8 @@
 
   <!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
 
- <!-- cloud TinyMCE is requied with a key to allow Powerpaste -->
-<script src="https://cdn.tiny.cloud/1/h0h6zwoyxbapgd7k8suhsd18mbmzfpnf8i1viq3dlpcn65wo/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
-
+ <!-- cloud TinyMCE is requied with a key to allow Powerpaste --> 
+ <script src="https://cdn.tiny.cloud/1/lpt0c9449ad2wbuj1ih33yuaas6kwp7kc6uunblvgcun7cg9/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 
 
 
@@ -170,15 +169,16 @@
         });
       }
       installation()
+      const tinyplugins = [
+          'advlist autolink lists link image charmap print preview anchor',
+          'searchreplace visualblocks code fullscreen',
+          'insertdatetime media table powerpaste code help wordcount'
+        ];
 
       const tinyMceInitiation = tinymce.init({
         selector: 'textarea',
         images_upload_url: tinyMce_images_upload_url ,
-        plugins: [
-          'advlist autolink lists link image charmap print preview anchor',
-          'searchreplace visualblocks code fullscreen',
-          'insertdatetime media table paste code help wordcount'
-        ],
+        plugins: tinyplugins,
         // menubar: 'true',
         toolbar: 'undo redo |  ' +
           'bold italic forecolor | alignleft aligncenter ' +
@@ -1339,15 +1339,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -1366,15 +1358,7 @@
               tinymce.init({
                 selector: 'textarea',
                 images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -1419,15 +1403,7 @@
               tinymce.init({
                 selector: 'textarea',
                 images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -1446,15 +1422,7 @@
               tinymce.init({
                 selector: 'textarea',
                 images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -1523,11 +1491,7 @@
                   tinymce.init({
                     selector: 'textarea',
                     images_upload_url: tinyMce_images_upload_url,
-                    plugins: [
-                      'advlist autolink lists link image charmap print preview anchor',
-                      'searchreplace visualblocks code fullscreen',
-                      'insertdatetime media table paste code help wordcount'
-                    ],
+                    plugins: tinyplugins,
                     // menubar: 'true',
                     toolbar: 'undo redo |  ' +
                       'bold italic forecolor | alignleft aligncenter ' +
@@ -1980,11 +1944,7 @@
                   tinymce.init({
                     selector: 'textarea',
                     images_upload_url: tinyMce_images_upload_url,
-                    plugins: [
-                      'advlist autolink lists link image charmap print preview anchor',
-                      'searchreplace visualblocks code fullscreen',
-                      'insertdatetime media table paste code help wordcount'
-                    ],
+                    plugins: tinyplugins,
                     // menubar: 'true',
                     toolbar: 'undo redo |  ' +
                       'bold italic forecolor | alignleft aligncenter ' +
@@ -2032,15 +1992,7 @@
                   tinymce.init({
                     selector: 'textarea',
                     images_upload_url: tinyMce_images_upload_url,
-                    plugins: [
-
-                      'advlist autolink lists link image charmap print preview anchor',
-
-                      'searchreplace visualblocks code fullscreen',
-
-                      'insertdatetime media table paste code help wordcount'
-
-                    ],
+                    plugins: tinyplugins,
                     // menubar: 'true',
                     toolbar: 'undo redo |  ' +
 
@@ -2677,15 +2629,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2701,15 +2645,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2749,15 +2685,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2800,15 +2728,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2824,15 +2744,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2848,15 +2760,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2872,15 +2776,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2927,15 +2823,7 @@
               tinymce.init({
                 selector: 'textarea',
                 images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -2953,15 +2841,7 @@
               // tinyMceInitiation
               tinymce.init({
                 selector: 'textarea',
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -2980,15 +2860,7 @@
               tinymce.init({
                 selector: 'textarea',
                 images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -3007,15 +2879,7 @@
               tinymce.init({
                 selector: 'textarea',
                 images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
