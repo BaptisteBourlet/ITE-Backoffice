@@ -16,7 +16,12 @@
 
    <!-- ----------------------------- PRODUCTION ------------------------------ -->
    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
-   <script type="text/javascript" src="/tinymce/tinymce.min.js"></script>
+   <!--<script type="text/javascript" src="/tinymce/tinymce.min.js"></script>-->
+
+   <!-- cloud TinyMCE is requied with a key to allow Powerpaste -->
+   <script src="https://cdn.tiny.cloud/1/lpt0c9449ad2wbuj1ih33yuaas6kwp7kc6uunblvgcun7cg9/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+
+
    <style>
       .x-grid-view {
          overflow-y: auto !important;
@@ -99,6 +104,9 @@
       .x-panel-body {
          overflow-y: auto !important;
       }
+      p {margin-top: 0; margin-bottom: 0;} 
+      ul{ padding-left: 1rem;margin-bottom: 0;}
+
    </style>
    <script type="text/javascript">
       //=========================================================================================================
@@ -108,6 +116,13 @@
          // Settings
          let tinyMce_images_upload_url = "http://10.0.10.1:11080/back/upload.php";
          let tinyHeight = 500;
+         const tinyplugins = [
+          'advlist autolink lists link image charmap print preview anchor',
+          'searchreplace visualblocks code fullscreen',
+          'insertdatetime media table powerpaste code help wordcount'
+        ];
+        const  tinycontent_style = 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }  p {margin-top: 0; margin-bottom: 0;} ul{ padding-left: 1rem;margin-bottom: 0;}' ;
+
          
          // // FOR TESTING 
          // let userRightObject = {
@@ -135,21 +150,19 @@
 
          });
 
+         
+
       const tinyMceInitiation = tinymce.init({
         selector: 'textarea',
         images_upload_url: tinyMce_images_upload_url ,
-        plugins: [
-          'advlist autolink lists link image charmap print preview anchor',
-          'searchreplace visualblocks code fullscreen',
-          'insertdatetime media table paste code help wordcount'
-        ],
+        plugins:  tinyplugins,
         // menubar: 'true',
         toolbar: 'undo redo |  ' +
           'bold italic forecolor | alignleft aligncenter ' +
           ' | bullist numlist outdent indent | ' +
           ' table | link image | removeformat  code | help',
-        height: '350',
-        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+        height: tinyHeight,
+        content_style: tinycontent_style
       });
 
          const relatedProducts = (products) => {
@@ -231,7 +244,7 @@
                            }, {
 
                               xtype: "button",
-                              text: `${description} [${product.Code}]`,
+                              text: `${product.Code} - ${product.Description}`,
                               // cls: "a",
                               style: "border: none; margin: 2px 0px;",
                               handler: () => {
@@ -347,7 +360,7 @@
                               },
                            }, {
                               xtype: "button",
-                              text: `${description} [${product.Code}]`,
+                              text: `${product.Code} - ${product.Description}`,
                               cls: "a",
                               style: "border: none; margin: 2px 0px;",
                               handler: () => {
@@ -457,7 +470,7 @@
                               },
                            }, {
                               xtype: "button",
-                              text: `${description} [${product.Code}]`,
+                              text: `${product.Code} - ${product.Description}`,
                               cls: "a",
                               style: "border: none; margin: 2px 0px;",
                               handler: () => {
@@ -1305,18 +1318,14 @@
                         tinymce.init({
                            selector: 'textarea',
                            images_upload_url: tinyMce_images_upload_url ,
-                           plugins: [
-                              'advlist autolink lists link image charmap print preview anchor',
-                              'searchreplace visualblocks code fullscreen',
-                              'insertdatetime media table paste code help wordcount'
-                           ],
+                           plugins:  tinyplugins,
                            // // menubar: 'true',
                            toolbar: 'undo redo |  ' +
                               'bold italic forecolor | alignleft aligncenter ' +
                               ' | bullist numlist outdent indent | ' +
                               ' table | link image | removeformat  code | help',
-                           height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                           height: tinyHeight,
+                           content_style: tinycontent_style
                         });
                      },
                   },
@@ -1373,18 +1382,14 @@
                            tinymce.init({
                               selector: 'textarea',
                               images_upload_url: tinyMce_images_upload_url ,
-                              plugins: [
-                                 'advlist autolink lists link image charmap print preview anchor',
-                                 'searchreplace visualblocks code fullscreen',
-                                 'insertdatetime media table paste code help wordcount'
-                              ],
+                              plugins:  tinyplugins,
                               // menubar: 'true',
                               toolbar: 'undo redo |  ' +
                                  'bold italic forecolor | alignleft aligncenter ' +
                                  ' | bullist numlist outdent indent | ' +
                                  ' table | link image | removeformat  code | help',
-                              height: '350',
-                              content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                              height: tinyHeight,
+                              content_style: tinycontent_style,
                               setup: function (editor) {
                                  editor.on('init', function (e) {
                                     console.log('The Editor has initialized:' + this.id);
@@ -1921,15 +1926,7 @@
                         tinymce.init({
                            selector: 'textarea',
                            images_upload_url: tinyMce_images_upload_url ,
-                           plugins: [
-
-                              'advlist autolink lists link image charmap print preview anchor',
-
-                              'searchreplace visualblocks code fullscreen',
-
-                              'insertdatetime media table paste code help wordcount'
-
-                           ],
+                           plugins:  tinyplugins,
                            // menubar: 'true',
                            toolbar: 'undo redo |  ' +
 
@@ -1938,22 +1935,14 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-                           height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                           height: tinyHeight,
+                           content_style: tinycontent_style
                         });
                         Ext.getCmp('tabTrans').setActiveTab(2)
                         tinymce.init({
                            selector: 'textarea',
                            images_upload_url: tinyMce_images_upload_url ,
-                           plugins: [
-
-                              'advlist autolink lists link image charmap print preview anchor',
-
-                              'searchreplace visualblocks code fullscreen',
-
-                              'insertdatetime media table paste code help wordcount'
-
-                           ],
+                           plugins:  tinyplugins,
                            // menubar: 'true',
                            toolbar: 'undo redo |  ' +
 
@@ -1962,22 +1951,14 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-                           height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                           height: tinyHeight,
+                           content_style: tinycontent_style
                         });
                         Ext.getCmp('tabTrans').setActiveTab(3)
                         tinymce.init({
                            selector: 'textarea',
                            images_upload_url: tinyMce_images_upload_url ,
-                           plugins: [
-
-                              'advlist autolink lists link image charmap print preview anchor',
-
-                              'searchreplace visualblocks code fullscreen',
-
-                              'insertdatetime media table paste code help wordcount'
-
-                           ],
+                           plugins:  tinyplugins,
                            // menubar: 'true',
                            toolbar: 'undo redo |  ' +
 
@@ -1986,22 +1967,14 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-                           height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                           height: tinyHeight,
+                           content_style: tinycontent_style
                         });
                         Ext.getCmp('tabTrans').setActiveTab(4)
                         tinymce.init({
                            selector: 'textarea',
                            images_upload_url: tinyMce_images_upload_url ,
-                           plugins: [
-
-                              'advlist autolink lists link image charmap print preview anchor',
-
-                              'searchreplace visualblocks code fullscreen',
-
-                              'insertdatetime media table paste code help wordcount'
-
-                           ],
+                           plugins:  tinyplugins,
                            // menubar: 'true',
                            toolbar: 'undo redo |  ' +
 
@@ -2010,8 +1983,8 @@
                               ' | bullist numlist outdent indent | ' +
 
                               ' table | link image | removeformat  code | help',
-                           height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                           height: tinyHeight,
+                           content_style: tinycontent_style
                         });
                         addSerie();
                         Ext.getCmp("relatedProducts").removeAll();
@@ -2069,8 +2042,8 @@
                            ' | bullist numlist outdent indent | ' +
 
                            ' table | link image | removeformat  code | help',
-                        height: '350',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        height: tinyHeight,
+                        content_style: tinycontent_style
                      });
                      tinyMCE.get('FRFDesc').setContent('');
                      tinyMCE.get('FRspec').setContent('');
@@ -2079,15 +2052,7 @@
                      tinymce.init({
                         selector: 'textarea',
                         images_upload_url: tinyMce_images_upload_url ,
-                        plugins: [
-
-                           'advlist autolink lists link image charmap print preview anchor',
-
-                           'searchreplace visualblocks code fullscreen',
-
-                           'insertdatetime media table paste code help wordcount'
-
-                        ],
+                        plugins:  tinyplugins,
                         // menubar: 'true',
                         toolbar: 'undo redo |  ' +
 
@@ -2096,8 +2061,8 @@
                            ' | bullist numlist outdent indent | ' +
 
                            ' table | link image | removeformat  code | help',
-                        height: '350',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        height: tinyHeight,
+                        content_style: tinycontent_style
                      });
                      tinyMCE.get('DEFDesc').setContent('');
                      tinyMCE.get('DEspec').setContent('');
@@ -2106,15 +2071,7 @@
                      tinymce.init({
                         selector: 'textarea',
                         images_upload_url: tinyMce_images_upload_url ,
-                        plugins: [
-
-                           'advlist autolink lists link image charmap print preview anchor',
-
-                           'searchreplace visualblocks code fullscreen',
-
-                           'insertdatetime media table paste code help wordcount'
-
-                        ],
+                        plugins:  tinyplugins,
                         // menubar: 'true',
                         toolbar: 'undo redo |  ' +
 
@@ -2123,8 +2080,8 @@
                            ' | bullist numlist outdent indent | ' +
 
                            ' table | link image | removeformat  code | help',
-                        height: '350',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        height: tinyHeight,
+                        content_style: tinycontent_style
                      });
                      tinyMCE.get('ESFDesc').setContent('');
                      tinyMCE.get('ESspec').setContent('');
@@ -2133,15 +2090,7 @@
                      tinymce.init({
                         selector: 'textarea',
                         images_upload_url: tinyMce_images_upload_url ,
-                        plugins: [
-
-                           'advlist autolink lists link image charmap print preview anchor',
-
-                           'searchreplace visualblocks code fullscreen',
-
-                           'insertdatetime media table paste code help wordcount'
-
-                        ],
+                        plugins:  tinyplugins,
                         // menubar: 'true',
                         toolbar: 'undo redo |  ' +
 
@@ -2150,8 +2099,8 @@
                            ' | bullist numlist outdent indent | ' +
 
                            ' table | link image | removeformat  code | help',
-                        height: '350',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                        height: tinyHeight,
+                        content_style: tinycontent_style
                      });
 
                      tinyMCE.get('RUFDesc').setContent('');
@@ -2395,18 +2344,14 @@
                            tinymce.init({
                               selector: 'textarea',
                               images_upload_url: tinyMce_images_upload_url ,
-                        plugins: [
-                           'advlist autolink lists link image charmap print preview anchor',
-                           'searchreplace visualblocks code fullscreen',
-                           'insertdatetime media table paste code help wordcount'
-                         ],
+                              plugins:  tinyplugins,
                     // menubar: 'true',
                            toolbar: 'undo redo |  ' +
                               'bold italic forecolor | alignleft aligncenter ' +
                               ' | bullist numlist outdent indent | ' +
                               ' table | link image | removeformat  code | help',
-                           height: '350',
-                           content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                           height: tinyHeight,
+                           content_style: tinycontent_style,
                               setup: function (editor) {
                                  editor.on('init', function (e) {
                                     console.log('The Editor has initialized:' + this.id);

@@ -122,7 +122,13 @@
     Ext.onReady(() => {
       // Settings
       let tinyMce_images_upload_url = "http://10.0.10.1:11080/back/upload.php";
-
+let tinyHeight = 500;
+      const tinyplugins = [
+          'advlist autolink lists link image charmap print preview anchor',
+          'searchreplace visualblocks code fullscreen',
+          'insertdatetime media table powerpaste code help wordcount'
+        ];
+      const  tinycontent_style = 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }  p {margin-top: 0; margin-bottom: 0;} ul{ padding-left: 1rem;margin-bottom: 0;}' ;
       // // FOR TESTING 
 
       // let userRightObject = {
@@ -170,11 +176,7 @@
         });
       }
       installation()
-      const tinyplugins = [
-        'advlist autolink lists link image charmap print preview anchor',
-        'searchreplace visualblocks code fullscreen',
-        'insertdatetime media table powerpaste code help wordcount'
-      ];
+     
 
       const tinyMceInitiation = tinymce.init({
         selector: 'textarea',
@@ -185,8 +187,8 @@
           'bold italic forecolor | alignleft aligncenter ' +
           ' | bullist numlist outdent indent | ' +
           ' table | link image | removeformat  code | help',
-        height: '350',
-        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+        height: tinyHeight,
+        content_style: tinycontent_style
       });
       const relatedProducts = (products) => {
         let exist = false;
@@ -1047,7 +1049,7 @@
 
               Ext.getCmp(`onedesc`).setValue(res[0].Description);
 
-              console.log(tinyMCE.get(`oneFDesc`))
+
               if (tinyMCE.get(`oneFDesc`) != null) {
                 tinyMCE.get(`oneFDesc`).setContent(res[0].FullDescription);
 
@@ -1495,8 +1497,8 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  height: tinyHeight,
+                  content_style: tinycontent_style
                 });
 
 
@@ -1515,7 +1517,7 @@
 
                     ' table | link image | removeformat  code | help',
 
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    content_style: tinycontent_style
                 });
                 tinyMCE.get('FRFDesc').setContent('');
                 tinyMCE.get('FRspec').setContent('');
@@ -1541,7 +1543,7 @@
 
                     ' table | link image | removeformat  code | help',
 
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    content_style: tinycontent_style
                 });
                 tinyMCE.get('DEFDesc').setContent('');
                 tinyMCE.get('DEspec').setContent('');
@@ -1560,7 +1562,7 @@
 
                     ' table | link image | removeformat  code | help',
 
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    content_style: tinycontent_style
                 });
                 tinyMCE.get('ESFDesc').setContent('');
                 tinyMCE.get('ESspec').setContent('');
@@ -1579,7 +1581,7 @@
 
                     ' table | link image | removeformat  code | help',
 
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    content_style: tinycontent_style
                 });
                 tinyMCE.get('ENFDesc').setContent('');
                 tinyMCE.get('ENspec').setContent('');
@@ -1644,8 +1646,8 @@
                       'bold italic forecolor | alignleft aligncenter ' +
                       ' | bullist numlist outdent indent | ' +
                       ' table | link image | removeformat  code | help',
-                    height: '350',
-                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                    height: tinyHeight,
+                    content_style: tinycontent_style,
                     setup: function (editor) {
                       editor.on('init', function (e) {
 
@@ -2211,8 +2213,8 @@
                       'bold italic forecolor | alignleft aligncenter ' +
                       ' | bullist numlist outdent indent | ' +
                       ' table | link image | removeformat  code | help',
-                    height: '350',
-                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                    height: tinyHeight,
+                    content_style: tinycontent_style,
                     setup: function (editor) {
                       editor.on('init', function (e) {
                         console.log('The Editor has initialized:' + this.id);
@@ -2262,8 +2264,8 @@
                       ' | bullist numlist outdent indent | ' +
 
                       ' table | link image | removeformat  code | help',
-                    height: '350',
-                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                      height: tinyHeight,
+                      content_style: tinycontent_style
                   });
                   getRelatedProductSerie(serieIDGlobal);
                 },
@@ -2306,7 +2308,7 @@
               {
                 xtype: "button",
                 id: "editLanguagesBtn",
-                text: "Edit languages",
+                text: "Edit Languages",
                 iconCls: "fa fa-language",
                 menu: {
                   items: [{
@@ -2326,13 +2328,11 @@
                           ' | bullist numlist outdent indent | ' +
 
                           ' table | link image | removeformat  code | help',
-                        height: '350',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
-                        
+                          height: tinyHeight,
+                          content_style: tinycontent_style
                       });
-                    
-                      tinyMCE.get('oneFDesc').setContent('');
-                      tinyMCE.get('onespec').setContent('');
+                      tinyMCE.get(`onespec`).setContent('')
+                      tinyMCE.get(`oneFDesc`).setContent('')
                       if (tinyMCE.get(`onespec`) != null) {
                         getOneOtherLanguageDetail('en', productIDGlobal)
 
@@ -2355,11 +2355,11 @@
                           ' | bullist numlist outdent indent | ' +
 
                           ' table | link image | removeformat  code | help',
-                        height: '350',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                          height: tinyHeight,
+                          content_style: tinycontent_style
                       });
-                      tinyMCE.get('oneFDesc').setContent('');
-                      tinyMCE.get('onespec').setContent('');
+                      tinyMCE.get(`onespec`).setContent('')
+                      tinyMCE.get(`oneFDesc`).setContent('')
                       if (tinyMCE.get(`onespec`) != null) {
                         getOneOtherLanguageDetail('fr', productIDGlobal)
                       }
@@ -2381,11 +2381,11 @@
                           ' | bullist numlist outdent indent | ' +
 
                           ' table | link image | removeformat  code | help',
-                        height: '350',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                          height: tinyHeight,
+                          content_style: tinycontent_style
                       });
-                      tinyMCE.get('oneFDesc').setContent('');
-                      tinyMCE.get('onespec').setContent('');
+                      tinyMCE.get(`onespec`).setContent('')
+                      tinyMCE.get(`oneFDesc`).setContent('')
                       if (tinyMCE.get(`onespec`) != null) {
                         getOneOtherLanguageDetail('de', productIDGlobal)
                       }
@@ -2393,10 +2393,10 @@
                   }, {
                     text: 'Edit Spanish',
                     handler: function () {
-                      panelAddEditLanguages.setTitle('Edit Spanish')
-
-                      Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                      tinymce.init({
+                      if (tinyMCE.get(`onespec`) != null) {
+                        panelAddEditLanguages.setTitle('Edit Spanish')
+                        Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                        tinymce.init({
                         selector: 'textarea',
                         images_upload_url: tinyMce_images_upload_url,
                         plugins: tinyplugins,
@@ -2408,12 +2408,11 @@
                           ' | bullist numlist outdent indent | ' +
 
                           ' table | link image | removeformat  code | help',
-                        height: '350',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                          height: tinyHeight,
+                          content_style: tinycontent_style
                       });
-                      tinyMCE.get('oneFDesc').setContent('');
-                      tinyMCE.get('onespec').setContent('');
-                      if (tinyMCE.get(`onespec`) != null) {
+                      tinyMCE.get(`onespec`).setContent('')
+                      tinyMCE.get(`oneFDesc`).setContent('')
                         getOneOtherLanguageDetail('es', productIDGlobal)
                       }
                     }
@@ -2434,11 +2433,11 @@
                           ' | bullist numlist outdent indent | ' +
 
                           ' table | link image | removeformat  code | help',
-                        height: '350',
-                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                          height: tinyHeight,
+                          content_style: tinycontent_style
                       });
-                      tinyMCE.get('oneFDesc').setContent('');
-                      tinyMCE.get('onespec').setContent('');
+                      tinyMCE.get(`onespec`).setContent('')
+                      tinyMCE.get(`oneFDesc`).setContent('')
                       if (tinyMCE.get(`onespec`) != null) {
                         getOneOtherLanguageDetail('ru', productIDGlobal)
                       }
@@ -2511,8 +2510,8 @@
                 //     ' | bullist numlist outdent indent | ' +
 
                 //     ' table | link image | removeformat  code | help',
-                //   height: '350',
-                //   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                //   height: tinyHeight,
+                //   content_style: tinycontent_style
                 // });
                 // if(edit == true){
                 // getOtherLanguageDetail('fr', productIDGlobal)
@@ -3057,8 +3056,8 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    height: tinyHeight,
+                    content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(2)
                 tinymce.init({
@@ -3073,8 +3072,8 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    height: tinyHeight,
+                    content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(3)
                 tinymce.init({
@@ -3097,8 +3096,8 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    height: tinyHeight,
+                    content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(4)
                 tinymce.init({
@@ -3113,8 +3112,8 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    height: tinyHeight,
+                    content_style: tinycontent_style
                 });
                 setProductSessionStorage();
                 addRecord();
@@ -3156,8 +3155,8 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    height: tinyHeight,
+                    content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(2)
                 tinymce.init({
@@ -3172,8 +3171,8 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                    height: tinyHeight,
+                    content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(3)
                 tinymce.init({
@@ -3188,8 +3187,8 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  height: tinyHeight,
+                  content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(4)
                 tinymce.init({
@@ -3204,8 +3203,8 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
-                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  height: tinyHeight,
+                  content_style: tinycontent_style
                 });
                 setProductSessionStorage();
                 editProduct();
@@ -3252,7 +3251,7 @@
 
                   ' table | link image | removeformat  code | help',
 
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  content_style: tinycontent_style
               });
               tinyMCE.get('FRFDesc').setContent('');
               tinyMCE.get('FRspec').setContent('');
@@ -3270,7 +3269,7 @@
 
                   ' table | link image | removeformat  code | help',
 
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  content_style: tinycontent_style
               });
               tinyMCE.get('DEFDesc').setContent('');
               tinyMCE.get('DEspec').setContent('');
@@ -3289,7 +3288,7 @@
 
                   ' table | link image | removeformat  code | help',
 
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  content_style: tinycontent_style
               });
               tinyMCE.get('ESFDesc').setContent('');
               tinyMCE.get('ESspec').setContent('');
@@ -3308,7 +3307,7 @@
 
                   ' table | link image | removeformat  code | help',
 
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                  content_style: tinycontent_style
               });
               tinyMCE.get('ENFDesc').setContent('');
               tinyMCE.get('ENspec').setContent('');
