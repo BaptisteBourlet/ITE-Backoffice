@@ -39,7 +39,6 @@ const LANGUAGES = ['en', 'de', 'es', 'fr', 'ru'];
 exports.installation = async (req, res) => {
    fs.unlink(appRoot + "/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css", function (err) {
       if (err) throw err;
-      // if no error, file has been deleted successfully
       fs.copyFile(appRoot +"/installation/content.min.css", appRoot+ "/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css", (err) => {
          if (err) {
             console.log("Error Found:", err);
@@ -48,11 +47,6 @@ exports.installation = async (req, res) => {
       })
    });
       
-      // console.log('ok')
-      // fs.writeFile(appRoot + `/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css`, function (err) {
-      //    console.log('File created');
-         
-      // });
    
 }
 

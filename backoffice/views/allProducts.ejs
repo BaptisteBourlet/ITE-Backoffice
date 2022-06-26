@@ -18,14 +18,14 @@
   <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
 
   <!-- <script type="text/javascript" src="/extTinyMce/TinyMceEditor.js"></script> -->
-  <script type="text/javascript" src="/tinymce/tinymce.min.js"></script>
+  <!-- <script type="text/javascript" src="/tinymce/tinymce.min.js"></script> -->
   <!-- <script type="text/javascript" src="/tinymce/jquery.tinymce.min.js"></script> -->
 
   <!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
 
-
-
-
+  <!-- cloud TinyMCE is requied with a key to allow Powerpaste -->
+  <script src="https://cdn.tiny.cloud/1/lpt0c9449ad2wbuj1ih33yuaas6kwp7kc6uunblvgcun7cg9/tinymce/5/tinymce.min.js"
+    referrerpolicy="origin"></script>
 
 
 
@@ -145,7 +145,7 @@
       let edit = false;
       let productIDGlobal = "";
       let serieIDGlobal = "";
-    
+
       Ext.define('MyApp.view.Form', {
         extend: 'Ext.form.Panel',
         xtype: 'my-form',
@@ -157,12 +157,12 @@
           method: "POST",
           cors: true,
           useDefaultXhrHeader: false,
-          
+
 
           success: function (response) {
             const res = JSON.parse(response.responseText);
 
-            
+
           },
           failure: function (response) {
             console.log("failed", response);
@@ -170,15 +170,16 @@
         });
       }
       installation()
+      const tinyplugins = [
+        'advlist autolink lists link image charmap print preview anchor',
+        'searchreplace visualblocks code fullscreen',
+        'insertdatetime media table powerpaste code help wordcount'
+      ];
 
       const tinyMceInitiation = tinymce.init({
         selector: 'textarea',
-        images_upload_url: tinyMce_images_upload_url ,
-        plugins: [
-          'advlist autolink lists link image charmap print preview anchor',
-          'searchreplace visualblocks code fullscreen',
-          'insertdatetime media table paste code help wordcount'
-        ],
+        images_upload_url: tinyMce_images_upload_url,
+        plugins: tinyplugins,
         // menubar: 'true',
         toolbar: 'undo redo |  ' +
           'bold italic forecolor | alignleft aligncenter ' +
@@ -210,6 +211,113 @@
                     iconCls: "fa fa-trash-alt",
                     scale: "small",
                     style: "border: none; margin: 2px;",
+                    listeners: {
+                      click: function () {
+                        Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                          if (btn == 'yes') {
+                            Ext.getBody().mask('Deleting', 'x-msg-loading');
+                            Ext.Ajax.request({
+                              // !! Url works for product
+                              url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
+                              method: "POST",
+                              cors: true,
+                              useDefaultXhrHeader: false,
+                              params: {
+                                Id: product.Id,
+                              },
+                              success: function (response) {
+                                // check for errors and display error message
+                                var check = response.responseText;
+                                if (check) {
+                                  var data = eval("(" + response.responseText + ")");
+
+                                  if (data.serverStatus == 2) {
+                                    Ext.getCmp("relatedProducts").removeAll();
+                                    Ext.getCmp("relatedAccessories").removeAll();
+                                    Ext.getCmp("relatedParts").removeAll();
+                                    getProductDetails(productIDGlobal);
+                                    Ext.getBody().unmask();
+                                    Ext.Msg.alert(
+                                      "Success",
+                                      "You have successfully deleted the related product"
+                                    );
+                                  } else {
+                                    // display error message
+                                    Ext.getBody().unmask();
+                                    Ext.Msg.alert(
+                                      "ERROR",
+                                      "Failed to delete the related product. Contact your IT team."
+                                    );
+                                  }
+                                }
+                              },
+                              failure: function (response) {
+                                Ext.getBody().unmask();
+                                Ext.Msg.alert(
+                                  "ERROR",
+                                  "Failed to delete related product. Contact your IT team."
+                                );
+                              },
+
+                            });
+                          }
+                        })
+                      }
+
+                    },
+                    handleClick: function () {
+                      Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                        if (btn == 'yes') {
+                          Ext.getBody().mask('Deleting', 'x-msg-loading');
+                          Ext.Ajax.request({
+                            // !! Url works for product
+                            url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
+                            method: "POST",
+                            cors: true,
+                            useDefaultXhrHeader: false,
+                            params: {
+                              Id: product.Id,
+                            },
+                            success: function (response) {
+                              // check for errors and display error message
+                              var check = response.responseText;
+                              if (check) {
+                                var data = eval("(" + response.responseText + ")");
+
+                                if (data.serverStatus == 2) {
+                                  Ext.getCmp("relatedProducts").removeAll();
+                                  Ext.getCmp("relatedAccessories").removeAll();
+                                  Ext.getCmp("relatedParts").removeAll();
+                                  getProductDetails(productIDGlobal);
+                                  Ext.getBody().unmask();
+                                  Ext.Msg.alert(
+                                    "Success",
+                                    "You have successfully deleted the related product"
+                                  );
+                                } else {
+                                  // display error message
+                                  Ext.getBody().unmask();
+                                  Ext.Msg.alert(
+                                    "ERROR",
+                                    "Failed to delete the related product. Contact your IT team."
+                                  );
+                                }
+                              }
+                            },
+                            failure: function (response) {
+                              Ext.getBody().unmask();
+                              Ext.Msg.alert(
+                                "ERROR",
+                                "Failed to delete related product. Contact your IT team."
+                              );
+                            },
+
+                          });
+                        }
+                      })
+
+
+                    },
                     handler: function () {
                       Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
                         if (btn == 'yes') {
@@ -920,6 +1028,45 @@
         });
       }
 
+      const getOneOtherLanguageDetail = (language, productId) => {
+        Ext.Ajax.request({
+          url: "/apiProducts/getOtherLanguageDetail",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            language: language,
+            productId: productId,
+          },
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+
+            if (res != '') {
+              sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
+              Ext.getCmp(`oneCat`).setValue(res[0].Catalog);
+
+              Ext.getCmp(`onedesc`).setValue(res[0].Description);
+
+              console.log(tinyMCE.get(`oneFDesc`))
+              if (tinyMCE.get(`oneFDesc`) != null) {
+                tinyMCE.get(`oneFDesc`).setContent(res[0].FullDescription);
+
+                tinyMCE.get(`onespec`).setContent(res[0].Specification);
+              }
+
+
+            } else {
+              sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
+
+            }
+
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      }
+
       const searchProduct = (searchField, searchTarget) => {
         let searchQuery = Ext.getCmp(searchField).getValue();
         console.log(Ext.getCmp('unpub').getValue())
@@ -1129,7 +1276,7 @@
           },
           cors: true,
           useDefaultXhrHeader: false,
-          
+
         },
         //  sorters: [
         //    {
@@ -1339,6 +1486,43 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
+                  plugins: tinyplugins,
+                  // menubar: 'true',
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+                  height: '350',
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+
+
+                Ext.getCmp('tabTrans').setActiveTab(1)
+                // tinyMceInitiation
+                tinymce.init({
+                  selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
+                  plugins: tinyplugins,
+                  // menubar: 'true',
+                  toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                tinyMCE.get('FRFDesc').setContent('');
+                tinyMCE.get('FRspec').setContent('');
+                Ext.getCmp('tabTrans').setActiveTab(2)
+                // tinyMceInitiation
+                tinymce.init({
+                  selector: 'textarea',
                   plugins: [
 
                     'advlist autolink lists link image charmap print preview anchor',
@@ -1356,123 +1540,54 @@
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                  height: '350',
+
                   content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
                 });
+                tinyMCE.get('DEFDesc').setContent('');
+                tinyMCE.get('DEspec').setContent('');
+                Ext.getCmp('tabTrans').setActiveTab(3)
+                // tinyMceInitiation
+                tinymce.init({
+                  selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
+                  plugins: tinyplugins,
+                  // menubar: 'true',
+                  toolbar: 'undo redo |  ' +
 
+                    'bold italic forecolor | alignleft aligncenter ' +
 
-                Ext.getCmp('tabTrans').setActiveTab(1)
-              // tinyMceInitiation
-              tinymce.init({
-                selector: 'textarea',
-                images_upload_url: tinyMce_images_upload_url,
-                plugins: [
+                    ' | bullist numlist outdent indent | ' +
 
-                  'advlist autolink lists link image charmap print preview anchor',
+                    ' table | link image | removeformat  code | help',
 
-                  'searchreplace visualblocks code fullscreen',
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                tinyMCE.get('ESFDesc').setContent('');
+                tinyMCE.get('ESspec').setContent('');
+                Ext.getCmp('tabTrans').setActiveTab(4)
+                // tinyMceInitiation
+                tinymce.init({
+                  selector: 'textarea',
+                  images_upload_url: tinyMce_images_upload_url,
+                  plugins: tinyplugins,
+                  // menubar: 'true',
+                  toolbar: 'undo redo |  ' +
 
-                  'insertdatetime media table paste code help wordcount'
+                    'bold italic forecolor | alignleft aligncenter ' +
 
-                ],
-                // menubar: 'true',
-                toolbar: 'undo redo |  ' +
+                    ' | bullist numlist outdent indent | ' +
 
-                  'bold italic forecolor | alignleft aligncenter ' +
+                    ' table | link image | removeformat  code | help',
 
-                  ' | bullist numlist outdent indent | ' +
+                  content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                });
+                tinyMCE.get('ENFDesc').setContent('');
+                tinyMCE.get('ENspec').setContent('');
 
-                  ' table | link image | removeformat  code | help',
+                tinyMCE.get('RUFDesc').setContent('');
+                tinyMCE.get('RUspec').setContent('');
 
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-              });
-              tinyMCE.get('FRFDesc').setContent('');
-              tinyMCE.get('FRspec').setContent('');
-              Ext.getCmp('tabTrans').setActiveTab(2)
-              // tinyMceInitiation
-              tinymce.init({
-                selector: 'textarea',
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
-                // menubar: 'true',
-                toolbar: 'undo redo |  ' +
-
-                  'bold italic forecolor | alignleft aligncenter ' +
-
-                  ' | bullist numlist outdent indent | ' +
-
-                  ' table | link image | removeformat  code | help',
-
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-              });
-              tinyMCE.get('DEFDesc').setContent('');
-              tinyMCE.get('DEspec').setContent('');
-              Ext.getCmp('tabTrans').setActiveTab(3)
-              // tinyMceInitiation
-              tinymce.init({
-                selector: 'textarea',
-                images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
-                // menubar: 'true',
-                toolbar: 'undo redo |  ' +
-
-                  'bold italic forecolor | alignleft aligncenter ' +
-
-                  ' | bullist numlist outdent indent | ' +
-
-                  ' table | link image | removeformat  code | help',
-
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-              });
-              tinyMCE.get('ESFDesc').setContent('');
-              tinyMCE.get('ESspec').setContent('');
-              Ext.getCmp('tabTrans').setActiveTab(4)
-              // tinyMceInitiation
-              tinymce.init({
-                selector: 'textarea',
-                images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
-                // menubar: 'true',
-                toolbar: 'undo redo |  ' +
-
-                  'bold italic forecolor | alignleft aligncenter ' +
-
-                  ' | bullist numlist outdent indent | ' +
-
-                  ' table | link image | removeformat  code | help',
-
-                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
-              });
-              tinyMCE.get('ENFDesc').setContent('');
-              tinyMCE.get('ENspec').setContent('');
-
-              tinyMCE.get('RUFDesc').setContent('');
-              tinyMCE.get('RUspec').setContent('');
-              
-              Ext.getCmp('tabTrans').setActiveTab(0)
+                Ext.getCmp('tabTrans').setActiveTab(0)
               },
             },
             "-",
@@ -1523,11 +1638,7 @@
                   tinymce.init({
                     selector: 'textarea',
                     images_upload_url: tinyMce_images_upload_url,
-                    plugins: [
-                      'advlist autolink lists link image charmap print preview anchor',
-                      'searchreplace visualblocks code fullscreen',
-                      'insertdatetime media table paste code help wordcount'
-                    ],
+                    plugins: tinyplugins,
                     // menubar: 'true',
                     toolbar: 'undo redo |  ' +
                       'bold italic forecolor | alignleft aligncenter ' +
@@ -1822,6 +1933,120 @@
       // // grid.reconfigure(store) 
       // grid.getView().refresh();
 
+
+      var itemsAddEditLanguages = [
+
+        {
+          xtype: "textfield",
+          id: "oneCat",
+          name: "oneCat",
+          fieldLabel: "Catalog",
+          maxLenght: 118,
+          width: 500,
+          allowBlank: false,
+          submitvalue: true,
+          margin: "25 0 25 0",
+        },
+        {
+          xtype: "textfield",
+          id: "onedesc",
+          name: "onedesc",
+          fieldLabel: "Description",
+          maxLenght: 123,
+          width: 500,
+          allowBlank: false,
+          selectOnFocus: false,
+          margin: "25 0 25 0",
+        },
+        {
+          html: '<h4>Full description :</h4><textarea id="oneFDesc"></textarea>',
+          // height: 250,
+        },
+        {
+          html: '<h4>Specification :</h4><textarea id="onespec"></textarea>',
+
+          // height: 250,
+        },
+      ];
+
+      var screenAddEditLanguages = new Ext.FormPanel({
+        frame: false,
+        header: false,
+        border: false,
+        defaults: {
+          labelAlign: "right",
+          labelWidth: 105,
+          listeners: {
+            // specialkey: function (field, e) {
+            //   if (e.getKey() == e.ENTER) {
+            //     updateRec();
+            //   }
+            //   if (e.getKey() == e.ESC) {
+            //     Ext.getCmp("viewport").setActiveItem("chapterTransltedGrid");
+            //   }
+            // },
+          },
+        },
+        width: '100%',
+        waitMsgTarget: true,
+        autoScroll: true,
+        style: "padding: 3px 3px 3px 3px;",
+        items: [
+          {
+            layout: "column",
+            layoutConfig: {
+              columns: 2,
+            },
+            border: false,
+            items: [
+              {
+                xtype: 'my-form',
+                id: "FormEditLanguages",
+                columnWidth: 1,
+                border: false,
+                items: itemsAddEditLanguages,
+              },
+            ],
+          },
+        ],
+      });
+
+      // outer panel container to hold tbar and keypress definitions
+      var panelAddEditLanguages = new Ext.Panel({
+        layout: "fit",
+        id: "panelAddEditLanguages",
+        title: "Add product",
+        header: true,
+        items: [screenAddEditLanguages],
+        tbar: [
+
+          {
+            text: "Save",
+            id: "editSaveEditLanguages",
+            iconCls: "fas fa-save",
+            handler: function () {
+              if (Ext.getCmp('FormEditLanguages').isValid()) {
+                edit = false;
+                editChapterTranslated();
+                Ext.getCmp("FormEditLanguages").reset();
+              }
+            },
+          },
+          "-",
+          {
+            text: "Cancel",
+            tooltip: "Cancel",
+            id: 'cancelEditLanguages',
+            iconCls: "fas fa-undo",
+            handler: function () {
+              edit = false;
+              Ext.getCmp('FormEditLanguages').reset();
+              Ext.getCmp("viewport").setActiveItem("productDetails");
+            },
+          },
+        ],
+      });
+
       const productDetails = Ext.create("Ext.panel.Panel", {
         id: "productDetails",
         title: "PRODUCT DETAILS",
@@ -1980,11 +2205,7 @@
                   tinymce.init({
                     selector: 'textarea',
                     images_upload_url: tinyMce_images_upload_url,
-                    plugins: [
-                      'advlist autolink lists link image charmap print preview anchor',
-                      'searchreplace visualblocks code fullscreen',
-                      'insertdatetime media table paste code help wordcount'
-                    ],
+                    plugins: tinyplugins,
                     // menubar: 'true',
                     toolbar: 'undo redo |  ' +
                       'bold italic forecolor | alignleft aligncenter ' +
@@ -2032,15 +2253,7 @@
                   tinymce.init({
                     selector: 'textarea',
                     images_upload_url: tinyMce_images_upload_url,
-                    plugins: [
-
-                      'advlist autolink lists link image charmap print preview anchor',
-
-                      'searchreplace visualblocks code fullscreen',
-
-                      'insertdatetime media table paste code help wordcount'
-
-                    ],
+                    plugins: tinyplugins,
                     // menubar: 'true',
                     toolbar: 'undo redo |  ' +
 
@@ -2076,6 +2289,164 @@
                 handler: function () {
                   Ext.getCmp('viewport').setActiveItem('imagePanel');
                 },
+              },
+              {
+                xtype: "button",
+                id: "viewImageBtn",
+                text: "See Images",
+                iconCls: "fas fa-images",
+                handler: function () {
+
+                  linkedImageStore.getProxy().setExtraParam('Id', productIDGlobal);
+                  linkedImageStore.reload();
+
+                  Ext.getCmp('viewport').setActiveItem('linkedImageGrid');
+                },
+              },
+              {
+                xtype: "button",
+                id: "editLanguagesBtn",
+                text: "Edit languages",
+                iconCls: "fa fa-language",
+                menu: {
+                  items: [{
+                    text: 'Edit English',
+                    handler: function () {
+                      panelAddEditLanguages.setTitle('Edit English')
+                      Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                      tinymce.init({
+                        selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url,
+                        plugins: tinyplugins,
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
+
+                          'bold italic forecolor | alignleft aligncenter ' +
+
+                          ' | bullist numlist outdent indent | ' +
+
+                          ' table | link image | removeformat  code | help',
+                        height: '350',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }',
+                        
+                      });
+                    
+                      tinyMCE.get('oneFDesc').setContent('');
+                      tinyMCE.get('onespec').setContent('');
+                      if (tinyMCE.get(`onespec`) != null) {
+                        getOneOtherLanguageDetail('en', productIDGlobal)
+
+                      }
+                    }
+                  }, {
+                    text: 'Edit French',
+                    handler: function () {
+                      panelAddEditLanguages.setTitle('Edit French')
+                      Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                      tinymce.init({
+                        selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url,
+                        plugins: tinyplugins,
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
+
+                          'bold italic forecolor | alignleft aligncenter ' +
+
+                          ' | bullist numlist outdent indent | ' +
+
+                          ' table | link image | removeformat  code | help',
+                        height: '350',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                      });
+                      tinyMCE.get('oneFDesc').setContent('');
+                      tinyMCE.get('onespec').setContent('');
+                      if (tinyMCE.get(`onespec`) != null) {
+                        getOneOtherLanguageDetail('fr', productIDGlobal)
+                      }
+                    }
+                  }, {
+                    text: 'Edit German',
+                    handler: function () {
+                      panelAddEditLanguages.setTitle('Edit German')
+                      Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                      tinymce.init({
+                        selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url,
+                        plugins: tinyplugins,
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
+
+                          'bold italic forecolor | alignleft aligncenter ' +
+
+                          ' | bullist numlist outdent indent | ' +
+
+                          ' table | link image | removeformat  code | help',
+                        height: '350',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                      });
+                      tinyMCE.get('oneFDesc').setContent('');
+                      tinyMCE.get('onespec').setContent('');
+                      if (tinyMCE.get(`onespec`) != null) {
+                        getOneOtherLanguageDetail('de', productIDGlobal)
+                      }
+                    }
+                  }, {
+                    text: 'Edit Spanish',
+                    handler: function () {
+                      panelAddEditLanguages.setTitle('Edit Spanish')
+
+                      Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                      tinymce.init({
+                        selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url,
+                        plugins: tinyplugins,
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
+
+                          'bold italic forecolor | alignleft aligncenter ' +
+
+                          ' | bullist numlist outdent indent | ' +
+
+                          ' table | link image | removeformat  code | help',
+                        height: '350',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                      });
+                      tinyMCE.get('oneFDesc').setContent('');
+                      tinyMCE.get('onespec').setContent('');
+                      if (tinyMCE.get(`onespec`) != null) {
+                        getOneOtherLanguageDetail('es', productIDGlobal)
+                      }
+                    }
+                  }, {
+                    text: 'Edit Russian',
+                    handler: function () {
+                      panelAddEditLanguages.setTitle('Edit Russian')
+                      Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                      tinymce.init({
+                        selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url,
+                        plugins: tinyplugins,
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
+
+                          'bold italic forecolor | alignleft aligncenter ' +
+
+                          ' | bullist numlist outdent indent | ' +
+
+                          ' table | link image | removeformat  code | help',
+                        height: '350',
+                        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }'
+                      });
+                      tinyMCE.get('oneFDesc').setContent('');
+                      tinyMCE.get('onespec').setContent('');
+                      if (tinyMCE.get(`onespec`) != null) {
+                        getOneOtherLanguageDetail('ru', productIDGlobal)
+                      }
+                    }
+                  },
+                  ]
+                },
+
               },
             ],
           },
@@ -2677,15 +3048,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2701,15 +3064,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2749,15 +3104,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2774,19 +3121,19 @@
                 Ext.getCmp("addForm").reset();
 
                 tinyMCE.get('FRFDesc').setContent('');
-              tinyMCE.get('FRspec').setContent('');
+                tinyMCE.get('FRspec').setContent('');
 
-              tinyMCE.get('DEFDesc').setContent('');
-              tinyMCE.get('DEspec').setContent('');
+                tinyMCE.get('DEFDesc').setContent('');
+                tinyMCE.get('DEspec').setContent('');
 
-              tinyMCE.get('ESFDesc').setContent('');
-              tinyMCE.get('ESspec').setContent('');
+                tinyMCE.get('ESFDesc').setContent('');
+                tinyMCE.get('ESspec').setContent('');
 
-              tinyMCE.get('ENFDesc').setContent('');
-              tinyMCE.get('ENspec').setContent('');
+                tinyMCE.get('ENFDesc').setContent('');
+                tinyMCE.get('ENspec').setContent('');
 
-              tinyMCE.get('RUFDesc').setContent('');
-              tinyMCE.get('RUspec').setContent('');
+                tinyMCE.get('RUFDesc').setContent('');
+                tinyMCE.get('RUspec').setContent('');
               }
             },
           },
@@ -2800,15 +3147,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2824,15 +3163,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2848,15 +3179,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2872,15 +3195,7 @@
                 tinymce.init({
                   selector: 'textarea',
                   images_upload_url: tinyMce_images_upload_url,
-                  plugins: [
-
-                    'advlist autolink lists link image charmap print preview anchor',
-
-                    'searchreplace visualblocks code fullscreen',
-
-                    'insertdatetime media table paste code help wordcount'
-
-                  ],
+                  plugins: tinyplugins,
                   // menubar: 'true',
                   toolbar: 'undo redo |  ' +
 
@@ -2896,19 +3211,19 @@
                 editProduct();
                 Ext.getCmp("addForm").reset();
                 tinyMCE.get('FRFDesc').setContent('');
-              tinyMCE.get('FRspec').setContent('');
-              
-              tinyMCE.get('DEFDesc').setContent('');
-              tinyMCE.get('DEspec').setContent('');
+                tinyMCE.get('FRspec').setContent('');
 
-              tinyMCE.get('ESFDesc').setContent('');
-              tinyMCE.get('ESspec').setContent('');
+                tinyMCE.get('DEFDesc').setContent('');
+                tinyMCE.get('DEspec').setContent('');
 
-              tinyMCE.get('ENFDesc').setContent('');
-              tinyMCE.get('ENspec').setContent('');
+                tinyMCE.get('ESFDesc').setContent('');
+                tinyMCE.get('ESspec').setContent('');
 
-              tinyMCE.get('RUFDesc').setContent('');
-              tinyMCE.get('RUspec').setContent('');
+                tinyMCE.get('ENFDesc').setContent('');
+                tinyMCE.get('ENspec').setContent('');
+
+                tinyMCE.get('RUFDesc').setContent('');
+                tinyMCE.get('RUspec').setContent('');
               }
             },
           },
@@ -2927,15 +3242,7 @@
               tinymce.init({
                 selector: 'textarea',
                 images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -2953,15 +3260,7 @@
               // tinyMceInitiation
               tinymce.init({
                 selector: 'textarea',
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -2980,15 +3279,7 @@
               tinymce.init({
                 selector: 'textarea',
                 images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -3007,15 +3298,7 @@
               tinymce.init({
                 selector: 'textarea',
                 images_upload_url: tinyMce_images_upload_url,
-                plugins: [
-
-                  'advlist autolink lists link image charmap print preview anchor',
-
-                  'searchreplace visualblocks code fullscreen',
-
-                  'insertdatetime media table paste code help wordcount'
-
-                ],
+                plugins: tinyplugins,
                 // menubar: 'true',
                 toolbar: 'undo redo |  ' +
 
@@ -3403,7 +3686,7 @@
               linkedProductStore.getProxy().setExtraParam('serieId', serieIDGlobal);
               linkedProductStore.reload();
             },
-            
+
             failure: function (response) {
               Ext.getBody().unmask();
               Ext.Msg.alert(
@@ -3659,7 +3942,7 @@
         id: "viewport",
         layout: "card",
         activeItem: 0,
-        items: [AllProductGrid, productDetails, panelAdd, panelAdd2, linkedProducts, imagePanel, linkedImageGrid],
+        items: [AllProductGrid, productDetails, panelAdd, panelAdd2, linkedProducts, imagePanel, linkedImageGrid, panelAddEditLanguages],
       });
     });
 
