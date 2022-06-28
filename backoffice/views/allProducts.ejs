@@ -122,13 +122,13 @@
     Ext.onReady(() => {
       // Settings
       let tinyMce_images_upload_url = "http://10.0.10.1:11080/back/upload.php";
-let tinyHeight = 500;
+      let tinyHeight = 500;
       const tinyplugins = [
-          'advlist autolink lists link image charmap print preview anchor',
-          'searchreplace visualblocks code fullscreen',
-          'insertdatetime media table powerpaste code help wordcount'
-        ];
-      const  tinycontent_style = 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }  p {margin-top: 0; margin-bottom: 0;} ul{ padding-left: 1rem;margin-bottom: 0;}' ;
+        'advlist autolink lists link image charmap print preview anchor',
+        'searchreplace visualblocks code fullscreen',
+        'insertdatetime media table powerpaste code help wordcount'
+      ];
+      const tinycontent_style = 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }  p {margin-top: 0; margin-bottom: 0;} ul{ padding-left: 1rem;margin-bottom: 0;}';
       // // FOR TESTING 
 
       // let userRightObject = {
@@ -176,7 +176,7 @@ let tinyHeight = 500;
         });
       }
       installation()
-     
+
 
       const tinyMceInitiation = tinymce.init({
         selector: 'textarea',
@@ -1044,7 +1044,7 @@ let tinyHeight = 500;
             const res = JSON.parse(response.responseText);
 
             if (res != '') {
-              sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
+              sessionStorage.setItem( 'EditOne', 'true')
               Ext.getCmp(`oneCat`).setValue(res[0].Catalog);
 
               Ext.getCmp(`onedesc`).setValue(res[0].Description);
@@ -1058,7 +1058,7 @@ let tinyHeight = 500;
 
 
             } else {
-              sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
+              sessionStorage.setItem( 'EditOne', 'false')
 
             }
 
@@ -1517,7 +1517,7 @@ let tinyHeight = 500;
 
                     ' table | link image | removeformat  code | help',
 
-                    content_style: tinycontent_style
+                  content_style: tinycontent_style
                 });
                 tinyMCE.get('FRFDesc').setContent('');
                 tinyMCE.get('FRspec').setContent('');
@@ -1543,7 +1543,7 @@ let tinyHeight = 500;
 
                     ' table | link image | removeformat  code | help',
 
-                    content_style: tinycontent_style
+                  content_style: tinycontent_style
                 });
                 tinyMCE.get('DEFDesc').setContent('');
                 tinyMCE.get('DEspec').setContent('');
@@ -1562,8 +1562,9 @@ let tinyHeight = 500;
 
                     ' table | link image | removeformat  code | help',
 
-                    content_style: tinycontent_style
+                  content_style: tinycontent_style
                 });
+
                 tinyMCE.get('ESFDesc').setContent('');
                 tinyMCE.get('ESspec').setContent('');
                 Ext.getCmp('tabTrans').setActiveTab(4)
@@ -1581,7 +1582,7 @@ let tinyHeight = 500;
 
                     ' table | link image | removeformat  code | help',
 
-                    content_style: tinycontent_style
+                  content_style: tinycontent_style
                 });
                 tinyMCE.get('ENFDesc').setContent('');
                 tinyMCE.get('ENspec').setContent('');
@@ -2013,6 +2014,39 @@ let tinyHeight = 500;
         ],
       });
 
+      const editOneLanguageProduct = () => {
+        Ext.Ajax.request({
+          url: "/apiProducts/editOnelanguage",
+          method: "POST",
+          cors: true,
+          useDefaultXhrHeader: false,
+          params: {
+            ProductId: productIDGlobal,
+            Language: sessionStorage.getItem('oneLanguage'),
+            Details: sessionStorage.getItem('EditOne'),
+            ModifiedOn: formatDate,
+            Description: Ext.getCmp("onedesc").getValue().trim(),
+            Specification: tinyMCE.get('onespec').getContent(),
+            Catalog: Ext.getCmp("oneCat").getValue().trim(),
+            FullDescription: tinyMCE.get('oneFDesc').getContent(),
+            
+            
+          },
+          success: function (response) {
+            const res = JSON.parse(response.responseText);
+            
+            Ext.Msg.alert("INFO!", `Product has been edited successfully`);
+            getProductDetails(productIDGlobal);
+            Ext.getCmp("viewport").setActiveItem("productDetails");
+
+
+          },
+          failure: function (response) {
+            console.log("failed", response);
+          },
+        });
+      };
+
       // outer panel container to hold tbar and keypress definitions
       var panelAddEditLanguages = new Ext.Panel({
         layout: "fit",
@@ -2029,7 +2063,7 @@ let tinyHeight = 500;
             handler: function () {
               if (Ext.getCmp('FormEditLanguages').isValid()) {
                 edit = false;
-                editChapterTranslated();
+                editOneLanguageProduct();
                 Ext.getCmp("FormEditLanguages").reset();
               }
             },
@@ -2264,8 +2298,8 @@ let tinyHeight = 500;
                       ' | bullist numlist outdent indent | ' +
 
                       ' table | link image | removeformat  code | help',
-                      height: tinyHeight,
-                      content_style: tinycontent_style
+                    height: tinyHeight,
+                    content_style: tinycontent_style
                   });
                   getRelatedProductSerie(serieIDGlobal);
                 },
@@ -2315,6 +2349,7 @@ let tinyHeight = 500;
                     text: 'Edit English',
                     handler: function () {
                       panelAddEditLanguages.setTitle('Edit English')
+                      sessionStorage.setItem('oneLanguage', 'en') 
                       Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
                       tinymce.init({
                         selector: 'textarea',
@@ -2328,8 +2363,16 @@ let tinyHeight = 500;
                           ' | bullist numlist outdent indent | ' +
 
                           ' table | link image | removeformat  code | help',
-                          height: tinyHeight,
-                          content_style: tinycontent_style
+                        height: tinyHeight,
+                        content_style: tinycontent_style,
+                        setup: function (editor) {
+                          editor.on('init', function (e) {
+
+                            if (this.id == 'onespec') {
+                              getOneOtherLanguageDetail('en', productIDGlobal)
+                            }
+                          })
+                        }
                       });
                       tinyMCE.get(`onespec`).setContent('')
                       tinyMCE.get(`oneFDesc`).setContent('')
@@ -2342,6 +2385,7 @@ let tinyHeight = 500;
                     text: 'Edit French',
                     handler: function () {
                       panelAddEditLanguages.setTitle('Edit French')
+                      sessionStorage.setItem('oneLanguage', 'fr') 
                       Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
                       tinymce.init({
                         selector: 'textarea',
@@ -2355,8 +2399,16 @@ let tinyHeight = 500;
                           ' | bullist numlist outdent indent | ' +
 
                           ' table | link image | removeformat  code | help',
-                          height: tinyHeight,
-                          content_style: tinycontent_style
+                        height: tinyHeight,
+                        content_style: tinycontent_style,
+                        setup: function (editor) {
+                          editor.on('init', function (e) {
+
+                            if (this.id == 'onespec') {
+                              getOneOtherLanguageDetail('fr', productIDGlobal)
+                            }
+                          })
+                        }
                       });
                       tinyMCE.get(`onespec`).setContent('')
                       tinyMCE.get(`oneFDesc`).setContent('')
@@ -2368,6 +2420,7 @@ let tinyHeight = 500;
                     text: 'Edit German',
                     handler: function () {
                       panelAddEditLanguages.setTitle('Edit German')
+                      sessionStorage.setItem('oneLanguage', 'de') 
                       Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
                       tinymce.init({
                         selector: 'textarea',
@@ -2381,8 +2434,16 @@ let tinyHeight = 500;
                           ' | bullist numlist outdent indent | ' +
 
                           ' table | link image | removeformat  code | help',
-                          height: tinyHeight,
-                          content_style: tinycontent_style
+                        height: tinyHeight,
+                        content_style: tinycontent_style,
+                        setup: function (editor) {
+                          editor.on('init', function (e) {
+
+                            if (this.id == 'onespec') {
+                              getOneOtherLanguageDetail('de', productIDGlobal)
+                            }
+                          })
+                        }
                       });
                       tinyMCE.get(`onespec`).setContent('')
                       tinyMCE.get(`oneFDesc`).setContent('')
@@ -2393,33 +2454,42 @@ let tinyHeight = 500;
                   }, {
                     text: 'Edit Spanish',
                     handler: function () {
-                      if (tinyMCE.get(`onespec`) != null) {
                         panelAddEditLanguages.setTitle('Edit Spanish')
+                        sessionStorage.setItem('oneLanguage', 'es') 
                         Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
                         tinymce.init({
-                        selector: 'textarea',
-                        images_upload_url: tinyMce_images_upload_url,
-                        plugins: tinyplugins,
-                        // menubar: 'true',
-                        toolbar: 'undo redo |  ' +
+                          selector: 'textarea',
+                          images_upload_url: tinyMce_images_upload_url,
+                          plugins: tinyplugins,
+                          // menubar: 'true',
+                          toolbar: 'undo redo |  ' +
 
-                          'bold italic forecolor | alignleft aligncenter ' +
+                            'bold italic forecolor | alignleft aligncenter ' +
 
-                          ' | bullist numlist outdent indent | ' +
+                            ' | bullist numlist outdent indent | ' +
 
-                          ' table | link image | removeformat  code | help',
+                            ' table | link image | removeformat  code | help',
                           height: tinyHeight,
-                          content_style: tinycontent_style
-                      });
-                      tinyMCE.get(`onespec`).setContent('')
-                      tinyMCE.get(`oneFDesc`).setContent('')
+                          content_style: tinycontent_style,
+                          setup: function (editor) {
+                          editor.on('init', function (e) {
+
+                            if (this.id == 'onespec') {
+                              getOneOtherLanguageDetail('es', productIDGlobal)
+                            }
+                          })
+                        }
+                        });
+                        tinyMCE.get(`onespec`).setContent('')
+                        tinyMCE.get(`oneFDesc`).setContent('')
                         getOneOtherLanguageDetail('es', productIDGlobal)
-                      }
+                      
                     }
                   }, {
                     text: 'Edit Russian',
                     handler: function () {
                       panelAddEditLanguages.setTitle('Edit Russian')
+                      sessionStorage.setItem('oneLanguage', 'ru') 
                       Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
                       tinymce.init({
                         selector: 'textarea',
@@ -2433,8 +2503,16 @@ let tinyHeight = 500;
                           ' | bullist numlist outdent indent | ' +
 
                           ' table | link image | removeformat  code | help',
-                          height: tinyHeight,
-                          content_style: tinycontent_style
+                        height: tinyHeight,
+                        content_style: tinycontent_style,
+                        setup: function (editor) {
+                          editor.on('init', function (e) {
+
+                            if (this.id == 'onespec') {
+                              getOneOtherLanguageDetail('ru', productIDGlobal)
+                            }
+                          })
+                        }
                       });
                       tinyMCE.get(`onespec`).setContent('')
                       tinyMCE.get(`oneFDesc`).setContent('')
@@ -3056,8 +3134,8 @@ let tinyHeight = 500;
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                    height: tinyHeight,
-                    content_style: tinycontent_style
+                  height: tinyHeight,
+                  content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(2)
                 tinymce.init({
@@ -3072,8 +3150,8 @@ let tinyHeight = 500;
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                    height: tinyHeight,
-                    content_style: tinycontent_style
+                  height: tinyHeight,
+                  content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(3)
                 tinymce.init({
@@ -3096,8 +3174,8 @@ let tinyHeight = 500;
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                    height: tinyHeight,
-                    content_style: tinycontent_style
+                  height: tinyHeight,
+                  content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(4)
                 tinymce.init({
@@ -3112,8 +3190,8 @@ let tinyHeight = 500;
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                    height: tinyHeight,
-                    content_style: tinycontent_style
+                  height: tinyHeight,
+                  content_style: tinycontent_style
                 });
                 setProductSessionStorage();
                 addRecord();
@@ -3155,8 +3233,8 @@ let tinyHeight = 500;
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                    height: tinyHeight,
-                    content_style: tinycontent_style
+                  height: tinyHeight,
+                  content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(2)
                 tinymce.init({
@@ -3171,8 +3249,8 @@ let tinyHeight = 500;
                     ' | bullist numlist outdent indent | ' +
 
                     ' table | link image | removeformat  code | help',
-                    height: tinyHeight,
-                    content_style: tinycontent_style
+                  height: tinyHeight,
+                  content_style: tinycontent_style
                 });
                 Ext.getCmp('tabTrans').setActiveTab(3)
                 tinymce.init({
@@ -3251,7 +3329,7 @@ let tinyHeight = 500;
 
                   ' table | link image | removeformat  code | help',
 
-                  content_style: tinycontent_style
+                content_style: tinycontent_style
               });
               tinyMCE.get('FRFDesc').setContent('');
               tinyMCE.get('FRspec').setContent('');
@@ -3269,7 +3347,7 @@ let tinyHeight = 500;
 
                   ' table | link image | removeformat  code | help',
 
-                  content_style: tinycontent_style
+                content_style: tinycontent_style
               });
               tinyMCE.get('DEFDesc').setContent('');
               tinyMCE.get('DEspec').setContent('');
@@ -3288,7 +3366,7 @@ let tinyHeight = 500;
 
                   ' table | link image | removeformat  code | help',
 
-                  content_style: tinycontent_style
+                content_style: tinycontent_style
               });
               tinyMCE.get('ESFDesc').setContent('');
               tinyMCE.get('ESspec').setContent('');
@@ -3307,7 +3385,7 @@ let tinyHeight = 500;
 
                   ' table | link image | removeformat  code | help',
 
-                  content_style: tinycontent_style
+                content_style: tinycontent_style
               });
               tinyMCE.get('ENFDesc').setContent('');
               tinyMCE.get('ENspec').setContent('');

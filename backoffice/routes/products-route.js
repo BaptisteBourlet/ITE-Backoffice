@@ -34,6 +34,8 @@ router.post('/addProduct', apiCtrl.addProduct);
 
 router.post('/editProduct', apiCtrl.editProduct);
 
+router.post('/editOnelanguage', apiCtrl.editOnelanguage);
+
 router.post('/deleteProduct', apiCtrl.deleteProduct)
 
 router.post('/searchProduct', apiCtrl.searchProduct);

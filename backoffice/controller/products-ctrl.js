@@ -180,6 +180,7 @@ exports.getOtherLanguageDetail = async (req, res) => {
 }
 
 
+
 exports.getCategories = async (req, res) => {
    con.query("SELECT C.Id, C.WorkingTitle AS Name, IT.Tree FROM Category C LEFT JOIN InfoTree IT ON C.Id = IT.LinkId and IT.Publish = '1' and IT.Type = 'C' WHERE C.Publish = '1'", (err, results, fields) => {
       if (err) {
@@ -412,6 +413,40 @@ exports.editProduct = async (req, res) => {
       let finalResult = { ...results, errorString };
       res.send(finalResult);
    })
+}
+
+
+exports.editOnelanguage = async (req, res) => {
+   const { ProductId, Language, ModifiedOn, Description, Specification, Catalog, FullDescription, Details } = req.body;
+
+   const Query = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "${Language}"`;
+   
+   const QueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${Language}", "${ModifiedOn}", "${ProductId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}");`
+   
+   if (Details == 'false' && Description !== "" && Catalog !== "") {
+      
+      con.query(QueryInsert, (err, results) => {
+         if (err) {
+            console.log(err);
+         }
+         res.send(results)
+      })
+   } else {
+
+      if (Description !== "" && Catalog !== "") {
+        
+         con.query(Query, (err, results) => {
+            if (err) {
+               console.log(err);
+            }
+            res.send(results)
+         })
+      } else {
+         console.log(Language + ' wasnt filled in');
+      }
+   }
+
+
 }
 
 
