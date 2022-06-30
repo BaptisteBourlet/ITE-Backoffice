@@ -449,6 +449,20 @@ exports.editOnelanguage = async (req, res) => {
 
 }
 
+exports.uploadTinyMceImage = async (req, res) => {
+   const { imageTitle, VisualFile } = req.body;
+   
+   fs.writeFile(appRoot + `/assets/images/tinyImages/${imageTitle}`, VisualFile, { encoding: 'base64' }, function (err) {
+      console.log('File created');
+   });
+   
+
+
+}
+
+// exports.redirectDetails = async (req, res) => {
+//    res.redirect('http://localhost:12080/productDetails');
+// }
 
 
 exports.deleteProduct = async (req, res) => {

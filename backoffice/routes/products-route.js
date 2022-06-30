@@ -36,6 +36,10 @@ router.post('/editProduct', apiCtrl.editProduct);
 
 router.post('/editOnelanguage', apiCtrl.editOnelanguage);
 
+router.post('/uploadTinyMceImage', apiCtrl.uploadTinyMceImage);
+
+// router.post('/redirectDetails', apiCtrl.redirectDetails);
+
 router.post('/deleteProduct', apiCtrl.deleteProduct)
 
 router.post('/searchProduct', apiCtrl.searchProduct);

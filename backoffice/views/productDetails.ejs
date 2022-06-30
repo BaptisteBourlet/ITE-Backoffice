@@ -1,0 +1,2917 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ALL PRODUCTS - ITE BACK OFFICE MANAGEMENT</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/controller/userAuthServices.js"></script>
+
+    <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+    <!-- ----------------------------- PRODUCTION ------------------------------ -->
+
+    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+
+    <!-- <script type="text/javascript" src="/extTinyMce/TinyMceEditor.js"></script> -->
+    <!-- <script type="text/javascript" src="/tinymce/tinymce.min.js"></script> -->
+    <!-- <script type="text/javascript" src="/tinymce/jquery.tinymce.min.js"></script> -->
+
+    <!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
+
+    <!-- cloud TinyMCE is requied with a key to allow Powerpaste -->
+    <script src="https://cdn.tiny.cloud/1/lpt0c9449ad2wbuj1ih33yuaas6kwp7kc6uunblvgcun7cg9/tinymce/5/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
+
+
+    <style>
+        .x-grid-view {
+            overflow-y: auto !important;
+            position: relative;
+        }
+
+        .grid-image {
+            width: auto;
+            height: 70px;
+        }
+
+        .x-grid-cell-inner {
+            overflow: hidden;
+            padding: 10px 6px;
+            white-space: nowrap;
+        }
+
+        .a span {
+            background-color: rgb(253, 253, 253);
+            padding: 2px;
+            color: black;
+        }
+
+        .fieldClass {
+            border-bottom: 1px dashed rgb(173, 173, 173);
+            padding: 7px 0px;
+        }
+
+        textarea {
+            height: 300px;
+
+        }
+
+        #ENFIELD-legendTitle,
+        #ESFIELD-legendTitle,
+        #FRFIELD-legendTitle,
+        #DEFIELD-legendTitle,
+        #RUFIELD-legendTitle {
+            font-weight: bold;
+        }
+
+        #small-view {
+            display: none;
+        }
+
+        @media (max-width: 481px) {
+
+            #productDetails,
+
+
+            #small-view {
+                margin-top: 4rem;
+                font-size: 40px;
+                height: 100vh;
+                width: 100vw;
+                line-height: 50px;
+                display: block !important;
+            }
+        }
+
+        .x-autocontainer-outerCt {
+            overflow-y: auto !important;
+        }
+
+        .x-boundlist-list-ct {
+            overflow-y: auto !important;
+        }
+
+        .x-autocontainer-innerCt {
+            overflow-y: auto !important;
+        }
+
+        .x-box-inner {
+            overflow-y: auto !important;
+        }
+
+        .x-panel-body {
+            overflow-y: auto !important;
+        }
+    </style>
+
+
+
+    <script type="text/javascript">
+
+        //=========================================================================================================
+        //		           APPLICATION START
+        // ========================================================================================================
+        Ext.onReady(() => {
+            // Settings
+            let tinyMce_images_upload_url = "http://10.0.10.1:11080/back/upload.php";
+            let tinyHeight = 500;
+            const tinyplugins = [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table powerpaste code help wordcount',
+
+            ];
+            const tinycontent_style = 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }  p {margin-top: 0; margin-bottom: 0;} ul{ padding-left: 1rem;margin-bottom: 0;}';
+            // // FOR TESTING 
+
+            // let userRightObject = {
+            //   english: "E",
+            //   french: "V",
+            //   german: "E",
+            //   pictures: "V",
+            //   related: "E",
+            //   russian: "E",
+            //   spanish: "E",
+            //   usrid: "AG",
+            //   usrname: "Ann De Gucht"
+            // };
+
+            // let userRightString = JSON.stringify(userRightObject);
+            // localStorage.setItem('userRights', userRightString);
+
+            // // =============================================
+
+            let edit = false;
+            let productIDGlobal = "";
+            let serieIDGlobal = "";
+            productIDGlobal = sessionStorage.getItem('prodId')
+            
+            const getProductDetails = (productId) => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/getProductDetails",
+
+                    method: "GET",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        productId: productId,
+                    },
+
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+                        let Category = Ext.getCmp('Category').getValue()
+                        if (edit === false) {
+                            displayProductInfo(res[0][0]);
+                        } else {
+                            getEditInfo(res[0][0]);
+                        }
+
+                        if (Category !== '') {
+                            Ext.getCmp('unlinkCategory').setValue(false)
+                        } else {
+                            Ext.getCmp('unlinkCategory').setValue(true)
+                        }
+                        Ext.getCmp("relatedProducts").removeAll();
+                        Ext.getCmp("relatedAccessories").removeAll();
+                        Ext.getCmp("relatedParts").removeAll();
+
+                        Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
+                        Ext.getCmp("relatedAccessories").add(relatedAccessories(res[1]));
+                        Ext.getCmp("relatedParts").add(relatedParts(res[1]));
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            };
+            getProductDetails(productIDGlobal)
+            Ext.define('MyApp.view.Form', {
+                extend: 'Ext.form.Panel',
+                xtype: 'my-form',
+
+            });
+            const installation = () => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/installation",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+
+
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+            installation()
+
+
+            const tinyMceInitiation = tinymce.init({
+                selector: 'textarea',
+                images_upload_url: tinyMce_images_upload_url,
+                plugins: tinyplugins,
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
+                    'bold italic forecolor | alignleft aligncenter ' +
+                    ' | bullist numlist outdent indent | ' +
+                    ' table | link image | removeformat  code | help',
+                height: tinyHeight,
+                content_style: tinycontent_style
+            });
+            const relatedProducts = (products) => {
+                let exist = false;
+
+                for (const prod of products) {
+                    if (prod.Type === "R") {
+                        exist = true;
+                    }
+                }
+
+                if (exist) {
+                    return products.map((product) => {
+                        if (product.Type === "R") {
+                            return {
+                                xtype: "toolbar",
+                                dock: "top",
+                                style: "border: none; margin: 0px; padding: 0px;",
+                                items: [
+                                    {
+                                        xtype: "button",
+                                        text: "",
+                                        iconCls: "fa fa-trash-alt",
+                                        scale: "small",
+                                        style: "border: none; margin: 2px;",
+                                        listeners: {
+                                            click: function () {
+                                                Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                                                    if (btn == 'yes') {
+                                                        Ext.getBody().mask('Deleting', 'x-msg-loading');
+                                                        Ext.Ajax.request({
+                                                            // !! Url works for product
+                                                            url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
+                                                            method: "POST",
+                                                            cors: true,
+                                                            useDefaultXhrHeader: false,
+                                                            params: {
+                                                                Id: product.Id,
+                                                            },
+                                                            success: function (response) {
+                                                                // check for errors and display error message
+                                                                var check = response.responseText;
+                                                                if (check) {
+                                                                    var data = eval("(" + response.responseText + ")");
+
+                                                                    if (data.serverStatus == 2) {
+                                                                        Ext.getCmp("relatedProducts").removeAll();
+                                                                        Ext.getCmp("relatedAccessories").removeAll();
+                                                                        Ext.getCmp("relatedParts").removeAll();
+                                                                        getProductDetails(productIDGlobal);
+                                                                        Ext.getBody().unmask();
+                                                                        Ext.Msg.alert(
+                                                                            "Success",
+                                                                            "You have successfully deleted the related product"
+                                                                        );
+                                                                    } else {
+                                                                        // display error message
+                                                                        Ext.getBody().unmask();
+                                                                        Ext.Msg.alert(
+                                                                            "ERROR",
+                                                                            "Failed to delete the related product. Contact your IT team."
+                                                                        );
+                                                                    }
+                                                                }
+                                                            },
+                                                            failure: function (response) {
+                                                                Ext.getBody().unmask();
+                                                                Ext.Msg.alert(
+                                                                    "ERROR",
+                                                                    "Failed to delete related product. Contact your IT team."
+                                                                );
+                                                            },
+
+                                                        });
+                                                    }
+                                                })
+                                            }
+
+                                        },
+                                        handleClick: function () {
+                                            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                                                if (btn == 'yes') {
+                                                    Ext.getBody().mask('Deleting', 'x-msg-loading');
+                                                    Ext.Ajax.request({
+                                                        // !! Url works for product
+                                                        url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
+                                                        method: "POST",
+                                                        cors: true,
+                                                        useDefaultXhrHeader: false,
+                                                        params: {
+                                                            Id: product.Id,
+                                                        },
+                                                        success: function (response) {
+                                                            // check for errors and display error message
+                                                            var check = response.responseText;
+                                                            if (check) {
+                                                                var data = eval("(" + response.responseText + ")");
+
+                                                                if (data.serverStatus == 2) {
+                                                                    Ext.getCmp("relatedProducts").removeAll();
+                                                                    Ext.getCmp("relatedAccessories").removeAll();
+                                                                    Ext.getCmp("relatedParts").removeAll();
+                                                                    getProductDetails(productIDGlobal);
+                                                                    Ext.getBody().unmask();
+                                                                    Ext.Msg.alert(
+                                                                        "Success",
+                                                                        "You have successfully deleted the related product"
+                                                                    );
+                                                                } else {
+                                                                    // display error message
+                                                                    Ext.getBody().unmask();
+                                                                    Ext.Msg.alert(
+                                                                        "ERROR",
+                                                                        "Failed to delete the related product. Contact your IT team."
+                                                                    );
+                                                                }
+                                                            }
+                                                        },
+                                                        failure: function (response) {
+                                                            Ext.getBody().unmask();
+                                                            Ext.Msg.alert(
+                                                                "ERROR",
+                                                                "Failed to delete related product. Contact your IT team."
+                                                            );
+                                                        },
+
+                                                    });
+                                                }
+                                            })
+
+
+                                        },
+                                        handler: function () {
+                                            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                                                if (btn == 'yes') {
+                                                    Ext.getBody().mask('Deleting', 'x-msg-loading');
+                                                    Ext.Ajax.request({
+                                                        // !! Url works for product
+                                                        url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
+                                                        method: "POST",
+                                                        cors: true,
+                                                        useDefaultXhrHeader: false,
+                                                        params: {
+                                                            Id: product.Id,
+                                                        },
+                                                        success: function (response) {
+                                                            // check for errors and display error message
+                                                            var check = response.responseText;
+                                                            if (check) {
+                                                                var data = eval("(" + response.responseText + ")");
+
+                                                                if (data.serverStatus == 2) {
+                                                                    Ext.getCmp("relatedProducts").removeAll();
+                                                                    Ext.getCmp("relatedAccessories").removeAll();
+                                                                    Ext.getCmp("relatedParts").removeAll();
+                                                                    getProductDetails(productIDGlobal);
+                                                                    Ext.getBody().unmask();
+                                                                    Ext.Msg.alert(
+                                                                        "Success",
+                                                                        "You have successfully deleted the related product"
+                                                                    );
+                                                                } else {
+                                                                    // display error message
+                                                                    Ext.getBody().unmask();
+                                                                    Ext.Msg.alert(
+                                                                        "ERROR",
+                                                                        "Failed to delete the related product. Contact your IT team."
+                                                                    );
+                                                                }
+                                                            }
+                                                        },
+                                                        failure: function (response) {
+                                                            Ext.getBody().unmask();
+                                                            Ext.Msg.alert(
+                                                                "ERROR",
+                                                                "Failed to delete related product. Contact your IT team."
+                                                            );
+                                                        },
+
+                                                    });
+                                                }
+                                            })
+
+
+                                        },
+                                    }, {
+                                        xtype: "button",
+                                        text: `${product.Description} [${product.Code}]`,
+                                        cls: "a",
+                                        style: "border: none; margin: 2px 0px;",
+                                        handler: () => {
+                                            Ext.getCmp("relatedProducts").removeAll();
+                                            Ext.getCmp("relatedAccessories").removeAll();
+                                            Ext.getCmp("relatedParts").removeAll();
+                                            getProductDetails(product.LinkedProductID);
+                                            productIDGlobal = product.LinkedProductID;
+                                            Ext.getCmp("productDetails").setTitle(
+                                                `PRODUCT DETAILS - ${product.Code}`
+                                            );
+                                            Ext.getCmp("viewport").setActiveItem("productDetails");
+                                        },
+                                    }
+                                ]
+                            }
+                        }
+                    });
+                } else {
+                    return [
+                        {
+                            xtype: "displayfield",
+                            fieldLabel: "<b>Result</b>",
+                            value: "No Related Products",
+                            labelWidth: 44,
+                        },
+                    ];
+                }
+            };
+
+            const relatedAccessories = (products) => {
+                let exist = false;
+
+                for (const prod of products) {
+                    if (prod.Type === "A") {
+                        exist = true;
+                    }
+                }
+                if (exist) {
+                    return products.map((product) => {
+                        if (product.Type === "A") {
+                            return {
+                                xtype: "toolbar",
+                                dock: "top",
+                                style: "border: none; margin: 0px; padding: 0px;",
+                                items: [
+                                    {
+                                        xtype: "button",
+                                        text: "",
+                                        iconCls: "fa fa-trash-alt",
+                                        scale: "small",
+                                        style: "border: none; margin: 2px;",
+                                        handler: function () {
+                                            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                                                if (btn == 'yes') {
+                                                    Ext.getBody().mask('Deleting', 'x-msg-loading');
+                                                    Ext.Ajax.request({
+                                                        // !! Url works for product
+                                                        url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
+                                                        method: "POST",
+                                                        cors: true,
+                                                        useDefaultXhrHeader: false,
+                                                        params: {
+                                                            Id: product.Id,
+                                                        },
+                                                        success: function (response) {
+                                                            // check for errors and display error message
+                                                            var check = response.responseText;
+                                                            if (check) {
+                                                                var data = eval("(" + response.responseText + ")");
+
+                                                                if (data.serverStatus == 2) {
+                                                                    Ext.getCmp("relatedProducts").removeAll();
+                                                                    Ext.getCmp("relatedAccessories").removeAll();
+                                                                    Ext.getCmp("relatedParts").removeAll();
+                                                                    getProductDetails(productIDGlobal);
+                                                                    Ext.getBody().unmask();
+                                                                    Ext.Msg.alert(
+                                                                        "Success",
+                                                                        "You have successfully deleted the related product"
+                                                                    );
+                                                                } else {
+                                                                    // display error message
+                                                                    Ext.getBody().unmask();
+                                                                    Ext.Msg.alert(
+                                                                        "ERROR",
+                                                                        "Failed to delete the related product. Contact your IT team."
+                                                                    );
+                                                                }
+                                                            }
+                                                        },
+                                                        failure: function (response) {
+                                                            Ext.getBody().unmask();
+                                                            Ext.Msg.alert(
+                                                                "ERROR",
+                                                                "Failed to delete related product. Contact your IT team."
+                                                            );
+                                                        },
+
+                                                    });
+                                                }
+                                            })
+
+
+                                        },
+                                    }, {
+                                        xtype: "button",
+                                        text: `${product.Description} [${product.Code}]`,
+                                        cls: "a",
+                                        style: "border: none; margin: 2px 0px;",
+                                        handler: () => {
+                                            Ext.getCmp("relatedProducts").removeAll();
+                                            Ext.getCmp("relatedAccessories").removeAll();
+                                            Ext.getCmp("relatedParts").removeAll();
+                                            getProductDetails(product.LinkedProductID);
+                                            productIDGlobal = product.LinkedProductID;
+                                            Ext.getCmp("productDetails").setTitle(
+                                                `PRODUCT DETAILS - ${product.Code}`
+                                            );
+                                            Ext.getCmp("viewport").setActiveItem("productDetails");
+                                        },
+                                    }
+                                ]
+                            }
+                        }
+                    });
+                } else {
+                    return [
+                        {
+                            xtype: "displayfield",
+                            fieldLabel: "<b>Result</b>",
+                            value: "No Related Accessories",
+                            labelWidth: 44,
+                        },
+                    ];
+                }
+            };
+
+            const relatedParts = (products) => {
+                let exist = false;
+
+                for (const prod of products) {
+                    if (prod.Type === "P") {
+                        exist = true;
+                    }
+                }
+                if (exist) {
+                    return products.map((product) => {
+                        if (product.Type === "P") {
+                            return {
+                                xtype: "toolbar",
+                                dock: "top",
+                                style: "border: none; margin: 0px; padding: 0px;",
+                                items: [
+                                    {
+                                        xtype: "button",
+                                        text: "",
+                                        iconCls: "fa fa-trash-alt",
+                                        scale: "small",
+                                        style: "border: none; margin: 2px;",
+                                        handler: function () {
+                                            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
+                                                if (btn == 'yes') {
+                                                    Ext.getBody().mask('Deleting', 'x-msg-loading');
+                                                    Ext.Ajax.request({
+                                                        // !! Url works for product
+                                                        url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
+                                                        method: "POST",
+                                                        cors: true,
+                                                        useDefaultXhrHeader: false,
+                                                        params: {
+                                                            Id: product.Id,
+                                                        },
+                                                        success: function (response) {
+                                                            // check for errors and display error message
+                                                            var check = response.responseText;
+                                                            if (check) {
+                                                                var data = eval("(" + response.responseText + ")");
+
+                                                                if (data.serverStatus == 2) {
+                                                                    Ext.getCmp("relatedProducts").removeAll();
+                                                                    Ext.getCmp("relatedAccessories").removeAll();
+                                                                    Ext.getCmp("relatedParts").removeAll();
+                                                                    getProductDetails(productIDGlobal);
+                                                                    Ext.getBody().unmask();
+                                                                    Ext.Msg.alert(
+                                                                        "Success",
+                                                                        "You have successfully deleted the related product"
+                                                                    );
+                                                                } else {
+                                                                    // display error message
+                                                                    Ext.getBody().unmask();
+                                                                    Ext.Msg.alert(
+                                                                        "ERROR",
+                                                                        "Failed to delete the related product. Contact your IT team."
+                                                                    );
+                                                                }
+                                                            }
+                                                        },
+                                                        failure: function (response) {
+                                                            Ext.getBody().unmask();
+                                                            Ext.Msg.alert(
+                                                                "ERROR",
+                                                                "Failed to delete related product. Contact your IT team."
+                                                            );
+                                                        },
+
+                                                    });
+                                                }
+                                            })
+
+
+                                        },
+                                    }, {
+                                        xtype: "button",
+                                        text: `${product.Description} [${product.Code}]`,
+                                        cls: "a",
+                                        style: "border: none; margin: 2px 0px;",
+                                        handler: () => {
+                                            Ext.getCmp("relatedProducts").removeAll();
+                                            Ext.getCmp("relatedAccessories").removeAll();
+                                            Ext.getCmp("relatedParts").removeAll();
+                                            getProductDetails(product.LinkedProductID);
+                                            productIDGlobal = product.LinkedProductID;
+                                            Ext.getCmp("productDetails").setTitle(
+                                                `PRODUCT DETAILS - ${product.Code}`
+                                            );
+                                            Ext.getCmp("viewport").setActiveItem("productDetails");
+                                        },
+                                    }
+                                ],
+
+                            }
+
+
+
+                        }
+                    });
+                } else {
+                    return [
+                        {
+                            xtype: "displayfield",
+                            fieldLabel: "<b>Result</b>",
+                            value: "No Spare Parts",
+                            labelWidth: 44,
+                        },
+                    ];
+                }
+            };
+
+            const checkIfSerie = (productId) => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/checkIfSerie",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        productId: productId,
+                    },
+
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        if (res.isSerie) {
+                            Ext.getCmp('editSerieSpecs').setHidden(false);
+                            serieIDGlobal = res.serieId;
+                        } else {
+                            Ext.getCmp('editSerieSpecs').setHidden(true)
+                        }
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+
+
+            const setPanelHidden = () => {
+                Ext.getCmp("DEFIELD").setHidden(true);
+                Ext.getCmp("FRFIELD").setHidden(true);
+                Ext.getCmp("ESFIELD").setHidden(true);
+                Ext.getCmp("RUFIELD").setHidden(true);
+            }
+
+
+            const editProduct = () => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/editProduct",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        ProductId: productIDGlobal,
+                        Code: Ext.getCmp('code').getValue(),
+                        As400: Ext.getCmp('As400').getValue(),
+                        Category: Ext.getCmp('Category').getValue(),
+                        Pub: Ext.getCmp('Pub').getValue() === true ? 1 : 0,
+                        unlinkCategory: Ext.getCmp('unlinkCategory').getValue() === true ? 1 : 0,
+
+                        ModifiedOn: formatDate,
+                        Description: Ext.getCmp("ENdesc").getValue().trim(),
+                        Specification: tinyMCE.get('ENspec').getContent(),
+                        Catalog: Ext.getCmp("ENCat").getValue().trim(),
+                        FullDescription: tinyMCE.get('ENFDesc').getContent(),
+                        //FR
+                        FrDetails: sessionStorage.getItem('FREdit'),
+                        FRLanguage: "fr",
+                        FRDescription: Ext.getCmp("FRdesc").getValue().trim(),
+                        FRSpecification: tinyMCE.get('FRspec').getContent(),
+                        FRCatalog: Ext.getCmp("FRCat").getValue().trim(),
+                        FRFullDescription: tinyMCE.get('FRFDesc').getContent(),
+                        //DE
+                        DeDetails: sessionStorage.getItem('DEEdit'),
+                        DELanguage: "de",
+                        DEDescription: Ext.getCmp("DEdesc").getValue().trim(),
+                        DESpecification: tinyMCE.get('DEspec').getContent(),
+                        DECatalog: Ext.getCmp("DECat").getValue().trim(),
+                        DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
+                        //ES
+                        EsDetails: sessionStorage.getItem('ESEdit'),
+                        ESLanguage: "es",
+                        ESDescription: Ext.getCmp("ESdesc").getValue().trim(),
+                        ESSpecification: tinyMCE.get('ESspec').getContent(),
+                        ESCatalog: Ext.getCmp("ESCat").getValue().trim(),
+                        ESFullDescription: tinyMCE.get('ESFDesc').getContent(),
+                        //RU
+                        RuDetails: sessionStorage.getItem('RUEdit'),
+                        RULanguage: "ru",
+                        RUDescription: Ext.getCmp("RUdesc").getValue().trim(),
+                        RUSpecification: tinyMCE.get('RUspec').getContent(),
+                        RUCatalog: Ext.getCmp("RUCat").getValue().trim(),
+                        RUFullDescription: tinyMCE.get('RUFDesc').getContent(),
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+                        Ext.Msg.alert("INFO!", `Product has been edited successfully`);
+                        Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            };
+
+            const resetForm2 = () => {
+                Ext.getCmp('Type').setValue('');
+                Ext.getCmp('ProductDesc').setValue('');
+                Ext.getCmp('ProdSer').setValue('');
+                Ext.getCmp('RPCatalog').setValue('');
+            }
+
+            const getRelatedCatalog = (ProductId, SerOrProd) => {
+
+                Ext.Ajax.request({
+                    url: "/apiProducts/getRelatedCatalog",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        ProductId: ProductId,
+                        SerProd: SerOrProd
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+                        Ext.getCmp("RPCatalog").setValue(res[0].Catalog);
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            };
+
+            const displayProductInfo = (product) => {
+                Ext.getCmp('Pub').setValue(product.Publish === 1 ? 'on' : '')
+                Ext.getCmp("productName").setValue(product.Catalog);
+                Ext.getCmp("productCode").setValue(product.CODE);
+                Ext.getCmp("as400Code").setValue(product.As400Code);
+                Ext.getCmp("as400Description").setValue(product.Description);
+                Ext.getCmp("fullDescription").setValue(
+                    product.FullDescription ?? "No Full Description"
+                );
+                Ext.getCmp("specification").setValue(
+                    product.Specification ?? "No Specification"
+                );
+            };
+
+            const getEditInfo = (product) => {
+                Ext.getCmp('Pub').setValue(product.Publish === 1 ? 'on' : '')
+                Ext.getCmp("code").setValue(product.CODE);
+                Ext.getCmp("As400").setValue(product.As400Code);
+                Ext.getCmp("Category").setValue(product.CategoryId);
+
+                Ext.getCmp("ENdesc").setValue(product.Description);
+                Ext.getCmp("ENCat").setValue(product.Catalog);
+                tinyMCE.get('ENFDesc').setContent(product.FullDescription);
+                tinyMCE.get('ENspec').setContent(product.Specification);
+
+
+            };
+
+            const clearEditInfo = () => {
+                Ext.getCmp("code").setValue("");
+                Ext.getCmp("As400").setValue("");
+                Ext.getCmp("Category").setValue("");
+                Ext.getCmp("desc").setValue("");
+                Ext.getCmp("spec").setValue("");
+                Ext.getCmp("Cat").setValue("");
+                Ext.getCmp("FDesc").setValue("");
+            };
+
+            var setProductSessionStorage = function () {
+                sessionStorage.setItem("Code", Ext.getCmp("code").getValue());
+                sessionStorage.setItem("As400", Ext.getCmp("As400").getValue());
+                sessionStorage.setItem("Category", Ext.getCmp("Category").getValue());
+                sessionStorage.setItem(
+                    "Pub",
+                    checkBoxFunction(Ext.getCmp("Pub").getValue())
+                );
+            };
+
+            var checkBoxFunction = function (check) {
+                if (check == true) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            };
+
+            
+
+            const getRelatedProductSerie = (serieId) => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/getRelatedProductSerie",
+                    method: "GET",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        serieId: serieId,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+                        let keys = Object.keys(res[0]);
+
+                        let allColumns = keys.map(key => { //ongoing
+                            let width = 150;
+                            if (key === 'Name') {
+                                width = 300;
+                            }
+
+                            if (key !== "Name" && key !== "id" && key !== "Code" && key !== "SPLid") {
+                                return {
+                                    header: key,
+                                    sortable: true,
+                                    width: width,
+                                    dataIndex: key,
+                                    editor: {
+                                        completeOnEnter: true,
+                                        field: {
+                                            xtype: "textfield",
+                                            allowBlank: false,
+                                        },
+                                    }
+                                }
+                            } else if (key == "SPLid") {
+                                return {
+                                    header: key,
+                                    sortable: true,
+                                    width: width,
+                                    dataIndex: key,
+                                    hidden: true
+                                }
+                            } else {
+                                return {
+                                    header: key,
+                                    sortable: true,
+                                    width: width,
+                                    dataIndex: key,
+                                }
+                            }
+                        })
+
+                        linkedProducts.reconfigure(undefined, allColumns);
+                        res
+                            ? linkedProductStore.setData(res)
+                            : console.log("no response received");
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+
+            const getOtherLanguageDetail = (language, productId) => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/getOtherLanguageDetail",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        language: language,
+                        productId: productId,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        if (res != '') {
+                            sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
+                            Ext.getCmp(`${language.toUpperCase()}Cat`).setValue(res[0].Catalog);
+
+                            Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
+
+
+                            if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
+                                tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
+
+                                tinyMCE.get(`${language.toUpperCase()}spec`).setContent(res[0].Specification);
+                            }
+
+
+                        } else {
+                            sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
+
+                        }
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+
+            const getOneOtherLanguageDetail = (language, productId) => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/getOtherLanguageDetail",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        language: language,
+                        productId: productId,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        if (res != '') {
+                            sessionStorage.setItem('EditOne', 'true')
+                            Ext.getCmp(`oneCat`).setValue(res[0].Catalog);
+
+                            Ext.getCmp(`onedesc`).setValue(res[0].Description);
+
+
+                            if (tinyMCE.get(`oneFDesc`) != null) {
+                                tinyMCE.get(`oneFDesc`).setContent(res[0].FullDescription);
+
+                                tinyMCE.get(`onespec`).setContent(res[0].Specification);
+                            }
+
+
+                        } else {
+                            sessionStorage.setItem('EditOne', 'false')
+
+                        }
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+
+
+            var TypeStore = Ext.create("Ext.data.Store", {
+                fields: ["TypeCode", "TypeName"],
+                data: [
+                    { TypeCode: "P", TypeName: "Spare part" },
+                    { TypeCode: "A", TypeName: "Accessory" },
+                    { TypeCode: "R", TypeName: "Related product" },
+                ],
+                storeId: "TypeStore",
+            });
+
+            var ProdSerStore = Ext.create("Ext.data.Store", {
+                fields: ["ProdSerCode", "ProdSerName"],
+                data: [
+                    { ProdSerCode: "P", ProdSerName: "Product" },
+                    { ProdSerCode: "S", ProdSerName: "Serie" }
+                ],
+                storeId: "ProdSerStore",
+            });
+
+            const ProductDet = Ext.define("ProductDet", {
+                extend: "Ext.data.Model",
+                fields: ["CODE", "Id"],
+            });
+
+            const ProductDetStore = Ext.create("Ext.data.Store", {
+                id: "ProductDetStore",
+                autoLoad: false,
+                model: ProductDet,
+                proxy: {
+                    type: "ajax",
+                    method: "POST",
+                    url: "/apiProducts/getProductDet",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+                    },
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+            });
+
+            var TypeStore = Ext.create("Ext.data.Store", {
+                fields: ["TypeCode", "TypeName"],
+                data: [
+                    { TypeCode: "P", TypeName: "Spare part" },
+                    { TypeCode: "A", TypeName: "Accessory" },
+                    { TypeCode: "R", TypeName: "Related product" },
+                ],
+                storeId: "TypeStore",
+            });
+
+            let current_datetime = new Date();
+            var time = function () {
+                if (current_datetime.getMonth() + 1 < 10) {
+                    return "0" + Number(current_datetime.getMonth() + 1);
+                } else {
+                    current_datetime.getMonth() + 1;
+                }
+            };
+
+            let formatted_date =
+                current_datetime.getFullYear() +
+                "-" +
+                time() +
+                "-" +
+                current_datetime.getDate() +
+                " " +
+                current_datetime.getHours() +
+                ":" +
+                current_datetime.getMinutes() +
+                ":" +
+                current_datetime.getSeconds();
+
+            let formatDate =
+                current_datetime.getDate() +
+                "/" +
+                time() +
+                "/" +
+                current_datetime.getFullYear();
+
+
+
+            const linkedProductModel = Ext.define("Categories", {
+                extend: "Ext.data.Model",
+                fields: ["Id", "CODE", "Catalog"],
+            });
+
+            const linkedProductStore = Ext.create("Ext.data.Store", {
+                id: "mainStorel",
+                autoLoad: false,
+                model: linkedProductModel,
+                proxy: {
+                    type: "ajax",
+                    method: "GET",
+                    url: "/apiProducts/getRelatedProductSerie",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+
+                    },
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+                listeners: {
+                    beforeload: function (store) {
+                    },
+                },
+            });
+
+
+            let linkedProductColumns = [];
+
+
+            const linkedProductTbar = [
+                {
+                    xtype: "toolbar",
+                    dock: "top",
+                    id: "linkedProductTbar",
+                    items: [
+                        {
+                            xtype: "button",
+                            id: "serieLinkBack",
+                            text: "Back",
+                            iconCls: "fa fa-undo-alt",
+                            scale: "small",
+                            handler: function () {
+                                Ext.getCmp('viewport').setActiveItem('productDetails');
+                            },
+                        },
+                        // "-",
+                        // {
+                        //   xtype: "button",
+                        //   id: "addLinkedProducts",
+                        //   text: "Add Linked Product",
+                        //   iconCls: "fa fa-plus",
+                        //   handler: function () {
+                        //     Ext.getCmp("viewport").setActiveItem("panelAddRelated");
+                        //   },
+                        // },
+                    ],
+                },
+            ];
+
+
+
+
+            var itemsAddEditLanguages = [
+
+                {
+                    xtype: "textfield",
+                    id: "oneCat",
+                    name: "oneCat",
+                    fieldLabel: "Catalog",
+                    maxLenght: 118,
+                    width: 500,
+                    allowBlank: false,
+                    submitvalue: true,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "textfield",
+                    id: "onedesc",
+                    name: "onedesc",
+                    fieldLabel: "Description",
+                    maxLenght: 123,
+                    width: 500,
+                    allowBlank: false,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    html: '<h4>Full description :</h4><textarea id="oneFDesc"></textarea>',
+                    // height: 250,
+                },
+                {
+                    html: '<h4>Specification :</h4><textarea id="onespec"></textarea>',
+
+                    // height: 250,
+                },
+            ];
+
+            var screenAddEditLanguages = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                    listeners: {
+                        // specialkey: function (field, e) {
+                        //   if (e.getKey() == e.ENTER) {
+                        //     updateRec();
+                        //   }
+                        //   if (e.getKey() == e.ESC) {
+                        //     Ext.getCmp("viewport").setActiveItem("chapterTransltedGrid");
+                        //   }
+                        // },
+                    },
+                },
+                width: '100%',
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: {
+                            columns: 2,
+                        },
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "FormEditLanguages",
+                                columnWidth: 1,
+                                border: false,
+                                items: itemsAddEditLanguages,
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            const editOneLanguageProduct = () => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/editOnelanguage",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        ProductId: productIDGlobal,
+                        Language: sessionStorage.getItem('oneLanguage'),
+                        Details: sessionStorage.getItem('EditOne'),
+                        ModifiedOn: formatDate,
+                        Description: Ext.getCmp("onedesc").getValue().trim(),
+                        Specification: tinyMCE.get('onespec').getContent(),
+                        Catalog: Ext.getCmp("oneCat").getValue().trim(),
+                        FullDescription: tinyMCE.get('oneFDesc').getContent(),
+
+
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        Ext.Msg.alert("INFO!", `Product has been edited successfully`);
+                        getProductDetails(productIDGlobal);
+                        Ext.getCmp("viewport").setActiveItem("productDetails");
+
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            };
+
+            // outer panel container to hold tbar and keypress definitions
+            var panelAddEditLanguages = new Ext.Panel({
+                layout: "fit",
+                id: "panelAddEditLanguages",
+                title: "Add product",
+                header: true,
+                items: [screenAddEditLanguages],
+                tbar: [
+
+                    {
+                        text: "Save",
+                        id: "editSaveEditLanguages",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            if (Ext.getCmp('FormEditLanguages').isValid()) {
+                                edit = false;
+
+
+                                var stringToHTML = function (str) {
+                                    var dom = document.createElement('div');
+                                    dom.innerHTML = str;
+                                    return dom;
+
+                                };
+
+                                // const element = stringToHTML(tinyMCE.get('oneFDesc').getContent());
+
+                                // var allImages = element.getElementsByTagName("img");
+                                // console.log(allImages)
+                                // const tinymcearraysave = (sessionStorage.getItem('tinymceArray')).split(',')
+                                // console.log(tinymcearraysave)
+                                // var images = [];
+                                // for (var i = 0, len = allImages.length; i < len; ++i) {
+                                //     allImages[i].src = tinymcearraysave[i]
+
+                                //     images.push(allImages[i]);
+
+                                // }
+                                console.log(tinyMCE.get('oneFDesc').getContent())
+                                // console.log(images)
+                                editOneLanguageProduct();
+                                Ext.getCmp("FormEditLanguages").reset();
+                            }
+                        },
+                    },
+                    "-",
+                    {
+                        text: "Cancel",
+                        tooltip: "Cancel",
+                        id: 'cancelEditLanguages',
+                        iconCls: "fas fa-undo",
+                        handler: function () {
+                            edit = false;
+                            Ext.getCmp('FormEditLanguages').reset();
+                            Ext.getCmp("viewport").setActiveItem("productDetails");
+                        },
+                    },
+                ],
+            });
+
+            const productDetails = Ext.create("Ext.panel.Panel", {
+                id: "productDetails",
+                title: "PRODUCT DETAILS",
+                flex: 1,
+                trackOver: true,
+                loadMask: true,
+                header: true,
+                scrollable: true,
+                layout: "border",
+                items: [
+                    {
+                        xtype: "container",
+                        width: 300,
+                        scrollable: true,
+                        style: "background-color: white;",
+                        region: "east",
+                        layout: {
+                            type: "vbox",
+                            align: "stretch",
+                        },
+                        items: [
+                            {
+                                xtype: "panel",
+                                title: "Related Products",
+                                id: "relatedProducts",
+                                items: [],
+                            },
+                            {
+                                xtype: "panel",
+                                title: "Accessories",
+                                id: "relatedAccessories",
+                                items: [],
+                            },
+                            {
+                                xtype: "panel",
+                                title: "Spare Parts",
+                                id: "relatedParts",
+                                items: [],
+                            },
+                        ],
+                    },
+                    {
+                        xtype: "panel",
+                        title: "Product Info",
+                        region: "center",
+                        scrollable: true,
+                        style: "padding-left: 20px; background-color: white;",
+                        id: "productInfoContainer",
+                        layout: {
+                            type: "vbox",
+                            align: "stretch",
+                        },
+                        items: [
+                            {
+                                xtype: "displayfield",
+                                id: "productName",
+                                fieldLabel: "<b>Product</b>",
+                                labelWidth: 150,
+                                fieldCls: "fieldClass",
+                            },
+                            {
+                                xtype: "displayfield",
+                                id: "productCode",
+                                labelWidth: 150,
+                                fieldLabel: "<b>Product Code</b>",
+                                fieldCls: "fieldClass",
+                            },
+                            {
+                                xtype: "displayfield",
+                                id: "as400Code",
+                                fieldLabel: "<b>AS400CODE</b>",
+                                labelWidth: 150,
+                                fieldCls: "fieldClass",
+                            },
+                            {
+                                xtype: "displayfield",
+                                id: "as400Description",
+                                fieldLabel: "<b>AS/400 Description</b>",
+                                labelWidth: 150,
+                                fieldCls: "fieldClass",
+                            },
+                            {
+                                xtype: "displayfield",
+                                id: "fullDescription",
+                                fieldLabel: "<b>Full Description</b>",
+                                labelWidth: 150,
+                                fieldCls: "fieldClass",
+                            },
+                            {
+                                xtype: "displayfield",
+                                id: "specification",
+                                fieldLabel: "<b>Specification</b>",
+                                labelWidth: 150,
+                                fieldCls: "fieldClass",
+                            },
+                        ],
+                    },
+                ],
+                dockedItems: [
+                    {
+                        xtype: "toolbar",
+                        dock: "top",
+                        id: "productDetailBar",
+                        items: [
+                            {
+                                xtype: "button",
+                                id: "cancel",
+                                text: "Back",
+                                iconCls: "fa fa-undo-alt",
+                                handler: function () {
+                                    edit = false;
+
+                                    Ext.getCmp("relatedProducts").removeAll();
+                                    Ext.getCmp("relatedAccessories").removeAll();
+                                    Ext.getCmp("relatedParts").removeAll();
+                                    window.open('http://localhost:12080/')
+                                },
+                            },
+                            
+                            "-",
+                          
+                            {
+                                xtype: "button",
+                                id: "viewImageBtn",
+                                text: "See Images",
+                                iconCls: "fas fa-images",
+                                handler: function () {
+
+                                    linkedImageStore.getProxy().setExtraParam('Id', productIDGlobal);
+                                    linkedImageStore.reload();
+
+                                    Ext.getCmp('viewport').setActiveItem('linkedImageGrid');
+                                },
+                            },
+                            {
+                                xtype: "button",
+                                id: "editLanguagesBtn",
+                                text: "Edit Languages",
+                                iconCls: "fa fa-language",
+                                menu: {
+                                    items: [{
+                                        text: 'Edit English',
+                                        handler: function () {
+                                            var tinymceArray = []
+
+                                            panelAddEditLanguages.setTitle('Edit English')
+                                            sessionStorage.setItem('oneLanguage', 'en')
+                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                                            tinymce.init({
+                                                selector: 'textarea',
+                                                images_upload_url: tinyMce_images_upload_url,
+                                                plugins: tinyplugins,
+                                                // menubar: 'true',
+                                                toolbar: 'undo redo |  ' +
+
+                                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                                    ' | bullist numlist outdent indent | ' +
+
+                                                    ' table | link image | removeformat  code | help',
+                                                height: tinyHeight,
+                                                // image_prepend_url: '/data/',
+                                                image_description: false,
+                                                image_title: false,
+                                                /* enable automatic uploads of images represented by blob or data URIs*/
+                                                automatic_uploads: true,
+
+                                                file_picker_types: 'image',
+                                                /* and here's our custom image picker*/
+                                                file_picker_callback: function (cb, value, meta) {
+                                                    var input = document.createElement('input');
+                                                    input.setAttribute('type', 'file');
+                                                    input.setAttribute('accept', 'image/*');
+
+
+                                                    input.onchange = function () {
+                                                        var file = this.files[0];
+
+                                                        var reader = new FileReader();
+                                                        reader.onload = function () {
+
+                                                            var id = 'blobid' + (new Date()).getTime();
+                                                            var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                                                            var base64 = reader.result.split(',')[1];
+
+                                                            var blobInfo = blobCache.create(id, file, base64);
+                                                            blobCache.add(blobInfo);
+
+
+
+
+                                                            tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
+                                                            // console.log(tinymceArray)
+                                                            sessionStorage.setItem('tinymceArray', tinymceArray)
+                                                            Ext.Ajax.request({
+                                                                url: "/apiProducts/uploadTinyMceImage",
+                                                                method: "POST",
+                                                                cors: true,
+                                                                useDefaultXhrHeader: false,
+                                                                params: {
+                                                                    imageTitle: file.name,
+                                                                    VisualFile: base64,
+
+                                                                },
+                                                                success: function (fp, object) {
+                                                                    Ext.getBody().unmask();
+                                                                },
+                                                                failure: function (obj, res) {
+                                                                    Ext.getBody().unmask();
+                                                                    if (res) {
+
+
+                                                                    } else {
+                                                                        Ext.Msg.alert(
+                                                                            "ERROR",
+                                                                            "Failed to upload image. Contact your IT team."
+                                                                        );
+                                                                    }
+                                                                },
+                                                            });
+
+
+                                                            /* call the callback and populate the Title field with the file name */
+                                                            cb(blobInfo.blobUri(), { title: file.name });
+                                                        };
+                                                        reader.readAsDataURL(file);
+
+                                                    };
+                                                    input.click();
+
+                                                },
+
+                                                content_style: tinycontent_style,
+                                                setup: function (editor) {
+                                                    editor.on('init', function (e) {
+
+                                                        if (this.id == 'onespec') {
+                                                            getOneOtherLanguageDetail('en', productIDGlobal)
+                                                        }
+                                                    })
+                                                }
+                                            });
+                                            tinyMCE.get(`onespec`).setContent('')
+                                            tinyMCE.get(`oneFDesc`).setContent('')
+                                            if (tinyMCE.get(`onespec`) != null) {
+                                                getOneOtherLanguageDetail('en', productIDGlobal)
+
+                                            }
+                                        }
+                                    }, {
+                                        text: 'Edit French',
+                                        handler: function () {
+                                            panelAddEditLanguages.setTitle('Edit French')
+                                            sessionStorage.setItem('oneLanguage', 'fr')
+                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                                            tinymce.init({
+                                                selector: 'textarea',
+                                                images_upload_url: tinyMce_images_upload_url,
+                                                plugins: tinyplugins,
+                                                // menubar: 'true',
+                                                toolbar: 'undo redo |  ' +
+
+                                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                                    ' | bullist numlist outdent indent | ' +
+
+                                                    ' table | link image | removeformat  code | help',
+                                                height: tinyHeight,
+                                                content_style: tinycontent_style,
+                                                setup: function (editor) {
+                                                    editor.on('init', function (e) {
+
+                                                        if (this.id == 'onespec') {
+                                                            getOneOtherLanguageDetail('fr', productIDGlobal)
+                                                        }
+                                                    })
+                                                }
+                                            });
+                                            tinyMCE.get(`onespec`).setContent('')
+                                            tinyMCE.get(`oneFDesc`).setContent('')
+                                            if (tinyMCE.get(`onespec`) != null) {
+                                                getOneOtherLanguageDetail('fr', productIDGlobal)
+                                            }
+                                        }
+                                    }, {
+                                        text: 'Edit German',
+                                        handler: function () {
+                                            panelAddEditLanguages.setTitle('Edit German')
+                                            sessionStorage.setItem('oneLanguage', 'de')
+                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                                            tinymce.init({
+                                                selector: 'textarea',
+                                                images_upload_url: tinyMce_images_upload_url,
+                                                plugins: tinyplugins,
+                                                // menubar: 'true',
+                                                toolbar: 'undo redo |  ' +
+
+                                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                                    ' | bullist numlist outdent indent | ' +
+
+                                                    ' table | link image | removeformat  code | help',
+                                                height: tinyHeight,
+                                                content_style: tinycontent_style,
+                                                setup: function (editor) {
+                                                    editor.on('init', function (e) {
+
+                                                        if (this.id == 'onespec') {
+                                                            getOneOtherLanguageDetail('de', productIDGlobal)
+                                                        }
+                                                    })
+                                                }
+                                            });
+                                            tinyMCE.get(`onespec`).setContent('')
+                                            tinyMCE.get(`oneFDesc`).setContent('')
+                                            if (tinyMCE.get(`onespec`) != null) {
+                                                getOneOtherLanguageDetail('de', productIDGlobal)
+                                            }
+                                        }
+                                    }, {
+                                        text: 'Edit Spanish',
+                                        handler: function () {
+                                            panelAddEditLanguages.setTitle('Edit Spanish')
+                                            sessionStorage.setItem('oneLanguage', 'es')
+                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                                            tinymce.init({
+                                                selector: 'textarea',
+                                                images_upload_url: tinyMce_images_upload_url,
+                                                plugins: tinyplugins,
+                                                // menubar: 'true',
+                                                toolbar: 'undo redo |  ' +
+
+                                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                                    ' | bullist numlist outdent indent | ' +
+
+                                                    ' table | link image | removeformat  code | help',
+                                                height: tinyHeight,
+                                                content_style: tinycontent_style,
+                                                setup: function (editor) {
+                                                    editor.on('init', function (e) {
+
+                                                        if (this.id == 'onespec') {
+                                                            getOneOtherLanguageDetail('es', productIDGlobal)
+                                                        }
+                                                    })
+                                                }
+                                            });
+                                            tinyMCE.get(`onespec`).setContent('')
+                                            tinyMCE.get(`oneFDesc`).setContent('')
+                                            getOneOtherLanguageDetail('es', productIDGlobal)
+
+                                        }
+                                    }, {
+                                        text: 'Edit Russian',
+                                        handler: function () {
+                                            panelAddEditLanguages.setTitle('Edit Russian')
+                                            sessionStorage.setItem('oneLanguage', 'ru')
+                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                                            tinymce.init({
+                                                selector: 'textarea',
+                                                images_upload_url: tinyMce_images_upload_url,
+                                                plugins: tinyplugins,
+                                                // menubar: 'true',
+                                                toolbar: 'undo redo |  ' +
+
+                                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                                    ' | bullist numlist outdent indent | ' +
+
+                                                    ' table | link image | removeformat  code | help',
+                                                height: tinyHeight,
+                                                content_style: tinycontent_style,
+                                                setup: function (editor) {
+                                                    editor.on('init', function (e) {
+
+                                                        if (this.id == 'onespec') {
+                                                            getOneOtherLanguageDetail('ru', productIDGlobal)
+                                                        }
+                                                    })
+                                                }
+                                            });
+                                            tinyMCE.get(`onespec`).setContent('')
+                                            tinyMCE.get(`oneFDesc`).setContent('')
+                                            if (tinyMCE.get(`onespec`) != null) {
+                                                getOneOtherLanguageDetail('ru', productIDGlobal)
+                                            }
+                                        }
+                                    },
+                                    ]
+                                },
+
+                            },
+                        ],
+                    },
+                ],
+            });
+
+
+
+            const CATEGORY = Ext.define("Categories2", {
+                extend: "Ext.data.Model",
+                fields: ["Id", "Name"],
+            });
+
+            const CategoryStore = Ext.create("Ext.data.Store", {
+                id: "CategoryStore",
+
+                autoLoad: true,
+                model: CATEGORY,
+                proxy: {
+                    type: "ajax",
+                    method: "POST",
+                    url: "/apiProducts/getCategories",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+                        rootProperty: "allProducts",
+                        totalProperty: "totalCount",
+                    },
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+            });
+
+            var TabTranslations = Ext.create('Ext.TabPanel', {
+                fullscreen: true,
+                tabBarPosition: 'bottom',
+                id: 'tabTrans',
+                defaults: {
+                    styleHtmlContent: true
+                },
+                listeners: {
+                    render: function () {
+                        this.items.each(function (i) {
+                            i.tab.on('click', function () {
+                                Ext.getCmp('tabTrans').setActiveTab(i)
+
+                                // tinymce.init({
+                                //   selector: 'textarea',
+                                //   plugins: [
+
+                                //     'advlist autolink lists link image charmap print preview anchor',
+
+                                //     'searchreplace visualblocks code fullscreen',
+
+                                //     'insertdatetime media table paste code help wordcount'
+
+                                //   ],
+                                //   // menubar: 'true',
+                                //   toolbar: 'undo redo |  ' +
+
+                                //     'bold italic forecolor | alignleft aligncenter ' +
+
+                                //     ' | bullist numlist outdent indent | ' +
+
+                                //     ' table | link image | removeformat  code | help',
+                                //   height: tinyHeight,
+                                //   content_style: tinycontent_style
+                                // });
+                                // if(edit == true){
+                                // getOtherLanguageDetail('fr', productIDGlobal)
+                                // getOtherLanguageDetail('de', productIDGlobal)
+                                // getOtherLanguageDetail('es', productIDGlobal)
+                                // getOtherLanguageDetail('ru', productIDGlobal)
+                                // }
+                            });
+                        });
+                    }
+                },
+                items: [
+                    {
+                        title: 'English',
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "English Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "ENFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                id: 'formEN',
+                                                border: false,
+                                                items: [
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "ENCat",
+                                                        name: "ENCat",
+                                                        fieldLabel: "Catalog",
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        allowBlank: false,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "ENdesc",
+                                                        name: "ENdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: false,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="ENFDesc"></textarea>',
+                                                        // height: 250,
+                                                    },
+                                                    {
+                                                        html: '<h4>Specification :</h4><textarea id="ENspec"></textarea>',
+
+                                                        // height: 250,
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+
+                    {
+                        title: 'French',
+
+                        // listeners: {
+                        //     onClick: () => {
+                        //       console.log('test')
+                        //       tinymce.init({ selector:'textarea' });
+                        //     },
+                        //   },
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "French Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "FRFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                id: 'formFR',
+                                                border: false,
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "FRCat",
+                                                        name: "FRCat",
+                                                        fieldLabel: "Catalog",
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "FRdesc",
+                                                        name: "FRdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="FRFDesc"></textarea><br>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                    {
+                                                        html: '<h4>Specification :</h4><textarea id="FRspec"></textarea>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'German',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "German Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "DEFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                border: false,
+                                                id: 'formDE',
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "DECat",
+                                                        name: "DECat",
+                                                        fieldLabel: "Catalog",
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "DEdesc",
+                                                        name: "DEdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="DEFDesc"></textarea><br>',
+
+                                                        // height: 250,
+
+
+                                                    },
+                                                    {
+                                                        html: '<h4>Specification :</h4><textarea id="DEspec"></textarea>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Spanish',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                labelStyle: "font-weight: bold; ",
+                                title: "Spanish Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "ESFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                id: 'formES',
+                                                border: false,
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "ESCat",
+                                                        name: "ESCat",
+                                                        fieldLabel: "Catalog",
+                                                        allowBlank: true,
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "ESdesc",
+                                                        name: "ESdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="ESFDesc"></textarea><br>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                    {
+                                                        html: '<h4>Specification :</h4><textarea id="ESspec"></textarea>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Russian',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "Russian Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "RUFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                id: 'formRU',
+                                                border: false,
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "RUCat",
+                                                        name: "RUCat",
+                                                        fieldLabel: "Catalog",
+                                                        maxLenght: 118,
+                                                        allowBlank: true,
+                                                        width: 500,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "RUdesc",
+                                                        name: "RUdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="RUFDesc"></textarea><br>',
+
+                                                        // height: 250,
+                                                    },
+                                                    {
+
+                                                        html: '<h4>Specification :</h4><textarea id="RUspec"></textarea>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                ]
+            });
+
+
+            var itemsAdd = [
+                {
+                    xtype: "textfield",
+                    id: "code",
+                    name: "code",
+                    fieldLabel: "Code",
+                    maxLenght: 255,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                },
+                {
+                    xtype: "textfield",
+                    id: "As400",
+                    name: "As400",
+                    fieldLabel: "P/N",
+                    maxLenght: 255,
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                },
+                {
+                    xtype: "combo",
+                    id: "Category",
+                    name: "Category",
+                    store: CategoryStore,
+                    width: 500,
+                    fieldLabel: "Category",
+                    displayField: "Name",
+                    valueField: "Id",
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    anyMatch: true,
+                    queryMode: "local",
+                    listeners: {
+                        change: () => {
+                            let categoryValue = Ext.getCmp('Category').getValue();
+                            if (categoryValue) {
+                                Ext.getCmp('unlinkCategory').setValue(false)
+                            }
+                        }
+                    }
+                },
+                {
+                    xtype: "checkbox",
+                    id: "unlinkCategory",
+                    name: "unlinkCategory",
+                    fieldLabel: "Unlink From Any Category",
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                    listeners: {
+                        change: () => {
+                            let unlink = Ext.getCmp('unlinkCategory').getValue();
+                            if (unlink) {
+                                Ext.getCmp('Category').setValue('')
+                            }
+                        }
+                    }
+                },
+                {
+                    xtype: "checkbox",
+                    id: "Pub",
+                    name: "Pub",
+                    fieldLabel: "Publish",
+                    width: 500,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                },
+                // {
+                //   xtype: "button",
+                //   id: 'compare',
+                //   text: "Compare Translations",
+                //   iconCls: "fa fa-list",
+                //   handler: function () {
+
+                //   },
+                //   style: {
+
+                //     margin: '5px 5px 5px 40%'
+                //   }
+                // },
+                TabTranslations,
+            ];
+
+            var screenAdd = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                    listeners: {
+                        specialkey: function (field, e) {
+                            if (e.getKey() == e.ENTER) {
+                                updateRec();
+                            }
+                            if (e.getKey() == e.ESC) {
+                                Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+                            }
+                        },
+                    },
+                },
+                width: 1200,
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: {
+                            columns: 2,
+                        },
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "addForm",
+                                columnWidth: 1,
+                                border: false,
+                                items: itemsAdd,
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            // outer panel container to hold tbar and keypress definitions
+            var panelAdd = new Ext.Panel({
+                layout: "fit",
+                id: "panelAdd",
+                title: "Add product",
+                header: true,
+                items: [screenAdd],
+                tbar: [
+                    {
+                        text: "Save",
+                        id: "addSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+
+
+                            if (Ext.getCmp('addForm').isValid()) {
+                                Ext.getCmp('tabTrans').setActiveTab(0)
+                                Ext.getCmp('tabTrans').setActiveTab(1)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(2)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(3)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: [
+
+                                        'advlist autolink lists link image charmap print preview anchor',
+
+                                        'searchreplace visualblocks code fullscreen',
+
+                                        'insertdatetime media table paste code help wordcount'
+
+                                    ],
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(4)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                setProductSessionStorage();
+                                addRecord();
+                                Ext.getCmp("addForm").reset();
+
+                                tinyMCE.get('FRFDesc').setContent('');
+                                tinyMCE.get('FRspec').setContent('');
+
+                                tinyMCE.get('DEFDesc').setContent('');
+                                tinyMCE.get('DEspec').setContent('');
+
+                                tinyMCE.get('ESFDesc').setContent('');
+                                tinyMCE.get('ESspec').setContent('');
+
+                                tinyMCE.get('ENFDesc').setContent('');
+                                tinyMCE.get('ENspec').setContent('');
+
+                                tinyMCE.get('RUFDesc').setContent('');
+                                tinyMCE.get('RUspec').setContent('');
+                            }
+                        },
+                    },
+                    {
+                        text: "Save",
+                        id: "editSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            if (Ext.getCmp('addForm').isValid()) {
+                                Ext.getCmp('tabTrans').setActiveTab(1)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(2)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(3)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(4)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                setProductSessionStorage();
+                                editProduct();
+                                Ext.getCmp("addForm").reset();
+                                tinyMCE.get('FRFDesc').setContent('');
+                                tinyMCE.get('FRspec').setContent('');
+
+                                tinyMCE.get('DEFDesc').setContent('');
+                                tinyMCE.get('DEspec').setContent('');
+
+                                tinyMCE.get('ESFDesc').setContent('');
+                                tinyMCE.get('ESspec').setContent('');
+
+                                tinyMCE.get('ENFDesc').setContent('');
+                                tinyMCE.get('ENspec').setContent('');
+
+                                tinyMCE.get('RUFDesc').setContent('');
+                                tinyMCE.get('RUspec').setContent('');
+                            }
+                        },
+                    },
+                    "-",
+                    {
+                        text: "Cancel",
+                        tooltip: "Cancel",
+                        iconCls: "fas fa-undo",
+                        handler: function () {
+                            edit = false;
+                            Ext.getCmp("addForm").reset();
+
+                            Ext.getCmp('tabTrans').setActiveTab(0)
+                            Ext.getCmp('tabTrans').setActiveTab(1)
+                            // tinyMceInitiation
+                            tinymce.init({
+                                selector: 'textarea',
+                                images_upload_url: tinyMce_images_upload_url,
+                                plugins: tinyplugins,
+                                // menubar: 'true',
+                                toolbar: 'undo redo |  ' +
+
+                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                    ' | bullist numlist outdent indent | ' +
+
+                                    ' table | link image | removeformat  code | help',
+
+                                content_style: tinycontent_style
+                            });
+                            tinyMCE.get('FRFDesc').setContent('');
+                            tinyMCE.get('FRspec').setContent('');
+                            Ext.getCmp('tabTrans').setActiveTab(2)
+                            // tinyMceInitiation
+                            tinymce.init({
+                                selector: 'textarea',
+                                plugins: tinyplugins,
+                                // menubar: 'true',
+                                toolbar: 'undo redo |  ' +
+
+                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                    ' | bullist numlist outdent indent | ' +
+
+                                    ' table | link image | removeformat  code | help',
+
+                                content_style: tinycontent_style
+                            });
+                            tinyMCE.get('DEFDesc').setContent('');
+                            tinyMCE.get('DEspec').setContent('');
+                            Ext.getCmp('tabTrans').setActiveTab(3)
+                            // tinyMceInitiation
+                            tinymce.init({
+                                selector: 'textarea',
+                                images_upload_url: tinyMce_images_upload_url,
+                                plugins: tinyplugins,
+                                // menubar: 'true',
+                                toolbar: 'undo redo |  ' +
+
+                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                    ' | bullist numlist outdent indent | ' +
+
+                                    ' table | link image | removeformat  code | help',
+
+                                content_style: tinycontent_style
+                            });
+                            tinyMCE.get('ESFDesc').setContent('');
+                            tinyMCE.get('ESspec').setContent('');
+                            Ext.getCmp('tabTrans').setActiveTab(4)
+                            // tinyMceInitiation
+                            tinymce.init({
+                                selector: 'textarea',
+                                images_upload_url: tinyMce_images_upload_url,
+                                plugins: tinyplugins,
+                                // menubar: 'true',
+                                toolbar: 'undo redo |  ' +
+
+                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                    ' | bullist numlist outdent indent | ' +
+
+                                    ' table | link image | removeformat  code | help',
+
+                                content_style: tinycontent_style
+                            });
+                            tinyMCE.get('ENFDesc').setContent('');
+                            tinyMCE.get('ENspec').setContent('');
+
+                            tinyMCE.get('RUFDesc').setContent('');
+                            tinyMCE.get('RUspec').setContent('');
+                            // clearEditInfo();
+                            Ext.getCmp("relatedProducts").removeAll();
+                            Ext.getCmp("relatedAccessories").removeAll();
+                            Ext.getCmp("relatedParts").removeAll();
+                            Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+                        },
+                    },
+                ],
+            });
+
+            var itemsAdd2 = [
+                {
+                    xtype: "combo",
+                    id: "Type",
+                    name: "Type",
+                    store: TypeStore,
+                    width: 500,
+                    fieldLabel: "Type",
+                    displayField: "TypeName",
+                    valueField: "TypeCode",
+                    allowBlank: false,
+                    selectOnFocus: false,
+                    editable: false,
+                },
+                {
+                    xtype: "combo",
+                    id: "ProdSer",
+                    name: "ProdSer",
+                    store: ProdSerStore,
+                    width: 300,
+                    fieldLabel: "Product/Serie",
+                    displayField: "ProdSerName",
+                    valueField: "ProdSerCode",
+                    allowBlank: false,
+                    selectOnFocus: false,
+                    editable: false,
+                    listeners: {
+                        change: function () {
+                            ProductDetStore.getProxy().setExtraParam('ProdSer', this.getValue());
+                            ProductDetStore.reload()
+                        },
+                    },
+                },
+                {
+                    xtype: "combo",
+                    id: "ProductDesc",
+                    name: "ProductDesc",
+                    store: ProductDetStore,
+                    width: 500,
+                    fieldLabel: "Product",
+                    displayField: "CODE",
+                    valueField: "Id",
+                    allowBlank: false,
+                    selectOnFocus: false,
+                    anyMatch: true,
+                    queryMode: "local",
+                    listeners: {
+                        click: {
+
+                            fn: function () {
+                                if (Ext.getCmp('ProdSer').getValue() == '' || Ext.getCmp('ProdSer').getValue() == undefined) {
+                                    Ext.Msg.alert(
+                                        "INFO",
+                                        "Please choose if it is a product or a serie."
+                                    );
+                                }
+                            }
+                        },
+                        change: function () {
+                            var SerOrProd = Ext.getCmp('ProdSer').getValue()
+
+                            let ProductId = this.getValue();
+                            getRelatedCatalog(ProductId, SerOrProd);
+                        },
+                    },
+                },
+                {
+                    xtype: "textfield",
+                    id: "RPCatalog",
+                    name: "RPCatalog",
+                    width: 500,
+                    fieldLabel: "Product description",
+                    editable: false,
+                    hideTrigger: true,
+                    allowBlank: true,
+                    selectOnFocus: false,
+                },
+            ];
+
+            var screenAdd2 = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+                id: "screenAdd2",
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                },
+                width: 1200,
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: { columns: 2 },
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "addForm2",
+                                columnWidth: 0.9,
+                                border: false,
+                                items: itemsAdd2,
+                            },
+                        ],
+                    },
+                ],
+            });
+           
+
+            const RelatedDesc = Ext.define("RelatedDesc", {
+                extend: "Ext.data.Model",
+                fields: ["Description"],
+            });
+
+
+            const linkedProducts = Ext.create("Ext.grid.GridPanel", {
+                id: "linkedProducts",
+                bufferedRenderer: false,
+                flex: 1,
+                scrollable: true,
+                title: "Linked Products",
+                trackOver: true,
+                loadMask: true,
+                store: linkedProductStore,
+                columns: linkedProductColumns,
+                enableColumnMove: false,
+                sortable: true,
+                frame: false,
+                // renderTo: Ext.getBody(),
+                height: 690,
+                dockedItems: [...linkedProductTbar],
+                selModel: 'cellmodel',
+                plugins: {
+                    ptype: 'cellediting',
+                    clicksToEdit: 1
+                },
+            });
+
+            linkedProducts.on("edit", (editor, event) => { //cellediting
+                if (linkedProductStore.getModifiedRecords()[0]) {
+                    let key = Object.keys(linkedProductStore.getModifiedRecords()[0].modified);
+                    let value = linkedProductStore.getModifiedRecords()[0].data[key]
+                    let SPLid = linkedProductStore.getModifiedRecords()[0].data['SPLid'];
+
+                    Ext.Ajax.request({
+                        url: "/apiProducts/updateSerieSpecs",
+                        method: "POST",
+                        cors: true,
+                        useDefaultXhrHeader: false,
+                        params: {
+                            key: key,
+                            value: value,
+                            SPLid: SPLid,
+                        },
+                        success: function (response) {
+                            Ext.Msg.alert('INFO', "Serie Specifications updated successfully");
+
+                            linkedProductStore.getProxy().setExtraParam('serieId', serieIDGlobal);
+                            linkedProductStore.reload();
+                        },
+
+                        failure: function (response) {
+                            Ext.getBody().unmask();
+                            Ext.Msg.alert(
+                                "ERROR",
+                                "Failed to update Specification. Contact your IT team."
+                            );
+                        },
+                    });
+                }
+            })
+
+
+            const linkedImageModel = Ext.define("Images2", {
+                extend: "Ext.data.Model",
+                fields: ["Id", "Type", "Size", "Path", "Sequence"],
+            });
+
+            const linkedImageStore = Ext.create("Ext.data.Store", {
+                id: "linkedImageStore",
+                autoLoad: false,
+                model: linkedImageModel,
+                proxy: {
+                    type: "ajax",
+                    method: "GET",
+                    url: "/apiProducts/getLinkedImage",
+                    noCache: true,
+                    reader: {
+                        type: "json",
+                    },
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                },
+                listeners: {
+                    beforeload: function (store) {
+                    },
+                },
+            });
+
+            const linkedImageColumns = [
+                {
+                    header: "ID",
+                    sortable: true,
+                    width: 50,
+                    dataIndex: "Id",
+                    align: 'center'
+                },
+                {
+                    header: "Type",
+                    sortable: true,
+                    width: 100,
+                    dataIndex: "Type",
+                    align: 'left'
+                },
+                {
+                    header: "Image",
+                    sortable: true,
+                    width: 170,
+                    dataIndex: "Path",
+                    align: 'left',
+                    renderer: (value) => {
+                        return `<img src="/pictures/${value}" width="150" height="150">`;
+                    }
+                },
+                {
+                    header: "Sequence",
+                    sortable: true,
+                    width: 120,
+                    dataIndex: "Sequence",
+                    align: 'left',
+                    editor: {
+                        completeOnEnter: true,
+                        field: {
+                            xtype: "numberfield",
+                            allowBlank: false,
+
+                        },
+                    },
+                },
+            ]
+
+            const linkedImageGrid = Ext.create("Ext.grid.GridPanel", {
+                id: "linkedImageGrid",
+                bufferedRenderer: false,
+                flex: 1,
+                scrollable: true,
+                title: "Linked Images",
+                trackOver: true,
+                loadMask: true,
+                store: linkedImageStore,
+                columns: linkedImageColumns,
+                enableColumnMove: false,
+                sortable: true,
+                frame: false,
+                renderTo: Ext.getBody(),
+                height: 690,
+                dockedItems: [
+                    {
+                        xtype: "toolbar",
+                        dock: "top",
+                        id: "linkedImageToolBar",
+                        items: [
+                            {
+                                xtype: "button",
+                                id: "linkedImageBack",
+                                iconCls: "fa fa-undo-alt",
+                                text: "Back",
+                                scale: "small",
+                                handler: function () {
+                                    Ext.getCmp("viewport").setActiveItem("productDetails");
+                                },
+                            },
+                        ],
+                    },
+                ],
+                plugins: {
+                    ptype: 'cellediting',
+                    clicksToEdit: 1
+                },
+            });
+
+            linkedImageGrid.on('edit', (editor, event) => {  //ongoing
+
+                Ext.getBody().mask('Updating', 'x-msg-loading');
+                Ext.Ajax.request({
+                    url: "/apiProducts/updateImageSequence",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        Id: event.record.data.Id,
+                        Sequence: event.record.data.Sequence,
+                    },
+                    success: function (response) {
+                        let result = JSON.parse(response.responseText);
+                        Ext.getBody().unmask();
+                    },
+                    failure: function (response) {
+                        Ext.getBody().unmask();
+                        Ext.Msg.alert(
+                            "ERROR",
+                            "Failed to delete related product. Contact your IT team."
+                        );
+                    },
+
+                });
+            })
+
+
+            let userRights = JSON.parse(localStorage.getItem('userRights'));
+            if (userRights !== null) {
+                applyUserRights(userRights);
+            }
+
+            //=========================================================================================================
+            //		           VIEW PORT
+            // ========================================================================================================
+
+            Ext.create("Ext.container.Viewport", {
+                id: "viewport",
+                layout: "card",
+                activeItem: 0,
+                items: [productDetails, linkedProducts, linkedImageGrid, panelAddEditLanguages],
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div id="small-view">
+        This Appplication is not meant for small devices.
+    </div>
+
+
+</body>
+
+</html>

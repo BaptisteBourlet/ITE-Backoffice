@@ -126,7 +126,8 @@
       const tinyplugins = [
         'advlist autolink lists link image charmap print preview anchor',
         'searchreplace visualblocks code fullscreen',
-        'insertdatetime media table powerpaste code help wordcount'
+        'insertdatetime media table powerpaste code help wordcount',
+
       ];
       const tinycontent_style = 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }  p {margin-top: 0; margin-bottom: 0;} ul{ padding-left: 1rem;margin-bottom: 0;}';
       // // FOR TESTING 
@@ -678,6 +679,9 @@
             } else {
               Ext.getCmp('unlinkCategory').setValue(true)
             }
+            Ext.getCmp("relatedProducts").removeAll();
+            Ext.getCmp("relatedAccessories").removeAll();
+            Ext.getCmp("relatedParts").removeAll();
 
             Ext.getCmp("relatedProducts").add(relatedProducts(res[1]));
             Ext.getCmp("relatedAccessories").add(relatedAccessories(res[1]));
@@ -1044,7 +1048,7 @@
             const res = JSON.parse(response.responseText);
 
             if (res != '') {
-              sessionStorage.setItem( 'EditOne', 'true')
+              sessionStorage.setItem('EditOne', 'true')
               Ext.getCmp(`oneCat`).setValue(res[0].Catalog);
 
               Ext.getCmp(`onedesc`).setValue(res[0].Description);
@@ -1058,7 +1062,7 @@
 
 
             } else {
-              sessionStorage.setItem( 'EditOne', 'false')
+              sessionStorage.setItem('EditOne', 'false')
 
             }
 
@@ -1898,6 +1902,7 @@
               const selectedRecord = Ext.getCmp("AllProductGrid")
                 .getSelectionModel()
                 .getSelection()[0];
+              sessionStorage.setItem('prodId', selectedRecord.data.Id)
               getProductDetails(selectedRecord.data.Id);
               productIDGlobal = selectedRecord.data.Id;
               checkIfSerie(productIDGlobal);
@@ -2029,12 +2034,12 @@
             Specification: tinyMCE.get('onespec').getContent(),
             Catalog: Ext.getCmp("oneCat").getValue().trim(),
             FullDescription: tinyMCE.get('oneFDesc').getContent(),
-            
-            
+
+
           },
           success: function (response) {
             const res = JSON.parse(response.responseText);
-            
+
             Ext.Msg.alert("INFO!", `Product has been edited successfully`);
             getProductDetails(productIDGlobal);
             Ext.getCmp("viewport").setActiveItem("productDetails");
@@ -2063,6 +2068,30 @@
             handler: function () {
               if (Ext.getCmp('FormEditLanguages').isValid()) {
                 edit = false;
+
+
+                var stringToHTML = function (str) {
+                  var dom = document.createElement('div');
+                  dom.innerHTML = str;
+                  return dom;
+
+                };
+
+                const element = stringToHTML(tinyMCE.get('oneFDesc').getContent());
+
+                var allImages = element.getElementsByTagName("img");
+                console.log(allImages)
+                const tinymcearraysave = (sessionStorage.getItem('tinymceArray')).split(',')
+                console.log(tinymcearraysave)
+                var images = [];
+                for (var i = 0, len = allImages.length; i < len; ++i) {
+                  allImages[i].src = tinymcearraysave[i]
+
+                  images.push(allImages[i]);
+
+                }
+                console.log(tinyMCE.get('oneFDesc').getContent())
+                console.log(images)
                 editOneLanguageProduct();
                 Ext.getCmp("FormEditLanguages").reset();
               }
@@ -2341,15 +2370,27 @@
               },
               {
                 xtype: "button",
+                id: "redirect",
+                text: "View details",
+                iconCls: "",
+                handler: function () {
+                  window.open('http://localhost:12080/productDetails', "_self")
+                },
+              },
+              {
+                xtype: "button",
                 id: "editLanguagesBtn",
                 text: "Edit Languages",
                 iconCls: "fa fa-language",
+                hidden: true,
                 menu: {
                   items: [{
                     text: 'Edit English',
                     handler: function () {
+                      var tinymceArray = []
+
                       panelAddEditLanguages.setTitle('Edit English')
-                      sessionStorage.setItem('oneLanguage', 'en') 
+                      sessionStorage.setItem('oneLanguage', 'en')
                       Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
                       tinymce.init({
                         selector: 'textarea',
@@ -2364,6 +2405,77 @@
 
                           ' table | link image | removeformat  code | help',
                         height: tinyHeight,
+                        // image_prepend_url: '/data/',
+                        image_description: false,
+                        image_title: false,
+                        /* enable automatic uploads of images represented by blob or data URIs*/
+                        automatic_uploads: true,
+
+                        file_picker_types: 'image',
+                        /* and here's our custom image picker*/
+                        file_picker_callback: function (cb, value, meta) {
+                          var input = document.createElement('input');
+                          input.setAttribute('type', 'file');
+                          input.setAttribute('accept', 'image/*');
+
+
+                          input.onchange = function () {
+                            var file = this.files[0];
+
+                            var reader = new FileReader();
+                            reader.onload = function () {
+
+                              var id = 'blobid' + (new Date()).getTime();
+                              var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                              var base64 = reader.result.split(',')[1];
+
+                              var blobInfo = blobCache.create(id, file, base64);
+                              blobCache.add(blobInfo);
+
+
+
+
+                              tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
+                              // console.log(tinymceArray)
+                              sessionStorage.setItem('tinymceArray', tinymceArray)
+                              Ext.Ajax.request({
+                                url: "/apiProducts/uploadTinyMceImage",
+                                method: "POST",
+                                cors: true,
+                                useDefaultXhrHeader: false,
+                                params: {
+                                  imageTitle: file.name,
+                                  VisualFile: base64,
+
+                                },
+                                success: function (fp, object) {
+                                  Ext.getBody().unmask();
+                                },
+                                failure: function (obj, res) {
+                                  Ext.getBody().unmask();
+                                  if (res) {
+
+
+                                  } else {
+                                    Ext.Msg.alert(
+                                      "ERROR",
+                                      "Failed to upload image. Contact your IT team."
+                                    );
+                                  }
+                                },
+                              });
+
+
+                              /* call the callback and populate the Title field with the file name */
+                              cb(blobInfo.blobUri(), { title: file.name });
+                            };
+                            reader.readAsDataURL(file);
+
+                          };
+                          input.click();
+
+                        },
+
                         content_style: tinycontent_style,
                         setup: function (editor) {
                           editor.on('init', function (e) {
@@ -2385,7 +2497,7 @@
                     text: 'Edit French',
                     handler: function () {
                       panelAddEditLanguages.setTitle('Edit French')
-                      sessionStorage.setItem('oneLanguage', 'fr') 
+                      sessionStorage.setItem('oneLanguage', 'fr')
                       Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
                       tinymce.init({
                         selector: 'textarea',
@@ -2420,7 +2532,7 @@
                     text: 'Edit German',
                     handler: function () {
                       panelAddEditLanguages.setTitle('Edit German')
-                      sessionStorage.setItem('oneLanguage', 'de') 
+                      sessionStorage.setItem('oneLanguage', 'de')
                       Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
                       tinymce.init({
                         selector: 'textarea',
@@ -2454,24 +2566,24 @@
                   }, {
                     text: 'Edit Spanish',
                     handler: function () {
-                        panelAddEditLanguages.setTitle('Edit Spanish')
-                        sessionStorage.setItem('oneLanguage', 'es') 
-                        Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                        tinymce.init({
-                          selector: 'textarea',
-                          images_upload_url: tinyMce_images_upload_url,
-                          plugins: tinyplugins,
-                          // menubar: 'true',
-                          toolbar: 'undo redo |  ' +
+                      panelAddEditLanguages.setTitle('Edit Spanish')
+                      sessionStorage.setItem('oneLanguage', 'es')
+                      Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                      tinymce.init({
+                        selector: 'textarea',
+                        images_upload_url: tinyMce_images_upload_url,
+                        plugins: tinyplugins,
+                        // menubar: 'true',
+                        toolbar: 'undo redo |  ' +
 
-                            'bold italic forecolor | alignleft aligncenter ' +
+                          'bold italic forecolor | alignleft aligncenter ' +
 
-                            ' | bullist numlist outdent indent | ' +
+                          ' | bullist numlist outdent indent | ' +
 
-                            ' table | link image | removeformat  code | help',
-                          height: tinyHeight,
-                          content_style: tinycontent_style,
-                          setup: function (editor) {
+                          ' table | link image | removeformat  code | help',
+                        height: tinyHeight,
+                        content_style: tinycontent_style,
+                        setup: function (editor) {
                           editor.on('init', function (e) {
 
                             if (this.id == 'onespec') {
@@ -2479,17 +2591,17 @@
                             }
                           })
                         }
-                        });
-                        tinyMCE.get(`onespec`).setContent('')
-                        tinyMCE.get(`oneFDesc`).setContent('')
-                        getOneOtherLanguageDetail('es', productIDGlobal)
-                      
+                      });
+                      tinyMCE.get(`onespec`).setContent('')
+                      tinyMCE.get(`oneFDesc`).setContent('')
+                      getOneOtherLanguageDetail('es', productIDGlobal)
+
                     }
                   }, {
                     text: 'Edit Russian',
                     handler: function () {
                       panelAddEditLanguages.setTitle('Edit Russian')
-                      sessionStorage.setItem('oneLanguage', 'ru') 
+                      sessionStorage.setItem('oneLanguage', 'ru')
                       Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
                       tinymce.init({
                         selector: 'textarea',
@@ -2529,6 +2641,7 @@
           },
         ],
       });
+
 
 
       const CATEGORY = Ext.define("Categories2", {
