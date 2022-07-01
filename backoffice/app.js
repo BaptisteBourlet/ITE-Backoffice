@@ -60,15 +60,43 @@ app.use('/apiSeries', seriesRoute);
 app.use('/apiTranslatedChapters', translatedChaptersRoute);
 
 app.use('/apiSpotlight', spotlightRoute);
+
 app.use('/apiEvents', eventRoute);
 
 app.get('/', (req, res) => {
    res.render('mainTab.ejs')
 })
 
-app.get('/productDetails', (req, res) => {
+app.get('/productDetails/:id', function (req, res) {
+   
    res.render('productDetails')
-})
+});
+
+app.get('/image/:id', function (req, res) {
+   
+   res.render('imagesForOneProd')
+});
+
+app.get('/fr/:id', function (req, res) {
+   
+   res.render('editFR')
+});
+app.get('/en/:id', function (req, res) {
+   
+   res.render('editFR')
+});
+app.get('/de/:id', function (req, res) {
+   
+   res.render('editFR')
+});
+app.get('/es/:id', function (req, res) {
+   
+   res.render('editFR')
+});
+app.get('/ru/:id', function (req, res) {
+   
+   res.render('editFR')
+});
 
 
 app.get('/allProducts', (req, res) => {

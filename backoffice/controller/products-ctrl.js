@@ -39,15 +39,15 @@ const LANGUAGES = ['en', 'de', 'es', 'fr', 'ru'];
 exports.installation = async (req, res) => {
    fs.unlink(appRoot + "/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css", function (err) {
       if (err) throw err;
-      fs.copyFile(appRoot +"/installation/content.min.css", appRoot+ "/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css", (err) => {
+      fs.copyFile(appRoot + "/installation/content.min.css", appRoot + "/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css", (err) => {
          if (err) {
             console.log("Error Found:", err);
          }
-         res.status(200).send({  success: true })
+         res.status(200).send({ success: true })
       })
    });
-      
-   
+
+
 }
 
 
@@ -416,15 +416,57 @@ exports.editProduct = async (req, res) => {
 }
 
 
+exports.editOnelanguagebyAs400 = async (req, res) => {
+   const { as400code, Language, ModifiedOn, Description, Specification, Catalog, FullDescription, Details } = req.body;
+   let ProductId
+   console.log(Details)
+
+   con.query(`SELECT Product.Id FROM Product WHERE As400Code = "${as400code}" AND Publish = 1;`, (error, resultID, fields) => {
+      if (error) throw error;
+
+      ProductId = resultID[0].Id
+      const Query = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "${Language}"`;
+
+      const QueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${Language}", "${ModifiedOn}", "${ProductId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}");`
+
+      if (Details == 'false' && Description !== "" && Catalog !== "") {
+
+         con.query(QueryInsert, (err, results) => {
+            if (err) {
+               console.log(err);
+            }
+            res.send(results)
+         })
+      } else {
+
+         if (Description !== "" && Catalog !== "") {
+
+            con.query(Query, (err, results) => {
+               if (err) {
+                  console.log(err);
+               }
+               res.send(results)
+            })
+         } else {
+            console.log(Language + ' wasnt filled in');
+         }
+      }
+   })
+
+
+
+}
+
+
 exports.editOnelanguage = async (req, res) => {
    const { ProductId, Language, ModifiedOn, Description, Specification, Catalog, FullDescription, Details } = req.body;
 
    const Query = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "${Language}"`;
-   
+
    const QueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${Language}", "${ModifiedOn}", "${ProductId}", "${Description}", "${Specification}", "${Catalog}", "${FullDescription}");`
-   
+
    if (Details == 'false' && Description !== "" && Catalog !== "") {
-      
+
       con.query(QueryInsert, (err, results) => {
          if (err) {
             console.log(err);
@@ -434,7 +476,7 @@ exports.editOnelanguage = async (req, res) => {
    } else {
 
       if (Description !== "" && Catalog !== "") {
-        
+
          con.query(Query, (err, results) => {
             if (err) {
                console.log(err);
@@ -451,18 +493,55 @@ exports.editOnelanguage = async (req, res) => {
 
 exports.uploadTinyMceImage = async (req, res) => {
    const { imageTitle, VisualFile } = req.body;
-   
+
    fs.writeFile(appRoot + `/assets/images/tinyImages/${imageTitle}`, VisualFile, { encoding: 'base64' }, function (err) {
       console.log('File created');
    });
-   
+
 
 
 }
 
-// exports.redirectDetails = async (req, res) => {
-//    res.redirect('http://localhost:12080/productDetails');
-// }
+exports.getIdbyAS400 = async (req, res) => {
+   const { as400code } = req.query;
+
+   con.query(`SELECT Product.Id FROM Product WHERE As400Code = "${as400code}" AND Publish = 1;`, (error, results, fields) => {
+      if (error) throw error;
+
+      res.send(results);
+   })
+}
+
+exports.getbyAS400 = async (req, res) => {
+   const { as400code } = req.query;
+
+   let productId
+   let finalResults = [];
+   con.query(`SELECT Product.Id FROM Product WHERE As400Code = "${as400code}" AND Publish = 1;`, (error, results, fields) => {
+      if (error) throw error;
+      productId = results[0].Id;
+
+
+      const query = "SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, Parent AS CategoryId, P.Publish"
+         + " FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id"
+         + " LEFT JOIN Assets A ON A.Id = PI.ProductId"
+         + ` LEFT JOIN InfoTree IT ON IT.LinkId =  ${productId} AND IT.Type = 'P'`
+         + ` WHERE PI.ProductId = ${productId} AND Language = 'en'`
+
+      con.query(query, (err, productResults, fields) => {
+         if (err) throw err;
+
+         finalResults.push(productResults);
+         con.query(`SELECT RP.Id, RP.LinkedProductID, RP.Type, RP.Code, RP.Description FROM ProductInfo PI LEFT JOIN RelatedProducts RP ON PI.ProductId = RP.ProductId WHERE PI.Language = 'en' AND PI.ProductId = ${productId};`, (error, relatedResults, fields) => {
+            if (error) throw error;
+
+            finalResults.push(relatedResults);
+            res.send(finalResults);
+         })
+      });
+   })
+
+}
 
 
 exports.deleteProduct = async (req, res) => {
@@ -953,6 +1032,26 @@ exports.uploadProductImage = async (req, res) => {
       })
    }
 }
+
+exports.getLinkedImageByAs400 = async (req, res) => {
+   const { as400code } = req.query;
+   con.query(`SELECT Product.Id FROM Product WHERE As400Code = "${as400code}" AND Publish = 1;`, (error, resultID, fields) => {
+      if (error) throw error;
+
+      let Id = resultID[0].Id
+      if (Id) {
+         const query = `SELECT * FROM Assets WHERE ProductId = ${Id} ORDER BY Sequence`;
+         con.query(query, (err, results) => {
+            if (err) throw err;
+
+            res.send(results);
+         })
+      } else {
+         res.send({ a: 'a' });
+      }
+   })
+}
+
 
 exports.getLinkedImage = async (req, res) => {
    const { Id } = req.query;

@@ -150,17 +150,22 @@
             let edit = false;
             let productIDGlobal = "";
             let serieIDGlobal = "";
-            productIDGlobal = sessionStorage.getItem('prodId')
+            var pathArray = window.location.pathname.split('/');
+            console.log(pathArray)
+            var test = pathArray[2];
+                console.log(test)
+            productIDGlobal = test
             
             const getProductDetails = (productId) => {
+                console.log(productId)
                 Ext.Ajax.request({
-                    url: "/apiProducts/getProductDetails",
+                    url: "/apiProducts/getbyAS400",
 
                     method: "GET",
                     cors: true,
                     useDefaultXhrHeader: false,
                     params: {
-                        productId: productId,
+                        as400code: productId,
                     },
 
                     success: function (response) {
@@ -196,25 +201,7 @@
                 xtype: 'my-form',
 
             });
-            const installation = () => {
-                Ext.Ajax.request({
-                    url: "/apiProducts/installation",
-                    method: "POST",
-                    cors: true,
-                    useDefaultXhrHeader: false,
-
-
-                    success: function (response) {
-                        const res = JSON.parse(response.responseText);
-
-
-                    },
-                    failure: function (response) {
-                        console.log("failed", response);
-                    },
-                });
-            }
-            installation()
+            
 
 
             const tinyMceInitiation = tinymce.init({
@@ -1408,295 +1395,295 @@
                         dock: "top",
                         id: "productDetailBar",
                         items: [
-                            {
-                                xtype: "button",
-                                id: "cancel",
-                                text: "Back",
-                                iconCls: "fa fa-undo-alt",
-                                handler: function () {
-                                    edit = false;
+                            // {
+                            //     xtype: "button",
+                            //     id: "cancel",
+                            //     text: "Back",
+                            //     iconCls: "fa fa-undo-alt",
+                            //     handler: function () {
+                            //         edit = false;
 
-                                    Ext.getCmp("relatedProducts").removeAll();
-                                    Ext.getCmp("relatedAccessories").removeAll();
-                                    Ext.getCmp("relatedParts").removeAll();
-                                    window.open('http://localhost:12080/')
-                                },
-                            },
+                            //         Ext.getCmp("relatedProducts").removeAll();
+                            //         Ext.getCmp("relatedAccessories").removeAll();
+                            //         Ext.getCmp("relatedParts").removeAll();
+                            //         window.open('http://localhost:12080/')
+                            //     },
+                            // },
                             
-                            "-",
+                            // "-",
                           
-                            {
-                                xtype: "button",
-                                id: "viewImageBtn",
-                                text: "See Images",
-                                iconCls: "fas fa-images",
-                                handler: function () {
+                            // {
+                            //     xtype: "button",
+                            //     id: "viewImageBtn",
+                            //     text: "See Images",
+                            //     iconCls: "fas fa-images",
+                            //     handler: function () {
 
-                                    linkedImageStore.getProxy().setExtraParam('Id', productIDGlobal);
-                                    linkedImageStore.reload();
+                            //         linkedImageStore.getProxy().setExtraParam('Id', productIDGlobal);
+                            //         linkedImageStore.reload();
 
-                                    Ext.getCmp('viewport').setActiveItem('linkedImageGrid');
-                                },
-                            },
-                            {
-                                xtype: "button",
-                                id: "editLanguagesBtn",
-                                text: "Edit Languages",
-                                iconCls: "fa fa-language",
-                                menu: {
-                                    items: [{
-                                        text: 'Edit English',
-                                        handler: function () {
-                                            var tinymceArray = []
+                            //         Ext.getCmp('viewport').setActiveItem('linkedImageGrid');
+                            //     },
+                            // },
+                            // {
+                            //     xtype: "button",
+                            //     id: "editLanguagesBtn",
+                            //     text: "Edit Languages",
+                            //     iconCls: "fa fa-language",
+                            //     menu: {
+                            //         items: [{
+                            //             text: 'Edit English',
+                            //             handler: function () {
+                            //                 var tinymceArray = []
 
-                                            panelAddEditLanguages.setTitle('Edit English')
-                                            sessionStorage.setItem('oneLanguage', 'en')
-                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                                            tinymce.init({
-                                                selector: 'textarea',
-                                                images_upload_url: tinyMce_images_upload_url,
-                                                plugins: tinyplugins,
-                                                // menubar: 'true',
-                                                toolbar: 'undo redo |  ' +
+                            //                 panelAddEditLanguages.setTitle('Edit English')
+                            //                 sessionStorage.setItem('oneLanguage', 'en')
+                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                            //                 tinymce.init({
+                            //                     selector: 'textarea',
+                            //                     images_upload_url: tinyMce_images_upload_url,
+                            //                     plugins: tinyplugins,
+                            //                     // menubar: 'true',
+                            //                     toolbar: 'undo redo |  ' +
 
-                                                    'bold italic forecolor | alignleft aligncenter ' +
+                            //                         'bold italic forecolor | alignleft aligncenter ' +
 
-                                                    ' | bullist numlist outdent indent | ' +
+                            //                         ' | bullist numlist outdent indent | ' +
 
-                                                    ' table | link image | removeformat  code | help',
-                                                height: tinyHeight,
-                                                // image_prepend_url: '/data/',
-                                                image_description: false,
-                                                image_title: false,
-                                                /* enable automatic uploads of images represented by blob or data URIs*/
-                                                automatic_uploads: true,
+                            //                         ' table | link image | removeformat  code | help',
+                            //                     height: tinyHeight,
+                            //                     // image_prepend_url: '/data/',
+                            //                     image_description: false,
+                            //                     image_title: false,
+                            //                     /* enable automatic uploads of images represented by blob or data URIs*/
+                            //                     automatic_uploads: true,
 
-                                                file_picker_types: 'image',
-                                                /* and here's our custom image picker*/
-                                                file_picker_callback: function (cb, value, meta) {
-                                                    var input = document.createElement('input');
-                                                    input.setAttribute('type', 'file');
-                                                    input.setAttribute('accept', 'image/*');
-
-
-                                                    input.onchange = function () {
-                                                        var file = this.files[0];
-
-                                                        var reader = new FileReader();
-                                                        reader.onload = function () {
-
-                                                            var id = 'blobid' + (new Date()).getTime();
-                                                            var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                                                            var base64 = reader.result.split(',')[1];
-
-                                                            var blobInfo = blobCache.create(id, file, base64);
-                                                            blobCache.add(blobInfo);
+                            //                     file_picker_types: 'image',
+                            //                     /* and here's our custom image picker*/
+                            //                     file_picker_callback: function (cb, value, meta) {
+                            //                         var input = document.createElement('input');
+                            //                         input.setAttribute('type', 'file');
+                            //                         input.setAttribute('accept', 'image/*');
 
 
+                            //                         input.onchange = function () {
+                            //                             var file = this.files[0];
+
+                            //                             var reader = new FileReader();
+                            //                             reader.onload = function () {
+
+                            //                                 var id = 'blobid' + (new Date()).getTime();
+                            //                                 var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                            //                                 var base64 = reader.result.split(',')[1];
+
+                            //                                 var blobInfo = blobCache.create(id, file, base64);
+                            //                                 blobCache.add(blobInfo);
 
 
-                                                            tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
-                                                            // console.log(tinymceArray)
-                                                            sessionStorage.setItem('tinymceArray', tinymceArray)
-                                                            Ext.Ajax.request({
-                                                                url: "/apiProducts/uploadTinyMceImage",
-                                                                method: "POST",
-                                                                cors: true,
-                                                                useDefaultXhrHeader: false,
-                                                                params: {
-                                                                    imageTitle: file.name,
-                                                                    VisualFile: base64,
-
-                                                                },
-                                                                success: function (fp, object) {
-                                                                    Ext.getBody().unmask();
-                                                                },
-                                                                failure: function (obj, res) {
-                                                                    Ext.getBody().unmask();
-                                                                    if (res) {
 
 
-                                                                    } else {
-                                                                        Ext.Msg.alert(
-                                                                            "ERROR",
-                                                                            "Failed to upload image. Contact your IT team."
-                                                                        );
-                                                                    }
-                                                                },
-                                                            });
+                            //                                 tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
+                            //                                 // console.log(tinymceArray)
+                            //                                 sessionStorage.setItem('tinymceArray', tinymceArray)
+                            //                                 Ext.Ajax.request({
+                            //                                     url: "/apiProducts/uploadTinyMceImage",
+                            //                                     method: "POST",
+                            //                                     cors: true,
+                            //                                     useDefaultXhrHeader: false,
+                            //                                     params: {
+                            //                                         imageTitle: file.name,
+                            //                                         VisualFile: base64,
+
+                            //                                     },
+                            //                                     success: function (fp, object) {
+                            //                                         Ext.getBody().unmask();
+                            //                                     },
+                            //                                     failure: function (obj, res) {
+                            //                                         Ext.getBody().unmask();
+                            //                                         if (res) {
 
 
-                                                            /* call the callback and populate the Title field with the file name */
-                                                            cb(blobInfo.blobUri(), { title: file.name });
-                                                        };
-                                                        reader.readAsDataURL(file);
+                            //                                         } else {
+                            //                                             Ext.Msg.alert(
+                            //                                                 "ERROR",
+                            //                                                 "Failed to upload image. Contact your IT team."
+                            //                                             );
+                            //                                         }
+                            //                                     },
+                            //                                 });
 
-                                                    };
-                                                    input.click();
 
-                                                },
+                            //                                 /* call the callback and populate the Title field with the file name */
+                            //                                 cb(blobInfo.blobUri(), { title: file.name });
+                            //                             };
+                            //                             reader.readAsDataURL(file);
 
-                                                content_style: tinycontent_style,
-                                                setup: function (editor) {
-                                                    editor.on('init', function (e) {
+                            //                         };
+                            //                         input.click();
 
-                                                        if (this.id == 'onespec') {
-                                                            getOneOtherLanguageDetail('en', productIDGlobal)
-                                                        }
-                                                    })
-                                                }
-                                            });
-                                            tinyMCE.get(`onespec`).setContent('')
-                                            tinyMCE.get(`oneFDesc`).setContent('')
-                                            if (tinyMCE.get(`onespec`) != null) {
-                                                getOneOtherLanguageDetail('en', productIDGlobal)
+                            //                     },
 
-                                            }
-                                        }
-                                    }, {
-                                        text: 'Edit French',
-                                        handler: function () {
-                                            panelAddEditLanguages.setTitle('Edit French')
-                                            sessionStorage.setItem('oneLanguage', 'fr')
-                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                                            tinymce.init({
-                                                selector: 'textarea',
-                                                images_upload_url: tinyMce_images_upload_url,
-                                                plugins: tinyplugins,
-                                                // menubar: 'true',
-                                                toolbar: 'undo redo |  ' +
+                            //                     content_style: tinycontent_style,
+                            //                     setup: function (editor) {
+                            //                         editor.on('init', function (e) {
 
-                                                    'bold italic forecolor | alignleft aligncenter ' +
+                            //                             if (this.id == 'onespec') {
+                            //                                 getOneOtherLanguageDetail('en', productIDGlobal)
+                            //                             }
+                            //                         })
+                            //                     }
+                            //                 });
+                            //                 tinyMCE.get(`onespec`).setContent('')
+                            //                 tinyMCE.get(`oneFDesc`).setContent('')
+                            //                 if (tinyMCE.get(`onespec`) != null) {
+                            //                     getOneOtherLanguageDetail('en', productIDGlobal)
 
-                                                    ' | bullist numlist outdent indent | ' +
+                            //                 }
+                            //             }
+                            //         }, {
+                            //             text: 'Edit French',
+                            //             handler: function () {
+                            //                 panelAddEditLanguages.setTitle('Edit French')
+                            //                 sessionStorage.setItem('oneLanguage', 'fr')
+                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                            //                 tinymce.init({
+                            //                     selector: 'textarea',
+                            //                     images_upload_url: tinyMce_images_upload_url,
+                            //                     plugins: tinyplugins,
+                            //                     // menubar: 'true',
+                            //                     toolbar: 'undo redo |  ' +
 
-                                                    ' table | link image | removeformat  code | help',
-                                                height: tinyHeight,
-                                                content_style: tinycontent_style,
-                                                setup: function (editor) {
-                                                    editor.on('init', function (e) {
+                            //                         'bold italic forecolor | alignleft aligncenter ' +
 
-                                                        if (this.id == 'onespec') {
-                                                            getOneOtherLanguageDetail('fr', productIDGlobal)
-                                                        }
-                                                    })
-                                                }
-                                            });
-                                            tinyMCE.get(`onespec`).setContent('')
-                                            tinyMCE.get(`oneFDesc`).setContent('')
-                                            if (tinyMCE.get(`onespec`) != null) {
-                                                getOneOtherLanguageDetail('fr', productIDGlobal)
-                                            }
-                                        }
-                                    }, {
-                                        text: 'Edit German',
-                                        handler: function () {
-                                            panelAddEditLanguages.setTitle('Edit German')
-                                            sessionStorage.setItem('oneLanguage', 'de')
-                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                                            tinymce.init({
-                                                selector: 'textarea',
-                                                images_upload_url: tinyMce_images_upload_url,
-                                                plugins: tinyplugins,
-                                                // menubar: 'true',
-                                                toolbar: 'undo redo |  ' +
+                            //                         ' | bullist numlist outdent indent | ' +
 
-                                                    'bold italic forecolor | alignleft aligncenter ' +
+                            //                         ' table | link image | removeformat  code | help',
+                            //                     height: tinyHeight,
+                            //                     content_style: tinycontent_style,
+                            //                     setup: function (editor) {
+                            //                         editor.on('init', function (e) {
 
-                                                    ' | bullist numlist outdent indent | ' +
+                            //                             if (this.id == 'onespec') {
+                            //                                 getOneOtherLanguageDetail('fr', productIDGlobal)
+                            //                             }
+                            //                         })
+                            //                     }
+                            //                 });
+                            //                 tinyMCE.get(`onespec`).setContent('')
+                            //                 tinyMCE.get(`oneFDesc`).setContent('')
+                            //                 if (tinyMCE.get(`onespec`) != null) {
+                            //                     getOneOtherLanguageDetail('fr', productIDGlobal)
+                            //                 }
+                            //             }
+                            //         }, {
+                            //             text: 'Edit German',
+                            //             handler: function () {
+                            //                 panelAddEditLanguages.setTitle('Edit German')
+                            //                 sessionStorage.setItem('oneLanguage', 'de')
+                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                            //                 tinymce.init({
+                            //                     selector: 'textarea',
+                            //                     images_upload_url: tinyMce_images_upload_url,
+                            //                     plugins: tinyplugins,
+                            //                     // menubar: 'true',
+                            //                     toolbar: 'undo redo |  ' +
 
-                                                    ' table | link image | removeformat  code | help',
-                                                height: tinyHeight,
-                                                content_style: tinycontent_style,
-                                                setup: function (editor) {
-                                                    editor.on('init', function (e) {
+                            //                         'bold italic forecolor | alignleft aligncenter ' +
 
-                                                        if (this.id == 'onespec') {
-                                                            getOneOtherLanguageDetail('de', productIDGlobal)
-                                                        }
-                                                    })
-                                                }
-                                            });
-                                            tinyMCE.get(`onespec`).setContent('')
-                                            tinyMCE.get(`oneFDesc`).setContent('')
-                                            if (tinyMCE.get(`onespec`) != null) {
-                                                getOneOtherLanguageDetail('de', productIDGlobal)
-                                            }
-                                        }
-                                    }, {
-                                        text: 'Edit Spanish',
-                                        handler: function () {
-                                            panelAddEditLanguages.setTitle('Edit Spanish')
-                                            sessionStorage.setItem('oneLanguage', 'es')
-                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                                            tinymce.init({
-                                                selector: 'textarea',
-                                                images_upload_url: tinyMce_images_upload_url,
-                                                plugins: tinyplugins,
-                                                // menubar: 'true',
-                                                toolbar: 'undo redo |  ' +
+                            //                         ' | bullist numlist outdent indent | ' +
 
-                                                    'bold italic forecolor | alignleft aligncenter ' +
+                            //                         ' table | link image | removeformat  code | help',
+                            //                     height: tinyHeight,
+                            //                     content_style: tinycontent_style,
+                            //                     setup: function (editor) {
+                            //                         editor.on('init', function (e) {
 
-                                                    ' | bullist numlist outdent indent | ' +
+                            //                             if (this.id == 'onespec') {
+                            //                                 getOneOtherLanguageDetail('de', productIDGlobal)
+                            //                             }
+                            //                         })
+                            //                     }
+                            //                 });
+                            //                 tinyMCE.get(`onespec`).setContent('')
+                            //                 tinyMCE.get(`oneFDesc`).setContent('')
+                            //                 if (tinyMCE.get(`onespec`) != null) {
+                            //                     getOneOtherLanguageDetail('de', productIDGlobal)
+                            //                 }
+                            //             }
+                            //         }, {
+                            //             text: 'Edit Spanish',
+                            //             handler: function () {
+                            //                 panelAddEditLanguages.setTitle('Edit Spanish')
+                            //                 sessionStorage.setItem('oneLanguage', 'es')
+                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                            //                 tinymce.init({
+                            //                     selector: 'textarea',
+                            //                     images_upload_url: tinyMce_images_upload_url,
+                            //                     plugins: tinyplugins,
+                            //                     // menubar: 'true',
+                            //                     toolbar: 'undo redo |  ' +
 
-                                                    ' table | link image | removeformat  code | help',
-                                                height: tinyHeight,
-                                                content_style: tinycontent_style,
-                                                setup: function (editor) {
-                                                    editor.on('init', function (e) {
+                            //                         'bold italic forecolor | alignleft aligncenter ' +
 
-                                                        if (this.id == 'onespec') {
-                                                            getOneOtherLanguageDetail('es', productIDGlobal)
-                                                        }
-                                                    })
-                                                }
-                                            });
-                                            tinyMCE.get(`onespec`).setContent('')
-                                            tinyMCE.get(`oneFDesc`).setContent('')
-                                            getOneOtherLanguageDetail('es', productIDGlobal)
+                            //                         ' | bullist numlist outdent indent | ' +
 
-                                        }
-                                    }, {
-                                        text: 'Edit Russian',
-                                        handler: function () {
-                                            panelAddEditLanguages.setTitle('Edit Russian')
-                                            sessionStorage.setItem('oneLanguage', 'ru')
-                                            Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                                            tinymce.init({
-                                                selector: 'textarea',
-                                                images_upload_url: tinyMce_images_upload_url,
-                                                plugins: tinyplugins,
-                                                // menubar: 'true',
-                                                toolbar: 'undo redo |  ' +
+                            //                         ' table | link image | removeformat  code | help',
+                            //                     height: tinyHeight,
+                            //                     content_style: tinycontent_style,
+                            //                     setup: function (editor) {
+                            //                         editor.on('init', function (e) {
 
-                                                    'bold italic forecolor | alignleft aligncenter ' +
+                            //                             if (this.id == 'onespec') {
+                            //                                 getOneOtherLanguageDetail('es', productIDGlobal)
+                            //                             }
+                            //                         })
+                            //                     }
+                            //                 });
+                            //                 tinyMCE.get(`onespec`).setContent('')
+                            //                 tinyMCE.get(`oneFDesc`).setContent('')
+                            //                 getOneOtherLanguageDetail('es', productIDGlobal)
 
-                                                    ' | bullist numlist outdent indent | ' +
+                            //             }
+                            //         }, {
+                            //             text: 'Edit Russian',
+                            //             handler: function () {
+                            //                 panelAddEditLanguages.setTitle('Edit Russian')
+                            //                 sessionStorage.setItem('oneLanguage', 'ru')
+                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
+                            //                 tinymce.init({
+                            //                     selector: 'textarea',
+                            //                     images_upload_url: tinyMce_images_upload_url,
+                            //                     plugins: tinyplugins,
+                            //                     // menubar: 'true',
+                            //                     toolbar: 'undo redo |  ' +
 
-                                                    ' table | link image | removeformat  code | help',
-                                                height: tinyHeight,
-                                                content_style: tinycontent_style,
-                                                setup: function (editor) {
-                                                    editor.on('init', function (e) {
+                            //                         'bold italic forecolor | alignleft aligncenter ' +
 
-                                                        if (this.id == 'onespec') {
-                                                            getOneOtherLanguageDetail('ru', productIDGlobal)
-                                                        }
-                                                    })
-                                                }
-                                            });
-                                            tinyMCE.get(`onespec`).setContent('')
-                                            tinyMCE.get(`oneFDesc`).setContent('')
-                                            if (tinyMCE.get(`onespec`) != null) {
-                                                getOneOtherLanguageDetail('ru', productIDGlobal)
-                                            }
-                                        }
-                                    },
-                                    ]
-                                },
+                            //                         ' | bullist numlist outdent indent | ' +
 
-                            },
+                            //                         ' table | link image | removeformat  code | help',
+                            //                     height: tinyHeight,
+                            //                     content_style: tinycontent_style,
+                            //                     setup: function (editor) {
+                            //                         editor.on('init', function (e) {
+
+                            //                             if (this.id == 'onespec') {
+                            //                                 getOneOtherLanguageDetail('ru', productIDGlobal)
+                            //                             }
+                            //                         })
+                            //                     }
+                            //                 });
+                            //                 tinyMCE.get(`onespec`).setContent('')
+                            //                 tinyMCE.get(`oneFDesc`).setContent('')
+                            //                 if (tinyMCE.get(`onespec`) != null) {
+                            //                     getOneOtherLanguageDetail('ru', productIDGlobal)
+                            //                 }
+                            //             }
+                            //         },
+                            //         ]
+                            //     },
+
+                            // },
                         ],
                     },
                 ],

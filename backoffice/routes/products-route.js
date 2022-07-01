@@ -36,9 +36,13 @@ router.post('/editProduct', apiCtrl.editProduct);
 
 router.post('/editOnelanguage', apiCtrl.editOnelanguage);
 
+router.post('/editOnelanguagebyAs400', apiCtrl.editOnelanguagebyAs400);
+
 router.post('/uploadTinyMceImage', apiCtrl.uploadTinyMceImage);
 
-// router.post('/redirectDetails', apiCtrl.redirectDetails);
+router.get('/getbyAS400', apiCtrl.getbyAS400);
+
+router.get('/getIdbyAS400', apiCtrl.getIdbyAS400);
 
 router.post('/deleteProduct', apiCtrl.deleteProduct)
 
@@ -69,6 +73,9 @@ router.post('/updateSerieSpecs', apiCtrl.updateSerieSpecs);
 router.post('/uploadProductImage', imgUpload.single('image'), apiCtrl.uploadProductImage);
 
 router.get('/getLinkedImage', apiCtrl.getLinkedImage);
+
+router.get('/getLinkedImageByAs400', apiCtrl.getLinkedImageByAs400);
+
 
 router.post('/updateImageSequence',  apiCtrl.updateImageSequence);
 

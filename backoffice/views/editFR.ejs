@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ALL PRODUCTS - ITE BACK OFFICE MANAGEMENT</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/controller/userAuthServices.js"></script>
+
+    <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+    <!-- ----------------------------- PRODUCTION ------------------------------ -->
+
+    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+
+    <!-- <script type="text/javascript" src="/extTinyMce/TinyMceEditor.js"></script> -->
+    <!-- <script type="text/javascript" src="/tinymce/tinymce.min.js"></script> -->
+    <!-- <script type="text/javascript" src="/tinymce/jquery.tinymce.min.js"></script> -->
+
+    <!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
+
+    <!-- cloud TinyMCE is requied with a key to allow Powerpaste -->
+    <script src="https://cdn.tiny.cloud/1/lpt0c9449ad2wbuj1ih33yuaas6kwp7kc6uunblvgcun7cg9/tinymce/5/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
+
+
+    <style>
+        .x-grid-view {
+            overflow-y: auto !important;
+            position: relative;
+        }
+
+        .grid-image {
+            width: auto;
+            height: 70px;
+        }
+
+        .x-grid-cell-inner {
+            overflow: hidden;
+            padding: 10px 6px;
+            white-space: nowrap;
+        }
+
+        .a span {
+            background-color: rgb(253, 253, 253);
+            padding: 2px;
+            color: black;
+        }
+
+        .fieldClass {
+            border-bottom: 1px dashed rgb(173, 173, 173);
+            padding: 7px 0px;
+        }
+
+        textarea {
+            height: 300px;
+
+        }
+
+        #ENFIELD-legendTitle,
+        #ESFIELD-legendTitle,
+        #FRFIELD-legendTitle,
+        #DEFIELD-legendTitle,
+        #RUFIELD-legendTitle {
+            font-weight: bold;
+        }
+
+        #small-view {
+            display: none;
+        }
+
+        @media (max-width: 481px) {
+
+            #productDetails,
+
+
+            #small-view {
+                margin-top: 4rem;
+                font-size: 40px;
+                height: 100vh;
+                width: 100vw;
+                line-height: 50px;
+                display: block !important;
+            }
+        }
+
+        .x-autocontainer-outerCt {
+            overflow-y: auto !important;
+        }
+
+        .x-boundlist-list-ct {
+            overflow-y: auto !important;
+        }
+
+        .x-autocontainer-innerCt {
+            overflow-y: auto !important;
+        }
+
+        .x-box-inner {
+            overflow-y: auto !important;
+        }
+
+        .x-panel-body {
+            overflow-y: auto !important;
+        }
+    </style>
+
+
+
+    <script type="text/javascript">
+
+        //=========================================================================================================
+        //		           APPLICATION START
+        // ========================================================================================================
+        Ext.onReady(() => {
+            // Settings
+            let tinyMce_images_upload_url = "http://10.0.10.1:11080/back/upload.php";
+            let tinyHeight = 500;
+            const tinyplugins = [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table powerpaste code help wordcount',
+
+            ];
+            const tinycontent_style = 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }  p {margin-top: 0; margin-bottom: 0;} ul{ padding-left: 1rem;margin-bottom: 0;}';
+            // // FOR TESTING 
+
+            // let userRightObject = {
+            //   english: "E",
+            //   french: "V",
+            //   german: "E",
+            //   pictures: "V",
+            //   related: "E",
+            //   russian: "E",
+            //   spanish: "E",
+            //   usrid: "AG",
+            //   usrname: "Ann De Gucht"
+            // };
+
+            // let userRightString = JSON.stringify(userRightObject);
+            // localStorage.setItem('userRights', userRightString);
+
+            // // =============================================
+
+            let edit = false;
+            let productIDGlobal = "";
+            let serieIDGlobal = "";
+            var pathArray = window.location.pathname.split('/');
+            console.log(pathArray)
+            var getas400 = pathArray[2];
+            var langue = pathArray[1];
+            console.log(getas400)
+            productIDGlobal = getas400
+
+
+            Ext.define('MyApp.view.Form', {
+                extend: 'Ext.form.Panel',
+                xtype: 'my-form',
+
+            });
+
+
+
+            const tinyMceInitiation = tinymce.init({
+                selector: 'textarea',
+                images_upload_url: tinyMce_images_upload_url,
+                plugins: tinyplugins,
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
+                    'bold italic forecolor | alignleft aligncenter ' +
+                    ' | bullist numlist outdent indent | ' +
+                    ' table | link image | removeformat  code | help',
+                height: tinyHeight,
+                content_style: tinycontent_style
+            });
+
+            sessionStorage.setItem('oneLanguage', langue)
+
+
+            if (tinyMCE.get(`onespec`) != null) {
+                getOneOtherLanguageDetail(langue, productIDGlobal)
+            }
+
+            var test
+            const getIdbyAS400 = () => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/getIdbyAS400",
+                    method: "GET",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+
+                        as400code: productIDGlobal,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        if (res != '') {
+                            console.log(res[0].Id)
+                            test = res[0].Id
+                            getOneOtherLanguageDetail(langue, test)
+                        }
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+
+            getIdbyAS400()
+            const getOneOtherLanguageDetail = (language, productId) => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/getOtherLanguageDetail",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        language: language,
+                        productId: productId,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        if (res != '') {
+                            sessionStorage.setItem('EditOne', 'true')
+                            tinymce.init({
+                                selector: 'textarea',
+                                images_upload_url: tinyMce_images_upload_url,
+                                plugins: tinyplugins,
+                                // menubar: 'true',
+                                toolbar: 'undo redo |  ' +
+
+                                    'bold italic forecolor | alignleft aligncenter ' +
+
+                                    ' | bullist numlist outdent indent | ' +
+
+                                    ' table | link image | removeformat  code | help',
+                                height: tinyHeight,
+                                content_style: tinycontent_style,
+                                setup: function (editor) {
+                                    editor.on('init', function (e) {
+
+                                        if (this.id == 'onespec') {
+                                            getOneOtherLanguageDetail(langue, test)
+                                        }
+                                    })
+                                }
+                            });
+                            Ext.getCmp(`oneCat`).setValue(res[0].Catalog);
+
+                            Ext.getCmp(`onedesc`).setValue(res[0].Description);
+
+
+                            if (tinyMCE.get(`oneFDesc`) != null) {
+                                tinyMCE.get(`oneFDesc`).setContent(res[0].FullDescription);
+
+                                tinyMCE.get(`onespec`).setContent(res[0].Specification);
+                            }
+
+
+                        } else {
+                            tinymce.init({
+                selector: 'textarea',
+                images_upload_url: tinyMce_images_upload_url,
+                plugins: tinyplugins,
+                // menubar: 'true',
+                toolbar: 'undo redo |  ' +
+
+                    'bold italic forecolor | alignleft aligncenter ' +
+
+                    ' | bullist numlist outdent indent | ' +
+
+                    ' table | link image | removeformat  code | help',
+                height: tinyHeight,
+                content_style: tinycontent_style,
+                setup: function (editor) {
+                    editor.on('init', function (e) {
+
+                        if (this.id == 'onespec') {
+                            getOneOtherLanguageDetail(langue, test)
+                        }
+                    })
+                }
+            });
+                            sessionStorage.setItem('EditOne', 'false')
+
+                        }
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+
+
+
+            let current_datetime = new Date();
+            var time = function () {
+                if (current_datetime.getMonth() + 1 < 10) {
+                    return "0" + Number(current_datetime.getMonth() + 1);
+                } else {
+                    current_datetime.getMonth() + 1;
+                }
+            };
+
+            let formatted_date =
+                current_datetime.getFullYear() +
+                "-" +
+                time() +
+                "-" +
+                current_datetime.getDate() +
+                " " +
+                current_datetime.getHours() +
+                ":" +
+                current_datetime.getMinutes() +
+                ":" +
+                current_datetime.getSeconds();
+
+            let formatDate =
+                current_datetime.getDate() +
+                "/" +
+                time() +
+                "/" +
+                current_datetime.getFullYear();
+
+
+
+            var itemsAddEditLanguages = [
+
+                {
+                    xtype: "textfield",
+                    id: "oneCat",
+                    name: "oneCat",
+                    fieldLabel: "Catalog",
+                    maxLenght: 118,
+                    width: 500,
+                    allowBlank: false,
+                    submitvalue: true,
+                    margin: "25 0 25 0",
+                },
+                {
+                    xtype: "textfield",
+                    id: "onedesc",
+                    name: "onedesc",
+                    fieldLabel: "Description",
+                    maxLenght: 123,
+                    width: 500,
+                    allowBlank: false,
+                    selectOnFocus: false,
+                    margin: "25 0 25 0",
+                },
+                {
+                    html: '<h4>Full description :</h4><textarea id="oneFDesc"></textarea>',
+                    // height: 250,
+                },
+                {
+                    html: '<h4>Specification :</h4><textarea id="onespec"></textarea>',
+
+                    // height: 250,
+                },
+            ];
+
+            var screenAddEditLanguages = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                    listeners: {
+                        // specialkey: function (field, e) {
+                        //   if (e.getKey() == e.ENTER) {
+                        //     updateRec();
+                        //   }
+                        //   if (e.getKey() == e.ESC) {
+                        //     Ext.getCmp("viewport").setActiveItem("chapterTransltedGrid");
+                        //   }
+                        // },
+                    },
+                },
+                width: '100%',
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: {
+                            columns: 2,
+                        },
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "FormEditLanguages",
+                                columnWidth: 1,
+                                border: false,
+                                items: itemsAddEditLanguages,
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            const editOneLanguageProduct = () => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/editOnelanguagebyAs400",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        as400code: productIDGlobal,
+                        Language: sessionStorage.getItem('oneLanguage'),
+                        Details: sessionStorage.getItem('EditOne'),
+                        ModifiedOn: formatDate,
+                        Description: Ext.getCmp("onedesc").getValue().trim(),
+                        Specification: tinyMCE.get('onespec').getContent(),
+                        Catalog: Ext.getCmp("oneCat").getValue().trim(),
+                        FullDescription: tinyMCE.get('oneFDesc').getContent(),
+
+
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        Ext.Msg.alert("INFO!", `Product has been edited successfully`);
+
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            };
+
+            // outer panel container to hold tbar and keypress definitions
+            var panelAddEditLanguages = new Ext.Panel({
+                layout: "fit",
+                id: "panelAddEditLanguages",
+                title: "Edit product",
+                header: true,
+                items: [screenAddEditLanguages],
+                tbar: [
+
+                    {
+                        text: "Save",
+                        id: "editSaveEditLanguages",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            if (Ext.getCmp('FormEditLanguages').isValid()) {
+                                edit = false;
+
+
+                                // var stringToHTML = function (str) {
+                                //     var dom = document.createElement('div');
+                                //     dom.innerHTML = str;
+                                //     return dom;
+
+                                // };
+
+                                // const element = stringToHTML(tinyMCE.get('oneFDesc').getContent());
+
+                                // var allImages = element.getElementsByTagName("img");
+                                // console.log(allImages)
+                                // const tinymcearraysave = (sessionStorage.getItem('tinymceArray')).split(',')
+                                // console.log(tinymcearraysave)
+                                // var images = [];
+                                // for (var i = 0, len = allImages.length; i < len; ++i) {
+                                //     allImages[i].src = tinymcearraysave[i]
+
+                                //     images.push(allImages[i]);
+
+                                // }
+                                // console.log(images)
+                                editOneLanguageProduct();
+                            }
+                        },
+                    },
+                    
+                ],
+            });
+
+
+
+            let userRights = JSON.parse(localStorage.getItem('userRights'));
+            if (userRights !== null) {
+                applyUserRights(userRights);
+            }
+
+            //=========================================================================================================
+            //		           VIEW PORT
+            // ========================================================================================================
+
+            Ext.create("Ext.container.Viewport", {
+                id: "viewport",
+                layout: "card",
+                activeItem: 0,
+                items: [panelAddEditLanguages],
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div id="small-view">
+        This Appplication is not meant for small devices.
+    </div>
+
+
+</body>
+
+</html>
