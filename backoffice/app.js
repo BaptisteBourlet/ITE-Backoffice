@@ -98,6 +98,11 @@ app.get('/ru/:id', function (req, res) {
    res.render('editFR')
 });
 
+app.get('/editLanguages/:id', function (req, res) {
+   
+   res.render('editLanguages')
+});
+
 
 app.get('/allProducts', (req, res) => {
    res.render('allProducts')

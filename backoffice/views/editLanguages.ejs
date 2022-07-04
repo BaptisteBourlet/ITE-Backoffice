@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ALL PRODUCTS - ITE BACK OFFICE MANAGEMENT</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/classic/theme-neptune/resources/theme-neptune-all.css" />
+    <script src="https://kit.fontawesome.com/ade53cd309.js" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/controller/userAuthServices.js"></script>
+
+    <!-- ----------------------------- DEVELOPMENT ----------------------------- -->
+    <!-- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/extjs/6.0.0/ext-all.js"></script> -->
+    <!-- ----------------------------- PRODUCTION ------------------------------ -->
+
+    <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
+
+    <!-- <script type="text/javascript" src="/extTinyMce/TinyMceEditor.js"></script> -->
+    <!-- <script type="text/javascript" src="/tinymce/tinymce.min.js"></script> -->
+    <!-- <script type="text/javascript" src="/tinymce/jquery.tinymce.min.js"></script> -->
+
+    <!-- <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script> -->
+
+    <!-- cloud TinyMCE is requied with a key to allow Powerpaste -->
+    <script src="https://cdn.tiny.cloud/1/lpt0c9449ad2wbuj1ih33yuaas6kwp7kc6uunblvgcun7cg9/tinymce/5/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
+
+
+    <style>
+        .x-grid-view {
+            overflow-y: auto !important;
+            position: relative;
+        }
+
+        .grid-image {
+            width: auto;
+            height: 70px;
+        }
+
+        .x-grid-cell-inner {
+            overflow: hidden;
+            padding: 10px 6px;
+            white-space: nowrap;
+        }
+
+        .a span {
+            background-color: rgb(253, 253, 253);
+            padding: 2px;
+            color: black;
+        }
+
+        .fieldClass {
+            border-bottom: 1px dashed rgb(173, 173, 173);
+            padding: 7px 0px;
+        }
+
+        textarea {
+            height: 300px;
+
+        }
+
+        #ENFIELD-legendTitle,
+        #ESFIELD-legendTitle,
+        #FRFIELD-legendTitle,
+        #DEFIELD-legendTitle,
+        #RUFIELD-legendTitle {
+            font-weight: bold;
+        }
+
+        #small-view {
+            display: none;
+        }
+
+        @media (max-width: 481px) {
+
+            #productDetails,
+
+
+            #small-view {
+                margin-top: 4rem;
+                font-size: 40px;
+                height: 100vh;
+                width: 100vw;
+                line-height: 50px;
+                display: block !important;
+            }
+        }
+
+        .x-autocontainer-outerCt {
+            overflow-y: auto !important;
+        }
+
+        .x-boundlist-list-ct {
+            overflow-y: auto !important;
+        }
+
+        .x-autocontainer-innerCt {
+            overflow-y: auto !important;
+        }
+
+        .x-box-inner {
+            overflow-y: auto !important;
+        }
+
+        .x-panel-body {
+            overflow-y: auto !important;
+        }
+    </style>
+
+
+
+    <script type="text/javascript">
+
+        //=========================================================================================================
+        //		           APPLICATION START
+        // ========================================================================================================
+        Ext.onReady(() => {
+            // Settings
+            let tinyMce_images_upload_url = "http://10.0.10.1:11080/back/upload.php";
+            let tinyHeight = 500;
+            const tinyplugins = [
+                'advlist autolink lists link image charmap print preview anchor',
+                'searchreplace visualblocks code fullscreen',
+                'insertdatetime media table powerpaste code help wordcount',
+
+            ];
+            const tinycontent_style = 'body { font-family:Helvetica,Arial,sans-serif; font-size:13px }  p {margin-top: 0; margin-bottom: 0;} ul{ padding-left: 1rem;margin-bottom: 0;}';
+            // // FOR TESTING 
+
+            // let userRightObject = {
+            //   english: "E",
+            //   french: "V",
+            //   german: "E",
+            //   pictures: "V",
+            //   related: "E",
+            //   russian: "E",
+            //   spanish: "E",
+            //   usrid: "AG",
+            //   usrname: "Ann De Gucht"
+            // };
+
+            // let userRightString = JSON.stringify(userRightObject);
+            // localStorage.setItem('userRights', userRightString);
+
+            // // =============================================
+
+            let edit = false;
+            let productIDGlobal = "";
+            let serieIDGlobal = "";
+            var pathArray = window.location.pathname.split('/');
+
+            var getas400 = pathArray[2];
+            productIDGlobal = getas400
+            console.log(productIDGlobal)
+
+            Ext.define('MyApp.view.Form', {
+                extend: 'Ext.form.Panel',
+                xtype: 'my-form',
+
+            });
+
+
+
+            const getOtherLanguageDetail = (language, productId) => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/getOtherLanguageDetail",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        language: language,
+                        productId: productId,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        if (res != '') {
+                            sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
+                            Ext.getCmp(`${language.toUpperCase()}Cat`).setValue(res[0].Catalog);
+
+                            Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
+
+
+                            if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
+                                tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
+
+                                tinyMCE.get(`${language.toUpperCase()}spec`).setContent(res[0].Specification);
+                            }
+
+
+                        } else {
+                            sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
+
+                        }
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+
+            const getIdbyAS400 = () => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/getIdbyAS400",
+                    method: "GET",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+
+                        as400code: productIDGlobal,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        if (res != '') {
+                            ProdID = res[0].Id
+                            console.log(ProdID)
+
+                            Ext.getCmp('tabTrans').setActiveTab(1);
+                            Ext.getCmp('tabTrans').setActiveTab(2);
+                            Ext.getCmp('tabTrans').setActiveTab(3);
+                            Ext.getCmp('tabTrans').setActiveTab(4);
+                            Ext.getCmp('tabTrans').setActiveTab(0);
+
+                            // if tinyMCE fields are allready innitated
+                            if (tinyMCE.get(`ENspec`) != null) {
+                                getOtherLanguageDetail('en', ProdID)
+                            }
+                            if (tinyMCE.get(`DEspec`) != null) {
+                                getOtherLanguageDetail('de', ProdID)
+                            }
+                            if (tinyMCE.get(`FRspec`) != null) {
+                                getOtherLanguageDetail('fr', ProdID)
+                            }
+                            if (tinyMCE.get(`ESspec`) != null) {
+                                getOtherLanguageDetail('es', ProdID)
+                            }
+                            if (tinyMCE.get(`RUspec`) != null) {
+                                getOtherLanguageDetail('ru', ProdID)
+                            }
+                            tinymce.init({
+                                selector: 'textarea',
+                                images_upload_url: tinyMce_images_upload_url,
+                                plugins: tinyplugins,
+                                // menubar: 'true',
+                                toolbar: 'undo redo |  ' +
+                                    'bold italic forecolor | alignleft aligncenter ' +
+                                    ' | bullist numlist outdent indent | ' +
+                                    ' table | link image | removeformat  code | help',
+                                height: tinyHeight,
+                                content_style: tinycontent_style,
+                                setup: function (editor) {
+                                    editor.on('init', function (e) {
+
+                                        if (this.id == 'spec') {
+                                            getProductDetails(selectedRecord.data.Id);
+                                        }
+                                        if (this.id == 'ENspec') {
+                                            getOtherLanguageDetail('en', ProdID)
+                                        }
+                                        if (this.id == 'DEspec') {
+                                            getOtherLanguageDetail('de', ProdID)
+                                        }
+                                        if (this.id == 'FRspec') {
+                                            getOtherLanguageDetail('fr', ProdID)
+                                        }
+                                        if (this.id == 'ESspec') {
+                                            getOtherLanguageDetail('es', ProdID)
+                                        }
+                                        if (this.id == 'RUspec') {
+                                            getOtherLanguageDetail('ru', ProdID)
+                                        }
+                                    });
+                                },
+                            });
+                        }
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+            getIdbyAS400()
+
+            let current_datetime = new Date();
+      var time = function () {
+        if (current_datetime.getMonth() + 1 < 10) {
+          return "0" + Number(current_datetime.getMonth() + 1);
+        } else {
+          current_datetime.getMonth() + 1;
+        }
+      };
+
+      let formatted_date =
+        current_datetime.getFullYear() +
+        "-" +
+        time() +
+        "-" +
+        current_datetime.getDate() +
+        " " +
+        current_datetime.getHours() +
+        ":" +
+        current_datetime.getMinutes() +
+        ":" +
+        current_datetime.getSeconds();
+
+      let formatDate =
+        current_datetime.getDate() +
+        "/" +
+        time() +
+        "/" +
+        current_datetime.getFullYear();
+            const editProduct = () => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/editlanguagesbyAs400",
+                    method: "POST",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+                        as400code: productIDGlobal,
+                        Details: sessionStorage.getItem('ENEdit'),
+                        ModifiedOn: formatDate,
+                        Description: Ext.getCmp("ENdesc").getValue().trim(),
+                        Specification: tinyMCE.get('ENspec').getContent(),
+                        Catalog: Ext.getCmp("ENCat").getValue().trim(),
+                        FullDescription: tinyMCE.get('ENFDesc').getContent(),
+                        //FR
+                        FrDetails: sessionStorage.getItem('FREdit'),
+                        FRLanguage: "fr",
+                        FRDescription: Ext.getCmp("FRdesc").getValue().trim(),
+                        FRSpecification: tinyMCE.get('FRspec').getContent(),
+                        FRCatalog: Ext.getCmp("FRCat").getValue().trim(),
+                        FRFullDescription: tinyMCE.get('FRFDesc').getContent(),
+                        //DE
+                        DeDetails: sessionStorage.getItem('DEEdit'),
+                        DELanguage: "de",
+                        DEDescription: Ext.getCmp("DEdesc").getValue().trim(),
+                        DESpecification: tinyMCE.get('DEspec').getContent(),
+                        DECatalog: Ext.getCmp("DECat").getValue().trim(),
+                        DEFullDescription: tinyMCE.get('DEFDesc').getContent(),
+                        //ES
+                        EsDetails: sessionStorage.getItem('ESEdit'),
+                        ESLanguage: "es",
+                        ESDescription: Ext.getCmp("ESdesc").getValue().trim(),
+                        ESSpecification: tinyMCE.get('ESspec').getContent(),
+                        ESCatalog: Ext.getCmp("ESCat").getValue().trim(),
+                        ESFullDescription: tinyMCE.get('ESFDesc').getContent(),
+                        //RU
+                        RuDetails: sessionStorage.getItem('RUEdit'),
+                        RULanguage: "ru",
+                        RUDescription: Ext.getCmp("RUdesc").getValue().trim(),
+                        RUSpecification: tinyMCE.get('RUspec').getContent(),
+                        RUCatalog: Ext.getCmp("RUCat").getValue().trim(),
+                        RUFullDescription: tinyMCE.get('RUFDesc').getContent(),
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+                        
+                        Ext.Msg.alert("INFO!", `Product has been edited successfully`);
+                        
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            };
+
+
+
+            var TabTranslations = Ext.create('Ext.TabPanel', {
+                fullscreen: true,
+                tabBarPosition: 'bottom',
+                id: 'tabTrans',
+                defaults: {
+                    styleHtmlContent: true
+                },
+                listeners: {
+                    render: function () {
+                        this.items.each(function (i) {
+                            i.tab.on('click', function () {
+                                Ext.getCmp('tabTrans').setActiveTab(i)
+
+                                // tinymce.init({
+                                //   selector: 'textarea',
+                                //   plugins: [
+
+                                //     'advlist autolink lists link image charmap print preview anchor',
+
+                                //     'searchreplace visualblocks code fullscreen',
+
+                                //     'insertdatetime media table paste code help wordcount'
+
+                                //   ],
+                                //   // menubar: 'true',
+                                //   toolbar: 'undo redo |  ' +
+
+                                //     'bold italic forecolor | alignleft aligncenter ' +
+
+                                //     ' | bullist numlist outdent indent | ' +
+
+                                //     ' table | link image | removeformat  code | help',
+                                //   height: tinyHeight,
+                                //   content_style: tinycontent_style
+                                // });
+                                // if(edit == true){
+                                // getOtherLanguageDetail('fr', productIDGlobal)
+                                // getOtherLanguageDetail('de', productIDGlobal)
+                                // getOtherLanguageDetail('es', productIDGlobal)
+                                // getOtherLanguageDetail('ru', productIDGlobal)
+                                // }
+                            });
+                        });
+                    }
+                },
+                items: [
+                    {
+                        title: 'English',
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "English Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "ENFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                id: 'formEN',
+                                                border: false,
+                                                items: [
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "ENCat",
+                                                        name: "ENCat",
+                                                        fieldLabel: "Catalog",
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        allowBlank: false,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "ENdesc",
+                                                        name: "ENdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: false,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="ENFDesc"></textarea>',
+                                                        // height: 250,
+                                                    },
+                                                    {
+                                                        html: '<h4>Specification :</h4><textarea id="ENspec"></textarea>',
+
+                                                        // height: 250,
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+
+                    {
+                        title: 'French',
+
+                        // listeners: {
+                        //     onClick: () => {
+                        //       console.log('test')
+                        //       tinymce.init({ selector:'textarea' });
+                        //     },
+                        //   },
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "French Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "FRFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                id: 'formFR',
+                                                border: false,
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "FRCat",
+                                                        name: "FRCat",
+                                                        fieldLabel: "Catalog",
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "FRdesc",
+                                                        name: "FRdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="FRFDesc"></textarea><br>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                    {
+                                                        html: '<h4>Specification :</h4><textarea id="FRspec"></textarea>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'German',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "German Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "DEFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                border: false,
+                                                id: 'formDE',
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "DECat",
+                                                        name: "DECat",
+                                                        fieldLabel: "Catalog",
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "DEdesc",
+                                                        name: "DEdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="DEFDesc"></textarea><br>',
+
+                                                        // height: 250,
+
+
+                                                    },
+                                                    {
+                                                        html: '<h4>Specification :</h4><textarea id="DEspec"></textarea>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Spanish',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                labelStyle: "font-weight: bold; ",
+                                title: "Spanish Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "ESFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                id: 'formES',
+                                                border: false,
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "ESCat",
+                                                        name: "ESCat",
+                                                        fieldLabel: "Catalog",
+                                                        allowBlank: true,
+                                                        maxLenght: 118,
+                                                        width: 500,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "ESdesc",
+                                                        name: "ESdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="ESFDesc"></textarea><br>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                    {
+                                                        html: '<h4>Specification :</h4><textarea id="ESspec"></textarea>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Russian',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "Russian Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "RUFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: 'my-form',
+                                                width: '70%',
+                                                frame: false,
+                                                id: 'formRU',
+                                                border: false,
+                                                items: [
+
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "RUCat",
+                                                        name: "RUCat",
+                                                        fieldLabel: "Catalog",
+                                                        maxLenght: 118,
+                                                        allowBlank: true,
+                                                        width: 500,
+                                                        submitvalue: true,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        xtype: "textfield",
+                                                        id: "RUdesc",
+                                                        name: "RUdesc",
+                                                        fieldLabel: "Description",
+                                                        maxLenght: 123,
+                                                        width: 500,
+                                                        allowBlank: true,
+                                                        selectOnFocus: false,
+                                                        margin: "25 0 25 0",
+                                                    },
+                                                    {
+                                                        html: '<h4>Full description :</h4><textarea id="RUFDesc"></textarea><br>',
+
+                                                        // height: 250,
+                                                    },
+                                                    {
+
+                                                        html: '<h4>Specification :</h4><textarea id="RUspec"></textarea>',
+
+                                                        // height: 250,
+
+                                                    },
+                                                ]
+                                            },
+
+                                        ]
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                ]
+            });
+
+
+            var itemsAdd = [
+
+
+                TabTranslations,
+            ];
+
+
+
+            var screenAdd = new Ext.FormPanel({
+                frame: false,
+                header: false,
+                border: false,
+
+                defaults: {
+                    labelAlign: "right",
+                    labelWidth: 105,
+                    listeners: {
+                        specialkey: function (field, e) {
+                            if (e.getKey() == e.ENTER) {
+                                updateRec();
+                            }
+                            if (e.getKey() == e.ESC) {
+                                Ext.getCmp("viewport").setActiveItem("AllProductGrid");
+                            }
+                        },
+                    },
+                },
+                width: 1200,
+                waitMsgTarget: true,
+                autoScroll: true,
+                style: "padding: 3px 3px 3px 3px;",
+                items: [
+                    {
+                        layout: "column",
+                        layoutConfig: {
+                            columns: 2,
+                        },
+                        border: false,
+                        items: [
+                            {
+                                xtype: 'my-form',
+                                id: "addForm",
+                                columnWidth: 1,
+                                border: false,
+                                items: itemsAdd,
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            // outer panel container to hold tbar and keypress definitions
+            var panelAdd = new Ext.Panel({
+                layout: "fit",
+                id: "panelAdd",
+                title: "Edit product",
+                header: true,
+                items: [screenAdd],
+                tbar: [
+
+                    {
+                        text: "Save",
+                        id: "editSave",
+                        iconCls: "fas fa-save",
+                        handler: function () {
+                            if (Ext.getCmp('addForm').isValid()) {
+                                
+                                Ext.getCmp('tabTrans').setActiveTab(1)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(2)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(3)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(4)
+                                tinymce.init({
+                                    selector: 'textarea',
+                                    images_upload_url: tinyMce_images_upload_url,
+                                    plugins: tinyplugins,
+                                    // menubar: 'true',
+                                    toolbar: 'undo redo |  ' +
+
+                                        'bold italic forecolor | alignleft aligncenter ' +
+
+                                        ' | bullist numlist outdent indent | ' +
+
+                                        ' table | link image | removeformat  code | help',
+                                    height: tinyHeight,
+                                    content_style: tinycontent_style
+                                });
+                                Ext.getCmp('tabTrans').setActiveTab(0)
+                                editProduct();
+                                
+                            }
+                        },
+                    },
+
+                ],
+            });
+
+
+
+
+            let userRights = JSON.parse(localStorage.getItem('userRights'));
+            if (userRights !== null) {
+                applyUserRights(userRights);
+            }
+
+            //=========================================================================================================
+            //		           VIEW PORT
+            // ========================================================================================================
+
+            Ext.create("Ext.container.Viewport", {
+                id: "viewport",
+                layout: "card",
+                activeItem: 0,
+                items: [panelAdd],
+            });
+        });
+
+    </script>
+</head>
+
+<body>
+    <div id="small-view">
+        This Appplication is not meant for small devices.
+    </div>
+
+
+</body>
+
+</html>
