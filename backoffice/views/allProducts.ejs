@@ -2268,6 +2268,8 @@
                   if (tinyMCE.get(`RUspec`) != null) {
                     getOtherLanguageDetail('ru', productIDGlobal)
                   }
+
+
                   tinymce.init({
                     selector: 'textarea',
                     images_upload_url: tinyMce_images_upload_url,
@@ -2278,6 +2280,76 @@
                       ' | bullist numlist outdent indent | ' +
                       ' table | link image | removeformat  code | help',
                     height: tinyHeight,
+                    image_description: false,
+                    image_title: false,
+                    /* enable automatic uploads of images represented by blob or data URIs*/
+                    automatic_uploads: true,
+
+                    file_picker_types: 'image',
+                    /* and here's our custom image picker*/
+                    file_picker_callback: function (cb, value, meta) {
+                      var input = document.createElement('input');
+                      input.setAttribute('type', 'file');
+                      input.setAttribute('accept', 'image/*');
+
+
+                      input.onchange = function () {
+                        var file = this.files[0];
+
+                        var reader = new FileReader();
+                        reader.onload = function () {
+
+                          var id = 'blobid' + (new Date()).getTime();
+                          var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                          var base64 = reader.result.split(',')[1];
+
+                          var blobInfo = blobCache.create(id, file, base64);
+                          blobCache.add(blobInfo);
+
+
+
+
+                          tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
+                          // console.log(tinymceArray)
+                          sessionStorage.setItem('tinymceArray', tinymceArray)
+                          Ext.Ajax.request({
+                            url: "/apiProducts/uploadTinyMceImage",
+                            method: "POST",
+                            cors: true,
+                            useDefaultXhrHeader: false,
+                            params: {
+                              imageTitle: file.name,
+                              VisualFile: base64,
+
+                            },
+                            success: function (fp, object) {
+                              Ext.getBody().unmask();
+                            },
+                            failure: function (obj, res) {
+                              Ext.getBody().unmask();
+                              if (res) {
+
+
+                              } else {
+                                Ext.Msg.alert(
+                                  "ERROR",
+                                  "Failed to upload image. Contact your IT team."
+                                );
+                              }
+                            },
+                          });
+
+
+                          /* call the callback and populate the Title field with the file name */
+                          cb(blobInfo.blobUri(), { title: file.name });
+                        };
+                        reader.readAsDataURL(file);
+
+                      };
+                      input.click();
+
+                    },
+
                     content_style: tinycontent_style,
                     setup: function (editor) {
                       editor.on('init', function (e) {
@@ -2394,107 +2466,107 @@
               //         panelAddEditLanguages.setTitle('Edit English')
               //         sessionStorage.setItem('oneLanguage', 'en')
               //         Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-              //         tinymce.init({
-              //           selector: 'textarea',
-              //           images_upload_url: tinyMce_images_upload_url,
-              //           plugins: tinyplugins,
-              //           // menubar: 'true',
-              //           toolbar: 'undo redo |  ' +
+              // tinymce.init({
+              //   selector: 'textarea',
+              //   images_upload_url: tinyMce_images_upload_url,
+              //   plugins: tinyplugins,
+              //   // menubar: 'true',
+              //   toolbar: 'undo redo |  ' +
 
-              //             'bold italic forecolor | alignleft aligncenter ' +
+              //     'bold italic forecolor | alignleft aligncenter ' +
 
-              //             ' | bullist numlist outdent indent | ' +
+              //     ' | bullist numlist outdent indent | ' +
 
-              //             ' table | link image | removeformat  code | help',
-              //           height: tinyHeight,
-              //           // image_prepend_url: '/data/',
-              //           image_description: false,
-              //           image_title: false,
-              //           /* enable automatic uploads of images represented by blob or data URIs*/
-              //           automatic_uploads: true,
+              //     ' table | link image | removeformat  code | help',
+              //   height: tinyHeight,
+              //   // image_prepend_url: '/data/',
+              //   image_description: false,
+              //   image_title: false,
+              //   /* enable automatic uploads of images represented by blob or data URIs*/
+              //   automatic_uploads: true,
 
-              //           file_picker_types: 'image',
-              //           /* and here's our custom image picker*/
-              //           file_picker_callback: function (cb, value, meta) {
-              //             var input = document.createElement('input');
-              //             input.setAttribute('type', 'file');
-              //             input.setAttribute('accept', 'image/*');
-
-
-              //             input.onchange = function () {
-              //               var file = this.files[0];
-
-              //               var reader = new FileReader();
-              //               reader.onload = function () {
-
-              //                 var id = 'blobid' + (new Date()).getTime();
-              //                 var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-              //                 var base64 = reader.result.split(',')[1];
-
-              //                 var blobInfo = blobCache.create(id, file, base64);
-              //                 blobCache.add(blobInfo);
+              //   file_picker_types: 'image',
+              //   /* and here's our custom image picker*/
+              //   file_picker_callback: function (cb, value, meta) {
+              //     var input = document.createElement('input');
+              //     input.setAttribute('type', 'file');
+              //     input.setAttribute('accept', 'image/*');
 
 
+              //     input.onchange = function () {
+              //       var file = this.files[0];
+
+              //       var reader = new FileReader();
+              //       reader.onload = function () {
+
+              //         var id = 'blobid' + (new Date()).getTime();
+              //         var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+              //         var base64 = reader.result.split(',')[1];
+
+              //         var blobInfo = blobCache.create(id, file, base64);
+              //         blobCache.add(blobInfo);
 
 
-              //                 tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
-              //                 // console.log(tinymceArray)
-              //                 sessionStorage.setItem('tinymceArray', tinymceArray)
-              //                 Ext.Ajax.request({
-              //                   url: "/apiProducts/uploadTinyMceImage",
-              //                   method: "POST",
-              //                   cors: true,
-              //                   useDefaultXhrHeader: false,
-              //                   params: {
-              //                     imageTitle: file.name,
-              //                     VisualFile: base64,
-
-              //                   },
-              //                   success: function (fp, object) {
-              //                     Ext.getBody().unmask();
-              //                   },
-              //                   failure: function (obj, res) {
-              //                     Ext.getBody().unmask();
-              //                     if (res) {
 
 
-              //                     } else {
-              //                       Ext.Msg.alert(
-              //                         "ERROR",
-              //                         "Failed to upload image. Contact your IT team."
-              //                       );
-              //                     }
-              //                   },
-              //                 });
-
-
-              //                 /* call the callback and populate the Title field with the file name */
-              //                 cb(blobInfo.blobUri(), { title: file.name });
-              //               };
-              //               reader.readAsDataURL(file);
-
-              //             };
-              //             input.click();
+              //         tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
+              //         // console.log(tinymceArray)
+              //         sessionStorage.setItem('tinymceArray', tinymceArray)
+              //         Ext.Ajax.request({
+              //           url: "/apiProducts/uploadTinyMceImage",
+              //           method: "POST",
+              //           cors: true,
+              //           useDefaultXhrHeader: false,
+              //           params: {
+              //             imageTitle: file.name,
+              //             VisualFile: base64,
 
               //           },
+              //           success: function (fp, object) {
+              //             Ext.getBody().unmask();
+              //           },
+              //           failure: function (obj, res) {
+              //             Ext.getBody().unmask();
+              //             if (res) {
 
-              //           content_style: tinycontent_style,
-              //           setup: function (editor) {
-              //             editor.on('init', function (e) {
 
-              //               if (this.id == 'onespec') {
-              //                 getOneOtherLanguageDetail('en', productIDGlobal)
-              //               }
-              //             })
-              //           }
+              //             } else {
+              //               Ext.Msg.alert(
+              //                 "ERROR",
+              //                 "Failed to upload image. Contact your IT team."
+              //               );
+              //             }
+              //           },
               //         });
-              //         tinyMCE.get(`onespec`).setContent('')
-              //         tinyMCE.get(`oneFDesc`).setContent('')
-              //         if (tinyMCE.get(`onespec`) != null) {
-              //           getOneOtherLanguageDetail('en', productIDGlobal)
 
-              //         }
+
+              //         /* call the callback and populate the Title field with the file name */
+              //         cb(blobInfo.blobUri(), { title: file.name });
+              //       };
+              //       reader.readAsDataURL(file);
+
+              //     };
+              //     input.click();
+
+              //   },
+
+              //   content_style: tinycontent_style,
+              //   setup: function (editor) {
+              //     editor.on('init', function (e) {
+
+              //       if (this.id == 'onespec') {
+              //         getOneOtherLanguageDetail('en', productIDGlobal)
               //       }
+              //     })
+              //   }
+              // })
+              //   tinyMCE.get(`onespec`).setContent('')
+              //   tinyMCE.get(`oneFDesc`).setContent('')
+              //   if (tinyMCE.get(`onespec`) != null) {
+              //     getOneOtherLanguageDetail('en', productIDGlobal)
+
+              //   }
+              // }
               //     }, {
               //       text: 'Edit French',
               //       handler: function () {

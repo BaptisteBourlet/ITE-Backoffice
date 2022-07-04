@@ -151,13 +151,42 @@
             let productIDGlobal = "";
             let serieIDGlobal = "";
             var pathArray = window.location.pathname.split('/');
-            console.log(pathArray)
-            var test = pathArray[2];
-                console.log(test)
-            productIDGlobal = test
             
+            var test = pathArray[2];
+            
+            productIDGlobal = test
+            var ProdID
+            const getIdbyAS400 = () => {
+                Ext.Ajax.request({
+                    url: "/apiProducts/getIdbyAS400",
+                    method: "GET",
+                    cors: true,
+                    useDefaultXhrHeader: false,
+                    params: {
+
+                        as400code: productIDGlobal,
+                    },
+                    success: function (response) {
+                        const res = JSON.parse(response.responseText);
+
+                        if (res != '') {
+                            console.log(res[0].Id)
+                            ProdID = res[0].Id
+                            getOtherLanguageDetail('fr', ProdID)
+                            getOtherLanguageDetail('de', ProdID)
+                            getOtherLanguageDetail('es', ProdID)
+                            getOtherLanguageDetail('ru', ProdID)
+                        }
+
+                    },
+                    failure: function (response) {
+                        console.log("failed", response);
+                    },
+                });
+            }
+            getIdbyAS400()
             const getProductDetails = (productId) => {
-                console.log(productId)
+                
                 Ext.Ajax.request({
                     url: "/apiProducts/getbyAS400",
 
@@ -176,6 +205,11 @@
                         } else {
                             getEditInfo(res[0][0]);
                         }
+                        console.log(res[0][0])
+                        getOtherLanguageDetail('fr', res[0][0])
+                        getOtherLanguageDetail('de', res[0][0])
+                        getOtherLanguageDetail('es', res[0][0])
+                        getOtherLanguageDetail('ru', res[0][0])
 
                         if (Category !== '') {
                             Ext.getCmp('unlinkCategory').setValue(false)
@@ -201,7 +235,7 @@
                 xtype: 'my-form',
 
             });
-            
+
 
 
             const tinyMceInitiation = tinymce.init({
@@ -832,7 +866,7 @@
                 }
             };
 
-            
+
 
             const getRelatedProductSerie = (serieId) => {
                 Ext.Ajax.request({
@@ -910,23 +944,13 @@
                         const res = JSON.parse(response.responseText);
 
                         if (res != '') {
-                            sessionStorage.setItem(language.toUpperCase() + 'Edit', 'true')
-                            Ext.getCmp(`${language.toUpperCase()}Cat`).setValue(res[0].Catalog);
+                            Ext.getCmp(`${language}productName`).setValue(res[0].Catalog);
 
-                            Ext.getCmp(`${language.toUpperCase()}desc`).setValue(res[0].Description);
-
-
-                            if (tinyMCE.get(`${language.toUpperCase()}FDesc`) != null) {
-                                tinyMCE.get(`${language.toUpperCase()}FDesc`).setContent(res[0].FullDescription);
-
-                                tinyMCE.get(`${language.toUpperCase()}spec`).setContent(res[0].Specification);
-                            }
-
-
-                        } else {
-                            sessionStorage.setItem(language.toUpperCase() + 'Edit', 'false')
-
-                        }
+                            Ext.getCmp(`${language}as400Description`).setValue(res[0].Description);
+                            Ext.getCmp(`${language}fullDescription`).setValue(res[0].FullDescription);
+                            Ext.getCmp(`${language}specification`).setValue(res[0].Specification);
+                            
+                        } 
 
                     },
                     failure: function (response) {
@@ -934,46 +958,6 @@
                     },
                 });
             }
-
-            const getOneOtherLanguageDetail = (language, productId) => {
-                Ext.Ajax.request({
-                    url: "/apiProducts/getOtherLanguageDetail",
-                    method: "POST",
-                    cors: true,
-                    useDefaultXhrHeader: false,
-                    params: {
-                        language: language,
-                        productId: productId,
-                    },
-                    success: function (response) {
-                        const res = JSON.parse(response.responseText);
-
-                        if (res != '') {
-                            sessionStorage.setItem('EditOne', 'true')
-                            Ext.getCmp(`oneCat`).setValue(res[0].Catalog);
-
-                            Ext.getCmp(`onedesc`).setValue(res[0].Description);
-
-
-                            if (tinyMCE.get(`oneFDesc`) != null) {
-                                tinyMCE.get(`oneFDesc`).setContent(res[0].FullDescription);
-
-                                tinyMCE.get(`onespec`).setContent(res[0].Specification);
-                            }
-
-
-                        } else {
-                            sessionStorage.setItem('EditOne', 'false')
-
-                        }
-
-                    },
-                    failure: function (response) {
-                        console.log("failed", response);
-                    },
-                });
-            }
-
 
             var TypeStore = Ext.create("Ext.data.Store", {
                 fields: ["TypeCode", "TypeName"],
@@ -1291,6 +1275,316 @@
                 ],
             });
 
+
+            var TabTranslations = Ext.create('Ext.TabPanel', {
+                fullscreen: true,
+                tabBarPosition: 'bottom',
+                id: 'tabTrans',
+                defaults: {
+                    styleHtmlContent: true
+                },
+                listeners: {
+                    render: function () {
+                        this.items.each(function (i) {
+                            i.tab.on('click', function () {
+                                Ext.getCmp('tabTrans').setActiveTab(i)
+
+                            });
+                        });
+                    }
+                },
+                items: [
+                    {
+                        title: 'English',
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "English Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "ENFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: "vbox",
+                                            align: "stretch",
+                                        },
+                                        border: false,
+
+                                        items: [
+                                            {
+                                                xtype: "displayfield",
+                                                id: "productName",
+                                                fieldLabel: "<b>Product</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+
+                                            {
+                                                xtype: "displayfield",
+                                                id: "as400Description",
+                                                fieldLabel: "<b>AS/400 Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "fullDescription",
+                                                fieldLabel: "<b>Full Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "specification",
+                                                fieldLabel: "<b>Specification</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+
+                    {
+                        title: 'French',
+
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "French Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "FRFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: "vbox",
+                                            align: "stretch",
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: "displayfield",
+                                                id: "frproductName",
+                                                fieldLabel: "<b>Product</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+
+                                            {
+                                                xtype: "displayfield",
+                                                id: "fras400Description",
+                                                fieldLabel: "<b>AS/400 Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "frfullDescription",
+                                                fieldLabel: "<b>Full Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "frspecification",
+                                                fieldLabel: "<b>Specification</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'German',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "German Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "DEFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: "vbox",
+                                            align: "stretch",
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: "displayfield",
+                                                id: "deproductName",
+                                                fieldLabel: "<b>Product</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+
+                                            {
+                                                xtype: "displayfield",
+                                                id: "deas400Description",
+                                                fieldLabel: "<b>AS/400 Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "defullDescription",
+                                                fieldLabel: "<b>Full Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "despecification",
+                                                fieldLabel: "<b>Specification</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Spanish',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                labelStyle: "font-weight: bold; ",
+                                title: "Spanish Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "ESFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: "vbox",
+                                            align: "stretch",
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: "displayfield",
+                                                id: "esproductName",
+                                                fieldLabel: "<b>Product</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+
+                                            {
+                                                xtype: "displayfield",
+                                                id: "esas400Description",
+                                                fieldLabel: "<b>AS/400 Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "esfullDescription",
+                                                fieldLabel: "<b>Full Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "esspecification",
+                                                fieldLabel: "<b>Specification</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                    {
+                        title: 'Russian',
+
+                        items: [
+                            {
+                                xtype: "fieldset",
+                                title: "Russian Translations",
+                                anchor: "100%",
+                                hidden: false,
+                                id: "RUFIELD",
+                                layoutConfig: {
+                                    // The total column count must be specified here
+                                    columns: 9,
+                                },
+                                items: [
+                                    {
+                                        layout: {
+                                            type: "vbox",
+                                            align: "stretch",
+                                        },
+                                        border: false,
+                                        items: [
+                                            {
+                                                xtype: "displayfield",
+                                                id: "ruproductName",
+                                                fieldLabel: "<b>Product</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+
+                                            {
+                                                xtype: "displayfield",
+                                                id: "ruas400Description",
+                                                fieldLabel: "<b>AS/400 Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "rufullDescription",
+                                                fieldLabel: "<b>Full Description</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                            {
+                                                xtype: "displayfield",
+                                                id: "ruspecification",
+                                                fieldLabel: "<b>Specification</b>",
+                                                labelWidth: 150,
+                                                fieldCls: "fieldClass",
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                        ]
+                    },
+                ]
+            });
+
             const productDetails = Ext.create("Ext.panel.Panel", {
                 id: "productDetails",
                 title: "PRODUCT DETAILS",
@@ -1344,13 +1638,7 @@
                             align: "stretch",
                         },
                         items: [
-                            {
-                                xtype: "displayfield",
-                                id: "productName",
-                                fieldLabel: "<b>Product</b>",
-                                labelWidth: 150,
-                                fieldCls: "fieldClass",
-                            },
+
                             {
                                 xtype: "displayfield",
                                 id: "productCode",
@@ -1365,328 +1653,12 @@
                                 labelWidth: 150,
                                 fieldCls: "fieldClass",
                             },
-                            {
-                                xtype: "displayfield",
-                                id: "as400Description",
-                                fieldLabel: "<b>AS/400 Description</b>",
-                                labelWidth: 150,
-                                fieldCls: "fieldClass",
-                            },
-                            {
-                                xtype: "displayfield",
-                                id: "fullDescription",
-                                fieldLabel: "<b>Full Description</b>",
-                                labelWidth: 150,
-                                fieldCls: "fieldClass",
-                            },
-                            {
-                                xtype: "displayfield",
-                                id: "specification",
-                                fieldLabel: "<b>Specification</b>",
-                                labelWidth: 150,
-                                fieldCls: "fieldClass",
-                            },
+
+                            TabTranslations
                         ],
                     },
                 ],
-                dockedItems: [
-                    {
-                        xtype: "toolbar",
-                        dock: "top",
-                        id: "productDetailBar",
-                        items: [
-                            // {
-                            //     xtype: "button",
-                            //     id: "cancel",
-                            //     text: "Back",
-                            //     iconCls: "fa fa-undo-alt",
-                            //     handler: function () {
-                            //         edit = false;
 
-                            //         Ext.getCmp("relatedProducts").removeAll();
-                            //         Ext.getCmp("relatedAccessories").removeAll();
-                            //         Ext.getCmp("relatedParts").removeAll();
-                            //         window.open('http://localhost:12080/')
-                            //     },
-                            // },
-                            
-                            // "-",
-                          
-                            // {
-                            //     xtype: "button",
-                            //     id: "viewImageBtn",
-                            //     text: "See Images",
-                            //     iconCls: "fas fa-images",
-                            //     handler: function () {
-
-                            //         linkedImageStore.getProxy().setExtraParam('Id', productIDGlobal);
-                            //         linkedImageStore.reload();
-
-                            //         Ext.getCmp('viewport').setActiveItem('linkedImageGrid');
-                            //     },
-                            // },
-                            // {
-                            //     xtype: "button",
-                            //     id: "editLanguagesBtn",
-                            //     text: "Edit Languages",
-                            //     iconCls: "fa fa-language",
-                            //     menu: {
-                            //         items: [{
-                            //             text: 'Edit English',
-                            //             handler: function () {
-                            //                 var tinymceArray = []
-
-                            //                 panelAddEditLanguages.setTitle('Edit English')
-                            //                 sessionStorage.setItem('oneLanguage', 'en')
-                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                            //                 tinymce.init({
-                            //                     selector: 'textarea',
-                            //                     images_upload_url: tinyMce_images_upload_url,
-                            //                     plugins: tinyplugins,
-                            //                     // menubar: 'true',
-                            //                     toolbar: 'undo redo |  ' +
-
-                            //                         'bold italic forecolor | alignleft aligncenter ' +
-
-                            //                         ' | bullist numlist outdent indent | ' +
-
-                            //                         ' table | link image | removeformat  code | help',
-                            //                     height: tinyHeight,
-                            //                     // image_prepend_url: '/data/',
-                            //                     image_description: false,
-                            //                     image_title: false,
-                            //                     /* enable automatic uploads of images represented by blob or data URIs*/
-                            //                     automatic_uploads: true,
-
-                            //                     file_picker_types: 'image',
-                            //                     /* and here's our custom image picker*/
-                            //                     file_picker_callback: function (cb, value, meta) {
-                            //                         var input = document.createElement('input');
-                            //                         input.setAttribute('type', 'file');
-                            //                         input.setAttribute('accept', 'image/*');
-
-
-                            //                         input.onchange = function () {
-                            //                             var file = this.files[0];
-
-                            //                             var reader = new FileReader();
-                            //                             reader.onload = function () {
-
-                            //                                 var id = 'blobid' + (new Date()).getTime();
-                            //                                 var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                            //                                 var base64 = reader.result.split(',')[1];
-
-                            //                                 var blobInfo = blobCache.create(id, file, base64);
-                            //                                 blobCache.add(blobInfo);
-
-
-
-
-                            //                                 tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
-                            //                                 // console.log(tinymceArray)
-                            //                                 sessionStorage.setItem('tinymceArray', tinymceArray)
-                            //                                 Ext.Ajax.request({
-                            //                                     url: "/apiProducts/uploadTinyMceImage",
-                            //                                     method: "POST",
-                            //                                     cors: true,
-                            //                                     useDefaultXhrHeader: false,
-                            //                                     params: {
-                            //                                         imageTitle: file.name,
-                            //                                         VisualFile: base64,
-
-                            //                                     },
-                            //                                     success: function (fp, object) {
-                            //                                         Ext.getBody().unmask();
-                            //                                     },
-                            //                                     failure: function (obj, res) {
-                            //                                         Ext.getBody().unmask();
-                            //                                         if (res) {
-
-
-                            //                                         } else {
-                            //                                             Ext.Msg.alert(
-                            //                                                 "ERROR",
-                            //                                                 "Failed to upload image. Contact your IT team."
-                            //                                             );
-                            //                                         }
-                            //                                     },
-                            //                                 });
-
-
-                            //                                 /* call the callback and populate the Title field with the file name */
-                            //                                 cb(blobInfo.blobUri(), { title: file.name });
-                            //                             };
-                            //                             reader.readAsDataURL(file);
-
-                            //                         };
-                            //                         input.click();
-
-                            //                     },
-
-                            //                     content_style: tinycontent_style,
-                            //                     setup: function (editor) {
-                            //                         editor.on('init', function (e) {
-
-                            //                             if (this.id == 'onespec') {
-                            //                                 getOneOtherLanguageDetail('en', productIDGlobal)
-                            //                             }
-                            //                         })
-                            //                     }
-                            //                 });
-                            //                 tinyMCE.get(`onespec`).setContent('')
-                            //                 tinyMCE.get(`oneFDesc`).setContent('')
-                            //                 if (tinyMCE.get(`onespec`) != null) {
-                            //                     getOneOtherLanguageDetail('en', productIDGlobal)
-
-                            //                 }
-                            //             }
-                            //         }, {
-                            //             text: 'Edit French',
-                            //             handler: function () {
-                            //                 panelAddEditLanguages.setTitle('Edit French')
-                            //                 sessionStorage.setItem('oneLanguage', 'fr')
-                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                            //                 tinymce.init({
-                            //                     selector: 'textarea',
-                            //                     images_upload_url: tinyMce_images_upload_url,
-                            //                     plugins: tinyplugins,
-                            //                     // menubar: 'true',
-                            //                     toolbar: 'undo redo |  ' +
-
-                            //                         'bold italic forecolor | alignleft aligncenter ' +
-
-                            //                         ' | bullist numlist outdent indent | ' +
-
-                            //                         ' table | link image | removeformat  code | help',
-                            //                     height: tinyHeight,
-                            //                     content_style: tinycontent_style,
-                            //                     setup: function (editor) {
-                            //                         editor.on('init', function (e) {
-
-                            //                             if (this.id == 'onespec') {
-                            //                                 getOneOtherLanguageDetail('fr', productIDGlobal)
-                            //                             }
-                            //                         })
-                            //                     }
-                            //                 });
-                            //                 tinyMCE.get(`onespec`).setContent('')
-                            //                 tinyMCE.get(`oneFDesc`).setContent('')
-                            //                 if (tinyMCE.get(`onespec`) != null) {
-                            //                     getOneOtherLanguageDetail('fr', productIDGlobal)
-                            //                 }
-                            //             }
-                            //         }, {
-                            //             text: 'Edit German',
-                            //             handler: function () {
-                            //                 panelAddEditLanguages.setTitle('Edit German')
-                            //                 sessionStorage.setItem('oneLanguage', 'de')
-                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                            //                 tinymce.init({
-                            //                     selector: 'textarea',
-                            //                     images_upload_url: tinyMce_images_upload_url,
-                            //                     plugins: tinyplugins,
-                            //                     // menubar: 'true',
-                            //                     toolbar: 'undo redo |  ' +
-
-                            //                         'bold italic forecolor | alignleft aligncenter ' +
-
-                            //                         ' | bullist numlist outdent indent | ' +
-
-                            //                         ' table | link image | removeformat  code | help',
-                            //                     height: tinyHeight,
-                            //                     content_style: tinycontent_style,
-                            //                     setup: function (editor) {
-                            //                         editor.on('init', function (e) {
-
-                            //                             if (this.id == 'onespec') {
-                            //                                 getOneOtherLanguageDetail('de', productIDGlobal)
-                            //                             }
-                            //                         })
-                            //                     }
-                            //                 });
-                            //                 tinyMCE.get(`onespec`).setContent('')
-                            //                 tinyMCE.get(`oneFDesc`).setContent('')
-                            //                 if (tinyMCE.get(`onespec`) != null) {
-                            //                     getOneOtherLanguageDetail('de', productIDGlobal)
-                            //                 }
-                            //             }
-                            //         }, {
-                            //             text: 'Edit Spanish',
-                            //             handler: function () {
-                            //                 panelAddEditLanguages.setTitle('Edit Spanish')
-                            //                 sessionStorage.setItem('oneLanguage', 'es')
-                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                            //                 tinymce.init({
-                            //                     selector: 'textarea',
-                            //                     images_upload_url: tinyMce_images_upload_url,
-                            //                     plugins: tinyplugins,
-                            //                     // menubar: 'true',
-                            //                     toolbar: 'undo redo |  ' +
-
-                            //                         'bold italic forecolor | alignleft aligncenter ' +
-
-                            //                         ' | bullist numlist outdent indent | ' +
-
-                            //                         ' table | link image | removeformat  code | help',
-                            //                     height: tinyHeight,
-                            //                     content_style: tinycontent_style,
-                            //                     setup: function (editor) {
-                            //                         editor.on('init', function (e) {
-
-                            //                             if (this.id == 'onespec') {
-                            //                                 getOneOtherLanguageDetail('es', productIDGlobal)
-                            //                             }
-                            //                         })
-                            //                     }
-                            //                 });
-                            //                 tinyMCE.get(`onespec`).setContent('')
-                            //                 tinyMCE.get(`oneFDesc`).setContent('')
-                            //                 getOneOtherLanguageDetail('es', productIDGlobal)
-
-                            //             }
-                            //         }, {
-                            //             text: 'Edit Russian',
-                            //             handler: function () {
-                            //                 panelAddEditLanguages.setTitle('Edit Russian')
-                            //                 sessionStorage.setItem('oneLanguage', 'ru')
-                            //                 Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-                            //                 tinymce.init({
-                            //                     selector: 'textarea',
-                            //                     images_upload_url: tinyMce_images_upload_url,
-                            //                     plugins: tinyplugins,
-                            //                     // menubar: 'true',
-                            //                     toolbar: 'undo redo |  ' +
-
-                            //                         'bold italic forecolor | alignleft aligncenter ' +
-
-                            //                         ' | bullist numlist outdent indent | ' +
-
-                            //                         ' table | link image | removeformat  code | help',
-                            //                     height: tinyHeight,
-                            //                     content_style: tinycontent_style,
-                            //                     setup: function (editor) {
-                            //                         editor.on('init', function (e) {
-
-                            //                             if (this.id == 'onespec') {
-                            //                                 getOneOtherLanguageDetail('ru', productIDGlobal)
-                            //                             }
-                            //                         })
-                            //                     }
-                            //                 });
-                            //                 tinyMCE.get(`onespec`).setContent('')
-                            //                 tinyMCE.get(`oneFDesc`).setContent('')
-                            //                 if (tinyMCE.get(`onespec`) != null) {
-                            //                     getOneOtherLanguageDetail('ru', productIDGlobal)
-                            //                 }
-                            //             }
-                            //         },
-                            //         ]
-                            //     },
-
-                            // },
-                        ],
-                    },
-                ],
             });
 
 
@@ -1716,424 +1688,6 @@
                 },
             });
 
-            var TabTranslations = Ext.create('Ext.TabPanel', {
-                fullscreen: true,
-                tabBarPosition: 'bottom',
-                id: 'tabTrans',
-                defaults: {
-                    styleHtmlContent: true
-                },
-                listeners: {
-                    render: function () {
-                        this.items.each(function (i) {
-                            i.tab.on('click', function () {
-                                Ext.getCmp('tabTrans').setActiveTab(i)
-
-                                // tinymce.init({
-                                //   selector: 'textarea',
-                                //   plugins: [
-
-                                //     'advlist autolink lists link image charmap print preview anchor',
-
-                                //     'searchreplace visualblocks code fullscreen',
-
-                                //     'insertdatetime media table paste code help wordcount'
-
-                                //   ],
-                                //   // menubar: 'true',
-                                //   toolbar: 'undo redo |  ' +
-
-                                //     'bold italic forecolor | alignleft aligncenter ' +
-
-                                //     ' | bullist numlist outdent indent | ' +
-
-                                //     ' table | link image | removeformat  code | help',
-                                //   height: tinyHeight,
-                                //   content_style: tinycontent_style
-                                // });
-                                // if(edit == true){
-                                // getOtherLanguageDetail('fr', productIDGlobal)
-                                // getOtherLanguageDetail('de', productIDGlobal)
-                                // getOtherLanguageDetail('es', productIDGlobal)
-                                // getOtherLanguageDetail('ru', productIDGlobal)
-                                // }
-                            });
-                        });
-                    }
-                },
-                items: [
-                    {
-                        title: 'English',
-                        items: [
-                            {
-                                xtype: "fieldset",
-                                title: "English Translations",
-                                anchor: "100%",
-                                hidden: false,
-                                id: "ENFIELD",
-                                layoutConfig: {
-                                    // The total column count must be specified here
-                                    columns: 9,
-                                },
-                                items: [
-                                    {
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        border: false,
-
-                                        items: [
-                                            {
-                                                xtype: 'my-form',
-                                                width: '70%',
-                                                frame: false,
-                                                id: 'formEN',
-                                                border: false,
-                                                items: [
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "ENCat",
-                                                        name: "ENCat",
-                                                        fieldLabel: "Catalog",
-                                                        maxLenght: 118,
-                                                        width: 500,
-                                                        allowBlank: false,
-                                                        submitvalue: true,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "ENdesc",
-                                                        name: "ENdesc",
-                                                        fieldLabel: "Description",
-                                                        maxLenght: 123,
-                                                        width: 500,
-                                                        allowBlank: false,
-                                                        selectOnFocus: false,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        html: '<h4>Full description :</h4><textarea id="ENFDesc"></textarea>',
-                                                        // height: 250,
-                                                    },
-                                                    {
-                                                        html: '<h4>Specification :</h4><textarea id="ENspec"></textarea>',
-
-                                                        // height: 250,
-                                                    },
-                                                ]
-                                            },
-
-                                        ]
-                                    },
-                                ],
-                            },
-                        ]
-                    },
-
-                    {
-                        title: 'French',
-
-                        // listeners: {
-                        //     onClick: () => {
-                        //       console.log('test')
-                        //       tinymce.init({ selector:'textarea' });
-                        //     },
-                        //   },
-                        items: [
-                            {
-                                xtype: "fieldset",
-                                title: "French Translations",
-                                anchor: "100%",
-                                hidden: false,
-                                id: "FRFIELD",
-                                layoutConfig: {
-                                    // The total column count must be specified here
-                                    columns: 9,
-                                },
-                                items: [
-                                    {
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        border: false,
-                                        items: [
-                                            {
-                                                xtype: 'my-form',
-                                                width: '70%',
-                                                frame: false,
-                                                id: 'formFR',
-                                                border: false,
-                                                items: [
-
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "FRCat",
-                                                        name: "FRCat",
-                                                        fieldLabel: "Catalog",
-                                                        maxLenght: 118,
-                                                        width: 500,
-                                                        allowBlank: true,
-                                                        submitvalue: true,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "FRdesc",
-                                                        name: "FRdesc",
-                                                        fieldLabel: "Description",
-                                                        maxLenght: 123,
-                                                        width: 500,
-                                                        allowBlank: true,
-                                                        selectOnFocus: false,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        html: '<h4>Full description :</h4><textarea id="FRFDesc"></textarea><br>',
-
-                                                        // height: 250,
-
-                                                    },
-                                                    {
-                                                        html: '<h4>Specification :</h4><textarea id="FRspec"></textarea>',
-
-                                                        // height: 250,
-
-                                                    },
-                                                ]
-                                            },
-
-                                        ]
-                                    },
-                                ],
-                            },
-                        ]
-                    },
-                    {
-                        title: 'German',
-
-                        items: [
-                            {
-                                xtype: "fieldset",
-                                title: "German Translations",
-                                anchor: "100%",
-                                hidden: false,
-                                id: "DEFIELD",
-                                layoutConfig: {
-                                    // The total column count must be specified here
-                                    columns: 9,
-                                },
-                                items: [
-                                    {
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        border: false,
-                                        items: [
-                                            {
-                                                xtype: 'my-form',
-                                                width: '70%',
-                                                frame: false,
-                                                border: false,
-                                                id: 'formDE',
-                                                items: [
-
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "DECat",
-                                                        name: "DECat",
-                                                        fieldLabel: "Catalog",
-                                                        maxLenght: 118,
-                                                        width: 500,
-                                                        allowBlank: true,
-                                                        submitvalue: true,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "DEdesc",
-                                                        name: "DEdesc",
-                                                        fieldLabel: "Description",
-                                                        maxLenght: 123,
-                                                        width: 500,
-                                                        allowBlank: true,
-                                                        selectOnFocus: false,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        html: '<h4>Full description :</h4><textarea id="DEFDesc"></textarea><br>',
-
-                                                        // height: 250,
-
-
-                                                    },
-                                                    {
-                                                        html: '<h4>Specification :</h4><textarea id="DEspec"></textarea>',
-
-                                                        // height: 250,
-
-                                                    },
-                                                ]
-                                            },
-
-                                        ]
-                                    },
-                                ],
-                            },
-                        ]
-                    },
-                    {
-                        title: 'Spanish',
-
-                        items: [
-                            {
-                                xtype: "fieldset",
-                                labelStyle: "font-weight: bold; ",
-                                title: "Spanish Translations",
-                                anchor: "100%",
-                                hidden: false,
-                                id: "ESFIELD",
-                                layoutConfig: {
-                                    // The total column count must be specified here
-                                    columns: 9,
-                                },
-                                items: [
-                                    {
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        border: false,
-                                        items: [
-                                            {
-                                                xtype: 'my-form',
-                                                width: '70%',
-                                                frame: false,
-                                                id: 'formES',
-                                                border: false,
-                                                items: [
-
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "ESCat",
-                                                        name: "ESCat",
-                                                        fieldLabel: "Catalog",
-                                                        allowBlank: true,
-                                                        maxLenght: 118,
-                                                        width: 500,
-                                                        submitvalue: true,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "ESdesc",
-                                                        name: "ESdesc",
-                                                        fieldLabel: "Description",
-                                                        maxLenght: 123,
-                                                        width: 500,
-                                                        allowBlank: true,
-                                                        selectOnFocus: false,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        html: '<h4>Full description :</h4><textarea id="ESFDesc"></textarea><br>',
-
-                                                        // height: 250,
-
-                                                    },
-                                                    {
-                                                        html: '<h4>Specification :</h4><textarea id="ESspec"></textarea>',
-
-                                                        // height: 250,
-
-                                                    },
-                                                ]
-                                            },
-
-                                        ]
-                                    },
-                                ],
-                            },
-                        ]
-                    },
-                    {
-                        title: 'Russian',
-
-                        items: [
-                            {
-                                xtype: "fieldset",
-                                title: "Russian Translations",
-                                anchor: "100%",
-                                hidden: false,
-                                id: "RUFIELD",
-                                layoutConfig: {
-                                    // The total column count must be specified here
-                                    columns: 9,
-                                },
-                                items: [
-                                    {
-                                        layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
-                                        },
-                                        border: false,
-                                        items: [
-                                            {
-                                                xtype: 'my-form',
-                                                width: '70%',
-                                                frame: false,
-                                                id: 'formRU',
-                                                border: false,
-                                                items: [
-
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "RUCat",
-                                                        name: "RUCat",
-                                                        fieldLabel: "Catalog",
-                                                        maxLenght: 118,
-                                                        allowBlank: true,
-                                                        width: 500,
-                                                        submitvalue: true,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        xtype: "textfield",
-                                                        id: "RUdesc",
-                                                        name: "RUdesc",
-                                                        fieldLabel: "Description",
-                                                        maxLenght: 123,
-                                                        width: 500,
-                                                        allowBlank: true,
-                                                        selectOnFocus: false,
-                                                        margin: "25 0 25 0",
-                                                    },
-                                                    {
-                                                        html: '<h4>Full description :</h4><textarea id="RUFDesc"></textarea><br>',
-
-                                                        // height: 250,
-                                                    },
-                                                    {
-
-                                                        html: '<h4>Specification :</h4><textarea id="RUspec"></textarea>',
-
-                                                        // height: 250,
-
-                                                    },
-                                                ]
-                                            },
-
-                                        ]
-                                    },
-                                ],
-                            },
-                        ]
-                    },
-                ]
-            });
 
 
             var itemsAdd = [
@@ -2218,7 +1772,6 @@
                 //     margin: '5px 5px 5px 40%'
                 //   }
                 // },
-                TabTranslations,
             ];
 
             var screenAdd = new Ext.FormPanel({
@@ -2671,7 +2224,7 @@
                     },
                 ],
             });
-           
+
 
             const RelatedDesc = Ext.define("RelatedDesc", {
                 extend: "Ext.data.Model",

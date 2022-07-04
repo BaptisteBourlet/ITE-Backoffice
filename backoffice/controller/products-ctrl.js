@@ -274,22 +274,26 @@ exports.editProduct = async (req, res) => {
    } else {
       con.query(existLink, (err, existResult) => {
          if (err) throw err;
-
-         if (existResult[0].linkCount > 0) {                 // 2 - if TRUE =>  update NEW Category
-            con.query(categoryLinkEdit, (err, editResult) => {
-               if (err) throw err;
-
-               console.log('edited Info Product Category Link')
-            })
-         } else {                                             // 2 - if FALSE => insert NEW record
-            con.query(categoryLinkInsert, (err, insertResult) => {
-               if (err) {
-                  console.log('INSERT ERROR', err);
-               }
-
-               console.log('insert Info Product Category Link')
-            })
+         console.log(existResult[0].linkCount)
+         console.log(Category)
+         if(Category!='' ){
+            if (existResult[0].linkCount) {                 // 2 - if TRUE =>  update NEW Category
+               con.query(categoryLinkEdit, (err, editResult) => {
+                  if (err) throw err;
+   
+                  console.log('edited Info Product Category Link')
+               })
+            } else {                                             // 2 - if FALSE => insert NEW record
+               con.query(categoryLinkInsert, (err, insertResult) => {
+                  if (err) {
+                     console.log('INSERT ERROR', err);
+                  }
+   
+                  console.log('insert Info Product Category Link')
+               })
+            }
          }
+         
       })
    }
 
