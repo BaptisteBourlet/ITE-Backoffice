@@ -307,11 +307,25 @@ exports.editProduct = async (req, res) => {
          ESLanguage, EsDetails, ESDescription, ESSpecification, ESCatalog, ESFullDescription,
          RULanguage, RuDetails, RUDescription, RUSpecification, RUCatalog, RUFullDescription } = req.body;
 
-      const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
-      const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
-      const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
-      const SPQuery = `UPDATE ProductInfo SET Description = '${ESDescription}', Catalog = '${ESCatalog}', Specification = '${ESSpecification}', FullDescription = '${ESFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "es" OR Language = "es"`;
-      const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification}', FullDescription = '${RUFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "ru"`;
+         // added a fix to remove all single quotes 
+         FullDescription2  =    FullDescription.replace(/'/g, `"`);
+         FRFullDescription2  =  FRFullDescription.replace(/'/g, `"`);
+         DEFullDescription2  =  FRFullDescription.replace(/'/g, `"`);
+         ESFullDescription2  =  FRFullDescription.replace(/'/g, `"`);
+         RUFullDescription2  =  FRFullDescription.replace(/'/g, `"`);
+
+         Specification2  =    Specification.replace(/'/g, `"`);
+         FRSpecification2  =    FRSpecification.replace(/'/g, `"`);
+         DESpecification2  =    DESpecification.replace(/'/g, `"`);
+         ESSpecification2  =    ESSpecification.replace(/'/g, `"`);
+         RUSpecification2  =    RUSpecification.replace(/'/g, `"`);
+
+
+      const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification2}', FullDescription = '${FullDescription2}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
+      const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification2}', FullDescription = '${FRFullDescription2}' WHERE ProductId = "${ProductId}"  AND Language = "fr"`;
+      const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification2}', FullDescription = '${DEFullDescription2}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
+      const SPQuery = `UPDATE ProductInfo SET Description = '${ESDescription}', Catalog = '${ESCatalog}', Specification = '${ESSpecification2}', FullDescription = '${ESFullDescription2}' WHERE ProductId = "${ProductId}" AND Language = "es" OR Language = "es"`;
+      const RUQuery = `UPDATE ProductInfo SET Description = '${RUDescription}', Catalog = '${RUCatalog}', Specification = '${RUSpecification2}', FullDescription = '${RUFullDescription2}' WHERE ProductId = "${ProductId}" AND Language = "ru"`;
 
       const FrQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${FRLanguage}", "${ModifiedOn}", "${ProductId}", "${FRDescription}", "${FRSpecification}", "${FRCatalog}", "${FRFullDescription}");`
       const DeQueryInsert = `INSERT INTO ProductInfo (Language, CreatedOn, ProductId, Description, Specification, Catalog, FullDescription) VALUES ("${DELanguage}", "${ModifiedOn}", "${ProductId}", "${DEDescription}", "${DESpecification}", "${DECatalog}", "${DEFullDescription}");`
