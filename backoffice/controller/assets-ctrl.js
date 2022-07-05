@@ -18,7 +18,9 @@ const con = mysql.createConnection({
 exports.getAssets = async (req, res) => {
    const query = 'SELECT Assets.Id, Assets.ProductId, Type, Path, Label, Sequence, Product.CODE, ProductInfo.Catalog FROM Assets'
       + " LEFT JOIN Product ON Product.Id = Assets.ProductId"
-      + " LEFT JOIN ProductInfo ON ProductInfo.ProductId = Product.Id WHERE ProductInfo.Language = 'en' ORDER BY Assets.ProductId;"
+      + " LEFT JOIN ProductInfo ON ProductInfo.ProductId = Product.Id WHERE ProductInfo.Language = 'en' AND Path NOT Like '%-small%' "
+      + "AND Path NOT Like '%-thumb%' AND Path NOT Like '%-medium%' AND Path NOT Like '%-large%'"
+      + "ORDER BY Assets.ProductId;"
 
    con.query(query, (err, result) => {
       if (err) throw err;
@@ -33,8 +35,11 @@ exports.searchAssetsProduct = async (req, res) => {
 
    const query = 'SELECT Assets.Id, Assets.ProductId, Type, Path, Label, Sequence, Product.CODE, ProductInfo.Catalog FROM Assets'
       + " LEFT JOIN Product ON Product.Id = Assets.ProductId"
-      + ` LEFT JOIN ProductInfo ON ProductInfo.ProductId = Product.Id WHERE ProductInfo.Language = 'en' AND Product.CODE LIKE '%${searchQuery}%' ORDER BY Assets.ProductId;`;
-
+      + ` LEFT JOIN ProductInfo ON ProductInfo.ProductId = Product.Id WHERE ProductInfo.Language = 'en' AND Product.CODE LIKE '%${searchQuery}%' `
+      + " AND Path NOT Like '%-small%'"
+      + " AND Path NOT Like '%-thumb%' AND Path NOT Like '%-medium%' AND Path NOT Like '%-large%'"
+      + " ORDER BY Assets.ProductId;";
+      
    con.query(query, (err, results, fields) => {
       if (err) {
          console.log(err)
@@ -47,7 +52,10 @@ exports.searchAssetsProduct = async (req, res) => {
 exports.getSeriesAssets = async (req, res) => {
    const query = 'SELECT Assets.Id, Assets.SerieId, Type, Path, Label, Sequence, Series.Key, SeriesInfo.Title FROM Assets'
       + " LEFT JOIN Series ON Series.Sid = Assets.SerieId"
-      + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.Language = 'en' ORDER BY Assets.SerieId;"
+      + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.Language = 'en'"
+      + " AND Path NOT Like '%-small%'"
+      + " AND Path NOT Like '%-thumb%' AND Path NOT Like '%-medium%' AND Path NOT Like '%-large%'" 
+      + " ORDER BY Assets.SerieId;"
 
    con.query(query, (err, result) => {
       if (err) throw err;
@@ -61,7 +69,10 @@ exports.searchAssetsSeries = async (req, res) => {
 
    const query = 'SELECT Assets.Id, Assets.SerieId, Type, Path, Label, Sequence, Series.Key, SeriesInfo.Title FROM Assets'
       + " LEFT JOIN Series ON Series.Sid = Assets.SerieId"
-      + ` LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.Language = 'en' AND Series.Key LIKE '%${searchQuery}%' ORDER BY Assets.SerieId;`
+      + ` LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = Series.Sid WHERE SeriesInfo.Language = 'en' AND Series.Key LIKE '%${searchQuery}%' ` 
+      + " AND Path NOT Like '%-small%'"
+      + " AND Path NOT Like '%-thumb%' AND Path NOT Like '%-medium%' AND Path NOT Like '%-large%'"
+      + " ORDER BY Assets.SerieId;";
 
    con.query(query, (err, results, fields) => {
       if (err) {
@@ -116,12 +127,39 @@ exports.updateSequence = async (req, res) => {
 
 exports.deleteAssets = async (req, res) => {
    const { itemId, PathJPG } = req.body;
-
+   console.log(PathJPG)
+   let arrayPath = PathJPG.split('.')
+   console.log(arrayPath)
+   let smallPath = arrayPath[0]+'-small.'+arrayPath[1]
+   let largePath = arrayPath[0]+'-large.'+arrayPath[1]
+   let mediumPath = arrayPath[0]+'-medium.'+arrayPath[1]
+   let thumbPath = arrayPath[0]+'-thumb.'+arrayPath[1]
+   console.log(smallPath)
    if (fs.existsSync(appRoot + `/assets/${PathJPG}`)) {
       fs.unlink(appRoot + `/assets/${PathJPG}`, function (err) {
          if (err) throw err;
          // if no error, file has been deleted successfully
-         console.log('File P deleted!');
+         console.log('File original deleted!');
+         fs.unlink(appRoot + `/assets/${smallPath}`, function (err) {
+            if (err) throw err;
+            // if no error, file has been deleted successfully
+            console.log('File small deleted!');
+         })
+         fs.unlink(appRoot + `/assets/${largePath}`, function (err) {
+            if (err) throw err;
+            // if no error, file has been deleted successfully
+            console.log('File large deleted!');
+         })
+         fs.unlink(appRoot + `/assets/${mediumPath}`, function (err) {
+            if (err) throw err;
+            // if no error, file has been deleted successfully
+            console.log('File medium deleted!');
+         })
+         fs.unlink(appRoot + `/assets/${thumbPath}`, function (err) {
+            if (err) throw err;
+            // if no error, file has been deleted successfully
+            console.log('File thumb deleted!');
+         })
          con.query(`DELETE FROM Assets WHERE Id = ${itemId};`, (err, results, fields) => {
             if (err) {
                console.log(err);
