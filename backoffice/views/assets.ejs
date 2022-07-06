@@ -41,13 +41,7 @@
             }
         }
 
-        #ENFIELD-legendTitle,
-        #SPFIELD-legendTitle,
-        #FRFIELD-legendTitle,
-        #DEFIELD-legendTitle,
-        #RUFIELD-legendTitle {
-            font-weight: bold;
-        }
+       
 
         .x-autocontainer-outerCt {
             overflow-y: auto !important;
@@ -226,9 +220,7 @@
                         }
                     },
                 },
-
             ];
-
 
 
             const tbarItems = [
@@ -274,7 +266,6 @@
                                     Ext.getCmp("image").setRawValue(selectedRecord.data.Path)
                                     Ext.getCmp("image").setValue(renderImage() + selectedRecord.data.Path)
                                     Ext.getCmp("Label").setValue(selectedRecord.data.Label)
-                                    //Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
                                     Ext.getCmp("panelAdd").setTitle("Edit assets");
@@ -346,11 +337,7 @@
                                             success: function (response) {
                                                 const res = JSON.parse(response.responseText);
                                             },
-                                            // failure: function (response) {
-                                            //     Ext.getBody().unmask();
-                                            //     console.log(response);
-                                            //     Ext.Msg.alert("INFO", "Converting failed.")
-                                            // },
+                                           
                                         });
                                     }
                                 })
@@ -440,9 +427,7 @@
                                     Ext.getCmp("ProductDesc").setValue(selectedRecord.data.SerieId)
                                     Ext.getCmp("Type").setValue(selectedRecord.data.Type)
                                     Ext.getCmp("image").setRawValue(selectedRecord.data.Path)
-                                    //Ext.getCmp("Path").setValue(selectedRecord.data.Path)
                                     Ext.getCmp("Label").setValue(selectedRecord.data.Label)
-                                    //Ext.getCmp("Sequence").setValue(selectedRecord.data.Sequence)
                                     Ext.getCmp("addSave").setHidden(true);
                                     Ext.getCmp("editSave").setHidden(false);
                                     Ext.getCmp("panelAdd").setTitle("Edit assets");
@@ -629,8 +614,6 @@
                     useDefaultXhrHeader: false,
                 },
             });
-
-
 
             var itemsAdd2 = [
                 {
@@ -888,126 +871,6 @@
                 });
             };
 
-            // const AssetsGrid = Ext.create("Ext.grid.GridPanel", {
-            //     id: "AssetsGrid",
-            //     flex: 1,
-            //     scrollable: true,
-            //     title: "Assets - Products",
-            //     trackOver: true,
-            //     loadMask: true,
-            //     store: AssetsStore, // store
-            //     columns: mainGridColumns, //columns
-            //     enableColumnMove: false,
-            //     sortable: true,
-            //     frame: false,
-            //     selModel: 'cellmodel',
-            //     plugins: {
-            //         ptype: 'cellediting',
-            //         clicksToEdit: 1
-            //     },
-            //     height: 690,
-            //     dockedItems: [...tbarItems],
-            //     listeners: {
-            //         dblclick: {
-            //             element: "body",
-            //             fn: () => {
-
-            //             },
-            //             success: function (response) {
-
-            //                 // check for errors and display error message
-            //                 var check = response.responseText;
-            //                 if (check) {
-            //                     var data = eval("(" + response.responseText + ")");
-            //                     if (data) {
-            //                         // Remember record id's to reselect records after update of the row
-            //                         var selectedrecords = AssetsSerieGrid.getSelectionModel().getSelection();
-            //                         recordIds = [];
-            //                         selectedIdx = [];
-            //                         for (var i = 0, len = selectedrecords.length; i < len; i++) {
-            //                             recordIds[i] = selectedrecords[i].id;
-            //                             selectedIdx[i] = AssetsSerieGrid.getStore().indexOfId(recordIds[i]);
-            //                         }
-            //                         // reload subfile			
-            //                         SeriesAssetsStore.reload(
-            //                             // reselect records after update	
-            //                             {
-            //                                 callback: function () {
-            //                                     for (var i = 0, len = selectedIdx.length; i < len; i++) {
-            //                                         AssetsSerieGrid.getSelectionModel().select(selectedIdx[i]);
-            //                                     }
-            //                                 },
-            //                                 scope: this
-            //                             }
-            //                         );
-            //                         // display subfile
-            //                         Ext.getCmp('viewport').layout.setActiveItem('AssetsSerieGrid');
-            //                     } else {
-            //                         // display error message
-            //                         f = Ext.getCmp(data.FLD);
-            //                         f.markInvalid(data.MSG);
-            //                         f.focus();
-            //                     };
-            //                     Ext.getBody().unmask();
-            //                 };
-            //             },
-            //             failure: function (response) {
-            //                 Ext.getBody().unmask();
-            //             }
-            //         }
-            //     }
-            // })
-
-
-
-
-
-            // const AssetsSerieGrid = Ext.create("Ext.grid.GridPanel", {
-            //     id: "AssetsSerieGrid",
-            //     flex: 1,
-            //     scrollable: true,
-            //     title: "Assets - Series",
-            //     trackOver: true,
-            //     loadMask: true,
-            //     store: SeriesAssetsStore, // store
-            //     columns: SeriesGridColumns, //columns
-            //     enableColumnMove: false,
-            //     sortable: true,
-            //     frame: false,
-            //     height: 690,
-            //     selModel: 'cellmodel',
-            //     plugins: {
-            //         ptype: 'cellediting',
-            //         clicksToEdit: 1
-            //     },
-            //     dockedItems: [...tbarItemsSeries],
-
-            // });
-
-
-            // const AssetsModel = Ext.define("AssetsModel", {
-            //     extend: "Ext.data.Model",
-            //     fields: ["Id", "ProductId", "SerieId", "Type", "Path", "Label", "Sequence", "CODE", "Catalog"],
-            // });
-
-            // const AssetsStore = Ext.create("Ext.data.Store", {
-            //     id: "AssetsStore",
-            //     autoLoad: true,
-            //     model: AssetsModel,
-            //     proxy: {
-            //         type: "ajax",
-            //         method: "GET",
-            //         url: "/apiAssets/getAssets",
-            //         noCache: true,
-            //         reader: {
-            //             type: "json",
-            //         },
-
-            //         cors: true,
-            //         useDefaultXhrHeader: false,
-            //     },
-            // });
-
             const AssetsGrid = Ext.create("Ext.grid.GridPanel", {
                 id: "AssetsGrid",
                 bufferedRenderer: false,
@@ -1119,14 +982,12 @@
                         var selectedRecord = Ext.getCmp("AssetsGrid")
                             .getSelectionModel()
                             .getSelection()[0];
-                        console.log(selectedRecord.data)
                     }
 
                 } else {
                     var selectedRecord = Ext.getCmp("AssetsSerieGrid")
                         .getSelectionModel()
                         .getSelection()[0];
-                    console.log(selectedRecord.data)
                 }
                 Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this assets ?", function (btn, text) {
                     if (btn == 'yes') {
@@ -1313,7 +1174,6 @@
                                     Ext.Msg.alert("INFO", "Form is not valid!")
                                 }
                             } else {
-                                console.log('bug')
                             }
 
                         },
@@ -1403,7 +1263,6 @@
                                     Ext.Msg.alert("INFO", "Form is not valid!")
                                 }
                             } else {
-                                console.log('bug')
                             }
                         }
                     },
@@ -1526,9 +1385,6 @@
                                 Ext.getCmp("viewport").setActiveItem('AssetsSerieGrid')
                             },
                         },
-
-
-
                     ],
                 },
                 {
@@ -1618,7 +1474,6 @@
                     allowBlank: false,
                     width: 500,
                 },
-
 
             ];
 

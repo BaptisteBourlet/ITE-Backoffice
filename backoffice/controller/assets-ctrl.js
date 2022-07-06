@@ -139,33 +139,33 @@ exports.deleteAssets = async (req, res) => {
       fs.unlink(appRoot + `/assets/${PathJPG}`, function (err) {
          if (err) throw err;
          // if no error, file has been deleted successfully
-         console.log('File original deleted!');
+         
          if (fs.existsSync(appRoot + `/assets/${smallPath}`)) {
             fs.unlink(appRoot + `/assets/${smallPath}`, function (err) {
                if (err) throw err;
                // if no error, file has been deleted successfully
-               console.log('File small deleted!');
+               
             })
          }
          if (fs.existsSync(appRoot + `/assets/${largePath}`)) {
             fs.unlink(appRoot + `/assets/${largePath}`, function (err) {
                if (err) throw err;
                // if no error, file has been deleted successfully
-               console.log('File large deleted!');
+              
             })
          }
          if (fs.existsSync(appRoot + `/assets/${mediumPath}`)) {
             fs.unlink(appRoot + `/assets/${mediumPath}`, function (err) {
                if (err) throw err;
                // if no error, file has been deleted successfully
-               console.log('File medium deleted!');
+              
             })
          }
          if (fs.existsSync(appRoot + `/assets/${thumbPath}`)) {
             fs.unlink(appRoot + `/assets/${thumbPath}`, function (err) {
                if (err) throw err;
                // if no error, file has been deleted successfully
-               console.log('File thumb deleted!');
+               
             })
          }
          con.query(`DELETE FROM Assets WHERE Id = ${itemId};`, (err, results, fields) => {
@@ -176,7 +176,6 @@ exports.deleteAssets = async (req, res) => {
             res.send(results)
          })
       });
-      console.log('File exists!');
    } else {
       con.query(`DELETE FROM Assets WHERE Id = ${itemId};`, (err, results, fields) => {
          if (err) {
@@ -189,8 +188,6 @@ exports.deleteAssets = async (req, res) => {
    }
 
 }
-
-
 
 // upload and save image done by upload middleware, check api-routes.
 // after image saved, it will be resized and paths will be saved to Assets database here 
@@ -328,8 +325,6 @@ exports.uploadSerieImage = async (req, res) => {
             if (err) throw err;
          })
 
-
-
          // Check if image is landscape;
 
          imagemagickCli
@@ -371,7 +366,6 @@ exports.uploadSerieImage = async (req, res) => {
    }
 }
 
-
 /* ------------------------------ UPDATE ASSETS ----------------------------- */
 
 // upload and save image done by upload middleware, check api-routes.
@@ -393,10 +387,8 @@ exports.updateuploadProductImage = async (req, res) => {
          fs.unlink(appRoot + `/assets/${oldPath}`, function (err) {
             if (err) throw err;
             // if no error, file has been deleted successfully
-            console.log('File P deleted!');
 
          });
-         console.log('File exists!');
       }
    }
 
@@ -497,10 +489,8 @@ exports.updateuploadSerieImage = async (req, res) => {
          fs.unlink(appRoot + `/assets/${oldPath}`, function (err) {
             if (err) throw err;
             // if no error, file has been deleted successfully
-            console.log('File P deleted!');
 
          });
-         console.log('File exists!');
       }
    }
 
@@ -581,52 +571,6 @@ exports.updateuploadSerieImage = async (req, res) => {
 
       })
    }
-}
-
-// this route is for testing purposes only
-exports.imageMagick = async (req, res) => {
-   // imageMagick.identify(appRoot + '/assets/doge.jpg', (err, features) => {
-   //    if (err) {
-   //       console.log('imageMagick', err);
-   //    }
-   //    // console.log(features);
-   //    console.log(features.width > features.height);
-
-   //    res.send(features);
-   // })
-   // imageMagick.convert([appRoot + '/assets/doge.jpg', '-resize', '25x120', 'doge-small.jpg'],
-   //    function (err, stdout) {
-   //       if (err) throw err;
-   //       console.log('stdout:', stdout);
-   //    });
-
-   // const options = {
-   //    srcPath: appRoot + '/assets/doge.jpg',
-   //    dstPath: appRoot + '/assets/doge-large.jpg',
-   //    width: 200,
-   //    // quality: 0.8,
-   //    // format: 'jpg',
-   //    // progressive: false,
-   //    // srcData: appRoot + '/assets/doge-small.jpg',
-   //    // srcFormat: null,
-   //    // height: 0,
-   //    // strip: true,
-   //    // filter: 'Lagrange',
-   //    // sharpening: 0.2,
-   //    // customArgs: []
-   // }
-   // imageMagick.resize(options, function (err, stdout, sdterr) {
-   //    if (err) throw err;
-   //    console.log('stdout:', stdout);
-   //    console.log('sdterr:', sdterr);
-   // // });
-   // imagemagickCli
-   //    .exec('convert assets/doge.jpg -resize "100" assets/doge-small.jpg')
-   //    .then(({ stdout, stderr }) => {
-   //       // console.log(`Output: ${stdout}`);
-
-   //       res.send(stdout)
-   //    });
 }
 
 
@@ -753,10 +697,7 @@ exports.convertImages = async (req, res) => {
 }
 // Assets.CategoryId,
 exports.getCategoryAssets = async (req, res) => {
-   // const query = 'SELECT Assets.Id, Type, Path, Label, Category.WorkingTitle, CategoryInfo.Name, CatId FROM Assets'
-   //    + " LEFT JOIN Category ON Category.Id = Assets.CatId"
-   //    + " LEFT JOIN CategoryInfo ON CategoryInfo.CategoryId = Category.Id WHERE CategoryInfo.Language = 'en' ORDER BY Assets.CatId;"
-
+   
    const query = "SELECT C.Id, C.WorkingTitle AS Name, IT.Tree, Path FROM Category C"
       + " LEFT JOIN Assets ON CatId = C.Id"
       + " LEFT JOIN InfoTree IT ON C.Id = IT.LinkId and IT.Publish = '1' and IT.Type = 'C' WHERE C.Publish = '1'"
@@ -792,14 +733,13 @@ exports.addCatAssets = async (req, res) => {
       fs.unlink(appRoot + `/assets/${oldImage}`, function (err) {
          if (err) throw err;
          // if no error, file has been deleted successfully
-         console.log('File P deleted!');
+         
 
       });
-      console.log('File exists!');
    }
    if (newName != oldImage) {
       fs.writeFile(appRoot + `/assets/${newName[2]}`, VisualFile, { encoding: 'base64' }, function (err) {
-         console.log('File created');
+         
       });
    }
 
@@ -821,6 +761,5 @@ exports.addCatAssets = async (req, res) => {
          })
       }
    })
-
 
 }

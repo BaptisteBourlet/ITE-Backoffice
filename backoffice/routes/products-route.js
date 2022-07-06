@@ -40,8 +40,6 @@ router.post('/editOnelanguage', apiCtrl.editOnelanguage);
 
 router.post('/editOnelanguagebyAs400', apiCtrl.editOnelanguagebyAs400);
 
-router.post('/uploadTinyMceImage', apiCtrl.uploadTinyMceImage);
-
 router.get('/getbyAS400', apiCtrl.getbyAS400);
 
 router.get('/getIdbyAS400', apiCtrl.getIdbyAS400);

@@ -8,7 +8,6 @@ const imageMagick = require('imagemagick');
 const fs = require('fs')
 const imagemagickCli = require('imagemagick-cli');
 
-// imageMagick.convert.path = '/usr/bin/convert';
 const con = mysql.createConnection({
    ...DB,
    multipleStatements: true,
@@ -72,7 +71,6 @@ exports.getSerieDetails = async (req, res) => {
       })
    }
 }
-
 
 
 exports.deleteSerieRelatedProductFromDetailsView = async (req, res) => {
@@ -201,7 +199,6 @@ exports.editSeries = async (req, res) => {
       con.query(categoryLinkDelete, (err, deleteResult) => {
          if (err) throw err;
 
-         console.log(deleteResult);
       })
    } else {
       con.query(existLink, (err, existResult) => {
@@ -211,15 +208,13 @@ exports.editSeries = async (req, res) => {
             con.query(categoryLinkEdit, (err, editResult) => {
                if (err) throw err;
 
-               console.log('edited Serie Category Link')
             })
          }
          else {                                             // 2 - if FALSE => insert NEW record
             con.query(categoryLinkInsert, (err, insertResult) => {
                if (err) {
-                  console.log('INSERT ERRRROR', err);
+                  console.log('INSERT ERROR', err);
                }
-               console.log('insert Serie Category Link')
             })
          }
       })
@@ -275,9 +270,8 @@ exports.editSeries = async (req, res) => {
             else {                                             // 2 - if FALSE => insert NEW record
                con.query(IENQuery, (err, insertResult) => {
                   if (err) {
-                     console.log('INSERT ERRRROR', err);
+                     console.log('INSERT ERROR', err);
                   }
-                  console.log('insert Serie english translations')
                })
             }
          })
@@ -303,9 +297,8 @@ exports.editSeries = async (req, res) => {
             else {                                             // 2 - if FALSE => insert NEW record
                con.query(IFRQuery, (err, insertResult) => {
                   if (err) {
-                     console.log('INSERT ERRRROR', err);
+                     console.log('INSERT ERROR', err);
                   }
-                  console.log('insert Serie French translations')
                })
             }
          })
@@ -328,9 +321,8 @@ exports.editSeries = async (req, res) => {
             else {                                             // 2 - if FALSE => insert NEW record
                con.query(IDEQuery, (err, insertResult) => {
                   if (err) {
-                     console.log('INSERT ERRRROR', err);
+                     console.log('INSERT ERROR', err);
                   }
-                  console.log('insert Serie DE translations')
                })
             }
          })
@@ -354,9 +346,8 @@ exports.editSeries = async (req, res) => {
             else {                                             // 2 - if FALSE => insert NEW record
                con.query(ISPQuery, (err, insertResult) => {
                   if (err) {
-                     console.log('INSERT ERRRROR', err);
+                     console.log('INSERT ERROR', err);
                   }
-                  console.log('insert Serie ES translations')
                })
             }
          })
@@ -380,9 +371,8 @@ exports.editSeries = async (req, res) => {
             else {                                             // 2 - if FALSE => insert NEW record
                con.query(IRUQuery, (err, insertResult) => {
                   if (err) {
-                     console.log('INSERT ERRRROR', err);
+                     console.log('INSERT ERROR', err);
                   }
-                  console.log('insert Serie RU translations')
                })
             }
          })
@@ -468,27 +458,7 @@ exports.getRelatedProductSerie = async (req, res) => {
                obj.SPLid = SPLid;
                obj.SerieMasterId = idSM;
 
-               // if (subGroupSM != null && groupSD == groupSM && nameSD == subGroupSM) {
-
-               //    obj[groupSM + '-' + subGroupSM] = valueSD;
-
-               // } else if (groupSD == groupSM && nameSD == subGroupSM) {
-               //    obj[groupSM] = valueSD;
-
-               // } else if (groupSD == subGroupSM && nameSD == subGroupSM) {
-               //    obj[groupSM] = valueSD;
-
-               // } else if (subGroupSM != null && groupSD == null && valueSD == null) {
-
-               //    obj[groupSM + '-' + subGroupSM] = valueSD;
-
-               // } else if (subGroupSM == null && groupSD == null) {
-
-               //    obj[groupSM] = valueSD;
-               // } else if (subGroupSM == null && valueSD == null) {
-
-               //    obj[groupSM] = valueSD;
-               // }
+               
 
                if ((subGroupSM === null || subGroupSM === '') && nameSD === '') {
                   obj[groupSM + Sequence] = valueSD;
@@ -508,48 +478,8 @@ exports.getRelatedProductSerie = async (req, res) => {
 }
 
 
-
-
-//  exports.getRelatedProductSerie = async (req, res) => {
-//    const { serieId } = req.query;
-
-//    const query = "SELECT Product.Id, Product.CODE, ProductInfo.Catalog, SeriesProductLink.SPLid, SeriesData.Key, SeriesData.Value FROM Product"
-//       + " LEFT JOIN ProductInfo ON Product.Id = ProductInfo.ProductId"
-//       + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
-//       + " LEFT JOIN SeriesData ON SeriesProductLink.SPLid = SeriesData.SeriesProductLinkId"
-//       + ` WHERE SeriesProductLink.SeriesId = "${serieId}" AND ProductInfo.Language = "en" ORDER BY SeriesProductLink.Sequence;`;
-
-//    con.query(query, (err, results, fields) => {
-//       if (err) throw err;
-
-//       let idArray = [];
-//       let result = [];
-//       results.forEach(res => {
-//          if (!idArray.includes(res.Id)) {
-//             idArray.push(res.Id);
-//          }
-//       })
-
-//       for (let i = 0; i < idArray.length; i++) {
-//          let obj = {};
-//          for (const { Id, Key, Value, CODE, Catalog, SPLid } of results) {
-//             if (Id === idArray[i]) {
-//                obj.id = Id;
-//                obj.Code = CODE;
-//                obj.Name = Catalog;
-//                obj.SPLid = SPLid;
-//                obj[Key] = Value;
-//             }
-//          }
-//          result.push(obj);
-//       }
-//       res.send(result)
-//    })
-// }
-
 exports.addSeriesRelatedProduct = async (req, res) => {
    const { ProductId, SeriesId } = req.body;
-
 
    const querySeriesProductLink = `INSERT INTO SeriesProductLink (ProductId, SeriesId) VALUES ("${ProductId}", "${SeriesId}");`
 
@@ -570,12 +500,10 @@ exports.deleteSerieRelatedProduct = async (req, res) => {
       if (err) {
          errorString += 'Product, '
       }
-      console.log('delete from serie data')
       con.query(`DELETE FROM SeriesProductLink WHERE ProductId = '${ProductId}' AND SeriesId = '${SeriesId}';`, (err, results, fields) => {
          if (err) {
             errorString += 'Product, '
          }
-         console.log('delete from serie product link')
          res.send(results)
       })
    })
@@ -777,11 +705,6 @@ exports.getSerieMaster = async (req, res) => {
 
       res.send(results);
    })
-}
-
-exports.addSerieSpecValue = async (req, res) => {
-   const { Key, Value, Group, SubGroup, SeriesMasterId } = req.body;
-
 }
 
 

@@ -256,10 +256,7 @@
                                     getProductDetails(product.LinkedProductID);
                                  }
                                  productIDGlobal = product.LinkedProductID;
-                                 // Ext.getCmp("productDetails").setTitle(
-                                 //    `PRODUCT DETAILS - ${product.Code}`
-                                 // );
-                                 // Ext.getCmp("viewport").setActiveItem("productDetails");
+                                 
                               },
 
                            }
@@ -823,8 +820,6 @@
          };
 
          var editSerie = function () {
-            //alert(tinyMCE.get('FRspec').getContent());
-            //alert(tinyMCE.get('FRFDesc').getContent());
             Ext.getBody().mask("Saving", "x-msg-loading");
             Ext.Ajax.request({
                url: "/apiSeries/editSeries",
@@ -1053,69 +1048,6 @@
          });
 
 
-         // const serieSpecModel = Ext.define("Categories", {
-         //    extend: "Ext.data.Model",
-         //    fields: ["SerieMasterId", "Key", "Value"],
-         // });
-
-         // const serieSpecStore = Ext.create("Ext.data.Store", {
-         //    id: "mainStore",
-         //    autoLoad: true,
-         //    model: serieSpecModel,
-         //    proxy: {
-         //       type: "ajax",
-         //       method: "GET",
-         //       url: "/apiSeries/getSerieSpecs",
-         //       noCache: true,
-         //       reader: {
-         //          type: "json",
-
-         //       },
-         //       cors: true,
-         //       useDefaultXhrHeader: false,
-         //    },
-         //    listeners: {
-         //       beforeload: function (store) {
-         //       },
-         //    },
-         // });
-
-
-
-
-         // const serieSpecColumn = [
-         //    {
-         //       header: "SerieMasterId",
-         //       sortable: true,
-         //       width: 100,
-         //       dataIndex: "SerieMasterId",
-         //    },
-         //    {
-         //       header: "Name",
-         //       sortable: true,
-         //       width: 150,
-         //       dataIndex: "Name",
-         //    },
-         //    {
-         //       header: "Current Value",
-         //       sortable: true,
-         //       width: 150,
-         //       dataIndex: "CurrentValue",
-         //    },
-         //    {
-         //       header: "New Value",
-         //       sortable: true,
-         //       width: 150,
-         //       dataIndex: "Value",
-         //       editor: {
-         //          completeOnEnter: true,
-         //          field: {
-         //             xtype: "textfield",
-         //             allowBlank: false,
-         //          },
-         //       },
-         //    },
-         // ]
 
          var deleteSeries = function () {
             const selectedRecord = Ext.getCmp("SeriesGrid")
@@ -1391,7 +1323,7 @@
                               content_style: tinycontent_style,
                               setup: function (editor) {
                                  editor.on('init', function (e) {
-                                    console.log('The Editor has initialized:' + this.id);
+                                    
 
                                     if (tinyMCE.get(`spec`) != null) {
                                        getSerieDetails(serieIDGlobal);
@@ -1494,13 +1426,10 @@
             listeners: {
                render: function () {
                   this.items.each(function (i) {
-                     // Ext.getCmp('tabTrans').setActiveTab(i);
+                     
                      i.tab.on('click', function () {
                         Ext.getCmp('tabTrans').setActiveTab(i)
-                        //  getOtherLanguageDetail('fr', serieIDGlobal)
-                        //  getOtherLanguageDetail('de', serieIDGlobal)
-                        //  getOtherLanguageDetail('es', serieIDGlobal)
-                        //  getOtherLanguageDetail('ru', serieIDGlobal)
+                        
                      });
                   })
                },
@@ -2000,9 +1929,7 @@
                   handler: function () {
                      if (Ext.getCmp('addForm').isValid()) {
                         edit = false;
-                        //start debug
-                        //alert('save data handler')
-                        //end debug
+                        
                         editSerie();
                         Ext.getCmp("relatedProducts").removeAll();
                         Ext.getCmp("relatedAccessories").removeAll();
@@ -2353,8 +2280,7 @@
                            content_style: tinycontent_style,
                               setup: function (editor) {
                                  editor.on('init', function (e) {
-                                    console.log('The Editor has initialized:' + this.id);
-                                    console.log(tinyMce_images_upload_url);
+                                    
                                     if (this.id == 'spec') {
                                        getSerieDetails(serieIDGlobal);
                                     }
@@ -2410,8 +2336,7 @@
                         text: "Add Related Product",
                         iconCls: "fa fa-plus",
                         handler: function () {
-                           //Ext.getCmp('fromViewSave').setHidden(false);
-                           //Ext.getCmp('fromAddSave').setHidden(true);
+                           
                            Ext.getCmp("viewport").setActiveItem("panelAdd2");
                         },
                      },
@@ -2458,10 +2383,7 @@
                      var data = eval("(" + response.responseText + ")");
                      if (data.serverStatus == 2) {
                         Ext.getBody().unmask();
-                        //  Ext.Msg.alert(
-                        //     "Success",
-                        //     "You have successfully add the related product"
-                        //  );
+                        
                      } else {
                         // display error message
                         Ext.getBody().unmask();
@@ -2522,7 +2444,7 @@
                   const res = JSON.parse(response.responseText);
 
                   if (from === 'itemsAdd2') {
-                     console.log(res[0].Catalog)
+                    
                      Ext.getCmp("RPCatalog").setValue(res[0].Catalog);
 
 
@@ -2671,7 +2593,6 @@
             enableColumnMove: false,
             sortable: true,
             frame: false,
-            // renderTo: Ext.getBody(),
             height: 690,
             dockedItems: [...linkedProductTbar],
             selModel: 'cellmodel',
@@ -2728,73 +2649,6 @@
                }
             }
          })
-
-         // const SerieSpecs = Ext.create("Ext.grid.GridPanel", {
-         //    id: "SerieSpecs",
-         //    flex: 1,
-         //    scrollable: true,
-         //    title: "Managing Serie Specs",
-         //    trackOver: true,
-         //    loadMask: true,
-         //    store: serieSpecStore,
-         //    columns: serieSpecColumn,
-         //    enableColumnMove: false,
-         //    selModel: 'cellmodel',
-         //    plugins: {
-         //       ptype: 'cellediting',
-         //       clicksToEdit: 1
-         //    },
-         //    sortable: true,
-         //    frame: false,
-         //    renderTo: Ext.getBody(),
-         //    height: 690,
-         //    dockedItems: [
-         //       {
-         //          xtype: "toolbar",
-         //          dock: "top",
-         //          id: "toolBar",
-         //          items: [
-         //             {
-         //                xtype: "button",
-         //                id: "serieSpecBack",
-         //                text: "Back",
-         //                iconCls: "fa fa-undo-alt",
-         //                scale: "small",
-         //                handler: function () {
-         //                   Ext.getCmp('viewport').setActiveItem('linkedProducts')
-         //                },
-         //             },
-         //             "-",
-         //             {
-         //                xtype: "button",
-         //                id: "specValueAdd",
-         //                text: "Add Specs Value",
-         //                iconCls: "fa fa-plus",
-         //                scale: "small",
-         //                handler: function () {
-         //                   Ext.getCmp('viewport').setActiveItem('specValueAddPanel')
-         //                },
-         //             },
-         //             "-",
-         //             {
-         //                xtype: "button",
-         //                id: "serieSpecSave",
-         //                text: "Save",
-         //                iconCls: "fas fa-save",
-         //                scale: "small",
-         //                handler: function () {
-         //                   let updatedRecords = serieSpecStore.getModifiedRecords();
-         //                   if (updatedRecords.length === 0) {
-         //                      Ext.Msg.alert("INFO", "You haven't made any changes");
-         //                   } else {
-         //                      saveSpecEdit(updatedRecords);
-         //                   }
-         //                },
-         //             },
-         //          ],
-         //       },
-         //    ],
-         // });
 
 
          // <!-- ----------------------------------------------------------------------- -->
@@ -3150,8 +3004,6 @@
             ]
 
          })
-
-
 
          const imagePanel = Ext.create('Ext.panel.Panel', {
             id: "imagePanel",

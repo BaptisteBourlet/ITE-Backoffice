@@ -21,20 +21,6 @@ const LANGUAGES = ['en', 'de', 'es', 'fr', 'ru'];
 //                                       PRODUCTS
 // =================================================================================================
 
-// SELECT * FROM Category WHERE ParentId IN (NULL, 1);
-// SELECT * FROM ProductInfo LEFT JOIN SeriesProductLink ON ProductInfo.Id = SeriesProductLink.ProductId WHERE SeriesId = 3;
-// SELECT * FROM Category WHERE (ParentId IS NULL OR ParentId = 0) AND Publish = '1';
-// SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IF.LinkId WHERE IF.Parent = 4;
-// UPDATE InfoTree SET Sequence = ${newSequence} WHERE Parent = ${Category} AND LinkId = ${targetId}
-// SELECT P.Id, P.CODE, PI.Catalog, IT.Type FROM Product P LEFT JOIN ProductInfo PI ON P.Id = PI.ProductId LEFT JOIN InfoTree IT ON P.Id = IT.LinkId WHERE IT.Parent = 4 AND PI.Language = 'en' AND P.hasDetails = 1;
-// con.query(`SELECT MAX(Sequence) FROM RelatedProducts WHERE Type = "${Type}" AND ProductId = ${globalProductID};`)
-// const query = "SELECT Tree, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description"
-//    + " FROM ProductInfo"
-//    + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-//    + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type = 'C'"
-//    + ` WHERE ProductInfo.Language = 'en' ORDER BY ProductInfo.ProductId LIMIT 100;`;
-
-
 
 exports.installation = async (req, res) => {
    fs.unlink(appRoot + "/node_modules/@spmeesseman/extjs-pkg-tinymce/resources/skins/lightgray/content.min.css", function (err) {
@@ -48,21 +34,6 @@ exports.installation = async (req, res) => {
    });
 
 
-}
-
-
-exports.getSomething = async (req, res) => {
-   const query = "SELECT SeriesId FROM SeriesProductLink WHERE ProductId = '71'";
-   const maxSequence = `SELECT MAX(Sequence) as maxSequence, COUNT(*) AS count FROM SeriesMaster WHERE Sid = "5";`;
-   con.query(maxSequence, (err, results) => {
-      if (err) throw err;
-
-      let serieId = results[0].SeriesId
-      const getSPLid = `SELECT SPLid FROM SeriesProductLink WHERE SeriesId = "5"`;
-      con.query(getSPLid, (err, results) => {
-         res.send(results);
-      })
-   })
 }
 
 
@@ -98,52 +69,6 @@ exports.getAllProducts = async (req, res) => {
    })
 }
 
-
-
-// exports.getAllProductsTranslations = async (req, res) => {
-//    const query = "SELECT Tree, ProductInfo.Language, ProductInfo.ProductId as Id, Catalog, CODE, As400Code, Description, SeriesProductLink.ProductId AS SProductId"
-//       + " FROM ProductInfo"
-//       + " LEFT JOIN Product ON ProductInfo.ProductId = Product.Id"
-//       + " LEFT JOIN InfoTree ON InfoTree.LinkId = ProductInfo.ProductId AND InfoTree.Type IN ('P') AND InfoTree.Tree != ''"
-//       + " LEFT JOIN SeriesProductLink ON SeriesProductLink.ProductId = Product.Id"
-//       + " LEFT JOIN SeriesInfo ON SeriesInfo.SeriesId = SeriesProductLink.SeriesId AND SeriesInfo.Language = 'en'"
-//       + ` WHERE ProductInfo.Language = 'en' AND Product.Publish = 1 ORDER BY ProductInfo.ProductId;`;
-
-
-
-//    con.query(query, (err, results, fields) => {
-//       if (err) {
-//          console.log(err)
-//       }
-//       let finalResult = results
-//       var translatedArray = []
-//       var count = finalResult.length
-//       for (var i = 0; i < finalResult.length; i++) {
-
-//          con.query(`SELECT Language, ProductId FROM ProductInfo WHERE ProductInfo.ProductId = ${finalResult[i].Id};`, (error, translatedResults, fields) => {
-//             if (error) throw error;
-//             for (var x = 0; x < translatedResults.length; x++) {
-
-//                if (translatedResults[x].Language == 'en') {
-//                   finalResult.Translated = translatedArray.join(', ')
-//                   translatedArray = []
-//                   translatedArray.push(translatedResults[x].Language)
-
-//                   //console.log(finalResult.Translated)
-//                } else {
-//                   translatedArray.push(translatedResults[x].Language)
-
-//                }
-//             }
-//             if (i == count){
-//                console.log('test i : '+ i)
-//             }
-//          })
-//       }
-
-//       res.send(finalResult)
-//    })
-// }
 
 
 exports.getProductDetails = async (req, res) => {
@@ -421,7 +346,6 @@ exports.editProduct = async (req, res) => {
             con.query(RUQuery, (err, results) => {
                errorString += "Russian";
                console.log(err);
-               console.log(results)
             })
          } else {
             console.log('Russian wasnt filled in');
@@ -475,7 +399,7 @@ exports.editOnelanguagebyAs400 = async (req, res) => {
 
 exports.editlanguagesbyAs400 = async (req, res) => {
 
-   const { as400code, Details, Language, ModifiedOn, Description, Specification, Catalog, FullDescription,
+   const { as400code, ModifiedOn, Description, Specification, Catalog, FullDescription,
       FRLanguage, FrDetails, FRDescription, FRSpecification, FRCatalog, FRFullDescription,
       DELanguage, DeDetails, DEDescription, DESpecification, DECatalog, DEFullDescription,
       ESLanguage, EsDetails, ESDescription, ESSpecification, ESCatalog, ESFullDescription,
@@ -488,7 +412,7 @@ exports.editlanguagesbyAs400 = async (req, res) => {
       if (error) throw error;
 
       ProductId = resultID[0].Id
-      console.log(ProductId)
+      
       const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
       const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
       const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
@@ -641,15 +565,6 @@ exports.editOnelanguage = async (req, res) => {
 
 }
 
-exports.uploadTinyMceImage = async (req, res) => {
-   const { imageTitle, VisualFile } = req.body;
-
-   fs.writeFile(appRoot + `/assets/images/tinyImages/${imageTitle}`, VisualFile, { encoding: 'base64' }, function (err) {
-      console.log('File created');
-   });
-
-
-}
 
 exports.getIdbyAS400 = async (req, res) => {
    const { as400code } = req.query;
@@ -715,7 +630,7 @@ exports.deleteProduct = async (req, res) => {
       // DELETE RELATED
       con.query(existRelated, (err, existResult) => {
          if (err) throw err;
-         console.log(existResult[0].linkCount)
+         
          if (existResult[0].linkCount > 0) {
             con.query(`DELETE FROM RelatedProducts WHERE ProductId = ${ProductId} OR LinkedProductID = ${ProductId};`, (err, results, fields) => {
                if (err) {

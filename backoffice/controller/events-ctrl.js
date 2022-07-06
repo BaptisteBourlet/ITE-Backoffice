@@ -40,13 +40,6 @@ exports.getAllEvents = async (req, res) => {
 }
 
 
-exports.getEventDetail = async (req, res) => {
-   const { eventID } = req.body;
-
-   const eventDetail
-      = `SELECT Id, Name, Location, `
-}
-
 
 exports.addEvent = async (req, res) => {
    const { Name, Location, URL } = req.body;
@@ -105,10 +98,8 @@ exports.editEvent = async (req, res) => {
             fs.unlink(appRoot + `/assets${OldVisual}`, function (err) {
                if (err) throw err;
                // if no error, file has been deleted successfully
-               console.log('File P deleted!');
                
             });
-            console.log('File exists!');
          }
 
          const insertVisual = `UPDATE Event SET Visual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${Id}"`;
@@ -131,10 +122,8 @@ exports.editEvent = async (req, res) => {
                fs.unlink(appRoot + `/assets${OldVisual}`, function (err) {
                   if (err) throw err;
                   // if no error, file has been deleted successfully
-                  console.log('File P deleted!');
                   
                });
-               console.log('File exists!');
             }
 
             const insertVisual = `UPDATE Event SET Visual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${Id}"`;
@@ -151,8 +140,6 @@ exports.editEvent = async (req, res) => {
          
                   });
                
-               
-               console.log('File exists!');
             }
 
             const insertBannerVisual = `UPDATE Event SET BannerVisual = "${visualPath}${req.files[0].originalname}" WHERE Id = "${Id}"`;
@@ -183,7 +170,6 @@ exports.deleteEvent = async (req, res) => {
       fs.unlink(appRoot + `/assets${PathJpg}`, function (err) {
          if (err) throw err;
          // if no error, file has been deleted successfully
-         console.log('File P deleted!');
          con.query(deleteEvent, (err, results, fields) => {
             if (err) {
                console.log(err);
@@ -192,7 +178,6 @@ exports.deleteEvent = async (req, res) => {
             res.send(results)
          })
       });
-      console.log('File exists!');
    } else {
       con.query(deleteEvent, (err, results, fields) => {
          if (err) {

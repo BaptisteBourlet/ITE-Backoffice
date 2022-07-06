@@ -18,8 +18,6 @@ const imgUpload = multer({ storage: storage });
 
 router.get('/getAllEvents', apiCtrl.getAllEvents);
 
-router.post('/getEventDetail', apiCtrl.getEventDetail);
-
 router.post('/addEvent', imgUpload.array('image', 10), apiCtrl.addEvent);
 
 router.post('/editEvent', imgUpload.array('image', 10), apiCtrl.editEvent);

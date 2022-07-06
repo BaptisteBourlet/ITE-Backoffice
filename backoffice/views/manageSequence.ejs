@@ -282,7 +282,6 @@
                      text: "",
                      listeners: {
                         click: function () {
-                           console.log(Ext.getCmp('CategoryID').getRawValue())
                            if (Ext.getCmp('CategoryID').getRawValue() == null || Ext.getCmp('CategoryID').getRawValue() == '') {
                               Ext.Msg.alert("INFO", "No category selected");
                            } else {
@@ -418,7 +417,6 @@
                            );
 
                         } else {
-                           console.log(Ext.getCmp('CategoryID').getValue())
                            sessionStorage.setItem('CategoryId', Ext.getCmp('CategoryID').getValue())
                            Ext.getCmp("viewport").setActiveItem("panelAddRelated");
                         }
@@ -556,7 +554,6 @@
                const selectedRecord = Ext.getCmp("mainGrid")
                   .getSelectionModel()
                   .getSelection()[0];
-               console.log(selectedRecord.data)
                Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this category ?", function (btn, text) {
                   if (btn == 'yes') {
                      Ext.getBody().mask('Deleting', 'x-msg-loading');
@@ -858,8 +855,6 @@
                                           submitvalue: true,
                                           margin: "25 0 25 0",
                                        },
-
-
                                     ]
                                  },
 
@@ -937,19 +932,7 @@
                selectOnFocus: false,
             },
 
-            // {
-            //   xtype: "button",
-            //   id: 'compare',
-            //   text: "Compare Translations",
-            //   iconCls: "fa fa-list",
-            //   handler: function () {
-
-            //   },
-            //   style: {
-
-            //     margin: '5px 5px 5px 40%'
-            //   }
-            // },
+            
             TabTranslations,
          ];
 
@@ -1160,9 +1143,6 @@
             fields: ["CODE", "Id"],
          });
 
-
-
-
          const ProductDetStore = Ext.create("Ext.data.Store", {
             id: "ProductDetStore",
             autoLoad: false,
@@ -1254,7 +1234,6 @@
                queryMode: "local",
                listeners: {
                   select: function () {
-                     console.log('works')
                      let ItemId = this.getValue();
 
                      getRelatedItems(ItemId);
@@ -1344,8 +1323,6 @@
 
             ],
          });
-
-
 
          //=========================================================================================================
          //		           VIEW PORT

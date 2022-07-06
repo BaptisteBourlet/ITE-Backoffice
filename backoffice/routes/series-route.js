@@ -53,8 +53,6 @@ router.post('/addSerieMasterSpecs', apiCtrl.addSerieMasterSpecs);
 
 router.post('/deleteSeriesMasterSpecs', apiCtrl.deleteSeriesMasterSpecs);
 
-router.post('/addSerieSpecValue', apiCtrl.addSerieSpecValue);
-
 router.get('/getSerieMaster', apiCtrl.getSerieMaster);
 
 router.post('/checkIfSerie', apiCtrl.checkIfSerie);

@@ -27,7 +27,6 @@ exports.getLabels = async (req, res) => {
        let lastRecord = null;
  
        function addResult(record) {
-          let idAssigned = false;
           for (let language of LANGUAGES) {
              let translation = record.Translation[language];
              if (translation) {
@@ -183,9 +182,8 @@ exports.getLabels = async (req, res) => {
          else {                                             // 2 - if FALSE => insert NEW record
             con.query(IENQuery, (err, insertResult) => {
                if (err) {
-                  console.log('INSERT ERRRROR', err);
+                  console.log('INSERT ERROR', err);
                }
-               console.log('insert Serie english translations')
             })
          }
       })
@@ -208,9 +206,8 @@ exports.getLabels = async (req, res) => {
          else {                                             // 2 - if FALSE => insert NEW record
             con.query(IFRQuery, (err, insertResult) => {
                if (err) {
-                  console.log('INSERT ERRRROR', err);
+                  console.log('INSERT ERROR', err);
                }
-               console.log('insert Serie French translations')
             })
          }
       })
@@ -232,9 +229,8 @@ exports.getLabels = async (req, res) => {
          else {                                             // 2 - if FALSE => insert NEW record
             con.query(IDEQuery, (err, insertResult) => {
                if (err) {
-                  console.log('INSERT ERRRROR', err);
+                  console.log('INSERT ERROR', err);
                }
-               console.log('insert Serie DE translations')
             })
          }
       })
@@ -256,9 +252,8 @@ exports.getLabels = async (req, res) => {
          else {                                             // 2 - if FALSE => insert NEW record
             con.query(IRUQuery, (err, insertResult) => {
                if (err) {
-                  console.log('INSERT ERRRROR', err);
+                  console.log('INSERT ERROR', err);
                }
-               console.log('insert Serie RU translations')
             })
          }
       })
@@ -280,9 +275,8 @@ exports.getLabels = async (req, res) => {
          else {                                             // 2 - if FALSE => insert NEW record
             con.query(ISPQuery, (err, insertResult) => {
                if (err) {
-                  console.log('INSERT ERRRROR', err);
+                  console.log('INSERT ERROR', err);
                }
-               console.log('insert Serie ES translations')
             })
          }
       })

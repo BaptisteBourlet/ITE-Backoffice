@@ -77,11 +77,6 @@ exports.addCategory = async (req, res) => {
    const { ParentId, Title } = req.body;
    
 
-  // con.query(maxSequence, (err, result, fields) => {
-    //  if (err) {
-      //   console.log(err)
-     // }
-    //  let Sequence = result[0].maxSequence
     let Sequence = 98 ;
       con.query(`INSERT INTO Category (Sequence, WorkingTitle, Publish) VALUES ( "${Sequence + 1}", "${Title}", "1");`, (err, results, fields) => {
          if (err) {
@@ -147,9 +142,8 @@ exports.addCategory = async (req, res) => {
             }
          })
        })
-   //})
+   
 }
-
 
 
 exports.editCategory = async (req, res) => {
@@ -188,7 +182,7 @@ exports.editCategory = async (req, res) => {
          console.log('English wasnt filled in');
       }
       if (FrDetails == 'false' && FRName !== "") {
-         console.log('Fr Insert sql')
+        
          con.query(FrQueryInsert, (err, results) => {
             if (err) {
                errorString += "French, ";
@@ -353,7 +347,6 @@ exports.getRelatedItems = async (req, res) => {
    }
 
 }
-
 
 
 exports.addRelatedItem = async (req, res) => {

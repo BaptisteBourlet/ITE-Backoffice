@@ -251,44 +251,7 @@
 
                     ],
                 },
-                // {
-                //     xtype: "toolbar",
-                //     dock: "top",
-                //     id: "searchBar",
-                //     items: [
-                //         {
-                //             xtype: "numberfield",
-                //             id: "searchChapter",
-                //             iconCls: "fa fa-search",
-                //             width: 130,
-                //             labelWidth: 20,
-                //             emptyText: "Search chapter",
-                //             enableKeyEvents: true,
-                //             listeners: {
-
-                //                 change: () => {
-                //                     console.log(Ext.getCmp('searchChapter').getValue())
-                //                     locationsStore.getProxy().setExtraParam('searchChapter', Ext.getCmp('searchChapter').getValue());
-                //                     locationsStore.reload()
-                //                 }
-                //             },
-                //         },
-
-                // {
-                //     xtype: "button",
-                //     id: "resetSearch",
-                //     iconCls: "fas fa-undo-alt",
-                //     text: "reset",
-                //     style: "padding: 7px; border: none; background-color: #000",
-                //     listeners: {
-                //         click: () => {
-                //             Ext.getCmp("searchChapter").setValue("");
-                //             locationsStore.reload();
-                //         },
-                //     },
-                // },
-                //     ],
-                // },
+               
             ];
 
             const locationsModel = Ext.define("locationsModel", {
@@ -318,22 +281,7 @@
                 extend: "Ext.data.Model",
                 fields: ["name", "code"]
             });
-            // const countryStore2 = Ext.create("Ext.data.JsonStore", {
-
-            //     // store configs
-            //     storeId: 'countryStore2',
-            //     model: "countryModel",
-            //     autoLoad: true,
-
-            //     url: '/data/countries.json',
-            //     rootProperty: 'data',
-            //     reader: {
-            //         type: "json",
-            //     },
-
-
-
-            // });
+            
 
             var countryStore2 = Ext.create('Ext.data.Store', {
                 model: 'countryModel',
@@ -348,21 +296,7 @@
                 autoLoad: true
             });
 
-            // var countryStore = Ext.create('Ext.data.Store', {
-            //     autoLoad: true,
-            //     model: "countryModel",
-            //     proxy: {
-            //         type: 'ajax',
-            //         url: 'data/countries.json',
-            //         method: "GET",
-            //         messageProperty: 'jsonData',
-            //         reader: {
-            //             type: 'json',
-            //             rootProperty: 'data'
-            //         }
-            //     }
-            // });
-
+           
             const locationsGrid = Ext.create("Ext.grid.GridPanel", {
                 id: "locationsGrid",
                 bufferedRenderer: false,

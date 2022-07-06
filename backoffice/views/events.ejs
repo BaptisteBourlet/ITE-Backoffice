@@ -185,10 +185,7 @@
             Ext.getCmp('startDate').setValue(record.data['Start'].slice(0, 10))
             Ext.getCmp('endDate').setValue(record.data['End'].slice(0, 10))
 
-            // Ext.getCmp('startDate').setValue(new Date(new Date(record.data['Start']).getTime() + (1 * 3600 * 1000)))
-            // Ext.getCmp('startDate').setValue(new Date(new Date(record.data['Start']).getTime()))
-            // Ext.getCmp('endDate').setValue(new Date(new Date(record.data['End']).getTime()))
-
+           
             Ext.getCmp('eventVisual').allowBlank = true;
             Ext.getCmp('eventVisualBanner').allowBlank = true;
 
@@ -555,43 +552,7 @@
                      },
                   ]
                },
-               // {
-               //    xtype: "container",
-               //    id: "imageContainer",
-               //    border: false,
-               //    scrollable: true,
-               //    layout: {
-               //       type: 'container',
-               //    },
-               //    width: 600,
-               //    style: 'padding: 10px 10px;',
-               //    items: [
-               //       {
-               //          xtype: "displayfield",
-               //          fieldLabel: 'Visual',
-               //          width: 300,
-               //       },
-               //       {
-               //          xtype: 'image',
-               //          id: 'visual',
-               //          width: 300,
-               //          flex: 1,
-               //          style: 'padding: 10px;',
-               //       },
-               //       {
-               //          xtype: "displayfield",
-               //          fieldLabel: 'Banner Visual',
-               //          width: 300,
-               //       },
-               //       {
-               //          xtype: 'image',
-               //          id: 'bannerVisual',
-               //          width: 300,
-               //          flex: 1,
-               //          style: 'padding: 10px;',
-               //       },
-               //    ]
-               // }
+              
             ]
          })
 

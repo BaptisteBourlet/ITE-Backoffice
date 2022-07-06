@@ -1034,48 +1034,10 @@
         });
       }
 
-      // const getOneOtherLanguageDetail = (language, productId) => {
-      //   Ext.Ajax.request({
-      //     url: "/apiProducts/getOtherLanguageDetail",
-      //     method: "POST",
-      //     cors: true,
-      //     useDefaultXhrHeader: false,
-      //     params: {
-      //       language: language,
-      //       productId: productId,
-      //     },
-      //     success: function (response) {
-      //       const res = JSON.parse(response.responseText);
-
-      //       if (res != '') {
-      //         sessionStorage.setItem('EditOne', 'true')
-      //         Ext.getCmp(`oneCat`).setValue(res[0].Catalog);
-
-      //         Ext.getCmp(`onedesc`).setValue(res[0].Description);
-
-
-      //         if (tinyMCE.get(`oneFDesc`) != null) {
-      //           tinyMCE.get(`oneFDesc`).setContent(res[0].FullDescription);
-
-      //           tinyMCE.get(`onespec`).setContent(res[0].Specification);
-      //         }
-
-
-      //       } else {
-      //         sessionStorage.setItem('EditOne', 'false')
-
-      //       }
-
-      //     },
-      //     failure: function (response) {
-      //       console.log("failed", response);
-      //     },
-      //   });
-      // }
 
       const searchProduct = (searchField, searchTarget) => {
         let searchQuery = Ext.getCmp(searchField).getValue();
-        console.log(Ext.getCmp('unpub').getValue())
+        
         Ext.getBody().mask("Saving", "x-msg-loading");
         Ext.Ajax.request({
           url: "/apiProducts/searchProduct",
@@ -1284,42 +1246,7 @@
           useDefaultXhrHeader: false,
 
         },
-        //  sorters: [
-        //    {
-        //      // Sort by first letter of second word of spirit animal, in descending order
-        //      sorterFn: function (record1, record2) {
-        //        var name1 = record1.data.Tree
-        //        var name2 = record2.data.Tree
-        //
-        //              if (name1 != null) {
-        //
-        //                name1 = name1.split('.')
-        //                name1.splice(1, 0, '.')
-        //                name1 = name1.join('')
-        //
-        //              name1 = Number(name1)
-        //
-        //
-        //            }
-
-        //           if (name2 != null) {
-
-        //           name2 = name2.split('.')
-        //           name2.splice(1, 0, '.')
-        //           name2 = name2.join('')
-        //           name2 = Number(name2)
-
-
-        //              } else {
-        //                name1 = null
-        //                name2 = null
-        //              }
-        //              return name1 >= name2 ? 1 : name1 === null ? -1 : name2 === null ? -1 : 0;
-        //            },
-
-        //            direction: 'ASC'
-        //          }
-        //        ],
+        
 
         listeners: {
           beforeload: function (store) {
@@ -1351,56 +1278,6 @@
         //if store has any records, it would print sum of all values of fieldName column.
       }, this, { single: true });
 
-
-      // const mainStoreT = Ext.create("Ext.data.Store", {
-      //   id: "mainStoreT",
-      //   autoLoad: true,
-      //   model: Model,
-      //   proxy: {
-      //     type: "ajax",
-      //     method: "POST",
-      //     url: "/apiProducts/getAllProductsTranslations",
-      //     noCache: true,
-      //     reader: {
-      //       type: "json",
-      //       rootProperty: "allProducts",
-      //       totalProperty: "totalCount",
-      //     },
-      //     cors: true,
-      //     useDefaultXhrHeader: false,
-      //   },
-      //   listeners: {
-      //     beforeload: function (store) { },
-
-      //   },
-
-      // });
-      // mainStoreT.on('load', function (store, records) {
-      //   records.forEach(element => {
-
-      //     let arrayTranslated = []
-      //     let arrayNotTranslated = []
-
-      //     if (element.data.Language == 'en') {
-
-      //       arrayTranslated.push('en')
-
-      //     } else if (element.data.Language == 'fr') {
-
-      //       element.data.Tree = 'serie'
-      //     } else if (element.data.Language == 'de') {
-
-      //       element.data.Tree = 'serie'
-      //     } else if (element.data.Language == 'es') {
-
-      //       element.data.Tree = 'serie'
-      //     } else if (element.data.Language == 'ru') {
-
-      //       element.data.Tree = 'serie'
-      //     }
-      //   });
-      //   //if store has any records, it would print sum of all values of fieldName column.
-      // }, this);
 
       const linkedProductModel = Ext.define("Categories", {
         extend: "Ext.data.Model",
@@ -1449,16 +1326,7 @@
                 Ext.getCmp('viewport').setActiveItem('productDetails');
               },
             },
-            // "-",
-            // {
-            //   xtype: "button",
-            //   id: "addLinkedProducts",
-            //   text: "Add Linked Product",
-            //   iconCls: "fa fa-plus",
-            //   handler: function () {
-            //     Ext.getCmp("viewport").setActiveItem("panelAddRelated");
-            //   },
-            // },
+           
           ],
         },
       ];
@@ -1682,11 +1550,6 @@
 
                   getProductDetails(selectedRecord.data.Id);
 
-                  // getOtherLanguageDetail('en', productIDGlobal)
-                  // getOtherLanguageDetail('fr', productIDGlobal)
-                  // getOtherLanguageDetail('de', productIDGlobal)
-                  // getOtherLanguageDetail('es', productIDGlobal)
-                  // getOtherLanguageDetail('ru', productIDGlobal)
 
                 }
               },
@@ -1707,7 +1570,7 @@
               text: "View Linked Images",
               iconCls: "fas fa-images",
               scale: "small",
-              handler: function () { //ongoing
+              handler: function () { 
                 const selectedRecord = Ext.getCmp("AllProductGrid")
                   .getSelectionModel()
                   .getSelection()[0];
@@ -1905,7 +1768,6 @@
               sessionStorage.setItem('prodId', selectedRecord.data.Id)
               getProductDetails(selectedRecord.data.Id);
               productIDGlobal = selectedRecord.data.Id;
-              // As400global = selectedRecord.data.As400Code
               checkIfSerie(productIDGlobal);
 
               Ext.getCmp("productDetails").setTitle(
@@ -1917,201 +1779,6 @@
         },
       });
 
-      // var grid = Ext.getCmp('AllProductGrid');
-      // var store = Ext.getStore('mainStore');
-      // store.each(function (record, idx) {
-      //   if (record.get('Tree') == '1.1.1'){
-      //     record.set('Tree', 'yes')
-      //   }
-      //     if (record.get('Tree') != null && record.get('SProductId') != null) {
-      //       console.log('tree' + 'serie')
-      //        record.set('Tree', record.get('Tree') + ' serie') 
-
-      //     } else if (record.get('Tree') == null && record.get('SProductId') != null) {
-
-      //        record.get('Tree') = 'serie'
-      //     } else {
-
-      //       record.get('Tree') = record.get('Tree')
-      //     }
-
-
-      //   record.commit();
-      // });
-      // console.log(store.data.items)
-      // // grid.reconfigure(store) 
-      // grid.getView().refresh();
-
-
-      // var itemsAddEditLanguages = [
-
-      //   {
-      //     xtype: "textfield",
-      //     id: "oneCat",
-      //     name: "oneCat",
-      //     fieldLabel: "Catalog",
-      //     maxLenght: 118,
-      //     width: 500,
-      //     allowBlank: false,
-      //     submitvalue: true,
-      //     margin: "25 0 25 0",
-      //   },
-      //   {
-      //     xtype: "textfield",
-      //     id: "onedesc",
-      //     name: "onedesc",
-      //     fieldLabel: "Description",
-      //     maxLenght: 123,
-      //     width: 500,
-      //     allowBlank: false,
-      //     selectOnFocus: false,
-      //     margin: "25 0 25 0",
-      //   },
-      //   {
-      //     html: '<h4>Full description :</h4><textarea id="oneFDesc"></textarea>',
-      //     // height: 250,
-      //   },
-      //   {
-      //     html: '<h4>Specification :</h4><textarea id="onespec"></textarea>',
-
-      //     // height: 250,
-      //   },
-      // ];
-
-      // var screenAddEditLanguages = new Ext.FormPanel({
-      //   frame: false,
-      //   header: false,
-      //   border: false,
-      //   defaults: {
-      //     labelAlign: "right",
-      //     labelWidth: 105,
-      //     listeners: {
-      //       // specialkey: function (field, e) {
-      //       //   if (e.getKey() == e.ENTER) {
-      //       //     updateRec();
-      //       //   }
-      //       //   if (e.getKey() == e.ESC) {
-      //       //     Ext.getCmp("viewport").setActiveItem("chapterTransltedGrid");
-      //       //   }
-      //       // },
-      //     },
-      //   },
-      //   width: '100%',
-      //   waitMsgTarget: true,
-      //   autoScroll: true,
-      //   style: "padding: 3px 3px 3px 3px;",
-      //   items: [
-      //     {
-      //       layout: "column",
-      //       layoutConfig: {
-      //         columns: 2,
-      //       },
-      //       border: false,
-      //       items: [
-      //         {
-      //           xtype: 'my-form',
-      //           id: "FormEditLanguages",
-      //           columnWidth: 1,
-      //           border: false,
-      //           items: itemsAddEditLanguages,
-      //         },
-      //       ],
-      //     },
-      //   ],
-      // });
-
-      // const editOneLanguageProduct = () => {
-      //   Ext.Ajax.request({
-      //     url: "/apiProducts/editOnelanguage",
-      //     method: "POST",
-      //     cors: true,
-      //     useDefaultXhrHeader: false,
-      //     params: {
-      //       ProductId: productIDGlobal,
-      //       Language: sessionStorage.getItem('oneLanguage'),
-      //       Details: sessionStorage.getItem('EditOne'),
-      //       ModifiedOn: formatDate,
-      //       Description: Ext.getCmp("onedesc").getValue().trim(),
-      //       Specification: tinyMCE.get('onespec').getContent(),
-      //       Catalog: Ext.getCmp("oneCat").getValue().trim(),
-      //       FullDescription: tinyMCE.get('oneFDesc').getContent(),
-
-
-      //     },
-      //     success: function (response) {
-      //       const res = JSON.parse(response.responseText);
-
-      //       Ext.Msg.alert("INFO!", `Product has been edited successfully`);
-      //       getProductDetails(productIDGlobal);
-      //       Ext.getCmp("viewport").setActiveItem("productDetails");
-
-
-      //     },
-      //     failure: function (response) {
-      //       console.log("failed", response);
-      //     },
-      //   });
-      // };
-
-      // outer panel container to hold tbar and keypress definitions
-      // var panelAddEditLanguages = new Ext.Panel({
-      //   layout: "fit",
-      //   id: "panelAddEditLanguages",
-      //   title: "Add product",
-      //   header: true,
-      //   items: [screenAddEditLanguages],
-      //   tbar: [
-
-      //     {
-      //       text: "Save",
-      //       id: "editSaveEditLanguages",
-      //       iconCls: "fas fa-save",
-      //       handler: function () {
-      //         if (Ext.getCmp('FormEditLanguages').isValid()) {
-      //           edit = false;
-
-
-      //           var stringToHTML = function (str) {
-      //             var dom = document.createElement('div');
-      //             dom.innerHTML = str;
-      //             return dom;
-
-      //           };
-
-      //           const element = stringToHTML(tinyMCE.get('oneFDesc').getContent());
-
-      //           var allImages = element.getElementsByTagName("img");
-      //           console.log(allImages)
-      //           const tinymcearraysave = (sessionStorage.getItem('tinymceArray')).split(',')
-      //           console.log(tinymcearraysave)
-      //           var images = [];
-      //           for (var i = 0, len = allImages.length; i < len; ++i) {
-      //             allImages[i].src = tinymcearraysave[i]
-
-      //             images.push(allImages[i]);
-
-      //           }
-      //           console.log(tinyMCE.get('oneFDesc').getContent())
-      //           console.log(images)
-      //           editOneLanguageProduct();
-      //           Ext.getCmp("FormEditLanguages").reset();
-      //         }
-      //       },
-      //     },
-      //     "-",
-      //     {
-      //       text: "Cancel",
-      //       tooltip: "Cancel",
-      //       id: 'cancelEditLanguages',
-      //       iconCls: "fas fa-undo",
-      //       handler: function () {
-      //         edit = false;
-      //         Ext.getCmp('FormEditLanguages').reset();
-      //         Ext.getCmp("viewport").setActiveItem("productDetails");
-      //       },
-      //     },
-      //   ],
-      // });
 
       const productDetails = Ext.create("Ext.panel.Panel", {
         id: "productDetails",
@@ -2233,7 +1900,7 @@
               },
               "-",
               {
-                xtype: "button", //ongoing
+                xtype: "button", 
                 id: "editDetail",
                 text: "Edit",
                 iconCls: "fa fa-edit",
@@ -2280,84 +1947,13 @@
                       ' | bullist numlist outdent indent | ' +
                       ' table | link image | removeformat  code | help',
                     height: tinyHeight,
-                    // image_description: false,
-                    // image_title: false,
-                    // /* enable automatic uploads of images represented by blob or data URIs*/
-                    // automatic_uploads: true,
-
-                    // file_picker_types: 'image',
-                    // /* and here's our custom image picker*/
-                    // file_picker_callback: function (cb, value, meta) {
-                    //   var input = document.createElement('input');
-                    //   input.setAttribute('type', 'file');
-                    //   input.setAttribute('accept', 'image/*');
-
-
-                      // input.onchange = function () {
-                      //   var file = this.files[0];
-
-                      //   var reader = new FileReader();
-                      //   reader.onload = function () {
-
-                      //     var id = 'blobid' + (new Date()).getTime();
-                      //     var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-                      //     var base64 = reader.result.split(',')[1];
-
-                      //     var blobInfo = blobCache.create(id, file, base64);
-                      //     blobCache.add(blobInfo);
-
-
-
-
-                      //     tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
-                      //     // console.log(tinymceArray)
-                      //     sessionStorage.setItem('tinymceArray', tinymceArray)
-                      //     Ext.Ajax.request({
-                      //       url: "/apiProducts/uploadTinyMceImage",
-                      //       method: "POST",
-                      //       cors: true,
-                      //       useDefaultXhrHeader: false,
-                      //       params: {
-                      //         imageTitle: file.name,
-                      //         VisualFile: base64,
-
-                      //       },
-                      //       success: function (fp, object) {
-                      //         Ext.getBody().unmask();
-                      //       },
-                      //       failure: function (obj, res) {
-                      //         Ext.getBody().unmask();
-                      //         if (res) {
-
-
-                      //         } else {
-                      //           Ext.Msg.alert(
-                      //             "ERROR",
-                      //             "Failed to upload image. Contact your IT team."
-                      //           );
-                      //         }
-                      //       },
-                      //     });
-
-
-                      //     /* call the callback and populate the Title field with the file name */
-                      //     cb(blobInfo.blobUri(), { title: file.name });
-                      //   };
-                      //   reader.readAsDataURL(file);
-
-                      // };
-                      // input.click();
-
-                    // },
+                    
 
                     content_style: tinycontent_style,
                     setup: function (editor) {
                       editor.on('init', function (e) {
-                        console.log('The Editor has initialized:' + this.id);
+                        
 
-                        //  if (this.id == 'spec') {
-                        //  getProductDetails(productIDGlobal);
-                        // }
                         if (this.id == 'ENspec') {
                           getOtherLanguageDetail('en', productIDGlobal)
                         }
@@ -2382,7 +1978,7 @@
               },
               "-",
               {
-                xtype: "button", //ongoing
+                xtype: "button", 
                 id: "editSerieSpecs",
                 text: "Edit Serie Specs",
                 iconCls: "fa fa-edit",
@@ -2441,277 +2037,7 @@
                   Ext.getCmp('viewport').setActiveItem('linkedImageGrid');
                 },
               },
-              // {
-              //   xtype: "button",
-              //   id: "redirect",
-              //   text: "View details",
-              //   iconCls: "",
-              //   handler: function () {
-              //     window.open('http://localhost:12080/productDetails/'+As400global, "_self")
-              //   },
-              // },
-              // {
-              //   xtype: "button",
-              //   id: "editLanguagesBtn",
-              //   text: "Edit Languages",
-              //   iconCls: "fa fa-language",
-
-              //   // hidden: true,
-              //   menu: {
-              //     items: [{
-              //       text: 'Edit English',
-              //       handler: function () {
-              //         var tinymceArray = []
-              //         window.open('http://localhost:12080/EN/'+As400global, "_self")
-              //         panelAddEditLanguages.setTitle('Edit English')
-              //         sessionStorage.setItem('oneLanguage', 'en')
-              //         Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-              // tinymce.init({
-              //   selector: 'textarea',
-              //   images_upload_url: tinyMce_images_upload_url,
-              //   plugins: tinyplugins,
-              //   // menubar: 'true',
-              //   toolbar: 'undo redo |  ' +
-
-              //     'bold italic forecolor | alignleft aligncenter ' +
-
-              //     ' | bullist numlist outdent indent | ' +
-
-              //     ' table | link image | removeformat  code | help',
-              //   height: tinyHeight,
-              //   // image_prepend_url: '/data/',
-              //   image_description: false,
-              //   image_title: false,
-              //   /* enable automatic uploads of images represented by blob or data URIs*/
-              //   automatic_uploads: true,
-
-              //   file_picker_types: 'image',
-              //   /* and here's our custom image picker*/
-              //   file_picker_callback: function (cb, value, meta) {
-              //     var input = document.createElement('input');
-              //     input.setAttribute('type', 'file');
-              //     input.setAttribute('accept', 'image/*');
-
-
-              //     input.onchange = function () {
-              //       var file = this.files[0];
-
-              //       var reader = new FileReader();
-              //       reader.onload = function () {
-
-              //         var id = 'blobid' + (new Date()).getTime();
-              //         var blobCache = tinymce.activeEditor.editorUpload.blobCache;
-              //         var base64 = reader.result.split(',')[1];
-
-              //         var blobInfo = blobCache.create(id, file, base64);
-              //         blobCache.add(blobInfo);
-
-
-
-
-              //         tinymceArray.push(`<img src="/tinyImages/${file.name}">`)
-              //         // console.log(tinymceArray)
-              //         sessionStorage.setItem('tinymceArray', tinymceArray)
-              //         Ext.Ajax.request({
-              //           url: "/apiProducts/uploadTinyMceImage",
-              //           method: "POST",
-              //           cors: true,
-              //           useDefaultXhrHeader: false,
-              //           params: {
-              //             imageTitle: file.name,
-              //             VisualFile: base64,
-
-              //           },
-              //           success: function (fp, object) {
-              //             Ext.getBody().unmask();
-              //           },
-              //           failure: function (obj, res) {
-              //             Ext.getBody().unmask();
-              //             if (res) {
-
-
-              //             } else {
-              //               Ext.Msg.alert(
-              //                 "ERROR",
-              //                 "Failed to upload image. Contact your IT team."
-              //               );
-              //             }
-              //           },
-              //         });
-
-
-              //         /* call the callback and populate the Title field with the file name */
-              //         cb(blobInfo.blobUri(), { title: file.name });
-              //       };
-              //       reader.readAsDataURL(file);
-
-              //     };
-              //     input.click();
-
-              //   },
-
-              //   content_style: tinycontent_style,
-              //   setup: function (editor) {
-              //     editor.on('init', function (e) {
-
-              //       if (this.id == 'onespec') {
-              //         getOneOtherLanguageDetail('en', productIDGlobal)
-              //       }
-              //     })
-              //   }
-              // })
-              //   tinyMCE.get(`onespec`).setContent('')
-              //   tinyMCE.get(`oneFDesc`).setContent('')
-              //   if (tinyMCE.get(`onespec`) != null) {
-              //     getOneOtherLanguageDetail('en', productIDGlobal)
-
-              //   }
-              // }
-              //     }, {
-              //       text: 'Edit French',
-              //       handler: function () {
-              //         window.open('http://localhost:12080/FR/'+As400global, "_self")
-              //         panelAddEditLanguages.setTitle('Edit French')
-              //         sessionStorage.setItem('oneLanguage', 'fr')
-              //         Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-              //         tinymce.init({
-              //           selector: 'textarea',
-              //           images_upload_url: tinyMce_images_upload_url,
-              //           plugins: tinyplugins,
-              //           // menubar: 'true',
-              //           toolbar: 'undo redo |  ' +
-
-              //             'bold italic forecolor | alignleft aligncenter ' +
-
-              //             ' | bullist numlist outdent indent | ' +
-
-              //             ' table | link image | removeformat  code | help',
-              //           height: tinyHeight,
-              //           content_style: tinycontent_style,
-              //           setup: function (editor) {
-              //             editor.on('init', function (e) {
-
-              //               if (this.id == 'onespec') {
-              //                 getOneOtherLanguageDetail('fr', productIDGlobal)
-              //               }
-              //             })
-              //           }
-              //         });
-              //         tinyMCE.get(`onespec`).setContent('')
-              //         tinyMCE.get(`oneFDesc`).setContent('')
-              //         if (tinyMCE.get(`onespec`) != null) {
-              //           getOneOtherLanguageDetail('fr', productIDGlobal)
-              //         }
-              //       }
-              //     }, {
-              //       text: 'Edit German',
-              //       handler: function () {
-              //         panelAddEditLanguages.setTitle('Edit German')
-              //         sessionStorage.setItem('oneLanguage', 'de')
-              //         Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-              //         tinymce.init({
-              //           selector: 'textarea',
-              //           images_upload_url: tinyMce_images_upload_url,
-              //           plugins: tinyplugins,
-              //           // menubar: 'true',
-              //           toolbar: 'undo redo |  ' +
-
-              //             'bold italic forecolor | alignleft aligncenter ' +
-
-              //             ' | bullist numlist outdent indent | ' +
-
-              //             ' table | link image | removeformat  code | help',
-              //           height: tinyHeight,
-              //           content_style: tinycontent_style,
-              //           setup: function (editor) {
-              //             editor.on('init', function (e) {
-
-              //               if (this.id == 'onespec') {
-              //                 getOneOtherLanguageDetail('de', productIDGlobal)
-              //               }
-              //             })
-              //           }
-              //         });
-              //         tinyMCE.get(`onespec`).setContent('')
-              //         tinyMCE.get(`oneFDesc`).setContent('')
-              //         if (tinyMCE.get(`onespec`) != null) {
-              //           getOneOtherLanguageDetail('de', productIDGlobal)
-              //         }
-              //       }
-              //     }, {
-              //       text: 'Edit Spanish',
-              //       handler: function () {
-              //         panelAddEditLanguages.setTitle('Edit Spanish')
-              //         sessionStorage.setItem('oneLanguage', 'es')
-              //         Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-              //         tinymce.init({
-              //           selector: 'textarea',
-              //           images_upload_url: tinyMce_images_upload_url,
-              //           plugins: tinyplugins,
-              //           // menubar: 'true',
-              //           toolbar: 'undo redo |  ' +
-
-              //             'bold italic forecolor | alignleft aligncenter ' +
-
-              //             ' | bullist numlist outdent indent | ' +
-
-              //             ' table | link image | removeformat  code | help',
-              //           height: tinyHeight,
-              //           content_style: tinycontent_style,
-              //           setup: function (editor) {
-              //             editor.on('init', function (e) {
-
-              //               if (this.id == 'onespec') {
-              //                 getOneOtherLanguageDetail('es', productIDGlobal)
-              //               }
-              //             })
-              //           }
-              //         });
-              //         tinyMCE.get(`onespec`).setContent('')
-              //         tinyMCE.get(`oneFDesc`).setContent('')
-              //         getOneOtherLanguageDetail('es', productIDGlobal)
-
-              //       }
-              //     }, {
-              //       text: 'Edit Russian',
-              //       handler: function () {
-              //         panelAddEditLanguages.setTitle('Edit Russian')
-              //         sessionStorage.setItem('oneLanguage', 'ru')
-              //         Ext.getCmp('viewport').setActiveItem('panelAddEditLanguages');
-              //         tinymce.init({
-              //           selector: 'textarea',
-              //           images_upload_url: tinyMce_images_upload_url,
-              //           plugins: tinyplugins,
-              //           // menubar: 'true',
-              //           toolbar: 'undo redo |  ' +
-
-              //             'bold italic forecolor | alignleft aligncenter ' +
-
-              //             ' | bullist numlist outdent indent | ' +
-
-              //             ' table | link image | removeformat  code | help',
-              //           height: tinyHeight,
-              //           content_style: tinycontent_style,
-              //           setup: function (editor) {
-              //             editor.on('init', function (e) {
-
-              //               if (this.id == 'onespec') {
-              //                 getOneOtherLanguageDetail('ru', productIDGlobal)
-              //               }
-              //             })
-              //           }
-              //         });
-              //         tinyMCE.get(`onespec`).setContent('')
-              //         tinyMCE.get(`oneFDesc`).setContent('')
-              //         if (tinyMCE.get(`onespec`) != null) {
-              //           getOneOtherLanguageDetail('ru', productIDGlobal)
-              //         }
-              //       }
-              //     },
-              //     ]
-              //   },
-
-              // },
+             
             ],
           },
         ],
@@ -2757,34 +2083,6 @@
               i.tab.on('click', function () {
                 Ext.getCmp('tabTrans').setActiveTab(i)
 
-                // tinymce.init({
-                //   selector: 'textarea',
-                //   plugins: [
-
-                //     'advlist autolink lists link image charmap print preview anchor',
-
-                //     'searchreplace visualblocks code fullscreen',
-
-                //     'insertdatetime media table paste code help wordcount'
-
-                //   ],
-                //   // menubar: 'true',
-                //   toolbar: 'undo redo |  ' +
-
-                //     'bold italic forecolor | alignleft aligncenter ' +
-
-                //     ' | bullist numlist outdent indent | ' +
-
-                //     ' table | link image | removeformat  code | help',
-                //   height: tinyHeight,
-                //   content_style: tinycontent_style
-                // });
-                // if(edit == true){
-                // getOtherLanguageDetail('fr', productIDGlobal)
-                // getOtherLanguageDetail('de', productIDGlobal)
-                // getOtherLanguageDetail('es', productIDGlobal)
-                // getOtherLanguageDetail('ru', productIDGlobal)
-                // }
               });
             });
           }
@@ -2843,12 +2141,12 @@
                           },
                           {
                             html: '<h4>Full description :</h4><textarea id="ENFDesc"></textarea>',
-                            // height: 250,
+                            
                           },
                           {
                             html: '<h4>Specification :</h4><textarea id="ENspec"></textarea>',
 
-                            // height: 250,
+                            
                           },
                         ]
                       },
@@ -2863,12 +2161,7 @@
           {
             title: 'French',
 
-            // listeners: {
-            //     onClick: () => {
-            //       console.log('test')
-            //       tinymce.init({ selector:'textarea' });
-            //     },
-            //   },
+           
             items: [
               {
                 xtype: "fieldset",
@@ -2921,13 +2214,11 @@
                           {
                             html: '<h4>Full description :</h4><textarea id="FRFDesc"></textarea><br>',
 
-                            // height: 250,
 
                           },
                           {
                             html: '<h4>Specification :</h4><textarea id="FRspec"></textarea>',
 
-                            // height: 250,
 
                           },
                         ]
@@ -2994,14 +2285,9 @@
                           {
                             html: '<h4>Full description :</h4><textarea id="DEFDesc"></textarea><br>',
 
-                            // height: 250,
-
-
                           },
                           {
                             html: '<h4>Specification :</h4><textarea id="DEspec"></textarea>',
-
-                            // height: 250,
 
                           },
                         ]
@@ -3069,13 +2355,9 @@
                           {
                             html: '<h4>Full description :</h4><textarea id="ESFDesc"></textarea><br>',
 
-                            // height: 250,
-
                           },
                           {
                             html: '<h4>Specification :</h4><textarea id="ESspec"></textarea>',
-
-                            // height: 250,
 
                           },
                         ]
@@ -3142,13 +2424,10 @@
                           {
                             html: '<h4>Full description :</h4><textarea id="RUFDesc"></textarea><br>',
 
-                            // height: 250,
                           },
                           {
 
                             html: '<h4>Specification :</h4><textarea id="RUspec"></textarea>',
-
-                            // height: 250,
 
                           },
                         ]
@@ -3233,19 +2512,7 @@
           allowBlank: true,
           selectOnFocus: false,
         },
-        // {
-        //   xtype: "button",
-        //   id: 'compare',
-        //   text: "Compare Translations",
-        //   iconCls: "fa fa-list",
-        //   handler: function () {
-
-        //   },
-        //   style: {
-
-        //     margin: '5px 5px 5px 40%'
-        //   }
-        // },
+        
         TabTranslations,
       ];
 
@@ -3305,7 +2572,6 @@
             id: "addSave",
             iconCls: "fas fa-save",
             handler: function () {
-
 
               if (Ext.getCmp('addForm').isValid()) {
                 Ext.getCmp('tabTrans').setActiveTab(0)
@@ -3580,7 +2846,7 @@
 
               tinyMCE.get('RUFDesc').setContent('');
               tinyMCE.get('RUspec').setContent('');
-              // clearEditInfo();
+              
               Ext.getCmp("relatedProducts").removeAll();
               Ext.getCmp("relatedAccessories").removeAll();
               Ext.getCmp("relatedParts").removeAll();
@@ -3800,8 +3066,6 @@
       };
 
 
-
-
       var addRelatedProdFromView = function (globalProductID) {
         Ext.getBody().mask("Saving", "x-msg-loading");
         Ext.Ajax.request({
@@ -3919,7 +3183,6 @@
         enableColumnMove: false,
         sortable: true,
         frame: false,
-        // renderTo: Ext.getBody(),
         height: 690,
         dockedItems: [...linkedProductTbar],
         selModel: 'cellmodel',
