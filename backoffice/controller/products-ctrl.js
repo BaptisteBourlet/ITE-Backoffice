@@ -310,9 +310,9 @@ exports.editProduct = async (req, res) => {
          // added a fix to remove all single quotes 
          FullDescription2  =    FullDescription.replace(/'/g, `"`);
          FRFullDescription2  =  FRFullDescription.replace(/'/g, `"`);
-         DEFullDescription2  =  FRFullDescription.replace(/'/g, `"`);
-         ESFullDescription2  =  FRFullDescription.replace(/'/g, `"`);
-         RUFullDescription2  =  FRFullDescription.replace(/'/g, `"`);
+         DEFullDescription2  =  DEFullDescription.replace(/'/g, `"`);
+         ESFullDescription2  =  ESFullDescription.replace(/'/g, `"`);
+         RUFullDescription2  =  RUFullDescription.replace(/'/g, `"`);
 
          Specification2  =    Specification.replace(/'/g, `"`);
          FRSpecification2  =    FRSpecification.replace(/'/g, `"`);
