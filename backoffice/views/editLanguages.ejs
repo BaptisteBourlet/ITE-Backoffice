@@ -76,7 +76,9 @@
 
         @media (max-width: 481px) {
 
-            #productDetails,
+            #productDetails{
+        display: none !important;
+      }
 
 
             #small-view {
@@ -251,7 +253,7 @@
                                     'bold italic forecolor | alignleft aligncenter ' +
                                     ' | bullist numlist outdent indent | ' +
                                     ' table | link image | removeformat  code | help',
-                                height: tinyHeight,
+                                
                                 content_style: tinycontent_style,
                                 setup: function (editor) {
                                     editor.on('init', function (e) {
@@ -404,7 +406,7 @@
                                 //     ' | bullist numlist outdent indent | ' +
 
                                 //     ' table | link image | removeformat  code | help',
-                                //   height: tinyHeight,
+                                //   
                                 //   content_style: tinycontent_style
                                 // });
                                 // if(edit == true){
@@ -872,7 +874,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                    
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(2)
@@ -888,7 +890,6 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(3)
@@ -904,7 +905,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                    
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(4)
@@ -920,7 +921,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                    
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(0)

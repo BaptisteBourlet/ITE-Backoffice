@@ -95,6 +95,7 @@ exports.getProductDetails = async (req, res) => {
 
 exports.getOtherLanguageDetail = async (req, res) => {
    const { productId, language } = req.body;
+   
    const query = `SELECT Catalog, Description, FullDescription, Specification FROM ProductInfo WHERE Language = "${language}" AND ProductId = "${productId}";`;
 
    con.query(query, (err, results, fields) => {
@@ -412,7 +413,7 @@ exports.editlanguagesbyAs400 = async (req, res) => {
       if (error) throw error;
 
       ProductId = resultID[0].Id
-      
+      console.log(ProductId)
       const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
       const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
       const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
@@ -571,7 +572,7 @@ exports.getIdbyAS400 = async (req, res) => {
 
    con.query(`SELECT Product.Id FROM Product WHERE As400Code = "${as400code}" AND Publish = 1;`, (error, results, fields) => {
       if (error) throw error;
-
+      
       res.send(results);
    })
 }
