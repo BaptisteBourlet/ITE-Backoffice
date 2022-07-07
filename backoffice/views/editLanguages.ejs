@@ -58,7 +58,7 @@
         }
 
         textarea {
-            height: 500px;
+            height: 300px;
 
         }
 
@@ -76,9 +76,9 @@
 
         @media (max-width: 481px) {
 
-            #productDetails{
-        display: none !important;
-      }
+            #productDetails {
+                display: none !important;
+            }
 
 
             #small-view {
@@ -251,7 +251,7 @@
                                     'bold italic forecolor | alignleft aligncenter ' +
                                     ' | bullist numlist outdent indent | ' +
                                     ' table | link image | removeformat  code | help',
-                                
+                                // height: tinyHeight,
                                 content_style: tinycontent_style,
                                 setup: function (editor) {
                                     editor.on('init', function (e) {
@@ -288,33 +288,33 @@
             getIdbyAS400()
 
             let current_datetime = new Date();
-      var time = function () {
-        if (current_datetime.getMonth() + 1 < 10) {
-          return "0" + Number(current_datetime.getMonth() + 1);
-        } else {
-          current_datetime.getMonth() + 1;
-        }
-      };
+            var time = function () {
+                if (current_datetime.getMonth() + 1 < 10) {
+                    return "0" + Number(current_datetime.getMonth() + 1);
+                } else {
+                    current_datetime.getMonth() + 1;
+                }
+            };
 
-      let formatted_date =
-        current_datetime.getFullYear() +
-        "-" +
-        time() +
-        "-" +
-        current_datetime.getDate() +
-        " " +
-        current_datetime.getHours() +
-        ":" +
-        current_datetime.getMinutes() +
-        ":" +
-        current_datetime.getSeconds();
+            let formatted_date =
+                current_datetime.getFullYear() +
+                "-" +
+                time() +
+                "-" +
+                current_datetime.getDate() +
+                " " +
+                current_datetime.getHours() +
+                ":" +
+                current_datetime.getMinutes() +
+                ":" +
+                current_datetime.getSeconds();
 
-      let formatDate =
-        current_datetime.getDate() +
-        "/" +
-        time() +
-        "/" +
-        current_datetime.getFullYear();
+            let formatDate =
+                current_datetime.getDate() +
+                "/" +
+                time() +
+                "/" +
+                current_datetime.getFullYear();
             const editProduct = () => {
                 Ext.Ajax.request({
                     url: "/apiProducts/editlanguagesbyAs400",
@@ -360,9 +360,9 @@
                     },
                     success: function (response) {
                         const res = JSON.parse(response.responseText);
-                        
+
                         Ext.Msg.alert("INFO!", `Product has been edited successfully`);
-                        
+
                     },
                     failure: function (response) {
                         console.log("failed", response);
@@ -385,7 +385,7 @@
                             i.tab.on('click', function () {
                                 Ext.getCmp('tabTrans').setActiveTab(i)
 
-                               
+
                             });
                         });
                     }
@@ -464,7 +464,7 @@
                     {
                         title: 'French',
 
-                        
+
                         items: [
                             {
                                 xtype: "fieldset",
@@ -826,7 +826,7 @@
                         iconCls: "fas fa-save",
                         handler: function () {
                             if (Ext.getCmp('addForm').isValid()) {
-                                
+
                                 Ext.getCmp('tabTrans').setActiveTab(1)
                                 tinymce.init({
                                     selector: 'textarea',
@@ -840,7 +840,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    
+                                    // height: tinyHeight,
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(2)
@@ -856,6 +856,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
+                                    // height: tinyHeight,
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(3)
@@ -871,7 +872,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    
+                                    // height: tinyHeight,
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(4)
@@ -887,12 +888,12 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    
+                                    // height: tinyHeight,
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(0)
                                 editProduct();
-                                
+
                             }
                         },
                     },

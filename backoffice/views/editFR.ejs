@@ -58,8 +58,7 @@
         }
 
         textarea {
-            height: 500px;
-
+            height: 400px;
         }
 
         #ENFIELD-legendTitle,
@@ -175,7 +174,7 @@
                     'bold italic forecolor | alignleft aligncenter ' +
                     ' | bullist numlist outdent indent | ' +
                     ' table | link image | removeformat  code | help',
-                
+
                 content_style: tinycontent_style
             });
 
@@ -241,7 +240,7 @@
                                     ' | bullist numlist outdent indent | ' +
 
                                     ' table | link image | removeformat  code | help',
-                               
+
                                 content_style: tinycontent_style,
                                 setup: function (editor) {
                                     editor.on('init', function (e) {
@@ -266,28 +265,28 @@
 
                         } else {
                             tinymce.init({
-                selector: 'textarea',
-                images_upload_url: tinyMce_images_upload_url,
-                plugins: tinyplugins,
-                // menubar: 'true',
-                toolbar: 'undo redo |  ' +
+                                selector: 'textarea',
+                                images_upload_url: tinyMce_images_upload_url,
+                                plugins: tinyplugins,
+                                // menubar: 'true',
+                                toolbar: 'undo redo |  ' +
 
-                    'bold italic forecolor | alignleft aligncenter ' +
+                                    'bold italic forecolor | alignleft aligncenter ' +
 
-                    ' | bullist numlist outdent indent | ' +
+                                    ' | bullist numlist outdent indent | ' +
 
-                    ' table | link image | removeformat  code | help',
-               
-                content_style: tinycontent_style,
-                setup: function (editor) {
-                    editor.on('init', function (e) {
+                                    ' table | link image | removeformat  code | help',
 
-                        if (this.id == 'onespec') {
-                            getOneOtherLanguageDetail(langue, test)
-                        }
-                    })
-                }
-            });
+                                content_style: tinycontent_style,
+                                setup: function (editor) {
+                                    editor.on('init', function (e) {
+
+                                        if (this.id == 'onespec') {
+                                            getOneOtherLanguageDetail(langue, test)
+                                        }
+                                    })
+                                }
+                            });
                             sessionStorage.setItem('EditOne', 'false')
 
                         }
@@ -374,31 +373,22 @@
                 defaults: {
                     labelAlign: "right",
                     labelWidth: 105,
-                    listeners: {
-                        // specialkey: function (field, e) {
-                        //   if (e.getKey() == e.ENTER) {
-                        //     updateRec();
-                        //   }
-                        //   if (e.getKey() == e.ESC) {
-                        //     Ext.getCmp("viewport").setActiveItem("chapterTransltedGrid");
-                        //   }
-                        // },
-                    },
+
                 },
-                width: '100%',
                 waitMsgTarget: true,
                 autoScroll: true,
                 style: "padding: 3px 3px 3px 3px;",
                 items: [
                     {
-                        layout: "column",
-                        layoutConfig: {
-                            columns: 2,
+                        layout: {
+                            type: 'hbox',
+                            align: 'stretch'
                         },
                         border: false,
                         items: [
                             {
                                 xtype: 'my-form',
+                                width: '70%',
                                 id: "FormEditLanguages",
                                 columnWidth: 1,
                                 border: false,
@@ -458,32 +448,11 @@
                                 edit = false;
 
 
-                                // var stringToHTML = function (str) {
-                                //     var dom = document.createElement('div');
-                                //     dom.innerHTML = str;
-                                //     return dom;
-
-                                // };
-
-                                // const element = stringToHTML(tinyMCE.get('oneFDesc').getContent());
-
-                                // var allImages = element.getElementsByTagName("img");
-                                // console.log(allImages)
-                                // const tinymcearraysave = (sessionStorage.getItem('tinymceArray')).split(',')
-                                // console.log(tinymcearraysave)
-                                // var images = [];
-                                // for (var i = 0, len = allImages.length; i < len; ++i) {
-                                //     allImages[i].src = tinymcearraysave[i]
-
-                                //     images.push(allImages[i]);
-
-                                // }
-                                // console.log(images)
                                 editOneLanguageProduct();
                             }
                         },
                     },
-                    
+
                 ],
             });
 
