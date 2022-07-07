@@ -156,7 +156,6 @@
 
             var getas400 = pathArray[2];
             productIDGlobal = getas400
-            console.log(productIDGlobal)
 
             Ext.define('MyApp.view.Form', {
                 extend: 'Ext.form.Panel',
@@ -220,7 +219,6 @@
 
                         if (res != '') {
                             ProdID = res[0].Id
-                            console.log(ProdID)
 
                             Ext.getCmp('tabTrans').setActiveTab(1);
                             Ext.getCmp('tabTrans').setActiveTab(2);
@@ -387,34 +385,7 @@
                             i.tab.on('click', function () {
                                 Ext.getCmp('tabTrans').setActiveTab(i)
 
-                                // tinymce.init({
-                                //   selector: 'textarea',
-                                //   plugins: [
-
-                                //     'advlist autolink lists link image charmap print preview anchor',
-
-                                //     'searchreplace visualblocks code fullscreen',
-
-                                //     'insertdatetime media table paste code help wordcount'
-
-                                //   ],
-                                //   // menubar: 'true',
-                                //   toolbar: 'undo redo |  ' +
-
-                                //     'bold italic forecolor | alignleft aligncenter ' +
-
-                                //     ' | bullist numlist outdent indent | ' +
-
-                                //     ' table | link image | removeformat  code | help',
-                                //   
-                                //   content_style: tinycontent_style
-                                // });
-                                // if(edit == true){
-                                // getOtherLanguageDetail('fr', productIDGlobal)
-                                // getOtherLanguageDetail('de', productIDGlobal)
-                                // getOtherLanguageDetail('es', productIDGlobal)
-                                // getOtherLanguageDetail('ru', productIDGlobal)
-                                // }
+                               
                             });
                         });
                     }
@@ -493,12 +464,7 @@
                     {
                         title: 'French',
 
-                        // listeners: {
-                        //     onClick: () => {
-                        //       console.log('test')
-                        //       tinymce.init({ selector:'textarea' });
-                        //     },
-                        //   },
+                        
                         items: [
                             {
                                 xtype: "fieldset",

@@ -170,7 +170,6 @@
                         const res = JSON.parse(response.responseText);
 
                         if (res != '') {
-                            console.log(res[0].Id)
                             ProdID = res[0].Id
                             getOtherLanguageDetail('fr', ProdID)
                             getOtherLanguageDetail('de', ProdID)
@@ -205,11 +204,7 @@
                         } else {
                             getEditInfo(res[0][0]);
                         }
-                        console.log(res[0][0])
-                        getOtherLanguageDetail('fr', res[0][0])
-                        getOtherLanguageDetail('de', res[0][0])
-                        getOtherLanguageDetail('es', res[0][0])
-                        getOtherLanguageDetail('ru', res[0][0])
+                       
 
                         if (Category !== '') {
                             Ext.getCmp('unlinkCategory').setValue(false)
@@ -931,6 +926,7 @@
             }
 
             const getOtherLanguageDetail = (language, productId) => {
+                console.log(productId)
                 Ext.Ajax.request({
                     url: "/apiProducts/getOtherLanguageDetail",
                     method: "POST",

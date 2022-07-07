@@ -413,7 +413,7 @@ exports.editlanguagesbyAs400 = async (req, res) => {
       if (error) throw error;
 
       ProductId = resultID[0].Id
-      console.log(ProductId)
+      
       const ENQuery = `UPDATE ProductInfo SET Description = '${Description}', Catalog = '${Catalog}', Specification = '${Specification}', FullDescription = '${FullDescription}' WHERE ProductId = "${ProductId}" AND Language = "en"`;
       const FRQuery = `UPDATE ProductInfo SET Description = '${FRDescription}', Catalog = '${FRCatalog}', Specification = '${FRSpecification}', FullDescription = '${FRFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "fr"`;
       const DEQuery = `UPDATE ProductInfo SET Description = '${DEDescription}', Catalog = '${DECatalog}', Specification = '${DESpecification}', FullDescription = '${DEFullDescription}' WHERE ProductId = "${ProductId}" AND Language = "de"`;
@@ -585,7 +585,7 @@ exports.getbyAS400 = async (req, res) => {
    con.query(`SELECT Product.Id FROM Product WHERE As400Code = "${as400code}" AND Publish = 1;`, (error, results, fields) => {
       if (error) throw error;
       productId = results[0].Id;
-
+      
 
       const query = "SELECT Catalog, Description, Specification, FullDescription, CODE, As400Code, Parent AS CategoryId, P.Publish"
          + " FROM ProductInfo PI LEFT JOIN Product P ON PI.ProductId = P.Id"
