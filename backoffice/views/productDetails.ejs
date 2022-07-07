@@ -243,7 +243,7 @@
                     'bold italic forecolor | alignleft aligncenter ' +
                     ' | bullist numlist outdent indent | ' +
                     ' table | link image | removeformat  code | help',
-                height: tinyHeight,
+                
                 content_style: tinycontent_style
             });
             const relatedProducts = (products) => {
@@ -263,174 +263,9 @@
                                 dock: "top",
                                 style: "border: none; margin: 0px; padding: 0px;",
                                 items: [
-                                    {
+                                    , {
                                         xtype: "button",
-                                        text: "",
-                                        iconCls: "fa fa-trash-alt",
-                                        scale: "small",
-                                        style: "border: none; margin: 2px;",
-                                        listeners: {
-                                            click: function () {
-                                                Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
-                                                    if (btn == 'yes') {
-                                                        Ext.getBody().mask('Deleting', 'x-msg-loading');
-                                                        Ext.Ajax.request({
-                                                            // !! Url works for product
-                                                            url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
-                                                            method: "POST",
-                                                            cors: true,
-                                                            useDefaultXhrHeader: false,
-                                                            params: {
-                                                                Id: product.Id,
-                                                            },
-                                                            success: function (response) {
-                                                                // check for errors and display error message
-                                                                var check = response.responseText;
-                                                                if (check) {
-                                                                    var data = eval("(" + response.responseText + ")");
-
-                                                                    if (data.serverStatus == 2) {
-                                                                        Ext.getCmp("relatedProducts").removeAll();
-                                                                        Ext.getCmp("relatedAccessories").removeAll();
-                                                                        Ext.getCmp("relatedParts").removeAll();
-                                                                        getProductDetails(productIDGlobal);
-                                                                        Ext.getBody().unmask();
-                                                                        Ext.Msg.alert(
-                                                                            "Success",
-                                                                            "You have successfully deleted the related product"
-                                                                        );
-                                                                    } else {
-                                                                        // display error message
-                                                                        Ext.getBody().unmask();
-                                                                        Ext.Msg.alert(
-                                                                            "ERROR",
-                                                                            "Failed to delete the related product. Contact your IT team."
-                                                                        );
-                                                                    }
-                                                                }
-                                                            },
-                                                            failure: function (response) {
-                                                                Ext.getBody().unmask();
-                                                                Ext.Msg.alert(
-                                                                    "ERROR",
-                                                                    "Failed to delete related product. Contact your IT team."
-                                                                );
-                                                            },
-
-                                                        });
-                                                    }
-                                                })
-                                            }
-
-                                        },
-                                        handleClick: function () {
-                                            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
-                                                if (btn == 'yes') {
-                                                    Ext.getBody().mask('Deleting', 'x-msg-loading');
-                                                    Ext.Ajax.request({
-                                                        // !! Url works for product
-                                                        url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
-                                                        method: "POST",
-                                                        cors: true,
-                                                        useDefaultXhrHeader: false,
-                                                        params: {
-                                                            Id: product.Id,
-                                                        },
-                                                        success: function (response) {
-                                                            // check for errors and display error message
-                                                            var check = response.responseText;
-                                                            if (check) {
-                                                                var data = eval("(" + response.responseText + ")");
-
-                                                                if (data.serverStatus == 2) {
-                                                                    Ext.getCmp("relatedProducts").removeAll();
-                                                                    Ext.getCmp("relatedAccessories").removeAll();
-                                                                    Ext.getCmp("relatedParts").removeAll();
-                                                                    getProductDetails(productIDGlobal);
-                                                                    Ext.getBody().unmask();
-                                                                    Ext.Msg.alert(
-                                                                        "Success",
-                                                                        "You have successfully deleted the related product"
-                                                                    );
-                                                                } else {
-                                                                    // display error message
-                                                                    Ext.getBody().unmask();
-                                                                    Ext.Msg.alert(
-                                                                        "ERROR",
-                                                                        "Failed to delete the related product. Contact your IT team."
-                                                                    );
-                                                                }
-                                                            }
-                                                        },
-                                                        failure: function (response) {
-                                                            Ext.getBody().unmask();
-                                                            Ext.Msg.alert(
-                                                                "ERROR",
-                                                                "Failed to delete related product. Contact your IT team."
-                                                            );
-                                                        },
-
-                                                    });
-                                                }
-                                            })
-
-
-                                        },
-                                        handler: function () {
-                                            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
-                                                if (btn == 'yes') {
-                                                    Ext.getBody().mask('Deleting', 'x-msg-loading');
-                                                    Ext.Ajax.request({
-                                                        // !! Url works for product
-                                                        url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
-                                                        method: "POST",
-                                                        cors: true,
-                                                        useDefaultXhrHeader: false,
-                                                        params: {
-                                                            Id: product.Id,
-                                                        },
-                                                        success: function (response) {
-                                                            // check for errors and display error message
-                                                            var check = response.responseText;
-                                                            if (check) {
-                                                                var data = eval("(" + response.responseText + ")");
-
-                                                                if (data.serverStatus == 2) {
-                                                                    Ext.getCmp("relatedProducts").removeAll();
-                                                                    Ext.getCmp("relatedAccessories").removeAll();
-                                                                    Ext.getCmp("relatedParts").removeAll();
-                                                                    getProductDetails(productIDGlobal);
-                                                                    Ext.getBody().unmask();
-                                                                    Ext.Msg.alert(
-                                                                        "Success",
-                                                                        "You have successfully deleted the related product"
-                                                                    );
-                                                                } else {
-                                                                    // display error message
-                                                                    Ext.getBody().unmask();
-                                                                    Ext.Msg.alert(
-                                                                        "ERROR",
-                                                                        "Failed to delete the related product. Contact your IT team."
-                                                                    );
-                                                                }
-                                                            }
-                                                        },
-                                                        failure: function (response) {
-                                                            Ext.getBody().unmask();
-                                                            Ext.Msg.alert(
-                                                                "ERROR",
-                                                                "Failed to delete related product. Contact your IT team."
-                                                            );
-                                                        },
-
-                                                    });
-                                                }
-                                            })
-
-
-                                        },
-                                    }, {
-                                        xtype: "button",
+                                        disabled : true,
                                         text: `${product.Description} [${product.Code}]`,
                                         cls: "a",
                                         style: "border: none; margin: 2px 0px;",
@@ -478,67 +313,9 @@
                                 dock: "top",
                                 style: "border: none; margin: 0px; padding: 0px;",
                                 items: [
-                                    {
+                                     {
                                         xtype: "button",
-                                        text: "",
-                                        iconCls: "fa fa-trash-alt",
-                                        scale: "small",
-                                        style: "border: none; margin: 2px;",
-                                        handler: function () {
-                                            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
-                                                if (btn == 'yes') {
-                                                    Ext.getBody().mask('Deleting', 'x-msg-loading');
-                                                    Ext.Ajax.request({
-                                                        // !! Url works for product
-                                                        url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
-                                                        method: "POST",
-                                                        cors: true,
-                                                        useDefaultXhrHeader: false,
-                                                        params: {
-                                                            Id: product.Id,
-                                                        },
-                                                        success: function (response) {
-                                                            // check for errors and display error message
-                                                            var check = response.responseText;
-                                                            if (check) {
-                                                                var data = eval("(" + response.responseText + ")");
-
-                                                                if (data.serverStatus == 2) {
-                                                                    Ext.getCmp("relatedProducts").removeAll();
-                                                                    Ext.getCmp("relatedAccessories").removeAll();
-                                                                    Ext.getCmp("relatedParts").removeAll();
-                                                                    getProductDetails(productIDGlobal);
-                                                                    Ext.getBody().unmask();
-                                                                    Ext.Msg.alert(
-                                                                        "Success",
-                                                                        "You have successfully deleted the related product"
-                                                                    );
-                                                                } else {
-                                                                    // display error message
-                                                                    Ext.getBody().unmask();
-                                                                    Ext.Msg.alert(
-                                                                        "ERROR",
-                                                                        "Failed to delete the related product. Contact your IT team."
-                                                                    );
-                                                                }
-                                                            }
-                                                        },
-                                                        failure: function (response) {
-                                                            Ext.getBody().unmask();
-                                                            Ext.Msg.alert(
-                                                                "ERROR",
-                                                                "Failed to delete related product. Contact your IT team."
-                                                            );
-                                                        },
-
-                                                    });
-                                                }
-                                            })
-
-
-                                        },
-                                    }, {
-                                        xtype: "button",
+                                        disabled : true,
                                         text: `${product.Description} [${product.Code}]`,
                                         cls: "a",
                                         style: "border: none; margin: 2px 0px;",
@@ -586,67 +363,9 @@
                                 dock: "top",
                                 style: "border: none; margin: 0px; padding: 0px;",
                                 items: [
-                                    {
+                                     {
                                         xtype: "button",
-                                        text: "",
-                                        iconCls: "fa fa-trash-alt",
-                                        scale: "small",
-                                        style: "border: none; margin: 2px;",
-                                        handler: function () {
-                                            Ext.Msg.confirm('Confirm delete', "Are you sure you want to remove this related product ?", function (btn, text) {
-                                                if (btn == 'yes') {
-                                                    Ext.getBody().mask('Deleting', 'x-msg-loading');
-                                                    Ext.Ajax.request({
-                                                        // !! Url works for product
-                                                        url: "/apiProducts/deleteSerieRelatedProductFromDetailsView",
-                                                        method: "POST",
-                                                        cors: true,
-                                                        useDefaultXhrHeader: false,
-                                                        params: {
-                                                            Id: product.Id,
-                                                        },
-                                                        success: function (response) {
-                                                            // check for errors and display error message
-                                                            var check = response.responseText;
-                                                            if (check) {
-                                                                var data = eval("(" + response.responseText + ")");
-
-                                                                if (data.serverStatus == 2) {
-                                                                    Ext.getCmp("relatedProducts").removeAll();
-                                                                    Ext.getCmp("relatedAccessories").removeAll();
-                                                                    Ext.getCmp("relatedParts").removeAll();
-                                                                    getProductDetails(productIDGlobal);
-                                                                    Ext.getBody().unmask();
-                                                                    Ext.Msg.alert(
-                                                                        "Success",
-                                                                        "You have successfully deleted the related product"
-                                                                    );
-                                                                } else {
-                                                                    // display error message
-                                                                    Ext.getBody().unmask();
-                                                                    Ext.Msg.alert(
-                                                                        "ERROR",
-                                                                        "Failed to delete the related product. Contact your IT team."
-                                                                    );
-                                                                }
-                                                            }
-                                                        },
-                                                        failure: function (response) {
-                                                            Ext.getBody().unmask();
-                                                            Ext.Msg.alert(
-                                                                "ERROR",
-                                                                "Failed to delete related product. Contact your IT team."
-                                                            );
-                                                        },
-
-                                                    });
-                                                }
-                                            })
-
-
-                                        },
-                                    }, {
-                                        xtype: "button",
+                                        disabled : true,
                                         text: `${product.Description} [${product.Code}]`,
                                         cls: "a",
                                         style: "border: none; margin: 2px 0px;",
@@ -1844,7 +1563,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                    
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(2)
@@ -1860,7 +1579,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                   
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(3)
@@ -1884,7 +1603,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                               
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(4)
@@ -1900,7 +1619,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                   
                                     content_style: tinycontent_style
                                 });
                                 setProductSessionStorage();
@@ -1943,7 +1662,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                    
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(2)
@@ -1959,7 +1678,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                    
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(3)
@@ -1975,7 +1694,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                   
                                     content_style: tinycontent_style
                                 });
                                 Ext.getCmp('tabTrans').setActiveTab(4)
@@ -1991,7 +1710,7 @@
                                         ' | bullist numlist outdent indent | ' +
 
                                         ' table | link image | removeformat  code | help',
-                                    height: tinyHeight,
+                                    
                                     content_style: tinycontent_style
                                 });
                                 setProductSessionStorage();
