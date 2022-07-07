@@ -170,6 +170,7 @@
                         const res = JSON.parse(response.responseText);
 
                         if (res != '') {
+                            console.log(res[0].Id)
                             ProdID = res[0].Id
                             getOtherLanguageDetail('fr', ProdID)
                             getOtherLanguageDetail('de', ProdID)
