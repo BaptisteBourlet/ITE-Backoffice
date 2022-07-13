@@ -58,7 +58,7 @@
         }
 
         textarea {
-            height: 300px;
+            height: 700px;
 
         }
 
@@ -93,22 +93,32 @@
 
         .x-autocontainer-outerCt {
             overflow-y: auto !important;
+			position: relative;
         }
 
         .x-boundlist-list-ct {
             overflow-y: auto !important;
+			position: relative;
         }
 
         .x-autocontainer-innerCt {
             overflow-y: auto !important;
+			position: relative;
         }
 
         .x-box-inner {
             overflow-y: auto !important;
+			position: relative;
         }
 
         .x-panel-body {
             overflow-y: auto !important;
+			position: relative;
+        }
+		
+		.x-panel-default {
+            overflow-y: auto !important;
+			position: relative;
         }
     </style>
 
@@ -162,7 +172,6 @@
                 xtype: 'my-form',
 
             });
-
 
 
             const getOtherLanguageDetail = (language, productId) => {
@@ -419,6 +428,7 @@
                                                 frame: false,
                                                 id: 'formEN',
                                                 border: false,
+                                                height: 2000,
                                                 items: [
                                                     {
                                                         xtype: "textfield",
@@ -489,6 +499,7 @@
                                                 width: '70%',
                                                 frame: false,
                                                 id: 'formFR',
+                                                height: 2000,
                                                 border: false,
                                                 items: [
 
@@ -563,6 +574,7 @@
                                                 frame: false,
                                                 border: false,
                                                 id: 'formDE',
+                                                height: 2000,
                                                 items: [
 
                                                     {
@@ -638,6 +650,7 @@
                                                 frame: false,
                                                 id: 'formES',
                                                 border: false,
+                                                height: 2000,
                                                 items: [
 
                                                     {
@@ -711,6 +724,7 @@
                                                 frame: false,
                                                 id: 'formRU',
                                                 border: false,
+                                                height: 2000,
                                                 items: [
 
                                                     {
